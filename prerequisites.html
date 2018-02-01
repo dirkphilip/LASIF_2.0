@@ -188,7 +188,7 @@ you encounter any issues, please don’t hesitate to contact us or
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="requirements">
 <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
-<p><strong>LASIF</strong> is a Python based program and has a number of dependencies which
+<p><strong>LASIF 2.0</strong> is a Python based program and has a number of dependencies which
 are listed here. It might well work with other versions but only the versions
 listed here have been tested and are officially supported. It has been
 tested on Linux and Mac OS X but should also run just fine on Windows.</p>
@@ -228,12 +228,65 @@ $ pip install geographiclib flask-cache geojson
 $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
 </pre></div>
 </div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment which will here be called &quot;lasif&quot;.</span>
+$ conda create -n lasif <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.6
+<span class="c1"># Activate the lasif environment. This will always be needed when LASIF is started.</span>
+$ <span class="nb">source</span> activate lasif
+<span class="c1"># Start installing dependencies</span>
+$ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
+$ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov
+<span class="c1"># Install more packages via pip</span>
+$ pip install geographiclib flask-cache geojson flake8 <span class="nv">toml</span><span class="o">==</span><span class="m">0</span>.9.2
+<span class="c1"># Pick a directory where you want to store pyexodus and move into it</span>
+$ git clone https://github.com/SalvusHub/pyexodus.git
+$ <span class="nb">cd</span> pyexodus
+$ pip install .
+<span class="c1"># Make sure you do not have an active installation of mpi4py from conda</span>
+$ conda uninstall mpi4py
+<span class="c1"># re-install it using pip</span>
+$ pip install mpi4py
+<span class="c1"># Install a parallel version of hdf5</span>
+$ conda install -c spectraldns h5py-parallel
+<span class="c1"># Install pyasdf</span>
+$ pip install pyasdf
+</pre></div>
+</div>
+<p>Make sure that pyasdf is working as it should by running the following command</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -c <span class="s2">&quot;import pyaasdf; pyasdf.print_sys_info()&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pyasdf version <span class="m">0</span>.3.0
+<span class="o">===============================================================================</span>
+CPython <span class="m">3</span>.6.4, compiler: GCC <span class="m">4</span>.2.1 Compatible Apple LLVM <span class="m">6</span>.1.0 <span class="o">(</span>clang-602.0.53<span class="o">)</span>
+Darwin <span class="m">16</span>.7.0 64bit
+Machine: x86_64, Processor: i386 with <span class="m">4</span> <span class="nv">cores</span>
+<span class="o">===============================================================================</span>
+HDF5 version <span class="m">1</span>.8.14, h5py version: <span class="m">2</span>.6.0
+MPI: MPICH, version: <span class="m">3</span>.2.0, mpi4py version: <span class="m">3</span>.0.0
+Parallel I/O support: True
+Problematic multiprocessing: <span class="nv">None</span>
+<span class="o">===============================================================================</span>
+Other_modules:
+        dill: <span class="m">0</span>.2.7.1
+        lxml: <span class="m">4</span>.1.1
+        numpy: <span class="m">1</span>.14.0
+        obspy: <span class="m">1</span>.1.0
+</pre></div>
+</div>
+<p>which should print something like the following lines:</p>
+<p>We now need a component of <a class="reference external" href="https://www.salvus.io">Salvus</a> salvus seismo.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Move to a directory where you want to store salvus seismo and then execute</span>
+$ git clone https://gitlab.com/Salvus/salvus_seismo
+$ <span class="nb">cd</span> salvus_seismo/py
+$ pip install -v -e .
+</pre></div>
+</div>
 </div>
 <div class="section" id="installing-lasif">
 <h3>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h3>
 <p>The actual <strong>LASIF</strong> module can then be installed with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone https://github.com/krischer/LASIF.git
-$ <span class="nb">cd</span> LASIF
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone git clone https://github.com/dirkphilip/LASIF_2.0.git
+$ <span class="nb">cd</span> LASIF_2.0
 $ pip install -v -e .
 </pre></div>
 </div>
