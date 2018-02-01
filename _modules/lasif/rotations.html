@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -43,6 +45,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -83,7 +86,10 @@
           
             
             
-                <ul>
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
@@ -103,8 +109,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -117,21 +125,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../index.html">Module code</a> &raquo;</li>
-      
+        
           <li><a href="../lasif.html">lasif</a> &raquo;</li>
-      
-    <li>lasif.rotations</li>
+        
+      <li>lasif.rotations</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -192,19 +217,19 @@
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(1, 2, 3)</span>
 <span class="sd">    &gt;&gt;&gt; vec</span>
 <span class="sd">    array([ 1.,  2.,  3.])</span>
-<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector([1, 2, 3])</span>
 <span class="sd">    &gt;&gt;&gt; vec</span>
 <span class="sd">    array([ 1.,  2.,  3.])</span>
-<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(np.array([1, 2, 3], dtype=&quot;int32&quot;))</span>
 <span class="sd">    &gt;&gt;&gt; vec</span>
 <span class="sd">    array([ 1.,  2.,  3.])</span>
-<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -286,7 +311,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the rotation matrix for the specified axis and angle.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">axis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
     <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
 
     <span class="c1"># Use c1, c2, and c3 as shortcuts for the rotation axis.</span>
@@ -572,7 +597,7 @@
 
     <span class="c1"># Rotate everything.</span>
     <span class="k">for</span> <span class="n">border</span> <span class="ow">in</span> <span class="p">[</span><span class="n">north_border</span><span class="p">,</span> <span class="n">south_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">,</span> <span class="n">west_border</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">number_of_points_per_side</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_points_per_side</span><span class="p">):</span>
             <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_lat_lon</span><span class="p">(</span>
                 <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rotation_axis</span><span class="p">,</span>
                 <span class="n">rotation_angle_in_degree</span><span class="p">)</span>
@@ -670,11 +695,14 @@
         <span class="s2">&quot;maximum_longitude&quot;</span><span class="p">:</span> <span class="n">lngs</span><span class="o">.</span><span class="n">max</span><span class="p">()}</span></div>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">doctest</span>
     <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
 </pre></div>
 
+           </div>
+           <div class="articleComments">
+            
            </div>
           </div>
           <footer>
@@ -709,13 +737,14 @@
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
