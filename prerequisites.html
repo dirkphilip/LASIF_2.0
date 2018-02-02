@@ -102,7 +102,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#running-the-tests">Running the Tests</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#building-the-documentation">Building the Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developer-information">Developer Information</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#terminology">Terminology</a></li>
 </ul>
@@ -181,9 +180,9 @@
   <div class="section" id="installation-testing-devinfo">
 <h1>Installation, Testing &amp; DevInfo<a class="headerlink" href="#installation-testing-devinfo" title="Permalink to this headline">¶</a></h1>
 <p>This page details installation instructions, how to run the tests, and some
-additional information if you want to develop new features for <strong>LASIF</strong>. If
+additional information if you want to develop new features for <strong>LASIF 2.0</strong>. If
 you encounter any issues, please don’t hesitate to contact us or
-<a class="reference external" href="https://github.com/krischer/LASIF/issues/new">open an issue on GitHub</a>.</p>
+<a class="reference external" href="https://github.com/dirkphilip/LASIF_2.0/issues/new">open an issue on GitHub</a>.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="requirements">
@@ -192,22 +191,6 @@ you encounter any issues, please don’t hesitate to contact us or
 are listed here. It might well work with other versions but only the versions
 listed here have been tested and are officially supported. It has been
 tested on Linux and Mac OS X but should also run just fine on Windows.</p>
-<ul class="simple">
-<li><code class="docutils literal"><span class="pre">obspy</span> <span class="pre">&gt;=</span> <span class="pre">1.0.1</span></code> (<a class="reference external" href="http://www.obspy.org/">www.obspy.org</a>)</li>
-<li><code class="docutils literal"><span class="pre">numpy</span> <span class="pre">&gt;=</span> <span class="pre">1.8</span></code></li>
-<li><code class="docutils literal"><span class="pre">numexpr</span></code> (newer versions are also oftentimes faster)</li>
-<li><code class="docutils literal"><span class="pre">matplotlib</span> <span class="pre">&gt;=</span> <span class="pre">1.3</span></code></li>
-<li><code class="docutils literal"><span class="pre">basemap</span> <span class="pre">&gt;=</span> <span class="pre">1.0.7</span></code></li>
-<li><code class="docutils literal"><span class="pre">wfs_input_generator</span></code> (<a class="reference external" href="http://github.com/krischer/wfs_input_generator">website</a>)</li>
-<li><code class="docutils literal"><span class="pre">geographiclib</span></code></li>
-<li><code class="docutils literal"><span class="pre">progressbar</span></code> and <code class="docutils literal"><span class="pre">colorama</span></code></li>
-<li><code class="docutils literal"><span class="pre">mpi4py</span></code> and <code class="docutils literal"><span class="pre">joblib</span></code></li>
-<li><em>For the webinterface, you additionally need:</em> <code class="docutils literal"><span class="pre">flask</span></code>, <code class="docutils literal"><span class="pre">flask-cache</span></code>,
-<em>and</em> <code class="docutils literal"><span class="pre">geojson</span></code>.</li>
-<li><em>The misfit GUI requires</em> <code class="docutils literal"><span class="pre">pyqt</span></code> <em>and</em> <code class="docutils literal"><span class="pre">pyqtgraph</span></code>.</li>
-<li><em>And for running the tests you need</em> <code class="docutils literal"><span class="pre">pytest</span></code>, <code class="docutils literal"><span class="pre">mock</span></code>, <code class="docutils literal"><span class="pre">nose</span></code>, <em>and</em>
-<code class="docutils literal"><span class="pre">flake8</span></code>.</li>
-</ul>
 <p>If you know what you are doing, just make sure these dependencies are
 available, otherwise please do yourself a favor and download the <a class="reference external" href="https://www.continuum.io/downloads">Anaconda</a> Python distribution, a free package
 containing almost all dependencies. Download it, install it, and follow the
@@ -215,24 +198,12 @@ upcoming instructions. It will install <strong>LASIF</strong> into a separate <c
 environment. This is very useful to separate the installation from the rest of
 your system. Additionally it does not require root privileges and thus can be
 installed almost everywhere.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment named &quot;lasif&quot;.</span>
-$ conda create -n lasif <span class="nv">python</span><span class="o">=</span><span class="m">2</span>.7
-<span class="c1"># Activate that environment. You will have to do this every time you start LASIF.</span>
-<span class="c1"># If you don&#39;t want to do that: put that line in your .bashrc/.bash_profile</span>
-$ <span class="nb">source</span> activate lasif
-<span class="c1"># Install most things via conda.</span>
-$ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip numexpr
-<span class="c1"># Install some missing things over pip.</span>
-$ pip install geographiclib flask-cache geojson
-<span class="c1"># Install the wfs_input_generator package.</span>
-$ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
-</pre></div>
-</div>
 <div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment which will here be called &quot;lasif&quot;.</span>
 $ conda create -n lasif <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.6
 <span class="c1"># Activate the lasif environment. This will always be needed when LASIF is started.</span>
 $ <span class="nb">source</span> activate lasif
 <span class="c1"># Start installing dependencies</span>
+$ conda config --add channels conda-forge
 $ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
 $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov
 <span class="c1"># Install more packages via pip</span>
@@ -252,7 +223,7 @@ $ pip install pyasdf
 </pre></div>
 </div>
 <p>Make sure that pyasdf is working as it should by running the following command</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -c <span class="s2">&quot;import pyaasdf; pyasdf.print_sys_info()&quot;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -c <span class="s2">&quot;import pyasdf; pyasdf.print_sys_info()&quot;</span>
 </pre></div>
 </div>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>pyasdf version <span class="m">0</span>.3.0
@@ -285,7 +256,7 @@ $ pip install -v -e .
 <div class="section" id="installing-lasif">
 <h3>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h3>
 <p>The actual <strong>LASIF</strong> module can then be installed with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone git clone https://github.com/dirkphilip/LASIF_2.0.git
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git clone https://github.com/dirkphilip/LASIF_2.0.git
 $ <span class="nb">cd</span> LASIF_2.0
 $ pip install -v -e .
 </pre></div>
@@ -295,20 +266,11 @@ installed correctly and works as intended on your machine.</p>
 </div>
 <div class="section" id="updating-lasif">
 <h3>Updating LASIF<a class="headerlink" href="#updating-lasif" title="Permalink to this headline">¶</a></h3>
-<p>To update <strong>LASIF</strong>, change into the <strong>LASIF</strong> directory and type</p>
+<p>To update <strong>LASIF 2.0</strong>, change into the <strong>LASIF 2.0</strong> directory and type</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ git pull
 $ pip install -v -e .
 </pre></div>
 </div>
-<p>Additionally you might have to update the <cite>wfs_input_generator</cite>:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pip install https://github.com/krischer/wfs_input_generator/archive/master.zi
-</pre></div>
-</div>
-<p>Please note, that updating <strong>LASIF</strong> will not update your custom, user-defined
-functions within your projects (see <a class="reference internal" href="tutorial/16_customizing_lasif.html"><span class="doc">Customizing LASIF</span></a>).  If
-you want to update those as well: delete them and execute any <strong>LASIF</strong>
-function - this will copy the latest versions of these files to your project
-directory. <strong>Make sure to save any changes you made to those functions!!</strong></p>
 </div>
 </div>
 <div class="section" id="testing">
@@ -317,25 +279,12 @@ directory. <strong>Make sure to save any changes you made to those functions!!</
 required to assure that it works as expected.</p>
 <div class="section" id="running-the-tests">
 <h3>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
-<p>To run the tests, cd into the toplevel <code class="docutils literal"><span class="pre">LASIF</span></code> directory and execute:</p>
+<p>To run the tests, cd into the toplevel <code class="docutils literal"><span class="pre">LASIF_2.0</span></code> directory and execute:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ py.test
 </pre></div>
 </div>
 <p>This will recursively find and execute all tests below the current working
-directory. The output should look akin to the following:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">=====================================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">=====================================</span>
-platform darwin -- Python <span class="m">2</span>.7.11, pytest-2.9.1, py-1.4.31, pluggy-0.3.1
-rootdir: /Users/lion/workspace/code/LASIF, inifile: pytest.ini
-collected <span class="m">195</span> items
-
-lasif/rotations.py .......
-lasif/utils.py ..
-lasif/window_selection.py .
-...
-
-<span class="o">=====================</span> <span class="m">189</span> passed, <span class="m">4</span> skipped, <span class="m">2</span> xfailed in <span class="m">160</span>.14 <span class="nv">seconds</span> <span class="o">======================</span>
-</pre></div>
-</div>
+directory.</p>
 <p>No errors should occur. <strong>If you see nothing - make sure your MPI installation
 is correct (see above)</strong>.</p>
 <p>Assuming your machine has multiple cores, the test can also be sped up
@@ -350,27 +299,11 @@ cores, use</p>
 </div>
 </div>
 </div>
-<div class="section" id="building-the-documentation">
-<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal"><span class="pre">sphinx</span></code> is used to build the documentation so it needs to be installed. The
-theme is the standalone <strong>readthedocs</strong> theme. We will use the most up-to-date
-repository version here.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ conda install sphinx sphinx_rtd_theme
-</pre></div>
-</div>
-<p>To actually build the documentation (in this case in the HTML format), run</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> doc
-$ make html
-</pre></div>
-</div>
-<p>This might take a while if run for the first time. Subsequent runs are faster.</p>
-</div>
 <div class="section" id="developer-information">
 <h2>Developer Information<a class="headerlink" href="#developer-information" title="Permalink to this headline">¶</a></h2>
-<p>The following rules should be followed when developing for <strong>LASIF</strong>:</p>
+<p>The following rules should be followed when developing for <strong>LASIF 2.0</strong>:</p>
 <ul>
-<li><p class="first"><strong>LASIF</strong> is written entirely in Python 2.7. Adding support for 3.x would
-not be a big issue if necessary.</p>
+<li><p class="first"><strong>LASIF 2.0</strong> is written entirely in Python 3.6.</p>
 </li>
 <li><p class="first"><a class="reference external" href="http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/">Document</a> the
 code.</p>
@@ -382,10 +315,10 @@ code.</p>
 <li><p class="first">Write tests where reasonable.</p>
 <blockquote>
 <div><ul class="simple">
-<li><strong>LASIF</strong> utilizes <a class="reference external" href="https://travis-ci.org/krischer/LASIF">Travis CI</a>
+<li><strong>LASIF 2.0</strong> utilizes <a class="reference external" href="https://travis-ci.org/krischer/LASIF">Travis CI</a>
 for continuous integration testing. This means that every commit will be
 automatically tested and the responsible developer will receive an email
-in case her/his commit breaks <strong>LASIF</strong>.</li>
+in case her/his commit breaks <strong>LASIF 2.0</strong>.</li>
 <li>The tests also verify the PEP8 conformance of the entire code base.</li>
 </ul>
 </div></blockquote>

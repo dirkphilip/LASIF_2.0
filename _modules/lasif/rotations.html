@@ -214,23 +214,25 @@
 <span class="sd">    Creates a three component column vector from either a list or three single</span>
 <span class="sd">    numbers. If it already is a correct vector, do nothing.</span>
 
+
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(1, 2, 3)</span>
-<span class="sd">    &gt;&gt;&gt; vec</span>
-<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    &gt;&gt;&gt; vec # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector([1, 2, 3])</span>
 <span class="sd">    &gt;&gt;&gt; vec</span>
-<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(np.array([1, 2, 3], dtype=&quot;int32&quot;))</span>
 <span class="sd">    &gt;&gt;&gt; vec</span>
-<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
@@ -414,28 +416,6 @@
     <span class="n">y</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
     <span class="n">z</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
-
-
-<span class="k">def</span> <span class="nf">_get_axis_and_angle_from_rotation_matrix</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts the axis and angle from a rotation matrix.</span>
-
-<span class="sd">    &gt;&gt;&gt; M = _get_rotation_matrix([0.26726124, 0.53452248, 0.80178373], 40)</span>
-<span class="sd">    &gt;&gt;&gt; _get_axis_and_angle_from_rotation_matrix(M)  \</span>
-<span class="sd">    # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
-<span class="sd">    (array([ 0.26726124,  0.53452248,  0.80178373]), 40.00...)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-
-    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span>
-    <span class="n">axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">axis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_rotation_and_base_transfer_matrix</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
