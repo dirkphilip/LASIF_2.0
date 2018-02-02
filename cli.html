@@ -1557,8 +1557,9 @@ ipdb.</td>
 <div class="section" id="lasif-validate-data">
 <h4><a class="toc-backref" href="#id37">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif validate_data [-h] [--ipdb] [--station_file_availability]
-                               [--raypaths] [--waveforms] [--full]
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif validate_data [-h] [--ipdb]
+                               [--data_and_station_file_availability] [--raypaths]
+                               [--full]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1584,8 +1585,8 @@ intended to detect values specified in wrong units.</li>
 </dl>
 <table border="1" class="docutils">
 <colgroup>
-<col width="60%" />
-<col width="40%" />
+<col width="66%" />
+<col width="34%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -1601,11 +1602,13 @@ upon encountering an
 exception. Requires
 ipdb.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">--station_file_availability</span></code></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--data_and_station_file_availability</span></code></td>
 <td>asserts that all
-waveform files have
+stations have
 corresponding
-station files. Very
+station files and
+all stations have
+waveforms. Very
 slow.</td>
 </tr>
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">--raypaths</span></code></td>
@@ -1614,14 +1617,7 @@ raypaths are within
 the set boundaries.
 Very slow.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">--waveforms</span></code></td>
-<td>asserts that
-waveforms for one
-event have only a
-single location and
-channel type. Fast.</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--full</span></code></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--full</span></code></td>
 <td>run all validations.</td>
 </tr>
 </tbody>
