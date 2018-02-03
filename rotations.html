@@ -235,31 +235,6 @@ quite an error source.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="lasif.rotations.get_border_latlng_list">
-<code class="descclassname">lasif.rotations.</code><code class="descname">get_border_latlng_list</code><span class="sig-paren">(</span><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>number_of_points_per_side=25</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_border_latlng_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_border_latlng_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function taking a spherical section defined by latitudinal and
-longitudal extension, rotate it around the given axis and rotation angle
-and return a list of points outlining the region. Useful for plotting.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_lat</strong> – The minimum latitude.</li>
-<li><strong>max_lat</strong> – The maximum latitude.</li>
-<li><strong>min_lng</strong> – The minimum longitude.</li>
-<li><strong>max_lng</strong> – The maximum longitude.</li>
-<li><strong>number_of_points_per_side</strong> – The number of points per side desired.</li>
-<li><strong>rotation_axis</strong> – The rotation axis. Optional.</li>
-<li><strong>rotation_angle_in_degree</strong> – The rotation angle in degrees. Optional.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="lasif.rotations.get_center_angle">
 <code class="descclassname">lasif.rotations.</code><code class="descname">get_center_angle</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_center_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_center_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angle of both angles on a sphere.</p>
@@ -294,58 +269,6 @@ and return a list of points outlining the region. Useful for plotting.</p>
 <span class="go">90.0</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.get_max_extention_of_domain">
-<code class="descclassname">lasif.rotations.</code><code class="descname">get_max_extention_of_domain</code><span class="sig-paren">(</span><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_max_extention_of_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_max_extention_of_domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function getting the maximum extends of a rotated domain.</p>
-<dl class="docutils">
-<dt>Returns a dictionary with the following keys:</dt>
-<dd><ul class="first last simple">
-<li>minimum_latitude</li>
-<li>maximum_latitude</li>
-<li>minimum_longitude</li>
-<li>maximum_longitude</li>
-</ul>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_lat</strong> – The minimum latitude.</li>
-<li><strong>max_lat</strong> – The maximum latitude.</li>
-<li><strong>min_lng</strong> – The minimum longitude.</li>
-<li><strong>max_lng</strong> – The maximum longitude.</li>
-<li><strong>rotation_axis</strong> – The rotation axis in degree.</li>
-<li><strong>rotation_angle_in_degree</strong> – The rotation angle in degree.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.get_spherical_unit_vectors">
-<code class="descclassname">lasif.rotations.</code><code class="descname">get_spherical_unit_vectors</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_spherical_unit_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_spherical_unit_vectors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the spherical unit vectors e_theta, e_phi and e_r for a point on
-the sphere determined by latitude and longitude which are defined as they
-are for earth.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> – Latitude in degree</li>
-<li><strong>lon</strong> – Longitude in degree</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
@@ -387,101 +310,6 @@ quite an error source.</p>
 <li><strong>lat</strong> – The latitude.</li>
 <li><strong>lon</strong> – The longitude.</li>
 <li><strong>r</strong> – The radius.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.rotate_data">
-<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_data</code><span class="sig-paren">(</span><em>north_data</em>, <em>east_data</em>, <em>vertical_data</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotates three component data recorded at lat/lon a certain amount of
-degrees around a given rotation axis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>north_data</strong> – The north component of the data.</li>
-<li><strong>east_data</strong> – The east component of the data.</li>
-<li><strong>vertical_data</strong> – The vertical component of the data. Vertical is
-defined to be up, e.g. radially outwards.</li>
-<li><strong>lat</strong> – Latitude of the recording point.</li>
-<li><strong>lon</strong> – Longitude of the recording point.</li>
-<li><strong>rotation_axis</strong> – Rotation axis given as [x, y, z].</li>
-<li><strong>angle</strong> – Rotation angle in degree.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.rotate_lat_lon">
-<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_lat_lon</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_lat_lon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_lat_lon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a point specified by latitude and longitude and return a new pair of
-latitude longitude assuming the earth has been rotated around rotation_axis
-by angle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> – Latitude of original point</li>
-<li><strong>lon</strong> – Longitude of original point</li>
-<li><strong>rotation_axis</strong> – Rotation axis specified as [x, y, z].</li>
-<li><strong>angle</strong> – Rotation angle in degree.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.rotate_moment_tensor">
-<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_moment_tensor</code><span class="sig-paren">(</span><em>Mrr</em>, <em>Mtt</em>, <em>Mpp</em>, <em>Mrt</em>, <em>Mrp</em>, <em>Mtp</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_moment_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_moment_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotates a moment tensor, given in spherical coordinates, located at lat/lon
-around the rotation axis and simultaneously performs a base change from the
-spherical unit vectors at lat/lon to the unit vectors at the new
-coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>Mrr</strong> – A moment tensor component.</li>
-<li><strong>Mtt</strong> – A moment tensor component.</li>
-<li><strong>Mpp</strong> – A moment tensor component.</li>
-<li><strong>Mrt</strong> – A moment tensor component.</li>
-<li><strong>Mrp</strong> – A moment tensor component.</li>
-<li><strong>Mtp</strong> – A moment tensor component.</li>
-<li><strong>lat</strong> – Latitude of the recording point.</li>
-<li><strong>lon</strong> – Longitude of the recording point.</li>
-<li><strong>rotation_axis</strong> – Rotation axis given as [x, y, z].</li>
-<li><strong>angle</strong> – Rotation angle in degree.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.rotations.rotate_vector">
-<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_vector</code><span class="sig-paren">(</span><em>vector</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a vector and rotates it around a rotation axis with a given angle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vector</strong> – The vector to be rotated given as [x, y, z].</li>
-<li><strong>rotation_axis</strong> – The axis to be rotating around given as [x, y, z].</li>
-<li><strong>angle</strong> – The rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
