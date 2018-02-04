@@ -1361,61 +1361,26 @@ ipdb.</td>
 <div class="section" id="lasif-plot-window-statistics">
 <h4><a class="toc-backref" href="#id31">lasif plot_window_statistics</a><a class="headerlink" href="#lasif-plot-window-statistics" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif plot_window_statistics [-h] [--ipdb] iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif plot_window_statistics [-h] [--ipdb]
+                                        window_set_name [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Plot the selected windows.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="47%" />
-<col width="53%" />
+<col width="30%" />
+<col width="70%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
-<td>name of the iteration</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">window_set_name</span></code></td>
+<td>name of the window set</td>
 </tr>
-<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
-<td>show this help
-message and exit</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
-<td>If true, a debugger
-will be launched
-upon encountering an
-exception. Requires
-ipdb.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="lasif-plot-windows">
-<h4><a class="toc-backref" href="#id32">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif plot_windows [-h] [--ipdb] [--combine]
-                              [--distance_bins DISTANCE_BINS]
-                              iteration_name event_name
-</pre></div>
-</div>
-</div></blockquote>
-<p>Plot the selected windows.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="48%" />
-<col width="52%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
-<td>name of the iteration</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
-<td>name of the event</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">events</span></code></td>
+<td>One or more events. If none given, all will be
+done.</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -1430,12 +1395,46 @@ upon encountering an
 exception. Requires
 ipdb.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--combine</span></code></td>
-<td>Create a combined
-plot for all windows
-of that event.</td>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-windows">
+<h4><a class="toc-backref" href="#id32">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif plot_windows [-h] [--ipdb] [--distance_bins DISTANCE_BINS]
+                              event_name window_set_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot the selected windows.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">--distance_bins</span></code></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">window_set_name</span></code></td>
+<td>name of the window set</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--distance_bins</span></code></td>
 <td>The number of bins
 on the distance axis
 for the combined
