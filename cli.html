@@ -855,13 +855,19 @@ ipdb.</td>
 <h4><a class="toc-backref" href="#id16">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif compare_misfits [-h] [--ipdb] from_iteration to_iteration
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif compare_misfits [-h] [--ipdb] [--print_events PRINT_EVENTS]
+                                 from_iteration to_iteration
 </pre></div>
 </div>
 </div></blockquote>
-<p>Compares the misfit between two iterations. Will only consider windows
-that are identical in both iterations as the comparision is otherwise
-meaningless.</p>
+<p>Compares the total misfit between two iterations. Total misfit
+is used regardless of the similarity of the picked windows
+from each iteration. This might skew the results but should
+give a good idea unless the windows change excessively between
+iterations.
+If windows are weighted in the calculation of the adjoint
+sources. That should translate into the calculated misfit
+value.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="48%" />
@@ -888,6 +894,10 @@ will be launched
 upon encountering an
 exception. Requires
 ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--print_events</span></code></td>
+<td>compare misfits for
+each event</td>
 </tr>
 </tbody>
 </table>
