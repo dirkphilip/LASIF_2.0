@@ -93,7 +93,6 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#further-information">Further Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#further-notes">Further Notes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#quakeml-files">QuakeML files</a></li>
@@ -173,72 +172,76 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <a class="reference internal image-reference" href="_images/lasif_logo.svg"><div align="center" class="align-center"><img alt="_images/lasif_logo.svg" src="_images/lasif_logo.svg" width="80%" /></div>
 </a>
-<p>LASIF (<strong>L</strong>arg-scale <strong>S</strong>eismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
+<p><strong>DISCLAIMER:</strong> This documentation is still being updated. It is based on the
+documentation of the previous version of LASIF and some parts might still
+only apply to the previous version right now. We are working on updating
+the documentation and once we feel confident that it is ready we will
+remove this disclaimer.</p>
+<p>LASIF 2.0 (<strong>L</strong>arg-scale <strong>S</strong>eismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
 <strong>data-driven workflow tool</strong> to perform full waveform inversions.  It is
 opinionated and strict, meaning that it enforces a certain data and directory
 structure. The advantage is that it only requires a very minimal amount of
 configuration and maintenance. It attempts to gather all necessary information
 from the data itself so there is no need to keep index or content files.</p>
-<p>All parts of LASIF also work completely on their own; see the class and
-function documentation at the end of this document. Furthermore LASIF offers a
+<p>All parts of LASIF 2.0 also work completely on their own; see the class and
+function documentation at the end of this document. Furthermore LASIF 2.0 offers a
 project based inversion workflow management system which is introduced in the
 following tutorial.</p>
-<p>LASIF works with the notion of so called inversion projects. A project is
+<p>LASIF 2.0 works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
-possible and useful, LASIF will use XML files to store information. The
-reasoning behind this is twofold. It is easily machine and human readable. It
-furthermore also serves as a preparatory step towards a fully database driven
-full waveform inversion workflow as all necessary information is already stored
-in an easily indexable data format.</p>
-<p>LASIF is data-driven, meaning that it attempts to gather all necessary
+possible and useful, LASIF 2.0 will use hdf5 files and SQL databases to store
+information. The reasoning behind this is twofold. The hdf5 files are of the
+ASDF (Adaptable Seismic Data Format) which make it possible to reduce the amount
+of files generally needed to store information and now all the information for
+each event and each iteration can be stored in one file which helps with file
+management. The SQL databases work very fast and are optimal for querying certain
+parameters.</p>
+<p>LASIF 2.0 is data-driven, meaning that it attempts to gather all necessary
 information from the available data. The big advantage of this approach is that
 the users can use any tool they want to access and work with the data as long
 as they adhere to the directory structure imposed by LASIF. At the start of
 every LASIF operation, the tool checks what data is available and uses it. To
 achieve reasonable performance it employs a transparent caching scheme able to
-quickly any changes the user makes to the data. Also important to keep in mind
-is that <strong>LASIF will never delete any data</strong>.</p>
-<p>The aim of the <strong>LASIF</strong> project is to facilitate the execution of mid-to
+quickly register any changes the user makes to the data. Also important to keep
+in mind is that <strong>LASIF 2.0 will never delete any data</strong>.</p>
+<p>The aim of the <strong>LASIF 2.0</strong> project is to facilitate the execution of mid-to
 large-scale full seismic waveform inversion using adjoint techniques. A
-simplified representation of the general workflow is presented here.</p>
+simplified representation of the general workflow is presented here.
+Right now these images are mostly related to LASIF 1.0 and don’t necessarily
+apply to LASIF 2.0. They will be updated soon.</p>
 <a class="reference internal image-reference" href="_images/simplified_adjoint_workflow.png"><img alt="_images/simplified_adjoint_workflow.png" class="align-center" src="_images/simplified_adjoint_workflow.png" style="width: 80%;" /></a>
 <p>One of the biggest problems is the meaningful organization of the different
 types of data which are mostly in non-trivial relations to each other.</p>
 <a class="reference internal image-reference" href="_images/LASIF_data_zoo.svg"><div align="center" class="align-center"><img alt="_images/LASIF_data_zoo.svg" src="_images/LASIF_data_zoo.svg" width="80%" /></div>
 </a>
-<p><strong>LASIF</strong> attempts to tackle these issues by employing a number of modules
+<p><strong>LASIF 2.0</strong> attempts to tackle these issues by employing a number of modules
 tied together by a common project.</p>
 <a class="reference internal image-reference" href="_images/LASIF_Overview.svg"><div align="center" class="align-center"><img alt="_images/LASIF_Overview.svg" src="_images/LASIF_Overview.svg" width="80%" /></div>
 </a>
-<div class="section" id="further-information">
-<h2>Further Information<a class="headerlink" href="#further-information" title="Permalink to this headline">¶</a></h2>
-<p>The documentation is currently being restructured. For now additional
-information can be found here:</p>
-<ul class="simple">
-<li><a class="reference internal" href="how_lasif_finds_coordinates.html"><span class="doc">How LASIF Finds Coordinates</span></a></li>
-</ul>
-</div>
 <div class="section" id="supported-data-formats">
 <h2>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h2>
 <p>This is a short list of supported data formats and other software.</p>
 <ul class="simple">
 <li><strong>Waveform Data:</strong> All file formats supported by ObsPy.</li>
 <li><strong>Synthetics:</strong> All file formats supported by ObsPy and the output files of
-SES3D 4.1.</li>
+SALVUS</li>
 <li><strong>Event Metadata:</strong> QuakeML 1.2</li>
 <li><strong>Station Metadata:</strong> dataless SEED, RESP and FDSN StationXML. We strongly
 recommend to use StationXML!</li>
-<li><strong>Earth Models:</strong> Currently the raw SES3D model format is supported. Other
-solvers can still be used but LASIF will not be able to plot kernels and
-velocity models.</li>
-<li><strong>Waveform Solvers:</strong> SES3D 4.1, SPECFEM3D GLOBE</li>
+<li>All these dataforms are put together and structured using pyasdf</li>
+<li><dl class="first docutils">
+<dt><strong>Mesh Files:</strong> Exodus mesh files. Recommended is the pymesher that works</dt>
+<dd>with SALVUS.</dd>
+</dl>
+</li>
+<li><strong>Waveform Solvers:</strong> SALVUS</li>
 </ul>
 </div>
 <div class="section" id="further-notes">
 <h2>Further Notes<a class="headerlink" href="#further-notes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="quakeml-files">
 <h3>QuakeML files<a class="headerlink" href="#quakeml-files" title="Permalink to this headline">¶</a></h3>
-<p>LASIF is designed to work with valid QuakeML 1.2 event files. Please assure
+<p>LASIF 2.0 is designed to work with valid QuakeML 1.2 event files. Please assure
 that the files you use actually are just that. If possible try to only use
 QuakeML files with one origin and one focal mechanism, otherwise LASIF will
 choose the preferred origin and/or focal mechanism (or the first of each, if no
@@ -247,6 +250,9 @@ will be the reference time for each event!</strong> Times specified in SAC files
 be ignored.</p>
 <p>This also means that the raw data files have to have the correct time
 information.</p>
+<p>Right now LASIF 2.0 works best if it is used to collect the events and the
+relevant data. A tutorial on how to use your own data to produce a dataset
+that LASIF 2.0 can work with will be on the website later.</p>
 </div>
 </div>
 </div>
