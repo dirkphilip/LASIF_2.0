@@ -585,6 +585,7 @@ contained events.</td>
 <h4><a class="toc-backref" href="#id9">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif generate_input_files [-h] [--ipdb]
+                                      [--weight_set_name WEIGHT_SET_NAME]
                                       iteration_name [events [events ...]]
                                       simulation_type
 </pre></div>
@@ -593,8 +594,8 @@ contained events.</td>
 <p>Generate input files for the forward simulation of the waveform solver.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="30%" />
-<col width="70%" />
+<col width="32%" />
+<col width="68%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -621,6 +622,12 @@ will be launched
 upon encountering an
 exception. Requires
 ipdb.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--weight_set_name</span></code></td>
+<td>Set of station and
+event weights,used
+to scale the adjoint
+sources</td>
 </tr>
 </tbody>
 </table>
