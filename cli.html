@@ -450,6 +450,7 @@ which to add events</td>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif download_data [-h] [--ipdb]
                                [--providers PROVIDERS [PROVIDERS ...]]
+                               [--downsample_data]
                                [event_name [event_name ...]]
 </pre></div>
 </div>
@@ -458,8 +459,8 @@ which to add events</td>
 Can be used to download data for all events in LASIF project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="29%" />
-<col width="71%" />
+<col width="32%" />
+<col width="68%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -487,6 +488,14 @@ ipdb.</td>
 query. Will use all
 known ones if not
 set.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--downsample_data</span></code></td>
+<td>If the dataset could
+get too big this can
+help with reducing
+the size. Be very
+careful while using
+this one</td>
 </tr>
 </tbody>
 </table>
@@ -863,7 +872,7 @@ ipdb.</td>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif compare_misfits [-h] [--ipdb] [--weight_set_name WEIGHT_SET_NAME]
-                                 [--print_events PRINT_EVENTS]
+                                 [--print_events]
                                  from_iteration to_iteration
 </pre></div>
 </div>
