@@ -690,7 +690,8 @@ ipdb.</td>
 <h4><a class="toc-backref" href="#id11">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif select_windows [-h] [--ipdb] iteration event_name window_set_name
+<div><div class="highlight-none"><div class="highlight"><pre><span></span>usage: lasif select_windows [-h] [--ipdb]
+                                iteration window_set_name [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
@@ -700,8 +701,8 @@ becomes the limiting factor. It also works without MPI but then only one
 core actually does any work.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="47%" />
-<col width="53%" />
+<col width="30%" />
+<col width="70%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -709,11 +710,12 @@ core actually does any work.</p>
 <tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
-<td>name of the event</td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal"><span class="pre">window_set_name</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">window_set_name</span></code></td>
 <td>name of the window_set</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">events</span></code></td>
+<td>One or more events. If none given, all will be
+done.</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
