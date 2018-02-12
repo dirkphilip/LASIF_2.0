@@ -190,7 +190,7 @@
 of files and it will thus be impossible to validate the data by hand. <strong>LASIF</strong>
 therefore contains a number of functions attempting to check the data of a
 project. All of these can be called with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif validate_data
 </pre></div>
 </div>
 <p>Please make sure no errors appear – otherwise <strong>LASIF</strong> cannot guarantee to work
@@ -199,11 +199,11 @@ problems arise.</p>
 <p>This command will output a possibly very large report. All problems
 indicated in it should be solved to ensure <strong>LASIF</strong> can operate correctly. The
 best strategy to it is to start at the very beginning of the file. Often,
-some errors are due to others and the <code class="docutils literal"><span class="pre">validate_data</span></code> command tries to be smart
+some errors are due to others and the <code class="docutils literal notranslate"><span class="pre">validate_data</span></code> command tries to be smart
 and checks for simple errors first. By default, the command will launch only a
 simplified validation function as some tests are rather slow. To get a full
 validation going use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data --full
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif validate_data --full
 
 Validating <span class="m">2</span> event files ...
     Validating against QuakeML <span class="m">1</span>.2 schema .. <span class="o">[</span>OK<span class="o">]</span>

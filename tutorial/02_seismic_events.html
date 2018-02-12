@@ -199,28 +199,28 @@ this very point.</p>
 <p>Once the domain has been adjusted to your needs, you need to tell <strong>LASIF</strong>
 which events you want to use for the inversion. This works by simply placing a
 valid QuakeML 1.2 file at the correct location.</p>
-<p>All events have to be stored in the <code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder of the project. They
+<p>All events have to be stored in the <code class="docutils literal notranslate"><span class="pre">EVENTS</span></code> subfolder of the project. They
 have to be QuakeML 1.2 files with full moment tensor information.</p>
 <p>LASIF provides some convenience methods for this purpose. One can make use of the
 <a class="reference external" href="http://www.iris.edu/spud/momenttensor">IRIS SPUD service</a> to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
-The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
+The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
 url and store an XML file in the correct folder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
 $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 </pre></div>
 </div>
 <p>These commands will download two event files and store them in the
-<code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ls EVENTS
+<code class="docutils literal notranslate"><span class="pre">EVENTS</span></code> subfolder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ls EVENTS
 
 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 </pre></div>
 </div>
 <p>A more convenient way to see which events are currently defined in the
-project is the <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">list_events</span></code> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_events
+project is the <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">list_events</span></code> command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_events
 
 <span class="m">2</span> events in project:
 +------------------------------------------------------------+-----------------------------+
@@ -239,16 +239,16 @@ additional information for that event will be related to it via the event
 filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.</p>
-<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">plot_events</span></code> command will show a map with all events currently
+<p>The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">plot_events</span></code> command will show a map with all events currently
 part of the project. With the same command, you can get histograms of depth
-distribution and origin time distribution by appending <code class="docutils literal"><span class="pre">--type</span> <span class="pre">depth</span></code> or
-<code class="docutils literal"><span class="pre">--type</span> <span class="pre">time</span></code>, respectively.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_events
+distribution and origin time distribution by appending <code class="docutils literal notranslate"><span class="pre">--type</span> <span class="pre">depth</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--type</span> <span class="pre">time</span></code>, respectively.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_events
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you want more information
+<p>The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you want more information
 about a certain event:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 Earthquake with <span class="m">4</span>.9 Mwc at NORTHERN ITALY
     Latitude: <span class="m">44</span>.870, Longitude: <span class="m">8</span>.480, Depth: <span class="m">15</span>.0 km
@@ -265,13 +265,13 @@ with it. We will fix this in the next section.</p>
 <h2>3.1. Automatic Event Selection<a class="headerlink" href="#automatic-event-selection" title="Permalink to this headline">¶</a></h2>
 <p>Selecting events becomes tedious when selecting a larger number of events. Thus
 <strong>LASIF</strong> comes with an automatic routine to select events from the GCMT
-catalog, the <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_gcmt_events</span></code> command. Arguments are number of events
+catalog, the <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">add_gcmt_events</span></code> command. Arguments are number of events
 to select, minimum magnitude, maximum magnitude, and the minimum distance
 between two events in kilometers. See its help method for more details.</p>
 <p>It will select events in an optimally distributed fashion by successively
 adding events that have the largest distance to the next closest station,
 approximating a Poisson disc distribution.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> <span class="m">6</span>.5 <span class="m">10</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> <span class="m">6</span>.5 <span class="m">10</span>
 
 LASIF currently contains GCMT data from <span class="m">2005</span> to <span class="m">2016</span>/2.
 ...

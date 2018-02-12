@@ -197,13 +197,13 @@ this very point.</p>
 <div class="section" id="waveform-data">
 <h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
 <p>Every inversion needs real data to be able to quantify misfit. The waveform
-data for all events are stored in the <code class="docutils literal"><span class="pre">DATA</span></code> subfolder. The data for each
-single event will be stored in a subfolder of the <code class="docutils literal"><span class="pre">DATA</span></code> folder with the
+data for all events are stored in the <code class="docutils literal notranslate"><span class="pre">DATA</span></code> subfolder. The data for each
+single event will be stored in a subfolder of the <code class="docutils literal notranslate"><span class="pre">DATA</span></code> folder with the
 <strong>same name as the QuakeML file minus the .xml</strong>.</p>
 <p>These folders are automatically created and updated each time a <strong>LASIF</strong>
 command is executed. If you followed the tutorial, your directory structure
 should resemble the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>Tutorial
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Tutorial
 ├── ADJOINT_SOURCES_AND_WINDOWS
 │   ├── ADJOINT_SOURCES
 │   └── WINDOWS
@@ -239,18 +239,18 @@ should resemble the following:</p>
 └── config.xml
 </pre></div>
 </div>
-<p>All data in the <code class="docutils literal"><span class="pre">DATA</span></code> subfolder has to be processed or unprocessed actual
+<p>All data in the <code class="docutils literal notranslate"><span class="pre">DATA</span></code> subfolder has to be processed or unprocessed actual
 data. The data is further structured by assigning a tag to every data set. A
-tag is assigned by simply placing a folder in <code class="docutils literal"><span class="pre">ROOT/DATA/EVENT_NAME</span></code> and
-putting all data in there. The special tag <code class="docutils literal"><span class="pre">raw</span></code> is reserved for the raw
+tag is assigned by simply placing a folder in <code class="docutils literal notranslate"><span class="pre">ROOT/DATA/EVENT_NAME</span></code> and
+putting all data in there. The special tag <code class="docutils literal notranslate"><span class="pre">raw</span></code> is reserved for the raw
 waveforms straight from the datacenters or some other source. Other tags should
 describe the filtering and processing applied to the data (LASIF’s built-in
 processing capabilities actually enforce certain tag names - this will be
 covered in more detail later on). The same is true for synthetic waveform data,
-except that in that case, the data resides in the <code class="docutils literal"><span class="pre">SYNTHETICS</span></code> folder and
+except that in that case, the data resides in the <code class="docutils literal notranslate"><span class="pre">SYNTHETICS</span></code> folder and
 the tags have to coincide with the iteration names. More on this later on.</p>
 <p>After a while, the structure might look like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>Tutorial
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Tutorial
 |-- DATA
 │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
         |-- raw
@@ -276,8 +276,8 @@ centers.</p>
 <h2>5.1. Tutorial Data<a class="headerlink" href="#tutorial-data" title="Permalink to this headline">¶</a></h2>
 <p>Download the data for the tutorial
 <a class="reference external" href="https://raw.githubusercontent.com/wiki/krischer/LASIF/data/data.tar.bz2">here</a>
-and place the contents in the <code class="docutils literal"><span class="pre">DATA</span></code> folder of the project. The <code class="docutils literal"><span class="pre">raw</span></code>
-subfolder should already be clear to you, the <code class="docutils literal"><span class="pre">preprocessed_*</span></code> folders will
+and place the contents in the <code class="docutils literal notranslate"><span class="pre">DATA</span></code> folder of the project. The <code class="docutils literal notranslate"><span class="pre">raw</span></code>
+subfolder should already be clear to you, the <code class="docutils literal notranslate"><span class="pre">preprocessed_*</span></code> folders will
 be explained in the course of this tutorial.</p>
 </div>
 </div>

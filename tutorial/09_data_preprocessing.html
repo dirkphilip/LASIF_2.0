@@ -205,21 +205,21 @@ seismograms. It serves several purposes:</p>
 <li>Ensure a similar spectral bandwidth between observed and synthetic data to
 enable a meaningful comparison.</li>
 <li>Removing the instrument response and converting the data to the same units
-used for the synthetics (usually <code class="docutils literal"><span class="pre">m/s</span></code>).</li>
+used for the synthetics (usually <code class="docutils literal notranslate"><span class="pre">m/s</span></code>).</li>
 <li>Removal of any linear trends and static offset.</li>
 <li>Interpolations to sample observed and synthetic data at exactly the same
 points in time.</li>
 </ul>
 <p>The goal of the preprocessing within <strong>LASIF</strong> is to create data that is directly
 comparable to simulated data without any more processing.</p>
-<p>While the raw unprocessed data are stored in a folder <code class="docutils literal"><span class="pre">{{EVENT}}/raw</span></code>, the
+<p>While the raw unprocessed data are stored in a folder <code class="docutils literal notranslate"><span class="pre">{{EVENT}}/raw</span></code>, the
 preprocessed data will be stored in a separate directory within each event,
 identified via the name (values are valid for the tutorial):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">preprocessed_hp_0</span><span class="o">.</span><span class="mi">01000</span><span class="n">_lp_0</span><span class="o">.</span><span class="mi">02500</span><span class="n">_npts_2000_dt_0</span><span class="o">.</span><span class="mi">300000</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">preprocessed_hp_0</span><span class="o">.</span><span class="mi">01000</span><span class="n">_lp_0</span><span class="o">.</span><span class="mi">02500</span><span class="n">_npts_2000_dt_0</span><span class="o">.</span><span class="mi">300000</span>
 </pre></div>
 </div>
 <p>Or in Python terms:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
 <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
 <span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span>
@@ -236,12 +236,12 @@ performed waveform inversion) please contact the <strong>LASIF</strong> develope
 option is probably to make use of <strong>LASIF</strong>’s built-in preprocessing. Using it
 is trivial: just launch the <strong>preprocess_data</strong> command together with the
 iteration name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif preprocess_data <span class="m">1</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif preprocess_data <span class="m">1</span>
 </pre></div>
 </div>
-<p>or (this is faster as <code class="docutils literal"><span class="pre">-n</span></code> determines the number of processors it will run
+<p>or (this is faster as <code class="docutils literal notranslate"><span class="pre">-n</span></code> determines the number of processors it will run
 on):</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">4</span> lasif preprocess_data <span class="m">1</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">4</span> lasif preprocess_data <span class="m">1</span>
 </pre></div>
 </div>
 <p>This will start a fully parallelized preprocessing run for all data required

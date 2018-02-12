@@ -201,9 +201,9 @@ Create a new iteration or update from the previous one. In any case,
 you are responsible for the name of the iteration.</p>
 <div class="section" id="create-a-new-iteration-from-scratch">
 <h2>16.1. Create a new iteration from scratch<a class="headerlink" href="#create-a-new-iteration-from-scratch" title="Permalink to this headline">¶</a></h2>
-<p>Here we will create an iteration <code class="docutils literal"><span class="pre">2</span></code> for the tutorial with the same settings
-as iteration <code class="docutils literal"><span class="pre">1</span></code>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">2</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
+<p>Here we will create an iteration <code class="docutils literal notranslate"><span class="pre">2</span></code> for the tutorial with the same settings
+as iteration <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">2</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
 </pre></div>
 </div>
 <p>Using this command will create a new iteration with all the data currently in
@@ -217,27 +217,27 @@ frequency range for the next iteration.</p>
 this case, the solver and preprocessing settings will remain the same,
 as will the used data. Any data not used for the previous iteration will
 also not be used for this iteration.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> <span class="m">2</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> <span class="m">2</span>
 </pre></div>
 </div>
-<p>This commando takes an existing iteration <code class="docutils literal"><span class="pre">1</span></code> and uses it as a template
-for iteration <code class="docutils literal"><span class="pre">2</span></code>.</p>
+<p>This commando takes an existing iteration <code class="docutils literal notranslate"><span class="pre">1</span></code> and uses it as a template
+for iteration <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
 </div>
 <div class="section" id="migrating-the-misfit-windows">
 <h2>16.3. Migrating the misfit windows<a class="headerlink" href="#migrating-the-misfit-windows" title="Permalink to this headline">¶</a></h2>
 <p>Once the windows for the misfit calculation have been determined for an
 iteration they can usually be used for a couple of iterations before they have
 to be determined again. The following command will take all windows defined
-in iteration <code class="docutils literal"><span class="pre">1</span></code> and transfer them to iteration <code class="docutils literal"><span class="pre">2</span></code>. The synthetics for
-iteration <code class="docutils literal"><span class="pre">2</span></code> already need to be available. Depending on the size of the
+in iteration <code class="docutils literal notranslate"><span class="pre">1</span></code> and transfer them to iteration <code class="docutils literal notranslate"><span class="pre">2</span></code>. The synthetics for
+iteration <code class="docutils literal notranslate"><span class="pre">2</span></code> already need to be available. Depending on the size of the
 iteration, this might take a while as it also calculates the adjoint sources
 for each window.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif migrate_windows <span class="m">1</span> <span class="m">2</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif migrate_windows <span class="m">1</span> <span class="m">2</span>
 </pre></div>
 </div>
 <p>Please keep in mind that this command will not create windows for data not
 present in the first iteration.</p>
-<p>The <code class="docutils literal"><span class="pre">finalize_adjoint_sources</span></code> command can then be used generate the
+<p>The <code class="docutils literal notranslate"><span class="pre">finalize_adjoint_sources</span></code> command can then be used generate the
 adjoint sources in a format suitable for SES3D to finish the iteration.</p>
 </div>
 </div>

@@ -214,11 +214,11 @@ distribute weights. These weights all contribute to the final adjoint source.
 The inversion scheme requires one adjoint source per iteration, event, station,
 and component.</p>
 <p>In each iteration’s XML file you can specify the weight for each event, denoted
-as <span class="math">\(w_{event}\)</span> and within each event, the weight per station
-<span class="math">\(w_{station}\)</span>. Both weights are allowed to range between
+as <span class="math notranslate">\(w_{event}\)</span> and within each event, the weight per station
+<span class="math notranslate">\(w_{station}\)</span>. Both weights are allowed to range between
 0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
 event and a weight of 1.0 is the maximum weight.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
 <span class="nt">&lt;iteration&gt;</span>
   <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
   ...
@@ -243,18 +243,18 @@ event and a weight of 1.0 is the maximum weight.</p>
 which the misfit and adjoint source will be calculated. Each window has a
 separate weight, with the only limitation being that the weight has to be
 positive. These weights can be edited after the windows have been selected.</p>
-<p>Assuming <span class="math">\(N\)</span> windows in a given component, the corresponding
-adjoint sources will be called <span class="math">\(adj\_source_{1..N}\)</span> while their
-weights are <span class="math">\(w_{1..N}\)</span>. The final adjoint source for every component
+<p>Assuming <span class="math notranslate">\(N\)</span> windows in a given component, the corresponding
+adjoint sources will be called <span class="math notranslate">\(adj\_source_{1..N}\)</span> while their
+weights are <span class="math notranslate">\(w_{1..N}\)</span>. The final adjoint source for every component
 will be calculated according to the following formula:</p>
-<div class="math">
+<div class="math notranslate">
 \[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
 </div>
 <div class="section" id="misfit-gui">
 <h2>14.2. Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h2>
 <p>LASIF comes with a graphical utility called the Misfit GUI, that helps to pick
 correct windows. To launch it, simply type</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui
 </pre></div>
 </div>
 <p>This will open a window that looks like the following:</p>
@@ -270,31 +270,31 @@ station. <strong>Autoselect</strong> will run the automatic window selection alg
 the currently selected station.</p>
 <p>To actually choose a window click twice - once for the start and once for the
 end of a window. It will be saved and the adjoint source will be calculated.</p>
-<p>Double clicking on an already existing window will delete it, <code class="docutils literal"><span class="pre">Alt</span></code> +
+<p>Double clicking on an already existing window will delete it, <code class="docutils literal notranslate"><span class="pre">Alt</span></code> +
 clicking will show the time frequency phase misfit as well as the calculated
 adjoint source.</p>
 <p>The windows are saved in the window XML files (saved on a
 per-station basis in the
-<code class="docutils literal"><span class="pre">ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/</span></code> folder), and currently, this is the only place where the window
+<code class="docutils literal notranslate"><span class="pre">ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/</span></code> folder), and currently, this is the only place where the window
 weights can be adjusted.</p>
 </div>
 <div class="section" id="window-selection">
 <h2>14.3. Window Selection<a class="headerlink" href="#window-selection" title="Permalink to this headline">¶</a></h2>
 <p>As an alternative to going through each event-station pair, you can tell LASIF
 to select the windows automatically using</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_windows <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif select_windows <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
 </pre></div>
 </div>
 <p>for a single event in iteration 1, or</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_all_windows
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif select_all_windows
 </pre></div>
 </div>
-<p>for all events in the iteration (the latter can also be run with <code class="docutils literal"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">X</span>
+<p>for all events in the iteration (the latter can also be run with <code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">X</span>
 <span class="pre">...</span></code>. <strong>Use these tools with caution and check their result!</strong></p>
 <p>LASIF comes with a number of utilities to judge the quality of selected
 windows. One of these plots a summary of the temporal and epicentral distance
 distribution of selected events:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_windows --combine <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_windows --combine <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/combined_selected_windows.png"><img alt="../_images/combined_selected_windows.png" class="align-center" src="../_images/combined_selected_windows.png" style="width: 90%;" /></a>
@@ -303,9 +303,9 @@ distribution of selected events:</p>
 <h2>14.4. Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
 <p>During window selection, the adjoint source for each chosen window will be
 stored separately. To combine them, apply the weighting scheme and convert them
-to a format, that SES3D can actually use, run the <code class="docutils literal"><span class="pre">finalize_adjoint_sources</span></code>
+to a format, that SES3D can actually use, run the <code class="docutils literal notranslate"><span class="pre">finalize_adjoint_sources</span></code>
 command with the iteration name and the event name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 $ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20
 </pre></div>
 </div>
@@ -313,7 +313,7 @@ $ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHWESTER
 simulations.</p>
 <p>If you pick any more windows or change them in any way, you need to run the
 command again. The result of that command is a list of adjoint sources directly
-usable by SES3D in the <code class="docutils literal"><span class="pre">OUTPUT</span></code> folder.</p>
+usable by SES3D in the <code class="docutils literal notranslate"><span class="pre">OUTPUT</span></code> folder.</p>
 <p>Copy these to the correct folder inside your SES3D installation, make sure to
 tell SES3D to perform an adjoint reverse simulation and launch it. Please refer
 to the SES3D manual for the necessary details.</p>
@@ -321,30 +321,30 @@ to the SES3D manual for the necessary details.</p>
 <div class="section" id="gradient-visualisation">
 <h2>14.5. Gradient visualisation<a class="headerlink" href="#gradient-visualisation" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to view the raw gradients from a SES3D simulation.  To do this,
-simply put them, along with the <code class="docutils literal"><span class="pre">boxfile</span></code> that is used in SES3D, in the a
+simply put them, along with the <code class="docutils literal notranslate"><span class="pre">boxfile</span></code> that is used in SES3D, in the a
 folder according to the following scheme:</p>
-<p><code class="docutils literal"><span class="pre">KERNELS/ITERATION_{{ITERATION_NAME}}/{{EVENT_NAME}}</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">KERNELS/ITERATION_{{ITERATION_NAME}}/{{EVENT_NAME}}</span></code></p>
 <p>For the example in the tutorial this results in the two folders:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14</span></code></li>
-<li><code class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2</span></code></li>
 </ul>
 <p>If the folder inside an iteration has the name of an event it is assumed to be
 the gradient from that particular event. If it has any other name it can still
 be plotted but you have to take care of the meaning.</p>
-<p>The <code class="docutils literal"><span class="pre">plot_kernel</span></code> command can be used to plot the gradients/kernels and
-usage is similar to the <code class="docutils literal"><span class="pre">plot_events</span></code> command. However, components are now
-called <code class="docutils literal"><span class="pre">grad_{{COMPONENT}}</span></code> – the same component names as the files
+<p>The <code class="docutils literal notranslate"><span class="pre">plot_kernel</span></code> command can be used to plot the gradients/kernels and
+usage is similar to the <code class="docutils literal notranslate"><span class="pre">plot_events</span></code> command. However, components are now
+called <code class="docutils literal notranslate"><span class="pre">grad_{{COMPONENT}}</span></code> – the same component names as the files
 you copied into the kernels folder. So to plot the gradient for SV velocity
 at 50 km depth for the first event, type</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_kernel KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17/ <span class="m">50</span> grad_csv Kernel.050km.vsv.png
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_kernel KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17/ <span class="m">50</span> grad_csv Kernel.050km.vsv.png
 </pre></div>
 </div>
 <p>Note that the kernel for vsv is called grad_<strong>c</strong>sv – likewise for the
 other velocities.</p>
 <p>Alternatively, you can again use the model gui in order to explore the
 kernels. This works exactly the same as before, just select your favourite
-<code class="docutils literal"><span class="pre">KERNEL:</span> <span class="pre">{{ITERATION_NAME}}</span> <span class="pre">|</span> <span class="pre">{{EVENT_NAME}}</span></code>. If all is well, it looks
+<code class="docutils literal notranslate"><span class="pre">KERNEL:</span> <span class="pre">{{ITERATION_NAME}}</span> <span class="pre">|</span> <span class="pre">{{EVENT_NAME}}</span></code>. If all is well, it looks
 like this for the <strong>raw, unsmoothed</strong> vsv kernel:</p>
 <a class="reference internal image-reference" href="../_images/model_gui_KERNEL.screenshot.2016-06-16.jpg"><img alt="../_images/model_gui_KERNEL.screenshot.2016-06-16.jpg" class="align-center" src="../_images/model_gui_KERNEL.screenshot.2016-06-16.jpg" style="width: 90%;" /></a>
 </div>

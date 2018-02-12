@@ -221,13 +221,13 @@ and model - be it for a line search or to check a new test model. The
 recommended strategy to do this within LASIF is to use “side-iterations”, e.g.
 in the following we will test the misfit for a model update with a step length
 of 0.5:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> 1_steplength_0.5
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> 1_steplength_0.5
 $ lasif migrate_windows <span class="m">1</span> 1_steplength_0.5
 <span class="c1"># Copy synthetics for the test iteration - then calculate both misfits.</span>
 $ mpirun -n <span class="m">4</span> lasif compare_misfits <span class="m">1</span> 1_steplength_0.5
 </pre></div>
 </div>
-<p>You will notice that the <code class="docutils literal"><span class="pre">compare_misfits</span></code> command always requires two
+<p>You will notice that the <code class="docutils literal notranslate"><span class="pre">compare_misfits</span></code> command always requires two
 iterations. This is necessary as any  misfit must be calculated for exactly the
 same stations, windows, and weights for two iterations to be comparable.  For
 steepest/gradient descent optimization methods it is fine to just take the
@@ -242,7 +242,7 @@ perform a model update. It does a simple gradient descent update at various
 step lengths that then have to be tested. It requires the initial model as well
 as the kernels to be in the SES3D regular grid format and utilizes the Python
 tools shipping with SES3D.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="c1"># This is from the SES3D Python tools.</span>

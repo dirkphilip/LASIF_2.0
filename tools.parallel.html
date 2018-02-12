@@ -191,8 +191,8 @@ works just fine when running on one core and not started with MPI.</p>
 <dt id="lasif.tools.parallel_helpers.FunctionInfo">
 <em class="property">class </em><code class="descclassname">lasif.tools.parallel_helpers.</code><code class="descname">FunctionInfo</code><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#FunctionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.FunctionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namedtuple used to collect information about a function execution.</p>
-<p>It has the following fields: <code class="docutils literal"><span class="pre">func_args</span></code>, <code class="docutils literal"><span class="pre">result</span></code>, <code class="docutils literal"><span class="pre">warnings</span></code>,
-<code class="docutils literal"><span class="pre">exception</span></code>, and <code class="docutils literal"><span class="pre">traceback</span></code>.</p>
+<p>It has the following fields: <code class="docutils literal notranslate"><span class="pre">func_args</span></code>, <code class="docutils literal notranslate"><span class="pre">result</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings</span></code>,
+<code class="docutils literal notranslate"><span class="pre">exception</span></code>, and <code class="docutils literal notranslate"><span class="pre">traceback</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -207,7 +207,7 @@ works just fine when running on one core and not started with MPI.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>function</strong> – The function to be executed for each item.</li>
 <li><strong>items</strong> – The function will be executed once for each item. It
-expects a list of dictionaries so that <code class="docutils literal"><span class="pre">function(**item)</span></code> can work.
+expects a list of dictionaries so that <code class="docutils literal notranslate"><span class="pre">function(**item)</span></code> can work.
 Only rank 0 needs to pass this. It will be ignored coming from other
 ranks.</li>
 <li><strong>get_name</strong> – Function to extract a name for each item to be able to
@@ -228,18 +228,18 @@ produce better logfiles.</li>
 number of processes/machines.</p>
 <p>It returns a FunctionInfo named tuple with the following fields:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">func_args</span></code>: Dictionary containing all the functions arguments and
+<li><code class="docutils literal notranslate"><span class="pre">func_args</span></code>: Dictionary containing all the functions arguments and
 values.</li>
-<li><code class="docutils literal"><span class="pre">result</span></code>: The return value of the function. Will be None if an
+<li><code class="docutils literal notranslate"><span class="pre">result</span></code>: The return value of the function. Will be None if an
 exception has been raised.</li>
-<li><code class="docutils literal"><span class="pre">warnings</span></code>: A list with all warnings the function raised.</li>
-<li><code class="docutils literal"><span class="pre">exception</span></code>: The exception the function raised. Will be None, if no
+<li><code class="docutils literal notranslate"><span class="pre">warnings</span></code>: A list with all warnings the function raised.</li>
+<li><code class="docutils literal notranslate"><span class="pre">exception</span></code>: The exception the function raised. Will be None, if no
 exception has been raised.</li>
-<li><code class="docutils literal"><span class="pre">traceback</span></code>: The full traceback in case an exception occured as a
+<li><code class="docutils literal notranslate"><span class="pre">traceback</span></code>: The full traceback in case an exception occured as a
 string.
 A traceback object is not serializable thus a string is used.</li>
 </ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@function_info</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@function_info</span><span class="p">()</span>
 <span class="gp">... </span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -249,15 +249,15 @@ A traceback object is not serializable thus a string is used.</li>
 <span class="go">4.0</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">warnings</span></code> is empty if no warning has been raised. Otherwise it will
+<p><code class="docutils literal notranslate"><span class="pre">warnings</span></code> is empty if no warning has been raised. Otherwise it will
 collect all warnings.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">warnings</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">warnings</span>
 <span class="go">[]</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">exception</span></code> and <code class="docutils literal"><span class="pre">traceback</span></code> are <code class="docutils literal"><span class="pre">None</span></code> if the function completed
+<p><code class="docutils literal notranslate"><span class="pre">exception</span></code> and <code class="docutils literal notranslate"><span class="pre">traceback</span></code> are <code class="docutils literal notranslate"><span class="pre">None</span></code> if the function completed
 successfully.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">exception</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">exception</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">traceback</span>
 </pre></div>
 </div>

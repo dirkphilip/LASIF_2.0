@@ -201,11 +201,11 @@ occasions.</p>
 developers.</strong> LASIF aims to be a common tool for full waveform inversions
 and if everyone has a custom LASIF version that is not possible. If
 necessary we will make it more flexible.</p>
-<p>In any case, the per-project functions are stored in the <code class="docutils literal"><span class="pre">FUNCTION</span></code>
+<p>In any case, the per-project functions are stored in the <code class="docutils literal notranslate"><span class="pre">FUNCTION</span></code>
 subfolder of an active LASIF project. If you ever want to update these
 function to the latest official version of LASIF just delete the files and
 launch any LASIF command.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>FUNCTIONS
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>FUNCTIONS
 ├── preprocessing_function.py
 ├── process_synthetics.py
 └── window_picking_function.py
@@ -222,7 +222,7 @@ store the used functions and make a copy if necessary.
 A simple way to keep track of the differences in these function is to
 branch based on the current iteration.</p>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
     <span class="c1"># Assumes iteration names are numeric. You might need a more</span>
     <span class="c1"># complicated setup depending on your project.</span>
     <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">iteration</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
@@ -233,10 +233,10 @@ branch based on the current iteration.</p>
 </div>
 <p>To figure out what these iteration objects can do, launch an interactive lasif
 session and play around a bit.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif shell
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif shell
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">iteration</span><span class="o">.</span><span class="n">name</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="s1">&#39;1&#39;</span>
@@ -255,16 +255,16 @@ session and play around a bit.</p>
 <h2>17.2. Custom Preprocessing<a class="headerlink" href="#custom-preprocessing" title="Permalink to this headline">¶</a></h2>
 <p>The preprocessing function is used to preprocess all the data. It has the
 following function signature:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_function</span><span class="p">(</span><span class="n">processing_info</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_function</span><span class="p">(</span><span class="n">processing_info</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
-<p>It is supposed to read the <code class="docutils literal"><span class="pre">procesing_info[&quot;input_filename&quot;]</span></code> file, apply
-the defined processing, and write it to <code class="docutils literal"><span class="pre">processing_info[&quot;output_filename&quot;]</span></code>.
+<p>It is supposed to read the <code class="docutils literal notranslate"><span class="pre">procesing_info[&quot;input_filename&quot;]</span></code> file, apply
+the defined processing, and write it to <code class="docutils literal notranslate"><span class="pre">processing_info[&quot;output_filename&quot;]</span></code>.
 It does not have to return anything; raise an error if something does not
 work as expected.</p>
-<p>The <code class="docutils literal"><span class="pre">processing_info</span></code> object also contains event and station information.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;event_information&#39;</span><span class="p">:</span> <span class="p">{</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">processing_info</span></code> object also contains event and station information.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;event_information&#39;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;depth_in_km&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
     <span class="s1">&#39;event_name&#39;</span><span class="p">:</span> <span class="s1">&#39;GCMT_event_VANCOUVER_ISLAND...&#39;</span><span class="p">,</span>
     <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;/.../GCMT_event_VANCOUVER_ISLAND....xml&#39;</span><span class="p">,</span>
@@ -303,22 +303,22 @@ work as expected.</p>
 component flips to get them to ZNE) to the synthetics but just
 uses them as is. If your workflow requires the synthetics to be processed,
 please do it in this function. It will be applied on the fly to each
-up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
+up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object of synthetic
 data.</p>
 <p>The default implementation is this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">st</span>
 </pre></div>
 </div>
 <p>This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
 </div>
 <div class="section" id="customize-window-picking">
 <h2>17.4. Customize Window Picking<a class="headerlink" href="#customize-window-picking" title="Permalink to this headline">¶</a></h2>
 <p>Use this function to customize the window picking of LASIF, or even use a
 completely different window picking algorithm. Its function signature is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">window_picking_function</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">window_picking_function</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
                             <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
                             <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
                             <span class="n">minimum_period</span><span class="p">,</span> <span class="n">maximum_period</span><span class="p">,</span>
@@ -337,7 +337,7 @@ completely different window picking algorithm. Its function signature is:</p>
 <p>This function is used to generate source time functions for SES3D. If you
 don’t use SES3D for the numerical wavefield simulations you can ignore this.
 Its function signature is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">source_time_function</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">source_time_function</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">):</span>
     <span class="o">...</span>
     <span class="c1"># Make sure it returns a float64 NumPy array with `npts` samples.</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>

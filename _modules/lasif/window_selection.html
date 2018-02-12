@@ -201,8 +201,8 @@
     <span class="c1"># be the case).</span>
     <span class="k">if</span> <span class="n">fc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fc</span></div>
+    <span class="k">else</span><span class="p">:</span></div>
+        <span class="k">return</span> <span class="n">fc</span>
 
 
 <div class="viewcode-block" id="find_local_extrema"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_local_extrema">[docs]</a><span class="k">def</span> <span class="nf">find_local_extrema</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -295,8 +295,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">troughs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span></div>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="find_closest"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_closest">[docs]</a><span class="k">def</span> <span class="nf">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
@@ -321,8 +321,8 @@
     <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_array</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">left</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">right</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="n">idx</span> <span class="o">-=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">-</span> <span class="n">target</span>
-    <span class="k">return</span> <span class="n">idx</span></div>
+    <span class="n">idx</span> <span class="o">-=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">-</span> <span class="n">target</span></div>
+    <span class="k">return</span> <span class="n">idx</span>
 
 
 <span class="k">def</span> <span class="nf">_plot_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1058,8 +1058,8 @@
                             <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#CDDC39&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">trans</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">windows</span></div>
+</div>
+    <span class="k">return</span> <span class="n">windows</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

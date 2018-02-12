@@ -197,8 +197,8 @@ stations for this iterations, the solver settings, and other information is
 specified. Each iteration can have an arbitrary name. It is probably a good
 idea to give simple numeric names, like 1, 2, 3, …</p>
 <p>Let’s start by creating the XML file for the first iteration with the
-<code class="docutils literal"><span class="pre">create_new_iteration</span></code> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">1</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
+<code class="docutils literal notranslate"><span class="pre">create_new_iteration</span></code> command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">1</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
 
 Starting to find optimal relaxation parameters.
 weights:              <span class="o">[</span><span class="m">1</span>.4171098866795313, <span class="m">0</span>.7083736187912052, <span class="m">1</span>.2711221163303799<span class="o">]</span>
@@ -213,19 +213,19 @@ of this iteration. In this example, the band is limited between 40 and 100
 seconds. The fourth argument is the waveform solver to be used for this
 iteration. It currently supports some versions of SES3D as well as the
 cartesian and global versions of SPECFEM but the infrastructure to add other
-solvers is already in place. See the help of the <code class="docutils literal"><span class="pre">create_new_iteration</span></code>
+solvers is already in place. See the help of the <code class="docutils literal notranslate"><span class="pre">create_new_iteration</span></code>
 command to get a list of all supported solvers.</p>
-<p>You will see that this creates a new file: <code class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
+<p>You will see that this creates a new file: <code class="docutils literal notranslate"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
 Each iteration will have its own file. To get a list of iterations, use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_iterations
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_iterations
 
 <span class="m">1</span> Iteration in project:
     <span class="m">1</span>
 </pre></div>
 </div>
-<p>To get more information about a specific iteration,  use the <code class="docutils literal"><span class="pre">iteration_info</span></code>
+<p>To get more information about a specific iteration,  use the <code class="docutils literal notranslate"><span class="pre">iteration_info</span></code>
 command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif iteration_info <span class="m">1</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif iteration_info <span class="m">1</span>
 
 LASIF Iteration
     Name: <span class="m">1</span>
@@ -240,11 +240,11 @@ LASIF Iteration
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">You might have noticed the pairs of <code class="docutils literal"><span class="pre">list_x</span></code> and <code class="docutils literal"><span class="pre">x_info</span></code> commands, e.g.
-<code class="docutils literal"><span class="pre">list_events</span></code> and <code class="docutils literal"><span class="pre">event_info</span></code> or <code class="docutils literal"><span class="pre">list_iterations</span></code> and
-<code class="docutils literal"><span class="pre">iteration_info</span></code>. This scheme is true for most things in <strong>LASIF</strong>. The
-<code class="docutils literal"><span class="pre">list_x</span></code> variant is always used to get a quick overview of everything
-currently part of the <strong>LASIF</strong> project. The <code class="docutils literal"><span class="pre">x_info</span></code> counterpart returns
+<p class="last">You might have noticed the pairs of <code class="docutils literal notranslate"><span class="pre">list_x</span></code> and <code class="docutils literal notranslate"><span class="pre">x_info</span></code> commands, e.g.
+<code class="docutils literal notranslate"><span class="pre">list_events</span></code> and <code class="docutils literal notranslate"><span class="pre">event_info</span></code> or <code class="docutils literal notranslate"><span class="pre">list_iterations</span></code> and
+<code class="docutils literal notranslate"><span class="pre">iteration_info</span></code>. This scheme is true for most things in <strong>LASIF</strong>. The
+<code class="docutils literal notranslate"><span class="pre">list_x</span></code> variant is always used to get a quick overview of everything
+currently part of the <strong>LASIF</strong> project. The <code class="docutils literal notranslate"><span class="pre">x_info</span></code> counterpart returns
 more detailed information about the resource.</p>
 </div>
 <div class="admonition note">
@@ -252,7 +252,7 @@ more detailed information about the resource.</p>
 <p class="last">As mentioned before, it is entirely possible to add new events at a later
 stage during an inversion. Be aware, however, that these events will only
 show up in a subsequent iteration that is created using the
-<code class="docutils literal"><span class="pre">create_new_iteration</span></code> command, because all events and stations used in
+<code class="docutils literal notranslate"><span class="pre">create_new_iteration</span></code> command, because all events and stations used in
 any given iteration are explicitly defined in the iteration xml file.</p>
 </div>
 <div class="section" id="the-iteration-xml-files">
@@ -284,10 +284,10 @@ differ per iteration.</li>
 <li>Each event contains a list of stations where data is available. Furthermore
 each station can have a different weight and time correction.</li>
 </ul>
-<p>Let’s have a quick look at the generated file. The <code class="docutils literal"><span class="pre">create_new_iteration</span></code>
+<p>Let’s have a quick look at the generated file. The <code class="docutils literal notranslate"><span class="pre">create_new_iteration</span></code>
 command will create a new iteration file with all the information currently
 present in the <strong>LASIF</strong> project.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
 <span class="nt">&lt;iteration&gt;</span>
   <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
   <span class="nt">&lt;iteration_description&gt;&lt;/iteration_description&gt;</span>
@@ -341,7 +341,7 @@ present in the <strong>LASIF</strong> project.</p>
 <ul class="simple">
 <li>The dataprocessing frequency limits are given periods in seconds. This is
 more in line with what one would normally use than frequencies in Hz.</li>
-<li>The paths in the solver settings contains an <code class="docutils literal"><span class="pre">{{EVENT_NAME}}</span></code> part. This
+<li>The paths in the solver settings contains an <code class="docutils literal notranslate"><span class="pre">{{EVENT_NAME}}</span></code> part. This
 part will be replaced by the actual event name. This means that the file
 does not have to be adjusted for every event.</li>
 </ul>
@@ -354,15 +354,15 @@ seconds. Please make sure to also adjust the file accordingly. The following
 parameters are essential in almost all cases (shown here with the values
 for the tutorial):</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">number_of_time_steps</span></code>: <code class="docutils literal"><span class="pre">2000</span></code></li>
-<li><code class="docutils literal"><span class="pre">time_increment</span></code>: <code class="docutils literal"><span class="pre">0.3</span></code></li>
-<li><code class="docutils literal"><span class="pre">is_dissipative</span></code>: <code class="docutils literal"><span class="pre">false</span></code> (in a real world application set this to <code class="docutils literal"><span class="pre">true</span></code>)</li>
-<li><code class="docutils literal"><span class="pre">nx_global</span></code>: <code class="docutils literal"><span class="pre">24</span></code></li>
-<li><code class="docutils literal"><span class="pre">ny_global</span></code>: <code class="docutils literal"><span class="pre">24</span></code></li>
-<li><code class="docutils literal"><span class="pre">nz_global</span></code>: <code class="docutils literal"><span class="pre">15</span></code></li>
-<li><code class="docutils literal"><span class="pre">px_processors_in_theta_direction</span></code>: <code class="docutils literal"><span class="pre">2</span></code></li>
-<li><code class="docutils literal"><span class="pre">py_processors_in_phi_direction</span></code>: <code class="docutils literal"><span class="pre">2</span></code></li>
-<li><code class="docutils literal"><span class="pre">pz_processors_in_r_direction</span></code>: <code class="docutils literal"><span class="pre">1</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">number_of_time_steps</span></code>: <code class="docutils literal notranslate"><span class="pre">2000</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">time_increment</span></code>: <code class="docutils literal notranslate"><span class="pre">0.3</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">is_dissipative</span></code>: <code class="docutils literal notranslate"><span class="pre">false</span></code> (in a real world application set this to <code class="docutils literal notranslate"><span class="pre">true</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">nx_global</span></code>: <code class="docutils literal notranslate"><span class="pre">24</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ny_global</span></code>: <code class="docutils literal notranslate"><span class="pre">24</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">nz_global</span></code>: <code class="docutils literal notranslate"><span class="pre">15</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">px_processors_in_theta_direction</span></code>: <code class="docutils literal notranslate"><span class="pre">2</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">py_processors_in_phi_direction</span></code>: <code class="docutils literal notranslate"><span class="pre">2</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">pz_processors_in_r_direction</span></code>: <code class="docutils literal notranslate"><span class="pre">1</span></code></li>
 </ul>
 <p class="last">Please refer to the SES3D documentation for more information. The SES3D
 documentation can currently be obtained from the tarball found <a class="reference external" href="http://www.cos.ethz.ch/software/ses3d.html">here</a> (link most recently checked
@@ -379,8 +379,8 @@ desired, it could also become possible to use inverted source time functions.</p
 and the time increment you specify in the solver settings. Furthermore, all
 source time functions will be filtered with the same bandpass as the data.</p>
 <p>To have a quick look at the source time function for any given iteration, use
-the <code class="docutils literal"><span class="pre">plot_stf</span></code> command with the iteration name:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_stf <span class="m">1</span>
+the <code class="docutils literal notranslate"><span class="pre">plot_stf</span></code> command with the iteration name:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_stf <span class="m">1</span>
 </pre></div>
 </div>
 <p>This command will read the corresponding iteration file and open a plot with a
@@ -399,7 +399,7 @@ optimization algorithm to find relaxation times and associated weights that
 will be nearly constant over the chosen frequency domain.</p>
 <p>At any point you can see the absorption-band model for a given iteration at a
 couple of exemplary Q values with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_Q_model <span class="m">1</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_Q_model <span class="m">1</span>
 </pre></div>
 </div>
 <p>The single argument is the name of the iteration.</p>
@@ -408,7 +408,7 @@ the iteration XML file.</p>
 <p>It is also possible to directly generate the relaxation times and weights for
 any frequency band. To generate a Q model that is approximately constant in
 a period band from 10 seconds to 100 seconds use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">40</span> <span class="m">100</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">40</span> <span class="m">100</span>
 
 Starting to find optimal relaxation parameters.
 weights:              <span class="o">[</span><span class="m">1</span>.4474, <span class="m">0</span>.7336, <span class="m">1</span>.2757<span class="o">]</span>

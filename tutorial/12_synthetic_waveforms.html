@@ -202,13 +202,13 @@ a very large amount of disk space due to the need to store the forward
 wavefield. Even this very small toy example requires 10 GB per forward adjoint
 simulation.  This easily increases 100 fold for real simulations.</p>
 <p>Copy the generated input files and the model for Iteration 1 to your <em>SES3D</em>
-installation, adjust the <code class="docutils literal"><span class="pre">ses3d_modules.f90</span></code> file (for <em>ses3d_r07_b</em>, adjust
-the <code class="docutils literal"><span class="pre">ses3d_conf.h</span></code> file found in <code class="docutils literal"><span class="pre">SOURCE</span></code>) and run the adjoint forward
+installation, adjust the <code class="docutils literal notranslate"><span class="pre">ses3d_modules.f90</span></code> file (for <em>ses3d_r07_b</em>, adjust
+the <code class="docutils literal notranslate"><span class="pre">ses3d_conf.h</span></code> file found in <code class="docutils literal notranslate"><span class="pre">SOURCE</span></code>) and run the adjoint forward
 simulations for the two events. Please refer to the SES3D manual for additional
 details. The simulations should only take a couple of minutes each on a
 run-of-the-mill computer. No need to turn to an HPC for this tutorial.</p>
 <p>Once the two simulations have run, copy the resulting synthetics to the
-<code class="docutils literal"><span class="pre">SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</span></code> folder. Use the raw
+<code class="docutils literal notranslate"><span class="pre">SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</span></code> folder. Use the raw
 SES3D output files. These have been calculated in the possibly different
 simulation domain and not the physical domain. Never convert these to the
 physical domain; <strong>LASIF</strong> does it for you and doing it twice is wrong.</p>
@@ -220,7 +220,7 @@ able to see the two events including different types of waveform data.</p>
 <h2>13.1. Recap<a class="headerlink" href="#recap" title="Permalink to this headline">¶</a></h2>
 <p>Just a short recap, but at this point in the tutorial your folder structure
 should look similar to this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Tutorial/
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial/
 ├── DATA/
 │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14/
 │   │   ├── preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000/

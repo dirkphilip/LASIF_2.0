@@ -192,13 +192,13 @@ iteration. <strong>LASIF</strong> does not yet perform any work with the Earth m
 it merely offers an organized way of storing and visualizing them.</p>
 <p><strong>LASIF</strong> can directly deal with the models used in SES3D (that is, the
 ready-to-go models with which a simulation is run). Each model has to
-be placed in a subfolder of <code class="docutils literal"><span class="pre">MODELS</span></code>. The folder name will again be used to
+be placed in a subfolder of <code class="docutils literal notranslate"><span class="pre">MODELS</span></code>. The folder name will again be used to
 identify the model.</p>
 <p>For the tutorial, we will work with two models: one based on PREM which we
 will use as the initial model and one with a perturbation which will be
 considered the true model for the tutorial. Download both models
-<a class="reference download internal" href="../_downloads/models.tar.bz2" download=""><code class="xref download docutils literal"><span class="pre">here</span></code></a> and place them in the
-<code class="docutils literal"><span class="pre">MODELS</span></code> folder.</p>
+<a class="reference download internal" href="../_downloads/models.tar.bz2" download=""><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a> and place them in the
+<code class="docutils literal notranslate"><span class="pre">MODELS</span></code> folder.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The true synthetic model is PREM with a small positive Gaussian anomaly  in
@@ -207,7 +207,7 @@ both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
 the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
 </div>
 <p>Now you are able to use the <strong>list_models</strong> commands.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_models
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_models
 
 <span class="m">2</span> model in project:
     Iteration_1
@@ -215,16 +215,16 @@ the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
 </pre></div>
 </div>
 <p>LASIF has some functionality to view the models. To save a model slice to file,
-use the <code class="docutils literal"><span class="pre">plot_model</span></code> command together with the model name and some
+use the <code class="docutils literal notranslate"><span class="pre">plot_model</span></code> command together with the model name and some
 identifying parameters.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_model True_Model <span class="m">50</span> vsv -
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_model True_Model <span class="m">50</span> vsv -
 </pre></div>
 </div>
 <p>This will pop open a window. If you want to save the image to a file, just
-replace <code class="docutils literal"><span class="pre">-</span></code> with a filename.</p>
+replace <code class="docutils literal notranslate"><span class="pre">-</span></code> with a filename.</p>
 <a class="reference internal image-reference" href="../_images/vsv_52km.png"><img alt="../_images/vsv_52km.png" class="align-center" src="../_images/vsv_52km.png" style="width: 90%;" /></a>
 <p>Another option is to use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_model_gui
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif launch_model_gui
 </pre></div>
 </div>
 <p>This opens a more interactive viewer in which the user can choose which
