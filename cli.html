@@ -1245,7 +1245,8 @@ simulation domain</td>
 <div class="section" id="lasif-plot-event">
 <h4><a class="toc-backref" href="#id27">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_event [-h] [--ipdb] [--weight_set_name WEIGHT_SET_NAME]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_event [-h] [--ipdb] [--save]
+                            [--weight_set_name WEIGHT_SET_NAME]
                             event_name
 </pre></div>
 </div>
@@ -1275,7 +1276,11 @@ upon encountering an
 exception. Requires
 ipdb.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--weight_set_name</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--save</span></code></td>
+<td>Saves the plot in a
+file</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--weight_set_name</span></code></td>
 <td>for stations to be
 color coded as a
 function of their
