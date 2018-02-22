@@ -501,7 +501,9 @@ get too big this can
 help with reducing
 the size. Be very
 careful while using
-this one</td>
+this one. Currently
+it changes the
+waveforms a bit.</td>
 </tr>
 </tbody>
 </table>
@@ -601,7 +603,7 @@ contained events.</td>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif submit_all_jobs [-h] [--ipdb]
                                  iteration_name ranks wall_time_in_seconds
-                                 simulation_type
+                                 simulation_type [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
@@ -610,8 +612,8 @@ contained events.</td>
 configured.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="46%" />
-<col width="54%" />
+<col width="34%" />
+<col width="66%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -628,13 +630,18 @@ configured.</p>
 <tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">simulation_type</span></code></td>
 <td>forward, step_length, adjoint</td>
 </tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">events</span></code></td>
+<td>If you only want to submit selected events. You
+can input more than one separated by a space. If
+none is specified, all will be taken</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
 <td>If true, a debugger
 will be launched
 upon encountering an
@@ -647,15 +654,17 @@ ipdb.</td>
 <div class="section" id="lasif-retrieve-all-output">
 <h4><a class="toc-backref" href="#id10">lasif retrieve_all_output</a><a class="headerlink" href="#lasif-retrieve-all-output" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif retrieve_all_output [-h] [--ipdb] iteration_name simulation_type
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif retrieve_all_output [-h] [--ipdb]
+                                     iteration_name simulation_type
+                                     [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
 <p>EXPERIMENTAL: Retrieves all output from daint, No QA.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="29%" />
+<col width="71%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -666,13 +675,18 @@ ipdb.</td>
 <tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">simulation_type</span></code></td>
 <td>forward, step_length, adjoint</td>
 </tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">events</span></code></td>
+<td>names of events you want to retrieve output from.
+If more than one, separate with space. If none
+specified all will be used.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
 <td>If true, a debugger
 will be launched
 upon encountering an

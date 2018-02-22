@@ -198,16 +198,18 @@ upcoming instructions. It will install <strong>LASIF</strong> into a separate <c
 environment. This is very useful to separate the installation from the rest of
 your system. Additionally it does not require root privileges and thus can be
 installed almost everywhere.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment which will here be called &quot;lasif&quot;.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sometimes you need the newest version of conda to install packages</span>
+$ conda update conda
+<span class="c1"># Create a new conda environment which will here be called &quot;lasif&quot;.</span>
 $ conda create -n lasif <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.6
 <span class="c1"># Activate the lasif environment. This will always be needed when LASIF is started.</span>
 $ <span class="nb">source</span> activate lasif
 <span class="c1"># Start installing dependencies</span>
 $ conda config --add channels conda-forge
-$ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
-$ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
+$ conda install -c conda-forge obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
+$ conda install -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
 <span class="c1"># Install more packages via pip</span>
-$ pip install geographiclib flask-cache geojson flake8 <span class="nv">toml</span><span class="o">==</span><span class="m">0</span>.9.2
+$ pip install pyqtgraph geographiclib flask-cache geojson flake8 <span class="nv">toml</span><span class="o">==</span><span class="m">0</span>.9.2
 <span class="c1"># Pick a directory where you want to store pyexodus and move into it</span>
 $ git clone https://github.com/SalvusHub/pyexodus.git
 $ <span class="nb">cd</span> pyexodus
