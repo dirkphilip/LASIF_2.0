@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>15. Gradient Visualization &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="Command Line Interface" href="../cli.html"/>
+        <link rel="prev" title="14. Misfit and Adjoint Source Calculation" href="12_misfits_and_adjoint_sources.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">15. Gradient Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+        
+      <li>15. Gradient Visualization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorial/13_gradient_visualization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p class="centered">
+<strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="gradient-visualization">
+<h1>15. Gradient Visualization<a class="headerlink" href="#gradient-visualization" title="Permalink to this headline">¶</a></h1>
+<p>After running the adjoint simulation you should be able to find a gradient.
+This gradient should be put into the <code class="docutils literal notranslate"><span class="pre">GRADIENTS/ITERATION_1/EVENT_NAME/</span></code>
+folder. Your gradient should be on an exodus format so you should be able to
+visualize it using Paraview.</p>
+<p>Here are screenshots showing an example of how a gradient can look for this
+little tutorial project. First one shows the top view of the gradient
+calculated for the Vpv velocity component and the other one shows a cross
+section straight through the gradient.</p>
+<a class="reference internal image-reference" href="../_images/VPH_Top_gradient.png"><img alt="../_images/VPH_Top_gradient.png" class="align-center" src="../_images/VPH_Top_gradient.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../_images/VPH_Slice.png"><img alt="../_images/VPH_Slice.png" class="align-center" src="../_images/VPH_Slice.png" style="width: 90%;" /></a>
+<p>After looking at the computed gradients to make sure that they are looking fine
+you have to sum all your gradients into one and run a <code class="docutils literal notranslate"><span class="pre">step_length</span> <span class="pre">simulation</span></code>.
+Currently <strong>LASIF</strong> does not provide an option to sum your gradients but it
+is/will be possible using Salvus. So currently this tutorial does not go any
+further but it will be updated later.</p>
+<p>Finally, this is more or less how your directory structure should look like.
+Files may change depending on Salvus settings:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.
+├── ADJOINT_SOURCES
+│   └── ITERATION_1
+│       ├── ADJ_SRC_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+│       └── ADJ_SRC_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5
+├── DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5
+├── FUNCTIONS
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── preprocessing_function_asdf.cpython-36.pyc
+│   │   ├── process_synthetics.cpython-36.pyc
+│   │   ├── source_time_function.cpython-36.pyc
+│   │   └── window_picking_function.cpython-36.pyc
+│   ├── light_preprocessing.py
+│   ├── preprocessing_function_asdf.py
+│   ├── process_data.py
+│   ├── process_synthetics.py
+│   ├── source_time_function.py
+│   └── window_picking_function.py
+├── GRADIENTS
+│   └── ITERATION_1
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│       │   ├── kernel.e
+│       │   ├── static_model.h5
+│       │   ├── static_model_ELASTIC.xdmf
+│       │   ├── stderr
+│       │   └── stdout
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│           ├── kernel.e
+│           ├── static_model.h5
+│           ├── static_model_ELASTIC.xdmf
+│           ├── stderr
+│           └── stdout
+├── MODELS
+│   ├── ITERATION_1
+│   └── Turkey.e
+├── OUTPUT
+│   ├── LOGS
+│   └── raydensity_plots
+│       └── <span class="m">2018</span>-02-23T08-38-48__raydensity
+│           └── raydensity.png
+├── PROCESSED_DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│       │   └── preprocessed_30s_to_50s.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│           └── preprocessed_30s_to_50s.h5
+├── SALVUS_INPUT_FILES
+│   └── ITERATION_1
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│       │   ├── adjoint
+│       │   │   ├── adjoint.toml
+│       │   │   ├── adjoint_source.h5
+│       │   │   └── run_salvus.sh
+│       │   └── forward
+│       │       ├── Heaviside.h5
+│       │       ├── receivers.toml
+│       │       ├── receivers_paraview.csv
+│       │       ├── run_salvus.sh
+│       │       ├── source.toml
+│       │       └── source_paraview.csv
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│           ├── adjoint
+│           │   ├── adjoint.toml
+│           │   ├── adjoint_source.h5
+│           │   └── run_salvus.sh
+│           └── forward
+│               ├── Heaviside.h5
+│               ├── receivers.toml
+│               ├── receivers_paraview.csv
+│               ├── run_salvus.sh
+│               ├── source.toml
+│               └── source_paraview.csv
+├── SETS
+│   ├── WEIGHTS
+│   │   └── WEIGHTS_A
+│   │       └── WEIGHTS_A.toml
+│   └── WINDOWS
+│       └── A.sqlite
+├── SYNTHETICS
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       └── ITERATION_1
+│           ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│           │   ├── receivers.h5
+│           │   ├── stderr
+│           │   └── stdout
+│           └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│               ├── receivers.h5
+│               ├── stderr
+│               └── stdout
+└── lasif_config.toml
+</pre></div>
+</div>
+<p>For any questions or inputs on <strong>LASIF</strong> please contact the developers.</p>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="12_misfits_and_adjoint_sources.html" class="btn btn-neutral" title="14. Misfit and Adjoint Source Calculation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.x',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>4. Station Data &mdash; LASIF 0.1.x documentation</title>
+  <title>9. Defining a New Iteration &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="6. Download Helpers" href="04_download_helpers.html"/>
-        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+        <link rel="next" title="10. Data Processing" href="08_data_processing.html"/>
+        <link rel="prev" title="8. Data Validation" href="06_data_validation.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -98,12 +98,12 @@
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">9. Defining a New Iteration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
@@ -162,13 +162,13 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>4. Station Data</li>
+      <li>9. Defining a New Iteration</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/07_a_new_iteration.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -182,25 +182,77 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="station-data">
-<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> needs to know the coordinates and instrument response of each channel.
-The best way to achieve this is to have a StationXML file related to each
-station and each event. These StationXML files then have to be read into the
-ASDF file containing the Earthquake information. We will make a tutorial on
-how to organize your files into an ASDF format. Hopefully we will have time
-to do that soon. But for now we recommend using the built in downloading
-schemes which will be explained soon.</p>
+<strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="defining-a-new-iteration">
+<h1>9. Defining a New Iteration<a class="headerlink" href="#defining-a-new-iteration" title="Permalink to this headline">¶</a></h1>
+<p>In <strong>LASIF</strong> you can organize your synthetics and velocity models through
+different iterations. To create a new iteration you execute:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif set_up_iteration <span class="m">1</span>
+</pre></div>
 </div>
-<div class="section" id="waveform-data">
-<h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
-<p>Every inversion needs real data to be able to quantify misfits. In <strong>LASIF</strong>
-this data needs to be stored, as we have mentioned several times before, in
-the ASDF file containing Earthquake information. These files are positioned
-under the name: <strong>{project_root}/DATA/EARTHQUAKES/{event_name}.h5</strong>. Only one
-file is used to contain all the raw information for each event. Including
-earthquake information (QuakeML), Station information (StationXML) and raw
-waveforms for each station.</p>
+<p>Same command can also be used to remove iteration. The command creates a few
+directories which will be used later to organize synthetics, adjoint sources
+and velocity models. By now your directory structure should look similar to
+this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial
+├── ADJOINT_SOURCES
+│   └── ITERATION_1
+├── DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5
+├── FUNCTIONS
+│   ├── __init__.py
+│   ├── light_preprocessing.py
+│   ├── preprocessing_function_asdf.py
+│   ├── process_data.py
+│   ├── process_synthetics.py
+│   ├── source_time_function.py
+│   └── window_picking_function.py
+├── GRADIENTS
+├── MODELS
+│   ├── ITERATION_1
+│   └── Turkey.e
+├── OUTPUT
+│   ├── LOGS
+│   └── raydensity_plots
+│       └── 2018-02-23T08-38-48__raydensity
+│           └── raydensity.png
+├── PROCESSED_DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+├── SALVUS_INPUT_FILES
+│   └── ITERATION_1
+├── SETS
+│   ├── WEIGHTS
+│   │   └── WEIGHTS_A
+│   │       └── WEIGHTS_A.toml
+│   └── WINDOWS
+├── SYNTHETICS
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       └── ITERATION_1
+└── lasif_config.toml
+</pre></div>
+</div>
+<p>The Turkey.e file is the mesh that we use in the project. The organisation of
+velocity models into iterations is manual and optional but <strong>LASIF</strong> anyway
+creates the directory structure for it if you want to use it. To get a list
+of iterations, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_iterations
+
+There is <span class="m">1</span> in this project
+Iteration known to LASIF:
+
+ITERATION_1
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As mentioned before, it is entirely possible to add new events at a later
+stage during an inversion.</p>
+</div>
+<p>You will always have to set up an iteration before you can use the misfit GUI.</p>
 </div>
 
 
@@ -213,10 +265,10 @@ waveforms for each station.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="08_data_processing.html" class="btn btn-neutral float-right" title="10. Data Processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="06_data_validation.html" class="btn btn-neutral" title="8. Data Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

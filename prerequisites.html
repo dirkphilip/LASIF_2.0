@@ -213,15 +213,17 @@ $ pip install pyqtgraph geographiclib flask-cache geojson flake8 <span class="nv
 <span class="c1"># Pick a directory where you want to store pyexodus and move into it</span>
 $ git clone https://github.com/SalvusHub/pyexodus.git
 $ <span class="nb">cd</span> pyexodus
-$ pip install .
+$ pip install -e .
 <span class="c1"># Make sure you do not have an active installation of mpi4py from conda</span>
 $ conda uninstall mpi4py
 <span class="c1"># re-install it using pip</span>
 $ pip install mpi4py
 <span class="c1"># Install a parallel version of hdf5</span>
 $ conda install -c spectraldns h5py-parallel
-<span class="c1"># Install pyasdf</span>
-$ pip install pyasdf
+<span class="c1"># Install pyasdf. Move into the directory you want to keep it</span>
+$ git clone https://github.com/SeismicData/pyasdf.git
+$ <span class="nb">cd</span> pyasdf
+$ pip install -e .
 </pre></div>
 </div>
 <p>Make sure that pyasdf is working as it should by running the following command</p>

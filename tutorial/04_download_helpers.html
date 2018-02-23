@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="7. Data Inspection" href="06_data_inspection.html"/>
-        <link rel="prev" title="5. Waveform Data" href="04_waveform_data.html"/> 
+        <link rel="next" title="7. Data Inspection" href="05_data_inspection.html"/>
+        <link rel="prev" title="4. Station Data" href="03_station_data.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,22 +99,20 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">6. Download Helpers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-data">6.1. Downloading Data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -173,7 +171,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/05_download_helpers.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/04_download_helpers.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -187,14 +185,7 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>The following links shows the example project as it should be just before
-step 4. You can use this to check your progress or restart the tutorial at
-this very point.</p>
-<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_5_waveform_data">After Step 5: Waveform Data</a></p>
-</div>
-<div class="section" id="download-helpers">
+<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="download-helpers">
 <h1>6. Download Helpers<a class="headerlink" href="#download-helpers" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -206,19 +197,28 @@ station data from all data centers implementing the FDSN web services. This
 largely amounts to data from Europe, Northern America, Brazil, and New Zealand.
 If your inversion requires data from other places, you’ll have to retrieve it
 on your own.</p>
+<p><strong>LASIF</strong> comes with a collection of scripts that help downloading waveform and
+station data from all data centers implementing the FDSN web services. This
+data is not evenly distributed around the globe and largely amounts to data
+from Europe, Northern America and New Zealand. There is data from other areas
+but they are usually more sparsely distributed. You are free to add your own
+data into the event files using the pyasdf package. We will link to a tutorial
+on how to do that here once we make one. Hopefully soon. <strong>LASIF</strong> does have
+some scripts that attempt to reduce the effect of uneven data distribution
+which will be explained later.</p>
 <div class="section" id="downloading-data">
 <h2>6.1. Downloading Data<a class="headerlink" href="#downloading-data" title="Permalink to this headline">¶</a></h2>
-<p>Data are downloaded on a per event basis. The <code class="docutils literal notranslate"><span class="pre">config.xml</span></code> file contains
-some specification to detail the download.</p>
+<p>Data are downloaded on a per event basis. The <code class="docutils literal notranslate"><span class="pre">lasif_config.toml</span></code> file
+contains some specification to detail the download.</p>
 <p>To download the data for an event, choose one and run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif download_data GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif download_data GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 </pre></div>
 </div>
 <p>The command just tries to download everything it can within your chosen domain,
 both the waveforms and station metadata. It queries successively queries all
 known FDSN data centers and integrates all data. It accounts for the domain
 borders and possible domain rotations. It is furthermore influenced by the
-following parameters in the <code class="docutils literal notranslate"><span class="pre">config.xml</span></code> file:</p>
+following parameters in the <code class="docutils literal notranslate"><span class="pre">lasif_config.toml</span></code> file:</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">seconds_before_event</span></code>: Used by the waveform download scripts. It will
 attempt to download this many seconds for every waveform before the origin of
@@ -236,13 +236,23 @@ from each station.</li>
 </ul>
 <p>Depending on the domain size, event location, and origin time, this can take a
 while. Executing the same command again will only attempt to download data not
-already present. All waveform data will be placed in <code class="docutils literal notranslate"><span class="pre">DATA/EVENT_NAME/raw</span></code>
-and all station data in <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML</span></code>.</p>
+already present. All waveform and station data will be placed in
+<code class="docutils literal notranslate"><span class="pre">DATA/EARTHQUAKES/{event_name}</span></code>.</p>
+<p>The download_data command has an option to download only from a specific
+provider like IRIS for example.</p>
+<p>When using many events and a large domain, keeping all the raw data can be
+problematic if you are working on a local computer. <strong>LASIF</strong> currently has
+a method to downsample the downloaded data and keep it as raw data. We do
+not recommend using this option since it will introduce small differences
+in your waveforms due to filtering. If you want to use this option you
+have to keep in mind that you are loosing some of the accuracy of your
+method which reduces the reliability of your inversion. Support of this
+method might be removed in the future as it was an experiment.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">At this point it is worth mentioning that <strong>LASIF</strong> keeps logs of many
-actions that the user performs. All logs will be saved in the <code class="docutils literal notranslate"><span class="pre">LOGS</span></code>
-subfolder.</p>
+actions that the user performs. All logs will be saved in the
+<code class="docutils literal notranslate"><span class="pre">OUTPUT/LOGS</span></code> subfolder.</p>
 </div>
 </div>
 </div>
@@ -257,10 +267,10 @@ subfolder.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="06_data_inspection.html" class="btn btn-neutral float-right" title="7. Data Inspection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="05_data_inspection.html" class="btn btn-neutral float-right" title="7. Data Inspection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="04_waveform_data.html" class="btn btn-neutral" title="5. Waveform Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -102,19 +102,17 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -187,7 +185,7 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="creating-a-new-project">
+<strong>Last updated on <em>February 22th 2018</em>.</strong></p><div class="section" id="creating-a-new-project">
 <h1>2. Creating a New Project<a class="headerlink" href="#creating-a-new-project" title="Permalink to this headline">¶</a></h1>
 <p>The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to <strong>LASIF</strong>, is to create a new project with the
@@ -197,151 +195,128 @@ create a  new folder in whichever directory the command is executed in.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif init_project Tutorial
 
 Initialized project in:
-    /Users/lion/workspace/temp/LASIF_Tutorial/Tutorial
+    /Users/solvi/PhD/LASIF_Projects/LASIF_Tutorial/Tutorial
 </pre></div>
 </div>
 <p>This will create the following directory structure. A <strong>LASIF</strong> project is
 defined by the files it contains. All information it requires will be
 assembled from the available data. In the course of this tutorial you will
 learn what piece of data belongs where and how <strong>LASIF</strong> interacts with it.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial
-├── ADJOINT_SOURCES_AND_WINDOWS
-│   ├── ADJOINT_SOURCES
-│   └── WINDOWS
-├── CACHE
-│   ├── config.xml_cache.pickle
-│   ├── event_cache.sqlite
-│   └── statistics
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial/
+├── ADJOINT_SOURCES
 ├── DATA
-├── EVENTS
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
 ├── FUNCTIONS
 │   ├── __init__.py
-│   ├── preprocessing_function.py
+│   ├── light_preprocessing.py
+│   ├── preprocessing_function_asdf.py
+│   ├── process_data.py
 │   ├── process_synthetics.py
 │   ├── source_time_function.py
 │   └── window_picking_function.py
-├── ITERATIONS
-├── KERNELS
-├── LOGS
+├── GRADIENTS
 ├── MODELS
 ├── OUTPUT
-├── STATIONS
-│   ├── RESP
-│   ├── SEED
-│   └── StationXML
+│   └── LOGS
+├── PROCESSED_DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+├── SALVUS_INPUT_FILES
+├── SETS
+│   ├── WEIGHTS
+│   └── WINDOWS
 ├── SYNTHETICS
-├── WAVEFIELDS
-└── config.xml
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+└── lasif_config.toml
 </pre></div>
 </div>
 <div class="section" id="configuration-file">
 <h2>2.1. Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>Each project stores its configuration values in <strong>lasif_config.toml</strong>. This
+file should always be located in the root directory of the project as this
+file is how LASIF determines the root folder of the project. It uses the
+toml format which is a readable file format which should be for the most
+part self explanatory. It is important that the names of the inputted values
+will not be changed.</p>
 <p>Each project stores its configuration values in the <strong>config.xml</strong> file; the
 location of this file also determines the root folder of the project. It is
 a simple, self-explanatory XML format. Please refer to the comments in the
 XML file to infer the meaning of the different settings. Immediately after the
 project has been initialized, it will resemble the following:</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
-<span class="nt">&lt;lasif_project&gt;</span>
-  <span class="nt">&lt;name&gt;</span>Tutorial<span class="nt">&lt;/name&gt;</span>
-  <span class="nt">&lt;description&gt;&lt;/description&gt;</span>
-  <span class="nt">&lt;download_settings&gt;</span>
-    <span class="nt">&lt;seconds_before_event&gt;</span>300<span class="nt">&lt;/seconds_before_event&gt;</span>
-    <span class="nt">&lt;seconds_after_event&gt;</span>3600<span class="nt">&lt;/seconds_after_event&gt;</span>
-    <span class="nt">&lt;interstation_distance_in_m&gt;</span>1000.0<span class="nt">&lt;/interstation_distance_in_m&gt;</span>
-    <span class="nt">&lt;channel_priorities&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>BH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>LH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>HH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>EH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>MH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
-    <span class="nt">&lt;/channel_priorities&gt;</span>
-    <span class="nt">&lt;location_priorities&gt;</span>
-      <span class="nt">&lt;priority&gt;&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>00<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>10<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>20<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>01<span class="nt">&lt;/priority&gt;</span>
-      <span class="nt">&lt;priority&gt;</span>02<span class="nt">&lt;/priority&gt;</span>
-    <span class="nt">&lt;/location_priorities&gt;</span>
-  <span class="nt">&lt;/download_settings&gt;</span>
-  <span class="nt">&lt;domain&gt;</span>
-    <span class="nt">&lt;global&gt;</span>false<span class="nt">&lt;/global&gt;</span>
-    <span class="nt">&lt;domain_bounds&gt;</span>
-      <span class="nt">&lt;minimum_longitude&gt;</span>-20<span class="nt">&lt;/minimum_longitude&gt;</span>
-      <span class="nt">&lt;maximum_longitude&gt;</span>20<span class="nt">&lt;/maximum_longitude&gt;</span>
-      <span class="nt">&lt;minimum_latitude&gt;</span>-20<span class="nt">&lt;/minimum_latitude&gt;</span>
-      <span class="nt">&lt;maximum_latitude&gt;</span>20<span class="nt">&lt;/maximum_latitude&gt;</span>
-      <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
-      <span class="nt">&lt;maximum_depth_in_km&gt;</span>200.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
-      <span class="nt">&lt;boundary_width_in_degree&gt;</span>3.0<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
-    <span class="nt">&lt;/domain_bounds&gt;</span>
-    <span class="nt">&lt;domain_rotation&gt;</span>
-      <span class="nt">&lt;rotation_axis_x&gt;</span>1.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
-      <span class="nt">&lt;rotation_axis_y&gt;</span>1.0<span class="nt">&lt;/rotation_axis_y&gt;</span>
-      <span class="nt">&lt;rotation_axis_z&gt;</span>1.0<span class="nt">&lt;/rotation_axis_z&gt;</span>
-      <span class="nt">&lt;rotation_angle_in_degree&gt;</span>-45.0<span class="nt">&lt;/rotation_angle_in_degree&gt;</span>
-    <span class="nt">&lt;/domain_rotation&gt;</span>
-  <span class="nt">&lt;/domain&gt;</span>
-  <span class="nt">&lt;misc_settings&gt;</span>
-    <span class="nt">&lt;time_frequency_adjoint_source_criterion&gt;</span>
-        25.0
-    <span class="nt">&lt;/time_frequency_adjoint_source_criterion&gt;</span>
-  <span class="nt">&lt;/misc_settings&gt;</span>
-<span class="nt">&lt;/lasif_project&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Please fill in this config file before proceeding with using LASIF.
+
+[lasif_project]
+  project_name = &quot;Tutorial&quot;
+  description = &quot;&quot;
+
+  # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
+  mesh_file = &quot;/Users/solvi/PhD/LASIF_Projects/LASIF_Tutorial/Tutorial/&quot;
+
+  # Number of buffer elements at the domain edges, no events or receivers will be placed there.
+  # A minimum amount of 3 is advised.
+  num_buffer_elements = 8
+
+  # Type of misift, choose from:
+  # [TimeFrequencyPhaseMisfitFichtner2008, L2Norm, CCTimeShift]
+  misfit_type = &quot;TimeFrequencyPhaseMisfitFichtner2008&quot;
+
+  [lasif_project.download_settings]
+    seconds_before_event = 300.0
+    seconds_after_event = 3600.0
+    interstation_distance_in_meters = 1000.0
+    channel_priorities = [ &quot;BH[Z,N,E]&quot;, &quot;LH[Z,N,E]&quot;, &quot;HH[Z,N,E]&quot;, &quot;EH[Z,N,E]&quot;, &quot;MH[Z,N,E]&quot;,]
+    location_priorities = [ &quot;&quot;, &quot;00&quot;, &quot;10&quot;, &quot;20&quot;, &quot;01&quot;, &quot;02&quot;,]
+
+# Data processing settings,  high- and lowpass period are given in seconds.
+[data_processing]
+  highpass_period = 30.0 # Periods longer than the highpass_period can pass.
+  lowpass_period = 50.0 # Periods longer than the lowpass_period will be blocked.
+  # Only worry about this if you will reduce the size of the raw data set:
+  downsample_period = 1.0 # Minimum period of the period range you will have in your (raw) recordings.
+
+  # You most likely want to keep this setting at true.
+  scale_data_to_synthetics = true
+
+[solver_settings]
+    number_of_absorbing_layers = 7
+    end_time = 600.0
+    time_increment = 0.02
+    polynomial_order = 4
+
+    salvus_bin = &quot;salvus_wave/build/salvus&quot;
+    number_of_processors = 4
+    io_sampling_rate_volume = 20
+    io_memory_per_rank_in_MB = 5000
+    salvus_call = &quot;mpirun -n 4&quot;
+
+    with_anisotropy = true
+    with_attenuation = false
+
+    # Source time function type, currently only &quot;bandpass_filtered_heaviside&quot; is supported
+    source_time_function_type = &quot;bandpass_filtered_heaviside&quot;
 </pre></div>
 </div>
-<p>The nature of SES3D’s coordinate system has the effect that simulation is most
-efficient in equatorial regions. Thus it is often advantageous to rotate
-the frame of reference so that the simulation happens close to the equator.
-A one chunk simulation with SPECFEM3D GLOBE does not suffer from this limitation,
-but a domain can still only be specified by minimum and maximum extents as it
-works with spherical sections.
-<strong>LASIF</strong> first defines the simulation domain; the actual simulation happens
-there (only when using SES3D; SPECFEM3D GLOBE directly simulates in the
-rotated domain). Optional rotation parameters define the physical location of
-the domain. The coordinate system for the rotation parameters is described in
-<a class="reference internal" href="../rotations.html#module-lasif.rotations" title="lasif.rotations"><code class="xref py py-mod docutils literal notranslate"><span class="pre">lasif.rotations</span></code></a>.  You will have to edit the <code class="docutils literal notranslate"><span class="pre">config.xml</span></code> file to
-adjust it to your region of interest.</p>
-<p><strong>LASIF</strong> handles all rotations necessary so the user never needs to worry
-about these. Just keep in mind to always keep any data (real waveforms, station
-metadata and events) in coordinates that correspond to the physical domain and
-all synthetic waveforms in coordinates that correspond to the simulation
-domain.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">A one chunk simulation in SPECFEM3D GLOBE is not exactly identical with the
-domain definition in LASIF. A SES3D (and LASIF) domain is defined in
-geographical coordinates whereas a cubed sphere chunk uses great circles on
-all boundaries. This is not a big limitation - just keep in mind that the
-domain in SPECFEM is a bit smaller at the corners than the LASIF domain. If
-this becomes an issue, let us know and we’ll add some more logic to LASIF.</p>
-</div>
-<p>For this tutorial we are going to work in a rotated domain across Europe.
-Please change the <code class="docutils literal notranslate"><span class="pre">config.xml</span></code> file to reflect the following domain
-settings.</p>
-<ul class="simple">
-<li>Latitude: <code class="docutils literal notranslate"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></code></li>
-<li>Longitude: <code class="docutils literal notranslate"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></code></li>
-<li>Depth: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">471</span> <span class="pre">km</span></code></li>
-<li>Boundary width in degree: <code class="docutils literal notranslate"><span class="pre">2.5°</span></code></li>
-<li>Rotation axis: <code class="docutils literal notranslate"><span class="pre">1.0,</span> <span class="pre">1.0,</span> <span class="pre">0.2</span></code></li>
-<li>Rotation angle: <code class="docutils literal notranslate"><span class="pre">-65.0°</span></code></li>
-</ul>
-<p>In general, one should only work with data not affected by the boundary
-conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
-It is not advisable to use data that traverses these layers. SES3D defaults
-to two layers but more are possible. For this tutorial we will only consider
-data which is at least three elements away from the border in a an attempt
-to avoid unphysical influences of the boundary conditions. This amounts to
-<code class="docutils literal notranslate"><span class="pre">2.5°</span></code>.</p>
-<p>At any point you can have a look at the defined domain with</p>
+<p>You will probably have another values in <code class="docutils literal notranslate"><span class="pre">end_time</span></code> and <code class="docutils literal notranslate"><span class="pre">time_increment</span></code>
+to follow this tutorial, please modify them to resemble this one.</p>
+<p>The <strong>lasif_config.toml</strong> file allows you to tune parameters related to the
+processing of your data, download settings, and forward simulation parameters.
+This is where you let <strong>LASIF</strong> know where it finds the mesh file to use. Which
+source time function and which misfit measurement you want to use. <em>Currently
+only the once specified in this example config file are supported</em> The mesh
+file is how <strong>LASIF</strong> determines the domain used for the simulation. This
+mesh needs to be in an exodus file format and we recommend using the
+<a class="reference external" href="https://gitlab.com/Salvus/salvus_mesher/tree/master">pymesher</a> which is
+a part of <a class="reference external" href="http://www.salvus.io">salvus</a>. You can plot the domain to make
+sure that lasif has read the correct domain for your project.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_domain
 </pre></div>
 </div>
 <p>This will open a window showing the location of the physical domain and the
 simulation domain. The inner contour shows the domain minus the previously
-defined boundary width.</p>
+defined boundary width. <em>Currently it only shows the outer boundary but the
+inner boundary will be implemented later</em></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The map projection and zoom should automatically adjust so that it is suitable

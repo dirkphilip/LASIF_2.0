@@ -97,25 +97,22 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">1. Interfaces</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#command-line-interface">1.1. Command Line Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#web-interface">1.2. Web Interface</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -188,22 +185,17 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="interfaces">
+<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="interfaces">
 <h1>1. Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h1>
-<p>LASIF defines a project via its directory structure. The state of the
-directory is the state of the inversion project. LASIF currently exposes two
-interfaces to interact with it. They are complementary and to get the most
-out of LASIF users are advised to use both.</p>
+<p>LASIF defines a project via its directory structure. LASIF currently only
+supports one interface to interact with. That is directly through the
+command line interface. LASIF used to have a web interface but that is
+currently not supported. The web interface is a potential feature that
+might be added in the future.</p>
 <div class="section" id="command-line-interface">
 <h2>1.1. Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
-<p>LASIF’s primary interface is its command line interface. Please read at least
-the introduction to the <a class="reference internal" href="../cli.html"><span class="doc">Command Line Interface</span></a> before proceeding.</p>
-</div>
-<div class="section" id="web-interface">
-<h2>1.2. Web Interface<a class="headerlink" href="#web-interface" title="Permalink to this headline">¶</a></h2>
-<p>The web interface is a recent addition to LASIF and is intended to aid users
-with data exploration and discovery. Please refer to the
-<a class="reference internal" href="../webinterface.html"><span class="doc">Web Interface</span></a> for more information.</p>
+<p>The way to interact with LASIF is through the command line interface. Please
+read the introduction to the <a class="reference internal" href="../cli.html"><span class="doc">Command Line Interface</span></a> before proceeding.</p>
 </div>
 </div>
 

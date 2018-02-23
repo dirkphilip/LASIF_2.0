@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="9. Defining a New Iteration" href="08_a_new_iteration.html"/>
-        <link rel="prev" title="7. Data Inspection" href="06_data_inspection.html"/> 
+        <link rel="next" title="9. Defining a New Iteration" href="07_a_new_iteration.html"/>
+        <link rel="prev" title="7. Data Inspection" href="05_data_inspection.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,19 +99,17 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -170,7 +168,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/07_data_validation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/06_data_validation.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -184,12 +182,12 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="data-validation">
+<strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="data-validation">
 <h1>8. Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
-<p>You might have noticed that <strong>LASIF</strong> projects can potentially contain many millions
-of files and it will thus be impossible to validate the data by hand. <strong>LASIF</strong>
-therefore contains a number of functions attempting to check the data of a
-project. All of these can be called with</p>
+<p>You might have noticed that <strong>LASIF</strong> projects can potentially contain files
+which are very large and it will thus be impossible to validate the data by
+hand. <strong>LASIF</strong> therefore contains a number of functions attempting to
+check the data of a project. All of these can be called with</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif validate_data
 </pre></div>
 </div>
@@ -205,24 +203,23 @@ simplified validation function as some tests are rather slow. To get a full
 validation going use</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif validate_data --full
 
-Validating <span class="m">2</span> event files ...
-    Validating against QuakeML <span class="m">1</span>.2 schema .. <span class="o">[</span>OK<span class="o">]</span>
-    Checking <span class="k">for</span> duplicate public IDs .. <span class="o">[</span>OK<span class="o">]</span>
+    Validating <span class="m">2</span> event files ...
     Performing some basic sanity checks .. <span class="o">[</span>OK<span class="o">]</span>
-    Checking <span class="k">for</span> duplicates and events too close in <span class="nb">time</span> ..  <span class="o">[</span>OK<span class="o">]</span>
-    Assure all events are in chosen domain ..  <span class="o">[</span>OK<span class="o">]</span>
+    Checking <span class="k">for</span> duplicates and events too close in <span class="nb">time</span> .. <span class="o">[</span>OK<span class="o">]</span>
+    Assure all events are in chosen domain .. <span class="o">[</span>OK<span class="o">]</span>
 Confirming that station metainformation files exist <span class="k">for</span> all waveforms .. <span class="o">[</span>OK<span class="o">]</span>
-Checking all waveform files .. <span class="o">[</span>OK<span class="o">]</span>
 Making sure raypaths are within boundaries .. <span class="o">[</span>OK<span class="o">]</span>
 
 ALL CHECKS PASSED
 The data seems to be valid. If we missed something please contact the developers.
+Be aware that this may take a <span class="k">while</span>.
 </pre></div>
 </div>
-<p>Be aware that this may take a while.</p>
 <p>If <strong>LASIF</strong> detects something is amiss it will complain and potentially create
 a script to remove the offending files. Review the script and execute it if
-appropriate.</p>
+appropriate. <em>This is not working right now but will maybe be added later</em>.</p>
+<p>It is possible to delete stations manually using pyasdf commands or by using
+the misfit gui which will be explained later.</p>
 </div>
 
 
@@ -235,10 +232,10 @@ appropriate.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="08_a_new_iteration.html" class="btn btn-neutral float-right" title="9. Defining a New Iteration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="07_a_new_iteration.html" class="btn btn-neutral float-right" title="9. Defining a New Iteration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="06_data_inspection.html" class="btn btn-neutral" title="7. Data Inspection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="05_data_inspection.html" class="btn btn-neutral" title="7. Data Inspection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
