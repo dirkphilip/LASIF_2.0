@@ -216,19 +216,19 @@
 
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(1, 2, 3)</span>
-<span class="sd">    &gt;&gt;&gt; vec # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    &gt;&gt;&gt; vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
 <span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector([1, 2, 3])</span>
-<span class="sd">    &gt;&gt;&gt; vec</span>
+<span class="sd">    &gt;&gt;&gt; vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
 <span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
 
 <span class="sd">    &gt;&gt;&gt; vec = _get_vector(np.array([1, 2, 3], dtype=&quot;int32&quot;))</span>
-<span class="sd">    &gt;&gt;&gt; vec</span>
+<span class="sd">    &gt;&gt;&gt; vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
 <span class="sd">    array([1., 2., 3.])</span>
 <span class="sd">    &gt;&gt;&gt; print(vec.dtype)</span>
 <span class="sd">    float64</span>
