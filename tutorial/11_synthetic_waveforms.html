@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>4. Station Data &mdash; LASIF 0.1.x documentation</title>
+  <title>13. Synthetics &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="6. Download Helpers" href="04_download_helpers.html"/>
-        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+        <link rel="next" title="14. Misfit and Adjoint Source Calculation" href="12_misfits_and_adjoint_sources.html"/>
+        <link rel="prev" title="12. Generating Input Files" href="10_generating_input_files.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -98,8 +98,8 @@
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
@@ -107,7 +107,7 @@
 <li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">13. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
@@ -162,13 +162,13 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>4. Station Data</li>
+      <li>13. Synthetics</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/11_synthetic_waveforms.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -182,25 +182,97 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="station-data">
-<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> needs to know the coordinates and instrument response of each channel.
-The best way to achieve this is to have a StationXML file related to each
-station and each event. These StationXML files then have to be read into the
-ASDF file containing the Earthquake information. We will make a tutorial on
-how to organize your files into an ASDF format. Hopefully we will have time
-to do that soon. But for now we recommend using the built in downloading
-schemes which will be explained soon.</p>
+<strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="synthetics">
+<h1>13. Synthetics<a class="headerlink" href="#synthetics" title="Permalink to this headline">¶</a></h1>
+<p>Now that everything has been set up, you have to actually perform the
+simulations.  Please keep in mind that the adjoint forward simulations require
+a very large amount of disk space due to the need to store the forward
+wavefield. If you only want to make some waveforms you can remove the
+<code class="docutils literal notranslate"><span class="pre">--save-wavefield-file</span> <span class="pre">wavefield.h5</span></code> and <code class="docutils literal notranslate"><span class="pre">--save-fields</span> <span class="pre">adjoint</span></code> flags
+from your <code class="docutils literal notranslate"><span class="pre">run_salvus.sh</span></code> files. If you want to keep using the tutorial but
+you do not want to calculate synthetics yourself. You can copy synthetics
+from your <strong>LASIF</strong> directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Position yourself in the root directory of the project.</span>
+$ cp -r <span class="o">{</span>lasif folder<span class="o">}</span>/lasif/tests/data/ExampleProject/SYNTHETICS/EARTHQUAKES/ITERATION_1/* ./SYNTHETICS/EARTHQUAKES/ITERATION_1/
+</pre></div>
 </div>
-<div class="section" id="waveform-data">
-<h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
-<p>Every inversion needs real data to be able to quantify misfits. In <strong>LASIF</strong>
-this data needs to be stored, as we have mentioned several times before, in
-the ASDF file containing Earthquake information. These files are positioned
-under the name: <strong>{project_root}/DATA/EARTHQUAKES/{event_name}.h5</strong>. Only one
-file is used to contain all the raw information for each event. Including
-earthquake information (QuakeML), Station information (StationXML) and raw
-waveforms for each station.</p>
+<p>This should copy some synthetics to the correct folder in your tutorial
+project. Your directory structure should look similar to this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial
+├── ADJOINT_SOURCES
+│   └── ITERATION_1
+├── DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5
+├── FUNCTIONS
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── preprocessing_function_asdf.cpython-36.pyc
+│   │   └── source_time_function.cpython-36.pyc
+│   ├── light_preprocessing.py
+│   ├── preprocessing_function_asdf.py
+│   ├── process_data.py
+│   ├── process_synthetics.py
+│   ├── source_time_function.py
+│   └── window_picking_function.py
+├── GRADIENTS
+├── MODELS
+│   ├── ITERATION_1
+│   └── Turkey.e
+├── OUTPUT
+│   ├── LOGS
+│   └── raydensity_plots
+│       └── 2018-02-23T08-38-48__raydensity
+│           └── raydensity.png
+├── PROCESSED_DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│       │   └── preprocessed_30s_to_50s.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│           └── preprocessed_30s_to_50s.h5
+├── SALVUS_INPUT_FILES
+│   └── ITERATION_1
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│       │   └── forward
+│       │       ├── Heaviside.h5
+│       │       ├── receivers.toml
+│       │       ├── receivers_paraview.csv
+│       │       ├── run_salvus.sh
+│       │       ├── source.toml
+│       │       └── source_paraview.csv
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│           └── forward
+│               ├── Heaviside.h5
+│               ├── receivers.toml
+│               ├── receivers_paraview.csv
+│               ├── run_salvus.sh
+│               ├── source.toml
+│               └── source_paraview.csv
+├── SETS
+│   ├── WEIGHTS
+│   │   └── WEIGHTS_A
+│   │       └── WEIGHTS_A.toml
+│   └── WINDOWS
+├── SYNTHETICS
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       └── ITERATION_1
+│           ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│           │   ├── receivers.h5
+│           │   ├── stderr
+│           │   └── stdout
+│           └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+│               ├── receivers.h5
+│               ├── stderr
+│               └── stdout
+└── lasif_config.toml
+</pre></div>
+</div>
+<p>Now we can look at the misfit between data and synthetics and later compute the
+misfits and adjoint sources.</p>
 </div>
 
 
@@ -213,10 +285,10 @@ waveforms for each station.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="12_misfits_and_adjoint_sources.html" class="btn btn-neutral float-right" title="14. Misfit and Adjoint Source Calculation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="10_generating_input_files.html" class="btn btn-neutral" title="12. Generating Input Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

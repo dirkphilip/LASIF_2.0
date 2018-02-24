@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="8. Data Validation" href="07_data_validation.html"/>
-        <link rel="prev" title="6. Download Helpers" href="05_download_helpers.html"/> 
+        <link rel="next" title="8. Data Validation" href="06_data_validation.html"/>
+        <link rel="prev" title="6. Download Helpers" href="04_download_helpers.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,19 +99,17 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -170,7 +168,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/06_data_inspection.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/05_data_inspection.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -184,11 +182,18 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="data-inspection">
+<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="data-inspection">
 <h1>7. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
 <p>Once waveform and station metadata has been downloaded (either with the
 built-in helpers or manually) and placed in the correct folders, <strong>LASIF</strong> can
-start to work with it.</p>
+start to work with it. To continue this tutorial, you can copy your asdf files
+from the <strong>LASIF</strong> folder. You can also download data automatically for the
+events and use that data to continue the tutorial. This is how you could copy
+the data from the <strong>LASIF</strong> folder if you are positioned in the projects root
+folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp <span class="o">{</span>lasif_code_folder<span class="o">}</span>/lasif/tests/data/ExampleProject/DATA/EARTHQUAKES/* ./DATA/EARTHQUAKES/
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p><strong>LASIF</strong> essentially needs three ingredients to be able to interpret waveform
@@ -198,40 +203,36 @@ data:</p>
 <li>The location of the recording seismometer</li>
 <li>The instrument response for each channel at the time of data recording</li>
 </ul>
-<p>Some possibilities exist to specify these:</p>
-<ul class="last simple">
-<li>MiniSEED and StationXML (strongloy preferred)</li>
-<li>SAC data and RESP files (needed for legacy reasons)</li>
-<li>MiniSEED and RESP files (this combination does not actually contain
-location information but <strong>LASIF</strong> launches some web requests to get just the
-locations and stores them in a cache database)</li>
-<li>Most other combinations should also work but have not been tested.</li>
-</ul>
+<p class="last">This information needs to be existing in the ASDF file for each event.
+We will make a tutorial showing the way the data needs to be structured
+later.</p>
 </div>
 <p>At this point, <strong>LASIF</strong> is able to match available station and waveform
 information. Only stations where the three aforementioned ingredients are
 available will be considered to be stations that are good to be worked with by
 <strong>LASIF</strong>. Others will be ignored.</p>
+<p>Once you have picked a few events it is possible to plot them all on a single
+overview plot by executing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_events
+</pre></div>
+</div>
 <p>To get an overview, of what data is actually available for any given event,
 just execute:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info -v GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 
-Earthquake with <span class="m">4</span>.9 Mwc at NORTHERN ITALY
-    Latitude: <span class="m">44</span>.870, Longitude: <span class="m">8</span>.480, Depth: <span class="m">15</span>.0 km
-    <span class="m">2000</span>-08-21T17:14:31.100000Z UTC
+Earthquake with <span class="m">5</span>.9 Mwc at TURKEY
+    Latitude: <span class="m">39</span>.150, Longitude: <span class="m">29</span>.100, Depth: <span class="m">7</span>.0 km
+    <span class="m">2011</span>-05-19T20:15:22.900000Z UTC
 
-Station and waveform information available at <span class="m">51</span> stations:
+Station and waveform information available at <span class="m">4</span> stations:
 
-<span class="o">===========================================================================</span>
-         id       latitude      longitude elevation_in_m    <span class="nb">local</span> <span class="nv">depth</span>
-<span class="o">===========================================================================</span>
-    LA.AA00  <span class="m">44</span>.4567283802  <span class="m">5</span>.62467939102            <span class="m">0</span>.0            <span class="m">0</span>.0
-    LA.AA01   <span class="m">42</span>.192951649  <span class="m">23</span>.3492243512            <span class="m">0</span>.0            <span class="m">0</span>.0
-    LA.AA02  <span class="m">53</span>.2426492521  <span class="m">16</span>.0639363825            <span class="m">0</span>.0            <span class="m">0</span>.0
-    LA.AA03  <span class="m">34</span>.5585730668   <span class="m">9</span>.5857134452            <span class="m">0</span>.0            <span class="m">0</span>.0
-    LA.AA04  <span class="m">45</span>.6821185764  <span class="m">15</span>.1965770125            <span class="m">0</span>.0            <span class="m">0</span>.0
-    LA.AA05  <span class="m">50</span>.2345625685  <span class="m">9</span>.03513474669            <span class="m">0</span>.0            <span class="m">0</span>.0
-    ...
+<span class="o">============================================================</span>
+             ID       Latitude      Longitude <span class="nv">Elevation_in_m</span>
+<span class="o">============================================================</span>
+        GE.TIRR      <span class="m">44</span>.458099        <span class="m">28</span>.4128           <span class="m">77</span>.0
+         II.KIV      <span class="m">43</span>.955299      <span class="m">42</span>.686298         <span class="m">1054</span>.0
+         MN.IDI      <span class="m">35</span>.287998      <span class="m">24</span>.889999          <span class="m">750</span>.0
+        YD.4F14      <span class="m">44</span>.988819      <span class="m">24</span>.610781          <span class="m">286</span>.0
 </pre></div>
 </div>
 <div class="admonition note">
@@ -242,9 +243,26 @@ matter for continental scale inversions.</p>
 </div>
 <p>It is furthermore possible to plot the availability information for one event
 including a very simple ray coverage plot with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 </pre></div>
 </div>
+<p>Now stations have an even weight and would each have the same effect when
+computing adjoint sources. A method to change that would be to weigh the
+stations up or down depending on the average distance to neighbouring stations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif compute_station_weights A
+</pre></div>
+</div>
+<p>This can also be done for one event at a time. It writes the weighting factors
+to a toml file in <strong>/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.toml</strong> where A is the
+name of the weight set specified when command was run. This file can be used to
+manually modify station weights. Now we can plot the event again but showing on
+a colour scale how the stations are weighted.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 --weight_set_name A
+</pre></div>
+</div>
+<p>Now we can see how the stations are colour coded according to the weighting
+scheme. This method is more relevant when you have more stations where their
+distribution is far from uniform.</p>
 <p>If you are interested in getting a coverage plot of all events and data
 available for the current project, please execute the <code class="docutils literal notranslate"><span class="pre">plot_raydensity</span></code>
 command:</p>
@@ -270,10 +288,10 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="07_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="06_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="05_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="04_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

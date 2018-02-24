@@ -102,19 +102,17 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -187,35 +185,34 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>The following links shows the example project as it should be just before
-step 2. You can use this to check your progress or restart the tutorial at
-this very point.</p>
-<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_2_creating_a_new_project">After Step 2: Creating a new Project</a></p>
-</div>
-<div class="section" id="seismic-events">
+<strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="seismic-events">
 <h1>3. Seismic Events<a class="headerlink" href="#seismic-events" title="Permalink to this headline">¶</a></h1>
-<p>Once the domain has been adjusted to your needs, you need to tell <strong>LASIF</strong>
-which events you want to use for the inversion. This works by simply placing a
-valid QuakeML 1.2 file at the correct location.</p>
-<p>All events have to be stored in the <code class="docutils literal notranslate"><span class="pre">EVENTS</span></code> subfolder of the project. They
-have to be QuakeML 1.2 files with full moment tensor information.</p>
+<p>Once you have made a mesh file and referenced its location in the config file
+it is time to import events to the project. <strong>LASIF</strong> expects the data to be
+stored in the <strong>DATA/EARTHQUAKES/</strong> directory in an <a class="reference external" href="http://seismicdata.github.io/pyasdf/">ASDF Data format</a>. You can either use the pyasdf package
+to organise your own data into the ASDF format or you can use the tools that
+<strong>LASIF</strong> provides to query different databases for events within your domain.
+<strong>LASIF</strong> expects the data to contain valid QuakeML files with full moment
+tensor information. Each event is organised in one asdf file. The waveform and
+station data for said event will also be included in that one file. That means
+that all the raw information concerning this one event is contained in one
+file. That makes bookkeeping easier and the pyasdf can be used to look into
+each file.</p>
 <p>LASIF provides some convenience methods for this purpose. One can make use of the
 <a class="reference external" href="http://www.iris.edu/spud/momenttensor">IRIS SPUD service</a> to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
 The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
-url and store an XML file in the correct folder.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
-$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
+url and store an asdf file in the correct folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif add_spud_event http://ds.iris.edu/spud/momenttensor/988455
+$ lasif add_spud_event http://ds.iris.edu/spud/momenttensor/735711
 </pre></div>
 </div>
 <p>These commands will download two event files and store them in the
 <code class="docutils literal notranslate"><span class="pre">EVENTS</span></code> subfolder.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ls EVENTS
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ls DATA/EARTHQUAKES
 
-GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
-GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
+GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-11.h5
 </pre></div>
 </div>
 <p>A more convenient way to see which events are currently defined in the
@@ -223,12 +220,12 @@ project is the <code class="docutils literal notranslate"><span class="pre">lasi
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_events
 
 <span class="m">2</span> events in project:
-+------------------------------------------------------------+-----------------------------+
-<span class="p">|</span> Event Name                                                 <span class="p">|</span>    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    <span class="p">|</span>
-+------------------------------------------------------------+-----------------------------+
-<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   <span class="m">44</span>.9 /    <span class="m">8</span>.5 /  <span class="m">15</span> / <span class="m">4</span>.9 <span class="p">|</span>
-<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   <span class="m">43</span>.4 /   <span class="m">21</span>.4 /  <span class="m">10</span> / <span class="m">5</span>.9 <span class="p">|</span>
-+------------------------------------------------------------+-----------------------------+
++-------------------------------------------+-----------------------------+
+<span class="p">|</span> Event Name                                <span class="p">|</span>    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    <span class="p">|</span>
++-------------------------------------------+-----------------------------+
+<span class="p">|</span> GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 <span class="p">|</span>   <span class="m">38</span>.8 /   <span class="m">40</span>.1 /   <span class="m">4</span> / <span class="m">5</span>.1 <span class="p">|</span>
+<span class="p">|</span> GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 <span class="p">|</span>   <span class="m">39</span>.1 /   <span class="m">29</span>.1 /   <span class="m">7</span> / <span class="m">5</span>.9 <span class="p">|</span>
++----------------------------------------+--------------------------------+
 </pre></div>
 </div>
 <p>You will notice that events are identified via their filename minus the
@@ -248,11 +245,11 @@ distribution and origin time distribution by appending <code class="docutils lit
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you want more information
 about a certain event:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-Earthquake with <span class="m">4</span>.9 Mwc at NORTHERN ITALY
-    Latitude: <span class="m">44</span>.870, Longitude: <span class="m">8</span>.480, Depth: <span class="m">15</span>.0 km
-    <span class="m">2000</span>-08-21T17:14:31.100000Z UTC
+Earthquake with <span class="m">5</span>.1 Mwc at TURKEY
+    Latitude: <span class="m">38</span>.690, Longitude: <span class="m">39</span>.990, Depth: <span class="m">28</span>.9 km
+    <span class="m">2010</span>-03-24T14:11:34.300000Z UTC
 
 Station and waveform information available at <span class="m">0</span> stations. Use <span class="s1">&#39;-v&#39;</span> to print them.
 </pre></div>
@@ -261,6 +258,39 @@ Station and waveform information available at <span class="m">0</span> stations.
 useful if the event has more than one origin and you want to know which one
 is actually used by <strong>LASIF</strong>. Notice that the event currently has no data associated
 with it. We will fix this in the next section.</p>
+<p>After adding the events, this is how your directory structure should look:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial
+├── ADJOINT_SOURCES
+├── DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+│       ├── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5
+│       └── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5
+├── FUNCTIONS
+│   ├── __init__.py
+│   ├── light_preprocessing.py
+│   ├── preprocessing_function_asdf.py
+│   ├── process_data.py
+│   ├── process_synthetics.py
+│   ├── source_time_function.py
+│   └── window_picking_function.py
+├── GRADIENTS
+├── MODELS
+├── OUTPUT
+│   └── LOGS
+├── PROCESSED_DATA
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+├── SALVUS_INPUT_FILES
+├── SETS
+│   ├── WEIGHTS
+│   └── WINDOWS
+├── SYNTHETICS
+│   ├── CORRELATIONS
+│   └── EARTHQUAKES
+└── lasif_config.toml
+</pre></div>
+</div>
 <div class="section" id="automatic-event-selection">
 <h2>3.1. Automatic Event Selection<a class="headerlink" href="#automatic-event-selection" title="Permalink to this headline">¶</a></h2>
 <p>Selecting events becomes tedious when selecting a larger number of events. Thus
@@ -268,16 +298,26 @@ with it. We will fix this in the next section.</p>
 catalog, the <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">add_gcmt_events</span></code> command. Arguments are number of events
 to select, minimum magnitude, maximum magnitude, and the minimum distance
 between two events in kilometers. See its help method for more details.</p>
-<p>It will select events in an optimally distributed fashion by successively
-adding events that have the largest distance to the next closest station,
-approximating a Poisson disc distribution.</p>
+<p>It will select events, that fit the selected criteria and fit inside the
+domain defined by the mesh file, in an optimally distributed fashion by
+successively adding events that have the largest distance to the next closest
+station, approximating a Poisson disc distribution.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> <span class="m">6</span>.5 <span class="m">10</span>
 
-LASIF currently contains GCMT data from <span class="m">2005</span> to <span class="m">2016</span>/2.
+LASIF currently contains GCMT data from <span class="m">2005</span> to <span class="m">2017</span>.
 ...
 Selected <span class="m">40</span> events.
 Written EVENTS/GCMT_event_...
 ...
+</pre></div>
+</div>
+<p>These events will not be used in this tutorial but rather the events already
+downloaded using the add_spud_event method. So if you ran the command above
+but want to follow the tutorial step by step. We would recommend either
+removing the 40 new events or removing all of them and running the
+add_spud_event command again like is done above. You can remove all your
+events by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ rm DATA/EARTHQUAKES/*
 </pre></div>
 </div>
 <div class="admonition note">
