@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>4. Station Data &mdash; LASIF 0.1.x documentation</title>
+  <title>10. Data Preprocessing &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="5. Waveform Data" href="04_waveform_data.html"/>
-        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+        <link rel="next" title="11. Earth Model Handling" href="10_model_handling.html"/>
+        <link rel="prev" title="9. Defining a New Iteration" href="08_a_new_iteration.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -98,17 +98,13 @@
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Station Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#naming-scheme">4.1. Naming scheme</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stations-for-tutorial">4.2. Stations for Tutorial</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">10. Data Preprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
@@ -168,13 +164,13 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>4. Station Data</li>
+      <li>10. Data Preprocessing</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/09_data_preprocessing.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -191,69 +187,77 @@
 <strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>The following links shows the example project as it should be just before
-step 3. You can use this to check your progress or restart the tutorial at
+step 9. You can use this to check your progress or restart the tutorial at
 this very point.</p>
-<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_3_seismic_events">After Step 3: Seismic Events</a></p>
+<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_9_defining_a_new_iteration">After Step 9: Defining a new Iteration</a></p>
 </div>
-<div class="section" id="station-data">
-<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> needs to know the coordinates and instrument response of each channel.
-One way to achieve this, is to use SAC files, which contain coordinates, and RESP
-files containing the response information for each channel. Another possibility
-is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files. Please keep in mind that LASIF currently expects to only have
-channels of one station in each dataless SEED and StationXML file. All station
-information files are stored in a subfolder of the <code class="docutils literal notranslate"><span class="pre">STATIONS</span></code> directory.</p>
-<p>For more information about how LASIF derives station coordinates:
-<a class="reference internal" href="../how_lasif_finds_coordinates.html"><span class="doc">How LASIF Finds Coordinates</span></a></p>
-<div class="admonition caution">
-<p class="first admonition-title">Caution</p>
-<p class="last">If possible in any way, we strongly recommend to use station data in the
-<code class="docutils literal notranslate"><span class="pre">StationXML</span></code> format. It is the most future proof and sane format of
-the three. Please only use <code class="docutils literal notranslate"><span class="pre">RESP</span></code> files if absolutely necessary. The
-problem with them is that they do not contain coordinates and thus LASIF
-needs to derive them by other means which is not as clean and more error
-prone.</p>
+<div class="section" id="data-preprocessing">
+<h1>10. Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You do not actually need to do this for the tutorial as the proprocessed
+data has already been downloaded but this will be required for real
+inversions.</p>
 </div>
-<div class="section" id="naming-scheme">
-<h2>4.1. Naming scheme<a class="headerlink" href="#naming-scheme" title="Permalink to this headline">¶</a></h2>
-<p><strong>dataless SEED</strong></p>
-<p>All dataless SEED files are expected to be in the <code class="docutils literal notranslate"><span class="pre">STATIONS/SEED</span></code> directory
-and be named after the following scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dataless</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
+<p>Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes:</p>
+<ul class="simple">
+<li>Ensure a similar spectral bandwidth between observed and synthetic data to
+enable a meaningful comparison.</li>
+<li>Removing the instrument response and converting the data to the same units
+used for the synthetics (usually <code class="docutils literal notranslate"><span class="pre">m/s</span></code>).</li>
+<li>Removal of any linear trends and static offset.</li>
+<li>Interpolations to sample observed and synthetic data at exactly the same
+points in time.</li>
+</ul>
+<p>The goal of the preprocessing within <strong>LASIF</strong> is to create data that is directly
+comparable to simulated data without any more processing.</p>
+<p>While the raw unprocessed data are stored in a folder <code class="docutils literal notranslate"><span class="pre">{{EVENT}}/raw</span></code>, the
+preprocessed data will be stored in a separate directory within each event,
+identified via the name (values are valid for the tutorial):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">preprocessed_hp_0</span><span class="o">.</span><span class="mi">01000</span><span class="n">_lp_0</span><span class="o">.</span><span class="mi">02500</span><span class="n">_npts_2000_dt_0</span><span class="o">.</span><span class="mi">300000</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">NETWORK</span></code> and <code class="docutils literal notranslate"><span class="pre">STATION</span></code> should be replaced with the corresponding network
-and stations codes. It is possible that multiple files are needed for each
-station (e.g. different files for different time intervals/channels) and thus
-<code class="docutils literal notranslate"><span class="pre">.1</span></code>, <code class="docutils literal notranslate"><span class="pre">.2</span></code>, … can be appended to the filename. LASIF will automatically
-choose the correct file in case they need to be accessed.</p>
-<p><strong>StationXML</strong></p>
-<p>All StationXML files are expected to be placed in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML</span></code>
-folder and follow the scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">station</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">xml</span>
+<p>Or in Python terms:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
+<span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                  <span class="s2">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
+                                                   <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The logic for for the different parts is the same as for the dataless SEED
-files described in the previous paragraph.</p>
-<p><strong>RESP Files</strong></p>
-<p>All RESP files are to be put in the <code class="docutils literal notranslate"><span class="pre">STATIONS/RESP</span></code> folder with the
-following name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">RESP</span><span class="o">.</span><span class="n">NETWORK</span><span class="o">.</span><span class="n">STATION</span><span class="o">.</span><span class="n">LOCATION</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
+<p>If you feel that additional identifiers are needed to uniquely identify the
+applied processing (in the limited setting of being useful for the here
+performed waveform inversion) please contact the <strong>LASIF</strong> developers.</p>
+<p>Although in principle you can use any processing tool you like, the simplest
+option is probably to make use of <strong>LASIF</strong>’s built-in preprocessing. Using it
+is trivial: just launch the <strong>preprocess_data</strong> command together with the
+iteration name.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif preprocess_data <span class="m">1</span>
 </pre></div>
 </div>
-<p>In contrast to the two other station information formats the RESP filename also
-has to include the location and channel identifiers.</p>
+<p>or (this is faster as <code class="docutils literal notranslate"><span class="pre">-n</span></code> determines the number of processors it will run
+on):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">4</span> lasif preprocess_data <span class="m">1</span>
+</pre></div>
 </div>
-<div class="section" id="stations-for-tutorial">
-<h2>4.2. Stations for Tutorial<a class="headerlink" href="#stations-for-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>For this tutorial we will work with a bunch of well distributed stations in
-the domain of interest. Unpack
-<a class="reference download internal" href="../_downloads/stations.tar.bz2" download=""><code class="xref download docutils literal notranslate"><span class="pre">this</span> <span class="pre">archive</span></code></a> and place the XML
-files in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML/</span></code> folder. At this point, LASIF is aware
-of the stations. Please note that the stations will not yet show up in any
-command as <strong>LASIF only treats data that has raw waveforms and an associated
-station file as being actually available</strong>.</p>
+<p>This will start a fully parallelized preprocessing run for all data required
+for the specified iteration. If you repeat the command, it will only process
+data not already processed. An advantage is that you can cancel the processing
+at any time and then later on just execute the command again to continue where
+you left off.  This usually only needs to be done every couple of iterations
+when you decide to go to higher frequencies or add new data.</p>
+<p>The preprocessed data will automatically be put in the correct folder.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can use any processing tool you want, but you have to adhere to the
+directory structure – otherwise <strong>LASIF</strong> will not be able to work with
+the data.
+It is also important that the processed filenames are identical to
+the unprocessed ones.</p>
 </div>
 </div>
 
@@ -267,10 +271,10 @@ station file as being actually available</strong>.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="10_model_handling.html" class="btn btn-neutral float-right" title="11. Earth Model Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="08_a_new_iteration.html" class="btn btn-neutral" title="9. Defining a New Iteration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

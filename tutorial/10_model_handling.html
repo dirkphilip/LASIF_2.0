@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="12. Generating Input Files" href="10_generating_input_files.html"/>
-        <link rel="prev" title="10. Data Processing" href="08_data_processing.html"/> 
+        <link rel="next" title="12. Generating Input Files" href="11_generating_input_files.html"/>
+        <link rel="prev" title="10. Data Preprocessing" href="09_data_preprocessing.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,17 +99,19 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -168,7 +170,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/09_model_handling.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/10_model_handling.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -182,25 +184,55 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="earth-model-handling">
+<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="earth-model-handling">
 <h1>11. Earth Model Handling<a class="headerlink" href="#earth-model-handling" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> has a relatively flexible way of handling Earth Models. It provides
-a directory structure for the models to be organized via iterations but this
-is optional. It is very important to keep in mind that <strong>LASIF</strong> will always
-look for the Earth Model referenced in the lasif_config.toml file. So before
-every generate_input_files command (explain later) you need to be sure that
-the configuration file references the model that you plan to use for the
-simulations of this iteration.
-<strong>LASIF</strong> expects that your Earth Model mesh files are stored in a format
-called exodus. These files can be queried and modified via the pyexodus
-package. We recommend using the pymesher which we demonstrate how works earlier
-in this tutorial.</p>
-<p>For visualization of your Earth model we recommend using <a class="reference external" href="https://www.paraview.org/">Paraview</a>.
-You can then visualize your model and the parameters it contains in a
-relatively easy way. Paraview is a powerful tool that can take a bit of
-practise to learn how to properly use. But it is fully worth it.</p>
-<p>Again we want to make clear that when running simulations the user is
-responsible for referencing the correct Earth Model.</p>
+<p><strong>LASIF</strong> has a very simple approach to handling Earth Models. The idea is to
+have one Earth model per iteration with ideally the same name as the
+iteration. <strong>LASIF</strong> does not yet perform any work with the Earth models,
+it merely offers an organized way of storing and visualizing them.</p>
+<p><strong>LASIF</strong> can directly deal with the models used in SES3D (that is, the
+ready-to-go models with which a simulation is run). Each model has to
+be placed in a subfolder of <code class="docutils literal notranslate"><span class="pre">MODELS</span></code>. The folder name will again be used to
+identify the model.</p>
+<p>For the tutorial, we will work with two models: one based on PREM which we
+will use as the initial model and one with a perturbation which will be
+considered the true model for the tutorial. Download both models
+<a class="reference download internal" href="../_downloads/models.tar.bz2" download=""><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a> and place them in the
+<code class="docutils literal notranslate"><span class="pre">MODELS</span></code> folder.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The true synthetic model is PREM with a small positive Gaussian anomaly  in
+the center (latitude=longitude=0) at a depth of 70 km applied to the  P and
+both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
+the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
+</div>
+<p>Now you are able to use the <strong>list_models</strong> commands.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif list_models
+
+<span class="m">2</span> model in project:
+    Iteration_1
+    True_Model
+</pre></div>
+</div>
+<p>LASIF has some functionality to view the models. To save a model slice to file,
+use the <code class="docutils literal notranslate"><span class="pre">plot_model</span></code> command together with the model name and some
+identifying parameters.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_model True_Model <span class="m">50</span> vsv -
+</pre></div>
+</div>
+<p>This will pop open a window. If you want to save the image to a file, just
+replace <code class="docutils literal notranslate"><span class="pre">-</span></code> with a filename.</p>
+<a class="reference internal image-reference" href="../_images/vsv_52km.png"><img alt="../_images/vsv_52km.png" class="align-center" src="../_images/vsv_52km.png" style="width: 90%;" /></a>
+<p>Another option is to use</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif launch_model_gui
+</pre></div>
+</div>
+<p>This opens a more interactive viewer in which the user can choose which
+model to look at, walk through the different depth levels, and explore
+different (derived) components:</p>
+<a class="reference internal image-reference" href="../_images/model_gui.screenshot.2016-06-14.png"><img alt="../_images/model_gui.screenshot.2016-06-14.png" class="align-center" src="../_images/model_gui.screenshot.2016-06-14.png" style="width: 90%;" /></a>
+<p>When running the numerical simulations, <strong>the user is responsible to choose and
+copy the correct earth model file</strong>.</p>
 </div>
 
 
@@ -213,10 +245,10 @@ responsible for referencing the correct Earth Model.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="10_generating_input_files.html" class="btn btn-neutral float-right" title="12. Generating Input Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="11_generating_input_files.html" class="btn btn-neutral float-right" title="12. Generating Input Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="08_data_processing.html" class="btn btn-neutral" title="10. Data Processing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="09_data_preprocessing.html" class="btn btn-neutral" title="10. Data Preprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>4. Station Data &mdash; LASIF 0.1.x documentation</title>
+  <title>16. Next Iterations &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="5. Waveform Data" href="04_waveform_data.html"/>
-        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+        <link rel="next" title="17. Customizing LASIF" href="16_customizing_lasif.html"/>
+        <link rel="prev" title="15. Model Update" href="14_model_update.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -98,11 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Station Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#naming-scheme">4.1. Naming scheme</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stations-for-tutorial">4.2. Stations for Tutorial</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
@@ -114,7 +110,12 @@
 <li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16. Next Iterations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-new-iteration-from-scratch">16.1. Create a new iteration from scratch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deriving-from-an-existing-iteration">16.2. Deriving from an existing iteration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migrating-the-misfit-windows">16.3. Migrating the misfit windows</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
 </li>
@@ -168,13 +169,13 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>4. Station Data</li>
+      <li>16. Next Iterations</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/15_next_iterations.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -188,72 +189,56 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>The following links shows the example project as it should be just before
-step 3. You can use this to check your progress or restart the tutorial at
-this very point.</p>
-<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_3_seismic_events">After Step 3: Seismic Events</a></p>
-</div>
-<div class="section" id="station-data">
-<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> needs to know the coordinates and instrument response of each channel.
-One way to achieve this, is to use SAC files, which contain coordinates, and RESP
-files containing the response information for each channel. Another possibility
-is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files. Please keep in mind that LASIF currently expects to only have
-channels of one station in each dataless SEED and StationXML file. All station
-information files are stored in a subfolder of the <code class="docutils literal notranslate"><span class="pre">STATIONS</span></code> directory.</p>
-<p>For more information about how LASIF derives station coordinates:
-<a class="reference internal" href="../how_lasif_finds_coordinates.html"><span class="doc">How LASIF Finds Coordinates</span></a></p>
-<div class="admonition caution">
-<p class="first admonition-title">Caution</p>
-<p class="last">If possible in any way, we strongly recommend to use station data in the
-<code class="docutils literal notranslate"><span class="pre">StationXML</span></code> format. It is the most future proof and sane format of
-the three. Please only use <code class="docutils literal notranslate"><span class="pre">RESP</span></code> files if absolutely necessary. The
-problem with them is that they do not contain coordinates and thus LASIF
-needs to derive them by other means which is not as clean and more error
-prone.</p>
-</div>
-<div class="section" id="naming-scheme">
-<h2>4.1. Naming scheme<a class="headerlink" href="#naming-scheme" title="Permalink to this headline">¶</a></h2>
-<p><strong>dataless SEED</strong></p>
-<p>All dataless SEED files are expected to be in the <code class="docutils literal notranslate"><span class="pre">STATIONS/SEED</span></code> directory
-and be named after the following scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dataless</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
+<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="next-iterations">
+<h1>16. Next Iterations<a class="headerlink" href="#next-iterations" title="Permalink to this headline">¶</a></h1>
+<p>Once you updated your model it is time to go to the next iteration.
+Depending on the state of the inversion and your goals you might which to
+add more events and data. Just use the tools introduced in the previous
+sections. Please never delete data you used in any of the iterations,
+otherwise you hurt the reproducibility of your inversion.</p>
+<p>You essentially have two options to go from one iteration to the next:
+Create a new iteration or update from the previous one. In any case,
+you are responsible for the name of the iteration.</p>
+<div class="section" id="create-a-new-iteration-from-scratch">
+<h2>16.1. Create a new iteration from scratch<a class="headerlink" href="#create-a-new-iteration-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p>Here we will create an iteration <code class="docutils literal notranslate"><span class="pre">2</span></code> for the tutorial with the same settings
+as iteration <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">2</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">NETWORK</span></code> and <code class="docutils literal notranslate"><span class="pre">STATION</span></code> should be replaced with the corresponding network
-and stations codes. It is possible that multiple files are needed for each
-station (e.g. different files for different time intervals/channels) and thus
-<code class="docutils literal notranslate"><span class="pre">.1</span></code>, <code class="docutils literal notranslate"><span class="pre">.2</span></code>, … can be appended to the filename. LASIF will automatically
-choose the correct file in case they need to be accessed.</p>
-<p><strong>StationXML</strong></p>
-<p>All StationXML files are expected to be placed in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML</span></code>
-folder and follow the scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">station</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">xml</span>
+<p>Using this command will create a new iteration with all the data currently in
+the project, thus all events and all waveforms it can find. This is also
+useful if you want to choose a different waveform solver or a different
+frequency range for the next iteration.</p>
+</div>
+<div class="section" id="deriving-from-an-existing-iteration">
+<h2>16.2. Deriving from an existing iteration<a class="headerlink" href="#deriving-from-an-existing-iteration" title="Permalink to this headline">¶</a></h2>
+<p>The other option is to derive a new iteration from an existing iteration. In
+this case, the solver and preprocessing settings will remain the same,
+as will the used data. Any data not used for the previous iteration will
+also not be used for this iteration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> <span class="m">2</span>
 </pre></div>
 </div>
-<p>The logic for for the different parts is the same as for the dataless SEED
-files described in the previous paragraph.</p>
-<p><strong>RESP Files</strong></p>
-<p>All RESP files are to be put in the <code class="docutils literal notranslate"><span class="pre">STATIONS/RESP</span></code> folder with the
-following name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">RESP</span><span class="o">.</span><span class="n">NETWORK</span><span class="o">.</span><span class="n">STATION</span><span class="o">.</span><span class="n">LOCATION</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
+<p>This commando takes an existing iteration <code class="docutils literal notranslate"><span class="pre">1</span></code> and uses it as a template
+for iteration <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
+</div>
+<div class="section" id="migrating-the-misfit-windows">
+<h2>16.3. Migrating the misfit windows<a class="headerlink" href="#migrating-the-misfit-windows" title="Permalink to this headline">¶</a></h2>
+<p>Once the windows for the misfit calculation have been determined for an
+iteration they can usually be used for a couple of iterations before they have
+to be determined again. The following command will take all windows defined
+in iteration <code class="docutils literal notranslate"><span class="pre">1</span></code> and transfer them to iteration <code class="docutils literal notranslate"><span class="pre">2</span></code>. The synthetics for
+iteration <code class="docutils literal notranslate"><span class="pre">2</span></code> already need to be available. Depending on the size of the
+iteration, this might take a while as it also calculates the adjoint sources
+for each window.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif migrate_windows <span class="m">1</span> <span class="m">2</span>
 </pre></div>
 </div>
-<p>In contrast to the two other station information formats the RESP filename also
-has to include the location and channel identifiers.</p>
-</div>
-<div class="section" id="stations-for-tutorial">
-<h2>4.2. Stations for Tutorial<a class="headerlink" href="#stations-for-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>For this tutorial we will work with a bunch of well distributed stations in
-the domain of interest. Unpack
-<a class="reference download internal" href="../_downloads/stations.tar.bz2" download=""><code class="xref download docutils literal notranslate"><span class="pre">this</span> <span class="pre">archive</span></code></a> and place the XML
-files in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML/</span></code> folder. At this point, LASIF is aware
-of the stations. Please note that the stations will not yet show up in any
-command as <strong>LASIF only treats data that has raw waveforms and an associated
-station file as being actually available</strong>.</p>
+<p>Please keep in mind that this command will not create windows for data not
+present in the first iteration.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">finalize_adjoint_sources</span></code> command can then be used generate the
+adjoint sources in a format suitable for SES3D to finish the iteration.</p>
 </div>
 </div>
 
@@ -267,10 +252,10 @@ station file as being actually available</strong>.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="16_customizing_lasif.html" class="btn btn-neutral float-right" title="17. Customizing LASIF" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="14_model_update.html" class="btn btn-neutral" title="15. Model Update" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

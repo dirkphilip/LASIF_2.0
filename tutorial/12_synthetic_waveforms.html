@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>4. Station Data &mdash; LASIF 0.1.x documentation</title>
+  <title>13. Synthetics &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="5. Waveform Data" href="04_waveform_data.html"/>
-        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+        <link rel="next" title="14. Misfit and Adjoint Source Calculation" href="13_misfits_and_adjoint_sources.html"/>
+        <link rel="prev" title="12. Generating Input Files" href="11_generating_input_files.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -98,11 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Station Data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#naming-scheme">4.1. Naming scheme</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stations-for-tutorial">4.2. Stations for Tutorial</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
@@ -111,7 +107,10 @@
 <li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">13. Synthetics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#recap">13.1. Recap</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
 <li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
@@ -168,13 +167,13 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>4. Station Data</li>
+      <li>13. Synthetics</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/12_synthetic_waveforms.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -191,69 +190,56 @@
 <strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>The following links shows the example project as it should be just before
-step 3. You can use this to check your progress or restart the tutorial at
+step 12. You can use this to check your progress or restart the tutorial at
 this very point.</p>
-<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_3_seismic_events">After Step 3: Seismic Events</a></p>
+<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_12_input_file_generation">After Step 12: Input File Generation</a></p>
 </div>
-<div class="section" id="station-data">
-<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
-<p><strong>LASIF</strong> needs to know the coordinates and instrument response of each channel.
-One way to achieve this, is to use SAC files, which contain coordinates, and RESP
-files containing the response information for each channel. Another possibility
-is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files. Please keep in mind that LASIF currently expects to only have
-channels of one station in each dataless SEED and StationXML file. All station
-information files are stored in a subfolder of the <code class="docutils literal notranslate"><span class="pre">STATIONS</span></code> directory.</p>
-<p>For more information about how LASIF derives station coordinates:
-<a class="reference internal" href="../how_lasif_finds_coordinates.html"><span class="doc">How LASIF Finds Coordinates</span></a></p>
-<div class="admonition caution">
-<p class="first admonition-title">Caution</p>
-<p class="last">If possible in any way, we strongly recommend to use station data in the
-<code class="docutils literal notranslate"><span class="pre">StationXML</span></code> format. It is the most future proof and sane format of
-the three. Please only use <code class="docutils literal notranslate"><span class="pre">RESP</span></code> files if absolutely necessary. The
-problem with them is that they do not contain coordinates and thus LASIF
-needs to derive them by other means which is not as clean and more error
-prone.</p>
-</div>
-<div class="section" id="naming-scheme">
-<h2>4.1. Naming scheme<a class="headerlink" href="#naming-scheme" title="Permalink to this headline">¶</a></h2>
-<p><strong>dataless SEED</strong></p>
-<p>All dataless SEED files are expected to be in the <code class="docutils literal notranslate"><span class="pre">STATIONS/SEED</span></code> directory
-and be named after the following scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dataless</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
+<div class="section" id="synthetics">
+<h1>13. Synthetics<a class="headerlink" href="#synthetics" title="Permalink to this headline">¶</a></h1>
+<p>Now that everything has been set up, you have to actually perform the
+simulations.  Please keep in mind that the adjoint forward simulations require
+a very large amount of disk space due to the need to store the forward
+wavefield. Even this very small toy example requires 10 GB per forward adjoint
+simulation.  This easily increases 100 fold for real simulations.</p>
+<p>Copy the generated input files and the model for Iteration 1 to your <em>SES3D</em>
+installation, adjust the <code class="docutils literal notranslate"><span class="pre">ses3d_modules.f90</span></code> file (for <em>ses3d_r07_b</em>, adjust
+the <code class="docutils literal notranslate"><span class="pre">ses3d_conf.h</span></code> file found in <code class="docutils literal notranslate"><span class="pre">SOURCE</span></code>) and run the adjoint forward
+simulations for the two events. Please refer to the SES3D manual for additional
+details. The simulations should only take a couple of minutes each on a
+run-of-the-mill computer. No need to turn to an HPC for this tutorial.</p>
+<p>Once the two simulations have run, copy the resulting synthetics to the
+<code class="docutils literal notranslate"><span class="pre">SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</span></code> folder. Use the raw
+SES3D output files. These have been calculated in the possibly different
+simulation domain and not the physical domain. Never convert these to the
+physical domain; <strong>LASIF</strong> does it for you and doing it twice is wrong.</p>
+<p>Now might be a good time to fire up the <a class="reference internal" href="../webinterface.html"><span class="doc">Web Interface</span></a> if you did not
+already check if out. Its features boil down to being an interactive
+visualization platform of the current state of a LASIF project. You should be
+able to see the two events including different types of waveform data.</p>
+<div class="section" id="recap">
+<h2>13.1. Recap<a class="headerlink" href="#recap" title="Permalink to this headline">¶</a></h2>
+<p>Just a short recap, but at this point in the tutorial your folder structure
+should look similar to this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Tutorial/
+├── DATA/
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14/
+│   │   ├── preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000/
+│   │   └── raw
+│   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2/
+│       ├── preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000/
+│       └── raw
+├── EVENTS/
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
+│   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+├── ITERATIONS/
+│   └── ITERATION_1.xml
+├── SYNTHETICS/
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14/
+│   │   └── ITERATION_1/
+│   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2/
+│       └── ITERATION_1/
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">NETWORK</span></code> and <code class="docutils literal notranslate"><span class="pre">STATION</span></code> should be replaced with the corresponding network
-and stations codes. It is possible that multiple files are needed for each
-station (e.g. different files for different time intervals/channels) and thus
-<code class="docutils literal notranslate"><span class="pre">.1</span></code>, <code class="docutils literal notranslate"><span class="pre">.2</span></code>, … can be appended to the filename. LASIF will automatically
-choose the correct file in case they need to be accessed.</p>
-<p><strong>StationXML</strong></p>
-<p>All StationXML files are expected to be placed in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML</span></code>
-folder and follow the scheme:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">station</span><span class="o">.</span><span class="n">NETWORK_STATION</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">xml</span>
-</pre></div>
-</div>
-<p>The logic for for the different parts is the same as for the dataless SEED
-files described in the previous paragraph.</p>
-<p><strong>RESP Files</strong></p>
-<p>All RESP files are to be put in the <code class="docutils literal notranslate"><span class="pre">STATIONS/RESP</span></code> folder with the
-following name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">RESP</span><span class="o">.</span><span class="n">NETWORK</span><span class="o">.</span><span class="n">STATION</span><span class="o">.</span><span class="n">LOCATION</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">[</span><span class="o">.</span><span class="n">X</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>In contrast to the two other station information formats the RESP filename also
-has to include the location and channel identifiers.</p>
-</div>
-<div class="section" id="stations-for-tutorial">
-<h2>4.2. Stations for Tutorial<a class="headerlink" href="#stations-for-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>For this tutorial we will work with a bunch of well distributed stations in
-the domain of interest. Unpack
-<a class="reference download internal" href="../_downloads/stations.tar.bz2" download=""><code class="xref download docutils literal notranslate"><span class="pre">this</span> <span class="pre">archive</span></code></a> and place the XML
-files in the <code class="docutils literal notranslate"><span class="pre">STATIONS/StationXML/</span></code> folder. At this point, LASIF is aware
-of the stations. Please note that the stations will not yet show up in any
-command as <strong>LASIF only treats data that has raw waveforms and an associated
-station file as being actually available</strong>.</p>
 </div>
 </div>
 
@@ -267,10 +253,10 @@ station file as being actually available</strong>.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="13_misfits_and_adjoint_sources.html" class="btn btn-neutral float-right" title="14. Misfit and Adjoint Source Calculation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="11_generating_input_files.html" class="btn btn-neutral" title="12. Generating Input Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
