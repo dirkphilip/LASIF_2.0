@@ -102,20 +102,20 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
@@ -234,17 +234,12 @@ learn what piece of data belongs where and how <strong>LASIF</strong> interacts 
 </div>
 <div class="section" id="configuration-file">
 <h2>2.1. Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
-<p>Each project stores its configuration values in <strong>lasif_config.toml</strong>. This
+<p>Each project stores its configuration values in <em>lasif_config.toml</em>. This
 file should always be located in the root directory of the project as this
 file is how LASIF determines the root folder of the project. It uses the
 toml format which is a readable file format which should be for the most
 part self explanatory. It is important that the names of the inputted values
 will not be changed.</p>
-<p>Each project stores its configuration values in the <strong>config.xml</strong> file; the
-location of this file also determines the root folder of the project. It is
-a simple, self-explanatory XML format. Please refer to the comments in the
-XML file to infer the meaning of the different settings. Immediately after the
-project has been initialized, it will resemble the following:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Please fill in this config file before proceeding with using LASIF.
 
 [lasif_project]
@@ -302,9 +297,9 @@ project has been initialized, it will resemble the following:</p>
 to follow this tutorial, please modify them to resemble this one.</p>
 <p>The <strong>lasif_config.toml</strong> file allows you to tune parameters related to the
 processing of your data, download settings, and forward simulation parameters.
-This is where you let <strong>LASIF</strong> know where it finds the mesh file to use. Which
+This is where you let <strong>LASIF</strong> know where it finds the mesh file to use, which
 source time function and which misfit measurement you want to use. <em>Currently
-only the once specified in this example config file are supported</em> The mesh
+only the once specified in this example config file are supported</em>. The mesh
 file is how <strong>LASIF</strong> determines the domain used for the simulation. This
 mesh needs to be in an exodus file format and we recommend using the
 <a class="reference external" href="https://gitlab.com/Salvus/salvus_mesher/tree/master">pymesher</a> which is
@@ -315,8 +310,8 @@ sure that lasif has read the correct domain for your project.</p>
 </div>
 <p>This will open a window showing the location of the physical domain and the
 simulation domain. The inner contour shows the domain minus the previously
-defined boundary width. <em>Currently it only shows the outer boundary but the
-inner boundary will be implemented later</em></p>
+defined boundary width.</p>
+<a class="reference internal image-reference" href="../_images/plot_domain.png"><img alt="../_images/plot_domain.png" class="align-center" src="../_images/plot_domain.png" style="width: 90%;" /></a>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The map projection and zoom should automatically adjust so that it is suitable

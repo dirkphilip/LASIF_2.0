@@ -102,20 +102,20 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
@@ -189,16 +189,16 @@
 <h1>3. Seismic Events<a class="headerlink" href="#seismic-events" title="Permalink to this headline">¶</a></h1>
 <p>Once you have made a mesh file and referenced its location in the config file
 it is time to import events to the project. <strong>LASIF</strong> expects the data to be
-stored in the <strong>DATA/EARTHQUAKES/</strong> directory in an <a class="reference external" href="http://seismicdata.github.io/pyasdf/">ASDF Data format</a>. You can either use the pyasdf package
+stored in the <em>DATA/EARTHQUAKES/</em> directory in an <a class="reference external" href="http://seismicdata.github.io/pyasdf/">ASDF Data format</a>. You can either use the pyasdf package
 to organise your own data into the ASDF format or you can use the tools that
 <strong>LASIF</strong> provides to query different databases for events within your domain.
 <strong>LASIF</strong> expects the data to contain valid QuakeML files with full moment
-tensor information. Each event is organised in one asdf file. The waveform and
+tensor information. Each event is organised in one asdf file, the waveform and
 station data for said event will also be included in that one file. That means
 that all the raw information concerning this one event is contained in one
 file. That makes bookkeeping easier and the pyasdf can be used to look into
 each file.</p>
-<p>LASIF provides some convenience methods for this purpose. One can make use of the
+<p>LASIF provides some convenient methods for this purpose. One can make use of the
 <a class="reference external" href="http://www.iris.edu/spud/momenttensor">IRIS SPUD service</a> to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
 The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
@@ -243,6 +243,7 @@ distribution and origin time distribution by appending <code class="docutils lit
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_events
 </pre></div>
 </div>
+<a class="reference internal image-reference" href="../_images/plot_events.png"><img alt="../_images/plot_events.png" class="align-center" src="../_images/plot_events.png" style="width: 60%;" /></a>
 <p>The <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you want more information
 about a certain event:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
@@ -314,7 +315,7 @@ Written EVENTS/GCMT_event_...
 <p>These events will not be used in this tutorial but rather the events already
 downloaded using the add_spud_event method. So if you ran the command above
 but want to follow the tutorial step by step. We would recommend either
-removing the 40 new events or removing all of them and running the
+removing the 40 new events manually or removing all of them and running the
 add_spud_event command again like is done above. You can remove all your
 events by running</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ rm DATA/EARTHQUAKES/*

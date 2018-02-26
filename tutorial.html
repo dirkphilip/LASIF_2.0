@@ -98,20 +98,20 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
@@ -181,7 +181,9 @@
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial will teach you how to perform an iterative full waveform
-inversion with LASIF and SES3D on a simple toy example.</p>
+inversion with LASIF and SES3D on a simple toy example.
+Before going through the tutorial we recommend that you make a mesh which
+you can see how is done here: <a class="reference internal" href="meshing.html"><span class="doc">Meshing</span></a></p>
 <div class="admonition caution">
 <p class="first admonition-title">Caution</p>
 <p>This tutorial is written by hand and thus might not always be completely
@@ -196,17 +198,16 @@ thus is guaranteed to accurately reflect the code base.</p>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </div>
 </div>

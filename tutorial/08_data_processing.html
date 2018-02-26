@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>10. Data Processing &mdash; LASIF 0.1.x documentation</title>
+  <title>9. Data Processing &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="11. Earth Model Handling" href="09_model_handling.html"/>
-        <link rel="prev" title="9. Defining a New Iteration" href="07_a_new_iteration.html"/> 
+        <link rel="next" title="10. Earth Model Handling" href="09_model_handling.html"/>
+        <link rel="prev" title="8. Defining a New Iteration" href="07_a_new_iteration.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,20 +99,20 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
@@ -162,7 +162,7 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>10. Data Processing</li>
+      <li>9. Data Processing</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,8 +183,8 @@
             
   <p class="centered">
 <strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="data-processing">
-<h1>10. Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this headline">¶</a></h1>
-<p>Data preprocessing is an essential step if one wants to compare data and
+<h1>9. Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this headline">¶</a></h1>
+<p>Data processing is an essential step if one wants to compare data and
 seismograms. It serves several purposes:</p>
 <ul class="simple">
 <li>Ensure a similar spectral bandwidth between observed and synthetic data to
@@ -197,9 +197,9 @@ points in time.</li>
 </ul>
 <p>The goal of the processing within <strong>LASIF</strong> is to create data that is directly
 comparable to simulated data without any more processing.</p>
-<p>While the raw unprocessed data are stored in a folder <strong>DATA/EARTHQUAKES</strong>,
+<p>While the raw unprocessed data are stored in a folder <em>DATA/EARTHQUAKES</em>,
 the processed data will be stored in a separate directory
-<strong>PROCESSED_DATA/EARTHQUAKES/</strong></p>
+<em>PROCESSED_DATA/EARTHQUAKES/</em></p>
 <p>Although in principle you can use any processing tool you like, the simplest
 option is probably to make use of <strong>LASIF</strong>’s built-in processing. Using it
 is trivial: just launch the <strong>process_data</strong> command.</p>
@@ -275,7 +275,7 @@ your directory structure should look like this:</p>
 directory structure – otherwise <strong>LASIF</strong> will not be able to work with
 the data.
 It is also important that the processed filenames are identical to
-the unprocessed ones. And that they are organized into ASDF files.</p>
+the unprocessed ones and that they are organized into ASDF files.</p>
 </div>
 </div>
 
@@ -289,10 +289,10 @@ the unprocessed ones. And that they are organized into ASDF files.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="09_model_handling.html" class="btn btn-neutral float-right" title="11. Earth Model Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="09_model_handling.html" class="btn btn-neutral float-right" title="10. Earth Model Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="07_a_new_iteration.html" class="btn btn-neutral" title="9. Defining a New Iteration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="07_a_new_iteration.html" class="btn btn-neutral" title="8. Defining a New Iteration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

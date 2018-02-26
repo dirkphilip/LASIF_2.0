@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>7. Data Inspection &mdash; LASIF 0.1.x documentation</title>
+  <title>6. Data Inspection &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="8. Data Validation" href="06_data_validation.html"/>
-        <link rel="prev" title="6. Download Helpers" href="04_download_helpers.html"/> 
+        <link rel="next" title="7. Data Validation" href="06_data_validation.html"/>
+        <link rel="prev" title="5. Download Helpers" href="04_download_helpers.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,20 +99,20 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
@@ -162,7 +162,7 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>7. Data Inspection</li>
+      <li>6. Data Inspection</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,7 +183,7 @@
             
   <p class="centered">
 <strong>Last updated on <em>February 22nd 2018</em>.</strong></p><div class="section" id="data-inspection">
-<h1>7. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
+<h1>6. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
 <p>Once waveform and station metadata has been downloaded (either with the
 built-in helpers or manually) and placed in the correct folders, <strong>LASIF</strong> can
 start to work with it. To continue this tutorial, you can copy your asdf files
@@ -224,13 +224,12 @@ Earthquake with <span class="m">5</span>.9 Mwc at TURKEY
     Latitude: <span class="m">39</span>.150, Longitude: <span class="m">29</span>.100, Depth: <span class="m">7</span>.0 km
     <span class="m">2011</span>-05-19T20:15:22.900000Z UTC
 
-Station and waveform information available at <span class="m">4</span> stations:
+Station and waveform information available at <span class="m">3</span> stations:
 
 <span class="o">============================================================</span>
              ID       Latitude      Longitude <span class="nv">Elevation_in_m</span>
 <span class="o">============================================================</span>
         GE.TIRR      <span class="m">44</span>.458099        <span class="m">28</span>.4128           <span class="m">77</span>.0
-         II.KIV      <span class="m">43</span>.955299      <span class="m">42</span>.686298         <span class="m">1054</span>.0
          MN.IDI      <span class="m">35</span>.287998      <span class="m">24</span>.889999          <span class="m">750</span>.0
         YD.4F14      <span class="m">44</span>.988819      <span class="m">24</span>.610781          <span class="m">286</span>.0
 </pre></div>
@@ -246,6 +245,7 @@ including a very simple ray coverage plot with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 </pre></div>
 </div>
+<a class="reference internal image-reference" href="../_images/plot_event.png"><img alt="../_images/plot_event.png" class="align-center" src="../_images/plot_event.png" style="width: 60%;" /></a>
 <p>Now stations have an even weight and would each have the same effect when
 computing adjoint sources. A method to change that would be to weigh the
 stations up or down depending on the average distance to neighbouring stations.</p>
@@ -253,13 +253,14 @@ stations up or down depending on the average distance to neighbouring stations.<
 </pre></div>
 </div>
 <p>This can also be done for one event at a time. It writes the weighting factors
-to a toml file in <strong>/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.toml</strong> where A is the
+to a toml file in <em>/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.toml</em> where A is the
 name of the weight set specified when command was run. This file can be used to
-manually modify station weights. Now we can plot the event again but showing on
-a colour scale how the stations are weighted.</p>
+manually modify station weights. Now we can plot the event again while showing
+on a colour scale how the stations are weighted.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 --weight_set_name A
 </pre></div>
 </div>
+<a class="reference internal image-reference" href="../_images/plot_event_weighted.png"><img alt="../_images/plot_event_weighted.png" class="align-center" src="../_images/plot_event_weighted.png" style="width: 60%;" /></a>
 <p>Now we can see how the stations are colour coded according to the weighting
 scheme. This method is more relevant when you have more stations where their
 distribution is far from uniform.</p>
@@ -272,8 +273,8 @@ command:</p>
 <p>Actually plotting this may take a fair while, depending on the amount of data
 you have.
 Keep in mind that this only results in a reasonable plot for large amounts of
-data; for the toy example used in the tutorial it will not work. It is not a
-physically accurate plot but helps in judging data coverage and directionality
+data; for the toy example used in the tutorial it will not be useful. It is not
+a physically accurate plot but helps in judging data coverage and directionality
 effects. An example from a larger <strong>LASIF</strong> project illustrates this:</p>
 <a class="reference internal image-reference" href="../_images/raydensity.jpg"><img alt="../_images/raydensity.jpg" class="align-center" src="../_images/raydensity.jpg" style="width: 70%;" /></a>
 </div>
@@ -288,10 +289,10 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="06_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="06_data_validation.html" class="btn btn-neutral float-right" title="7. Data Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="04_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="04_download_helpers.html" class="btn btn-neutral" title="5. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>14. Misfit and Adjoint Source Calculation &mdash; LASIF 0.1.x documentation</title>
+  <title>13. Misfit and Adjoint Source Calculation &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="15. Gradient Visualization" href="13_gradient_visualization.html"/>
-        <link rel="prev" title="13. Synthetics" href="11_synthetic_waveforms.html"/> 
+        <link rel="next" title="14. Gradient Visualization" href="13_gradient_visualization.html"/>
+        <link rel="prev" title="12. Synthetics" href="11_synthetic_waveforms.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -99,26 +99,26 @@
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="03_station_data.html#waveform-data">5. Waveform Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">8. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">10. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">11. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">12. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">13. Synthetics</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">14. Misfit and Adjoint Source Calculation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#weighting-scheme">14.1. Weighting Scheme</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#misfit-gui">14.2. Misfit GUI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#window-selection">14.3. Window Selection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#final-adjoint-source-calculation">14.4. Final Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_download_helpers.html">5. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_inspection.html">6. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_validation.html">7. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_a_new_iteration.html">8. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_data_processing.html">9. Data Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">13. Misfit and Adjoint Source Calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#weighting-scheme">13.1. Weighting Scheme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#misfit-gui">13.2. Misfit GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#window-selection">13.3. Window Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#final-adjoint-source-calculation">13.4. Final Adjoint Source Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">15. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_gradient_visualization.html">14. Gradient Visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meshing.html">Meshing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
@@ -168,7 +168,7 @@
         
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
         
-      <li>14. Misfit and Adjoint Source Calculation</li>
+      <li>13. Misfit and Adjoint Source Calculation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -189,7 +189,7 @@
             
   <p class="centered">
 <strong>Last updated on <em>February 23rd 2018</em>.</strong></p><div class="section" id="misfit-and-adjoint-source-calculation">
-<h1>14. Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h1>
+<h1>13. Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h1>
 <p>In order to calculate sensitivity kernels (gradients) for a given combination
 of model and data, one needs calculate the adjoint sources. An adjoint source
 is usually dependent on the misfit between the synthetics and real data.</p>
@@ -198,7 +198,7 @@ is usually dependent on the misfit between the synthetics and real data.</p>
 to avoid cycle skips/phase jumps between synthetics and data. This is achieved
 by careful windowing.</p>
 <div class="section" id="weighting-scheme">
-<h2>14.1. Weighting Scheme<a class="headerlink" href="#weighting-scheme" title="Permalink to this headline">¶</a></h2>
+<h2>13.1. Weighting Scheme<a class="headerlink" href="#weighting-scheme" title="Permalink to this headline">¶</a></h2>
 <p>You may notice that at various points it is possible to
 distribute weights. These weights all contribute to the final adjoint source.
 The inversion scheme requires one adjoint source per iteration, event, station,
@@ -209,7 +209,7 @@ stations. But it is also possible to weigh events up or down depending on
 preference. Right now this is only possible to do manually but we might add
 an automatic function that applies a similar scheme as the station weights.
 If you have already computed station weights like we did in this tutorial
-you can access the weights in the file <strong>/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.TOML</strong>.
+you can access the weights in the file <em>/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.TOML</em>.
 In there you can manually modify the weights of the events which will in the
 end influence the adjoint sources. If you have however not yet computed
 station weights and you only want to modify event weights you can do so by
@@ -224,7 +224,7 @@ will be calculated according to the following formula:</p>
 \[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
 </div>
 <div class="section" id="misfit-gui">
-<h2>14.2. Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h2>
+<h2>13.2. Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h2>
 <p>LASIF comes with a graphical utility called the Misfit GUI, that helps to pick
 correct windows. To launch it, simply type</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui
@@ -253,14 +253,14 @@ You can then edit the window by dragging its endpoints.</p>
 <p>Double clicking on an already existing window will delete it, <code class="docutils literal notranslate"><span class="pre">Alt</span></code> +
 clicking will show the time frequency phase misfit as well as the calculated
 adjoint source.</p>
-<p>The windows are saved in a toml file in <code class="docutils literal notranslate"><span class="pre">SETS/WINDOWS/</span></code>. This is where you
+<p>The windows are saved in a toml file in <em>SETS/WINDOWS/</em>. This is where you
 can adjust the window weights.</p>
-<p>The misfit_gui is still under development and we are in a constant quest to
+<p>The misfit GUI is still under development and we are on a constant quest to
 improve it. If you have any idea on how it might be improved, please contact
 the developers.</p>
 </div>
 <div class="section" id="window-selection">
-<h2>14.3. Window Selection<a class="headerlink" href="#window-selection" title="Permalink to this headline">¶</a></h2>
+<h2>13.3. Window Selection<a class="headerlink" href="#window-selection" title="Permalink to this headline">¶</a></h2>
 <p>As an alternative to going through each event-station pair, you can tell LASIF
 to select the windows automatically using. (Keep in mind that this can be quite
 time consuming)</p>
@@ -269,7 +269,7 @@ time consuming)</p>
 </div>
 <p>for all events, iteration 1 and weight set A. This currently only works with
 mpi so you have to use that for the automatic window selection but modify the
-number behind the -n to the amount of cores you want to/can use. If you only
+number behind the -n to the amount of cores you can/want to use. If you only
 want to select windows for a specific event you can specify the event name
 as a last argument. <strong>Use these tools with caution and check their result!</strong></p>
 <p>When the misfit GUI is opened again, it can display the windows from
@@ -279,7 +279,7 @@ each window set you have. Now it looks like this:</p>
 described functionalities.
 As well as looking at the windows in the GUI, LASIF comes with a number of
 utilities to help judging the quality of the selected windows. Two of them
-are: Below is an example from another project.</p>
+are: (Below is an example from another project.)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ lasif plot_windows EVENT_NAME WEIGHT_SET
 $ lasif plot_window_statistics WEIGHT_SET EVENT_NAME
 </pre></div>
@@ -287,7 +287,7 @@ $ lasif plot_window_statistics WEIGHT_SET EVENT_NAME
 <a class="reference internal image-reference" href="../_images/combined_selected_windows.png"><img alt="../_images/combined_selected_windows.png" class="align-center" src="../_images/combined_selected_windows.png" style="width: 90%;" /></a>
 </div>
 <div class="section" id="final-adjoint-source-calculation">
-<h2>14.4. Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
+<h2>13.4. Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
 <p>To calculate the adjoint sources and store them you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">4</span> lasif calculate_adjoint_sources <span class="m">1</span> A
 </pre></div>
@@ -318,10 +318,10 @@ a gradient (sensitivity kernel).</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="13_gradient_visualization.html" class="btn btn-neutral float-right" title="15. Gradient Visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="13_gradient_visualization.html" class="btn btn-neutral float-right" title="14. Gradient Visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="11_synthetic_waveforms.html" class="btn btn-neutral" title="13. Synthetics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="11_synthetic_waveforms.html" class="btn btn-neutral" title="12. Synthetics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
