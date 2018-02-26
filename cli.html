@@ -144,6 +144,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#lasif-info">lasif info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lasif-init-project">lasif init_project</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lasif-validate-data">lasif validate_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lasif-clean-up">lasif clean_up</a></li>
 </ul>
 </li>
 </ul>
@@ -350,6 +351,7 @@ are grouped by functionality.</p>
 <li><a class="reference internal" href="#lasif-info" id="id35">lasif info</a></li>
 <li><a class="reference internal" href="#lasif-init-project" id="id36">lasif init_project</a></li>
 <li><a class="reference internal" href="#lasif-validate-data" id="id37">lasif validate_data</a></li>
+<li><a class="reference internal" href="#lasif-clean-up" id="id38">lasif clean_up</a></li>
 </ul>
 </li>
 </ul>
@@ -1681,6 +1683,42 @@ Very slow.</td>
 </tr>
 <tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--full</span></code></td>
 <td>run all validations.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-clean-up">
+<h4><a class="toc-backref" href="#id38">lasif clean_up</a><a class="headerlink" href="#lasif-clean-up" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif clean_up [-h] [--ipdb] clean_up_file
+</pre></div>
+</div>
+</div></blockquote>
+<p>Clean up the LASIF project.</p>
+<p>The required file can be created with lasif validate_data command.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">clean_up_file</span></code></td>
+<td>path of clean-up file</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
