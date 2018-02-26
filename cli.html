@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#command-documentation">Command Documentation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#data-acquisition-functions">Data Acquisition Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#lasif-add-spud-event">lasif add_spud_event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lasif-write-events-to-xml">lasif write_events_to_xml</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lasif-add-gcmt-events">lasif add_gcmt_events</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lasif-download-data">lasif download_data</a></li>
 </ul>
@@ -306,52 +307,53 @@ are grouped by functionality.</p>
 <ul class="simple">
 <li><a class="reference internal" href="#data-acquisition-functions" id="id1">Data Acquisition Functions</a><ul>
 <li><a class="reference internal" href="#lasif-add-spud-event" id="id2">lasif add_spud_event</a></li>
-<li><a class="reference internal" href="#lasif-add-gcmt-events" id="id3">lasif add_gcmt_events</a></li>
-<li><a class="reference internal" href="#lasif-download-data" id="id4">lasif download_data</a></li>
+<li><a class="reference internal" href="#lasif-write-events-to-xml" id="id3">lasif write_events_to_xml</a></li>
+<li><a class="reference internal" href="#lasif-add-gcmt-events" id="id4">lasif add_gcmt_events</a></li>
+<li><a class="reference internal" href="#lasif-download-data" id="id5">lasif download_data</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#event-management-functions" id="id5">Event Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-list-events" id="id6">lasif list_events</a></li>
-<li><a class="reference internal" href="#lasif-event-info" id="id7">lasif event_info</a></li>
+<li><a class="reference internal" href="#event-management-functions" id="id6">Event Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-list-events" id="id7">lasif list_events</a></li>
+<li><a class="reference internal" href="#lasif-event-info" id="id8">lasif event_info</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#iteration-management-functions" id="id8">Iteration Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-submit-all-jobs" id="id9">lasif submit_all_jobs</a></li>
-<li><a class="reference internal" href="#lasif-retrieve-all-output" id="id10">lasif retrieve_all_output</a></li>
-<li><a class="reference internal" href="#lasif-generate-input-files" id="id11">lasif generate_input_files</a></li>
-<li><a class="reference internal" href="#lasif-calculate-adjoint-sources" id="id12">lasif calculate_adjoint_sources</a></li>
-<li><a class="reference internal" href="#lasif-select-windows" id="id13">lasif select_windows</a></li>
-<li><a class="reference internal" href="#lasif-launch-misfit-gui" id="id14">lasif launch_misfit_gui</a></li>
-<li><a class="reference internal" href="#lasif-create-weight-set" id="id15">lasif create_weight_set</a></li>
-<li><a class="reference internal" href="#lasif-compute-station-weights" id="id16">lasif compute_station_weights</a></li>
-<li><a class="reference internal" href="#lasif-set-up-iteration" id="id17">lasif set_up_iteration</a></li>
-<li><a class="reference internal" href="#lasif-list-iterations" id="id18">lasif list_iterations</a></li>
-<li><a class="reference internal" href="#lasif-compare-misfits" id="id19">lasif compare_misfits</a></li>
-<li><a class="reference internal" href="#lasif-list-weight-sets" id="id20">lasif list_weight_sets</a></li>
-<li><a class="reference internal" href="#lasif-process-data" id="id21">lasif process_data</a></li>
+<li><a class="reference internal" href="#iteration-management-functions" id="id9">Iteration Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-submit-all-jobs" id="id10">lasif submit_all_jobs</a></li>
+<li><a class="reference internal" href="#lasif-retrieve-all-output" id="id11">lasif retrieve_all_output</a></li>
+<li><a class="reference internal" href="#lasif-generate-input-files" id="id12">lasif generate_input_files</a></li>
+<li><a class="reference internal" href="#lasif-calculate-adjoint-sources" id="id13">lasif calculate_adjoint_sources</a></li>
+<li><a class="reference internal" href="#lasif-select-windows" id="id14">lasif select_windows</a></li>
+<li><a class="reference internal" href="#lasif-launch-misfit-gui" id="id15">lasif launch_misfit_gui</a></li>
+<li><a class="reference internal" href="#lasif-create-weight-set" id="id16">lasif create_weight_set</a></li>
+<li><a class="reference internal" href="#lasif-compute-station-weights" id="id17">lasif compute_station_weights</a></li>
+<li><a class="reference internal" href="#lasif-set-up-iteration" id="id18">lasif set_up_iteration</a></li>
+<li><a class="reference internal" href="#lasif-list-iterations" id="id19">lasif list_iterations</a></li>
+<li><a class="reference internal" href="#lasif-compare-misfits" id="id20">lasif compare_misfits</a></li>
+<li><a class="reference internal" href="#lasif-list-weight-sets" id="id21">lasif list_weight_sets</a></li>
+<li><a class="reference internal" href="#lasif-process-data" id="id22">lasif process_data</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#misc-functions" id="id22">Misc Functions</a><ul>
-<li><a class="reference internal" href="#lasif-shell" id="id23">lasif shell</a></li>
-<li><a class="reference internal" href="#lasif-tutorial" id="id24">lasif tutorial</a></li>
+<li><a class="reference internal" href="#misc-functions" id="id23">Misc Functions</a><ul>
+<li><a class="reference internal" href="#lasif-shell" id="id24">lasif shell</a></li>
+<li><a class="reference internal" href="#lasif-tutorial" id="id25">lasif tutorial</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#plotting-functions" id="id25">Plotting Functions</a><ul>
-<li><a class="reference internal" href="#lasif-plot-domain" id="id26">lasif plot_domain</a></li>
-<li><a class="reference internal" href="#lasif-plot-event" id="id27">lasif plot_event</a></li>
-<li><a class="reference internal" href="#lasif-plot-events" id="id28">lasif plot_events</a></li>
-<li><a class="reference internal" href="#lasif-plot-raydensity" id="id29">lasif plot_raydensity</a></li>
-<li><a class="reference internal" href="#lasif-plot-section" id="id30">lasif plot_section</a></li>
-<li><a class="reference internal" href="#lasif-plot-stf" id="id31">lasif plot_stf</a></li>
-<li><a class="reference internal" href="#lasif-plot-window-statistics" id="id32">lasif plot_window_statistics</a></li>
-<li><a class="reference internal" href="#lasif-plot-windows" id="id33">lasif plot_windows</a></li>
+<li><a class="reference internal" href="#plotting-functions" id="id26">Plotting Functions</a><ul>
+<li><a class="reference internal" href="#lasif-plot-domain" id="id27">lasif plot_domain</a></li>
+<li><a class="reference internal" href="#lasif-plot-event" id="id28">lasif plot_event</a></li>
+<li><a class="reference internal" href="#lasif-plot-events" id="id29">lasif plot_events</a></li>
+<li><a class="reference internal" href="#lasif-plot-raydensity" id="id30">lasif plot_raydensity</a></li>
+<li><a class="reference internal" href="#lasif-plot-section" id="id31">lasif plot_section</a></li>
+<li><a class="reference internal" href="#lasif-plot-stf" id="id32">lasif plot_stf</a></li>
+<li><a class="reference internal" href="#lasif-plot-window-statistics" id="id33">lasif plot_window_statistics</a></li>
+<li><a class="reference internal" href="#lasif-plot-windows" id="id34">lasif plot_windows</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#project-management-functions" id="id34">Project Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-info" id="id35">lasif info</a></li>
-<li><a class="reference internal" href="#lasif-init-project" id="id36">lasif init_project</a></li>
-<li><a class="reference internal" href="#lasif-validate-data" id="id37">lasif validate_data</a></li>
-<li><a class="reference internal" href="#lasif-clean-up" id="id38">lasif clean_up</a></li>
+<li><a class="reference internal" href="#project-management-functions" id="id35">Project Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-info" id="id36">lasif info</a></li>
+<li><a class="reference internal" href="#lasif-init-project" id="id37">lasif init_project</a></li>
+<li><a class="reference internal" href="#lasif-validate-data" id="id38">lasif validate_data</a></li>
+<li><a class="reference internal" href="#lasif-clean-up" id="id39">lasif clean_up</a></li>
 </ul>
 </li>
 </ul>
@@ -398,8 +400,38 @@ ipdb.</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="lasif-write-events-to-xml">
+<h4><a class="toc-backref" href="#id3">lasif write_events_to_xml</a><a class="headerlink" href="#lasif-write-events-to-xml" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif write_events_to_xml [-h] [--ipdb]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Writes a collection of event xmls.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="lasif-add-gcmt-events">
-<h4><a class="toc-backref" href="#id3">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id4">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif add_gcmt_events [-h] [--ipdb] [--min_year MIN_YEAR]
                                  [--max_year MAX_YEAR]
@@ -454,7 +486,7 @@ which to add events</td>
 </table>
 </div>
 <div class="section" id="lasif-download-data">
-<h4><a class="toc-backref" href="#id4">lasif download_data</a><a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id5">lasif download_data</a><a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif download_data [-h] [--ipdb]
                                [--providers PROVIDERS [PROVIDERS ...]]
@@ -513,13 +545,13 @@ waveforms a bit.</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="event-management-functions">
-<h3><a class="toc-backref" href="#id5">Event Management Functions</a><a class="headerlink" href="#event-management-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id6">Event Management Functions</a><a class="headerlink" href="#event-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-event-management admonition">
 <p class="first admonition-title">Event Management</p>
 <p class="last">Function helping in organzing the earthquakes inside a LASIF project.</p>
 </div>
 <div class="section" id="lasif-list-events">
-<h4><a class="toc-backref" href="#id6">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id7">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif list_events [-h] [--ipdb] [--list]
 </pre></div>
@@ -554,7 +586,7 @@ scripting bash.</td>
 </table>
 </div>
 <div class="section" id="lasif-event-info">
-<h4><a class="toc-backref" href="#id7">lasif event_info</a><a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id8">lasif event_info</a><a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif event_info [-h] [--ipdb] [-v] event_name
 </pre></div>
@@ -595,13 +627,13 @@ contained events.</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="iteration-management-functions">
-<h3><a class="toc-backref" href="#id8">Iteration Management Functions</a><a class="headerlink" href="#iteration-management-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id9">Iteration Management Functions</a><a class="headerlink" href="#iteration-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-iteration-management admonition">
 <p class="first admonition-title">Iteration Management</p>
 <p class="last">Functions dealing with one or more iterations inside a LASIF project.</p>
 </div>
 <div class="section" id="lasif-submit-all-jobs">
-<h4><a class="toc-backref" href="#id9">lasif submit_all_jobs</a><a class="headerlink" href="#lasif-submit-all-jobs" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id10">lasif submit_all_jobs</a><a class="headerlink" href="#lasif-submit-all-jobs" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif submit_all_jobs [-h] [--ipdb]
                                  iteration_name ranks wall_time_in_seconds
@@ -654,7 +686,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-retrieve-all-output">
-<h4><a class="toc-backref" href="#id10">lasif retrieve_all_output</a><a class="headerlink" href="#lasif-retrieve-all-output" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id11">lasif retrieve_all_output</a><a class="headerlink" href="#lasif-retrieve-all-output" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif retrieve_all_output [-h] [--ipdb]
                                      iteration_name simulation_type
@@ -699,7 +731,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-generate-input-files">
-<h4><a class="toc-backref" href="#id11">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id12">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif generate_input_files [-h] [--ipdb]
                                       [--weight_set_name WEIGHT_SET_NAME]
@@ -750,7 +782,7 @@ sources</td>
 </table>
 </div>
 <div class="section" id="lasif-calculate-adjoint-sources">
-<h4><a class="toc-backref" href="#id12">lasif calculate_adjoint_sources</a><a class="headerlink" href="#lasif-calculate-adjoint-sources" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id13">lasif calculate_adjoint_sources</a><a class="headerlink" href="#lasif-calculate-adjoint-sources" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif calculate_adjoint_sources [-h] [--ipdb]
@@ -795,7 +827,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-select-windows">
-<h4><a class="toc-backref" href="#id13">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id14">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif select_windows [-h] [--ipdb]
@@ -842,7 +874,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-launch-misfit-gui">
-<h4><a class="toc-backref" href="#id14">lasif launch_misfit_gui</a><a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id15">lasif launch_misfit_gui</a><a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif launch_misfit_gui [-h] [--ipdb]
 </pre></div>
@@ -872,7 +904,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-create-weight-set">
-<h4><a class="toc-backref" href="#id15">lasif create_weight_set</a><a class="headerlink" href="#lasif-create-weight-set" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id16">lasif create_weight_set</a><a class="headerlink" href="#lasif-create-weight-set" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif create_weight_set [-h] [--ipdb] weight_set_name
 </pre></div>
@@ -907,7 +939,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-compute-station-weights">
-<h4><a class="toc-backref" href="#id16">lasif compute_station_weights</a><a class="headerlink" href="#lasif-compute-station-weights" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id17">lasif compute_station_weights</a><a class="headerlink" href="#lasif-compute-station-weights" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif compute_station_weights [-h] [--ipdb]
                                          weight_set_name
@@ -952,7 +984,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-set-up-iteration">
-<h4><a class="toc-backref" href="#id17">lasif set_up_iteration</a><a class="headerlink" href="#lasif-set-up-iteration" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id18">lasif set_up_iteration</a><a class="headerlink" href="#lasif-set-up-iteration" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif set_up_iteration [-h] [--ipdb] [--remove_dirs] iteration_name
 </pre></div>
@@ -993,7 +1025,7 @@ iteration.</td>
 </table>
 </div>
 <div class="section" id="lasif-list-iterations">
-<h4><a class="toc-backref" href="#id18">lasif list_iterations</a><a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id19">lasif list_iterations</a><a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif list_iterations [-h] [--ipdb]
 </pre></div>
@@ -1023,7 +1055,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-compare-misfits">
-<h4><a class="toc-backref" href="#id19">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id20">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif compare_misfits [-h] [--ipdb] [--weight_set_name WEIGHT_SET_NAME]
@@ -1079,7 +1111,7 @@ each event</td>
 </table>
 </div>
 <div class="section" id="lasif-list-weight-sets">
-<h4><a class="toc-backref" href="#id20">lasif list_weight_sets</a><a class="headerlink" href="#lasif-list-weight-sets" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id21">lasif list_weight_sets</a><a class="headerlink" href="#lasif-list-weight-sets" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif list_weight_sets [-h] [--ipdb]
 </pre></div>
@@ -1109,7 +1141,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-process-data">
-<h4><a class="toc-backref" href="#id21">lasif process_data</a><a class="headerlink" href="#lasif-process-data" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id22">lasif process_data</a><a class="headerlink" href="#lasif-process-data" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif process_data [-h] [--ipdb] [events [events ...]]
@@ -1151,13 +1183,13 @@ ipdb.</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="misc-functions">
-<h3><a class="toc-backref" href="#id22">Misc Functions</a><a class="headerlink" href="#misc-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id23">Misc Functions</a><a class="headerlink" href="#misc-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-misc admonition">
 <p class="first admonition-title">Misc</p>
 <p class="last">All functions that do not fit in one of the other categories.</p>
 </div>
 <div class="section" id="lasif-shell">
-<h4><a class="toc-backref" href="#id23">lasif shell</a><a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id24">lasif shell</a><a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif shell [-h] [--ipdb]
 </pre></div>
@@ -1187,7 +1219,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-tutorial">
-<h4><a class="toc-backref" href="#id24">lasif tutorial</a><a class="headerlink" href="#lasif-tutorial" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id25">lasif tutorial</a><a class="headerlink" href="#lasif-tutorial" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif tutorial [-h] [--ipdb]
 </pre></div>
@@ -1219,13 +1251,13 @@ ipdb.</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="plotting-functions">
-<h3><a class="toc-backref" href="#id25">Plotting Functions</a><a class="headerlink" href="#plotting-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id26">Plotting Functions</a><a class="headerlink" href="#plotting-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-plotting admonition">
 <p class="first admonition-title">Plotting</p>
 <p class="last">Functions producing pictures.</p>
 </div>
 <div class="section" id="lasif-plot-domain">
-<h4><a class="toc-backref" href="#id26">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id27">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_domain [-h] [--ipdb]
 </pre></div>
@@ -1255,7 +1287,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-event">
-<h4><a class="toc-backref" href="#id27">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id28">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_event [-h] [--ipdb] [--save]
                             [--weight_set_name WEIGHT_SET_NAME]
@@ -1302,7 +1334,7 @@ respective weights</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-events">
-<h4><a class="toc-backref" href="#id28">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id29">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_events [-h] [--ipdb] [--type {map,depth,time}]
 </pre></div>
@@ -1350,7 +1382,7 @@ histogram</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-raydensity">
-<h4><a class="toc-backref" href="#id29">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id30">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_raydensity [-h] [--ipdb] [--plot_stations]
 </pre></div>
@@ -1384,7 +1416,7 @@ stations</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-section">
-<h4><a class="toc-backref" href="#id30">lasif plot_section</a><a class="headerlink" href="#lasif-plot-section" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id31">lasif plot_section</a><a class="headerlink" href="#lasif-plot-section" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_section [-h] [--ipdb] [--num_bins NUM_BINS]
                               [--traces_per_bin TRACES_PER_BIN]
@@ -1431,7 +1463,7 @@ bin</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-stf">
-<h4><a class="toc-backref" href="#id31">lasif plot_stf</a><a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id32">lasif plot_stf</a><a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_stf [-h] [--ipdb]
 </pre></div>
@@ -1461,7 +1493,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-window-statistics">
-<h4><a class="toc-backref" href="#id32">lasif plot_window_statistics</a><a class="headerlink" href="#lasif-plot-window-statistics" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id33">lasif plot_window_statistics</a><a class="headerlink" href="#lasif-plot-window-statistics" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_window_statistics [-h] [--ipdb]
                                         window_set_name [events [events ...]]
@@ -1501,7 +1533,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-windows">
-<h4><a class="toc-backref" href="#id33">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id34">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_windows [-h] [--ipdb] [--distance_bins DISTANCE_BINS]
                               event_name window_set_name
@@ -1548,13 +1580,13 @@ plot.</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="project-management-functions">
-<h3><a class="toc-backref" href="#id34">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id35">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-project-management admonition">
 <p class="first admonition-title">Project Management</p>
 <p class="last">Functions dealing with LASIF projects as a whole.</p>
 </div>
 <div class="section" id="lasif-info">
-<h4><a class="toc-backref" href="#id35">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id36">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif info [-h] [--ipdb]
 </pre></div>
@@ -1584,7 +1616,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-init-project">
-<h4><a class="toc-backref" href="#id36">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id37">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif init_project [-h] [--ipdb] folder_path
 </pre></div>
@@ -1619,7 +1651,7 @@ ipdb.</td>
 </table>
 </div>
 <div class="section" id="lasif-validate-data">
-<h4><a class="toc-backref" href="#id37">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id38">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif validate_data [-h] [--ipdb]
                                [--data_and_station_file_availability] [--raypaths]
@@ -1688,7 +1720,7 @@ Very slow.</td>
 </table>
 </div>
 <div class="section" id="lasif-clean-up">
-<h4><a class="toc-backref" href="#id38">lasif clean_up</a><a class="headerlink" href="#lasif-clean-up" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id39">lasif clean_up</a><a class="headerlink" href="#lasif-clean-up" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif clean_up [-h] [--ipdb] clean_up_file
 </pre></div>
