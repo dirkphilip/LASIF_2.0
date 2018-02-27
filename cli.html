@@ -267,27 +267,12 @@ recursively search the parent directories until it finds a
 <code class="code docutils literal notranslate"><span class="pre">lasif_config.toml</span></code> file. This will then be assumed to be the root folder
 of the project.</p>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p>LASIF employs a number of caches to keep it working fast enough.
-Information about each waveform, event, and station file for example is
-stored in the caches. The caches are usually automatically kept
-up-to-date: As soon as data is modified, deleted, added, … the caches
-will know about it.</p>
-<p class="last">Most commands have a <code class="docutils literal notranslate"><span class="pre">--read_only_caches</span></code> flag. If that argument is
-given, the caches will not be rebuilt but whatever is in the caches will
-be assumed to actually exist. This is useful when executing multiple
-LASIF commands in parallel. Otherwise some processes might write in
-parallel to the cache databases which will crash LASIF 2.0. Use this flag
-if you need to but best run <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">lasif</span> <span class="pre">build_all_caches</span></code> beforehand
-and be aware of what it means.</p>
-</div>
 <div class="section" id="mpi">
 <h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
 <p>Some commands can be executed with MPI to speed up their execution. Don’t
 use too many cores as the problem quickly becomes I/O bounds. For example to
 run the preprocessing on 16 cores, do</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">16</span> lasif preprocess_data <span class="m">1</span> GCMT_event_AZORES_ISLANDS
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">16</span> lasif process_data <span class="m">1</span> GCMT_event_AZORES_ISLANDS
 </pre></div>
 </div>
 <p>The following commands are MPI-enabled. Attempting to run any other command
@@ -435,7 +420,7 @@ ipdb.</td>
 <h4><a class="toc-backref" href="#id4">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif add_gcmt_events [-h] [--ipdb] [--min_year MIN_YEAR]
-                                 [--max_year MAX_YEAR] [--get_subset]
+                                 [--max_year MAX_YEAR]
                                  count min_magnitude max_magnitude min_distance
 </pre></div>
 </div>
@@ -482,12 +467,6 @@ which to add events</td>
 <tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--max_year</span></code></td>
 <td>maximum year from
 which to add events</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--get_subset</span></code></td>
-<td>returns a selection
-of eventsfrom events
-that already existin
-the LASIF project.</td>
 </tr>
 </tbody>
 </table>
