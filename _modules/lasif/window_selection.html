@@ -202,8 +202,8 @@
     <span class="c1"># be the case).</span>
     <span class="k">if</span> <span class="n">fc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="k">else</span><span class="p">:</span></div>
-        <span class="k">return</span> <span class="n">fc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fc</span></div>
 
 
 <div class="viewcode-block" id="find_local_extrema"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_local_extrema">[docs]</a><span class="k">def</span> <span class="nf">find_local_extrema</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -296,8 +296,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">troughs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span></div>
-            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="find_closest"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_closest">[docs]</a><span class="k">def</span> <span class="nf">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
@@ -322,8 +322,8 @@
     <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_array</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">left</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">right</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="n">idx</span> <span class="o">-=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">-</span> <span class="n">target</span></div>
-    <span class="k">return</span> <span class="n">idx</span>
+    <span class="n">idx</span> <span class="o">-=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">-</span> <span class="n">target</span>
+    <span class="k">return</span> <span class="n">idx</span></div>
 
 
 <span class="k">def</span> <span class="nf">_plot_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -383,7 +383,7 @@
         <span class="k">if</span> <span class="n">window_end</span> <span class="o">&gt;</span> <span class="n">data_length</span><span class="p">:</span>
             <span class="k">break</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">window_start</span><span class="p">,</span> <span class="n">window_end</span><span class="p">,</span> <span class="n">window_start</span> <span class="o">+</span> <span class="n">window_width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">window_start</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">window_start</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">window_width</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_log_window_selection</span><span class="p">(</span><span class="n">tr_id</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
@@ -401,7 +401,7 @@
 <span class="n">TAUPY_MODEL_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="select_windows"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.select_windows">[docs]</a><span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+<div class="viewcode-block" id="select_windows"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.select_windows">[docs]</a><span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">stf_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
                    <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
                    <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span> <span class="n">minimum_period</span><span class="p">,</span>
                    <span class="n">maximum_period</span><span class="p">,</span>
@@ -424,6 +424,8 @@
 <span class="sd">    :type data_trace: :class:`~obspy.core.trace.Trace`</span>
 <span class="sd">    :param synthetic_trace: The synthetic trace.</span>
 <span class="sd">    :type synthetic_trace: :class:`~obspy.core.trace.Trace`</span>
+<span class="sd">    :param stf_trace: The stf trace.</span>
+<span class="sd">    :type stf_trace: :class:`~obspy.core.trace.Trace`</span>
 <span class="sd">    :param event_latitude: The event latitude.</span>
 <span class="sd">    :type event_latitude: float</span>
 <span class="sd">    :param event_longitude: The event longitude.</span>
@@ -575,6 +577,15 @@
                 <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
         <span class="n">accept_traces</span> <span class="o">=</span> <span class="n">msg</span>
 
+    <span class="n">minimum_distance</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">minimum_period</span> <span class="o">*</span> <span class="n">min_velocity</span>
+    <span class="k">if</span> <span class="n">dist_in_km</span> <span class="o">&lt;</span> <span class="n">minimum_distance</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Source - Receiver distance </span><span class="si">%.3f</span><span class="s2"> is below threshold of </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">dist_in_km</span><span class="p">,</span> <span class="n">minimum_distance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">_log_window_selection</span><span class="p">(</span>
+                <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="n">accept_traces</span> <span class="o">=</span> <span class="n">msg</span>
+
     <span class="c1"># Calculate the envelope of both data and synthetics. This is to make sure</span>
     <span class="c1"># that the amplitude of both is not too different over time and is</span>
     <span class="c1"># used as another selector. Only calculated if the trace is generally</span>
@@ -710,9 +721,17 @@
     <span class="c1"># Elimination Stage 1: Eliminate everything half a period before or</span>
     <span class="c1"># after the minimum and maximum travel times, respectively.</span>
     <span class="c1"># theoretical arrival as positive.</span>
+    <span class="c1"># Account for delays in the source time functions as well</span>
     <span class="n">min_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">stf_env</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">envelope</span><span class="p">(</span><span class="n">stf_trace</span><span class="p">)</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stf_env</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">max_env_amplitude_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">stf_env</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
     <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span>
         <span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">+</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">max_idx</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">stf_env</span><span class="p">[</span><span class="n">max_env_amplitude_idx</span><span class="p">:]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span> <span class="o">+</span>
+                   <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">stf_env</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+
     <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="n">min_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_idx</span><span class="p">:]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
@@ -745,7 +764,7 @@
         <span class="c1"># Elimination Stage 2: Skip windows that have essentially no energy</span>
         <span class="c1"># to avoid instabilities. No windows can be picked in these.</span>
         <span class="k">if</span> <span class="n">synthetic_window</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">synth</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">:</span>
-            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">continue</span>
 
         <span class="c1"># Calculate the time shift. Here this is defined as the shift of the</span>
@@ -755,12 +774,13 @@
 
         <span class="n">time_shift</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="o">-</span> <span class="n">window_length</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="c1"># Express the time shift in fraction of the minimum period.</span>
-        <span class="n">sliding_time_shift</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_shift</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span> <span class="o">/</span> <span class="n">minimum_period</span>
+        <span class="n">sliding_time_shift</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">time_shift</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span> <span class="o">/</span> <span class="n">minimum_period</span>
 
         <span class="c1"># Normalized cross correlation.</span>
         <span class="n">max_cc_value</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">synthetic_window</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span>
                                           <span class="p">(</span><span class="n">data_window</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-        <span class="n">max_cc_coeff</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_cc_value</span>
+        <span class="n">max_cc_coeff</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_cc_value</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1059,8 +1079,8 @@
                             <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#CDDC39&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">trans</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</div>
-    <span class="k">return</span> <span class="n">windows</span>
+
+    <span class="k">return</span> <span class="n">windows</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

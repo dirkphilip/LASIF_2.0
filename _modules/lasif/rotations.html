@@ -262,8 +262,8 @@
 <span class="sd">    0.0</span>
 
 <span class="sd">    :param lat: The latitude.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-    <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat</span></div>
 
 
 <div class="viewcode-block" id="colat2lat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.colat2lat">[docs]</a><span class="k">def</span> <span class="nf">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">):</span>
@@ -283,8 +283,8 @@
 <span class="sd">    90.0</span>
 
 <span class="sd">    :param colat: The colatitude.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-    <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">colat</span> <span class="o">-</span> <span class="mf">90.0</span><span class="p">)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">colat</span> <span class="o">-</span> <span class="mf">90.0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="xyz_to_lat_lon_radius"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.xyz_to_lat_lon_radius">[docs]</a><span class="k">def</span> <span class="nf">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -309,8 +309,8 @@
     <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="c1"># Convert to degree.</span>
     <span class="n">colat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">,</span> <span class="p">[</span><span class="n">colat</span><span class="p">,</span> <span class="n">lon</span><span class="p">]))</span>
-    <span class="n">lat</span> <span class="o">=</span> <span class="n">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span></div>
 
 
 <div class="viewcode-block" id="lat_lon_radius_to_xyz"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat_lon_radius_to_xyz">[docs]</a><span class="k">def</span> <span class="nf">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
@@ -327,8 +327,8 @@
     <span class="c1"># Do the transformation</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_center_angle"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_center_angle">[docs]</a><span class="k">def</span> <span class="nf">get_center_angle</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
@@ -374,8 +374,8 @@
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mf">10.0</span> <span class="o">*</span> <span class="n">eps</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">result</span> <span class="o">%=</span> <span class="mf">360.0</span>
-</div>
-    <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
