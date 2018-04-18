@@ -1046,7 +1046,7 @@ ipdb.</td>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif compare_misfits [-h] [--ipdb] [--weight_set_name WEIGHT_SET_NAME]
                                  [--print_events]
-                                 from_iteration to_iteration
+                                 from_iteration to_iteration [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1060,8 +1060,8 @@ sources. That should translate into the calculated misfit
 value.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
-<col width="49%" />
+<col width="32%" />
+<col width="68%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -1072,24 +1072,28 @@ value.</p>
 <tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">to_iteration</span></code></td>
 <td>current iteration</td>
 </tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">events</span></code></td>
+<td>One or more events. If none given, all will be
+done.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--ipdb</span></code></td>
 <td>If true, a debugger
 will be launched
 upon encountering an
 exception. Requires
 ipdb.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--weight_set_name</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--weight_set_name</span></code></td>
 <td>Set of station and
 event weights</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--print_events</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--print_events</span></code></td>
 <td>compare misfits for
 each event</td>
 </tr>
