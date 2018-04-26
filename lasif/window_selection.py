@@ -153,10 +153,11 @@ def find_closest(ref_array, target):
     """
     # A must be sorted
     idx = ref_array.searchsorted(target)
-    idx = np.clip(idx, 1, len(ref_array) - 1)
+    idx = np.clip(idx, 0, len(ref_array) - 1)
     left = ref_array[idx - 1]
     right = ref_array[idx]
     idx -= target - left < right - target
+    idx[idx < 0] += 1
     return idx
 
 
