@@ -209,11 +209,11 @@ station weights and you only want to modify event weights you can do so by
 running <code class="docutils literal notranslate"><span class="pre">lasif</span> <span class="pre">create_weight_set</span> <span class="pre">A</span></code> and then modify the same file.</p>
 <p>After we have computed windows, which we will do later we can modify the
 weights of the windows but more on that later.</p>
-<p>Assuming <span class="math notranslate">\(N\)</span> windows in a given component, the corresponding
-adjoint sources will be called <span class="math notranslate">\(adj\_source_{1..N}\)</span> while their
-weights are <span class="math notranslate">\(w_{1..N}\)</span>. The final adjoint source for every component
+<p>Assuming <span class="math notranslate nohighlight">\(N\)</span> windows in a given component, the corresponding
+adjoint sources will be called <span class="math notranslate nohighlight">\(adj\_source_{1..N}\)</span> while their
+weights are <span class="math notranslate nohighlight">\(w_{1..N}\)</span>. The final adjoint source for every component
 will be calculated according to the following formula:</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
 </div>
 <div class="section" id="misfit-gui">
@@ -365,9 +365,7 @@ a gradient (sensitivity kernel).</p>
 
   <script type="text/javascript">
       jQuery(function () {
-          
-          SphinxRtdTheme.Navigation.enableSticky();
-          
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script> 
 
