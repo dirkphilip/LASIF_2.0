@@ -24,8 +24,7 @@
 
   
 
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -541,7 +540,7 @@ waveforms a bit.</td>
 <div class="section" id="lasif-list-events">
 <h4><a class="toc-backref" href="#id7">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif list_events [-h] [--ipdb] [--list]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif list_events [-h] [--ipdb] [--list] [--iteration ITERATION]
 </pre></div>
 </div>
 </div></blockquote>
@@ -569,6 +568,11 @@ ipdb.</td>
 <td>Show only a list of
 events. Good for
 scripting bash.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--iteration</span></code></td>
+<td>Show only events
+related to a
+specific iteration</td>
 </tr>
 </tbody>
 </table>
@@ -929,7 +933,7 @@ ipdb.</td>
 <div class="section" id="lasif-compute-station-weights">
 <h4><a class="toc-backref" href="#id17">lasif compute_station_weights</a><a class="headerlink" href="#lasif-compute-station-weights" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif compute_station_weights [-h] [--ipdb]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif compute_station_weights [-h] [--ipdb] [--iteration ITERATION]
                                          weight_set_name
                                          [event_name [event_name ...]]
 </pre></div>
@@ -968,13 +972,19 @@ upon encountering an
 exception. Requires
 ipdb.</td>
 </tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--iteration</span></code></td>
+<td>If you only want to
+do this for the
+events specified for
+an iteration</td>
+</tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-get-weighting-bins">
 <h4><a class="toc-backref" href="#id18">lasif get_weighting_bins</a><a class="headerlink" href="#lasif-get-weighting-bins" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif get_weighting_bins [-h] [--ipdb]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif get_weighting_bins [-h] [--ipdb] [--iteration ITERATION]
                                     window_set_name [event_name [event_name ...]]
 </pre></div>
 </div>
@@ -1007,6 +1017,11 @@ will be launched
 upon encountering an
 exception. Requires
 ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--iteration</span></code></td>
+<td>Take all eventsused
+in a
+specificiteration.</td>
 </tr>
 </tbody>
 </table>
@@ -1176,7 +1191,8 @@ ipdb.</td>
 <h4><a class="toc-backref" href="#id23">lasif process_data</a><a class="headerlink" href="#lasif-process-data" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif process_data [-h] [--ipdb] [events [events ...]]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif process_data [-h] [--ipdb] [--iteration ITERATION]
+                              [events [events ...]]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1208,6 +1224,10 @@ will be launched
 upon encountering an
 exception. Requires
 ipdb.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">--iteration</span></code></td>
+<td>Take all events used
+in iteration</td>
 </tr>
 </tbody>
 </table>
@@ -1369,10 +1389,11 @@ respective weights</td>
 <h4><a class="toc-backref" href="#id30">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_events [-h] [--ipdb] [--type {map,depth,time}]
+                             [--iteration ITERATION]
 </pre></div>
 </div>
 </div></blockquote>
-<p>Plot all events.</p>
+<p>Plot all events. This might need an extension to iterations.</p>
 <dl class="docutils">
 <dt>type can be one of:</dt>
 <dd><ul class="first last simple">
@@ -1409,6 +1430,10 @@ depth distribution
 histogram, <code class="docutils literal notranslate"><span class="pre">time</span></code>:
 time distribution
 histogram</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">--iteration</span></code></td>
+<td>Plot all events for
+an iteration</td>
 </tr>
 </tbody>
 </table>
@@ -1857,10 +1882,7 @@ ipdb.</td>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
