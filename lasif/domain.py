@@ -36,6 +36,7 @@ class ExodusDomain:
         self.domain_edge_tree = None
         self.earth_surface_tree = None
         self.approx_elem_width = None
+        self.max_elem_edge_length = None
         self.domain_edge_coords = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
@@ -130,6 +131,12 @@ class ExodusDomain:
 
         self.approx_elem_width = np.sort(r)[2]
 
+        # get max element edge length
+        edge_aspect_ratio = self.e.get_element_variable_values(
+            1, "edge_aspect_ratio", 1)
+        hmin = self.e.get_element_variable_values(1, "hmin", 1)
+        self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
+
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
 
@@ -214,7 +221,7 @@ class ExodusDomain:
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
         # False if too close to edge of domain
-        if dist < (self.num_buffer_elems * self.approx_elem_width):
+        if dist < (self.num_buffer_elems * self.max_elem_edge_length):
             return False
 
         return True
