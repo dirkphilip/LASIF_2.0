@@ -698,7 +698,7 @@ class ActionsComponent(Component):
                     n_comp = adj_src[channel].data.value
                 elif channel[-1] == "Z":
                     z_comp = adj_src[channel].data.value
-                zne = np.array((z_comp, n_comp, e_comp)).T
+                zne = np.array((z_comp, n_comp, e_comp))
             for receiver in receivers:
 
                 station = receiver["network"] + "_" + receiver["station"]
@@ -706,7 +706,7 @@ class ActionsComponent(Component):
                 if station == station_name:
                     print(f"writing adjoint source for station: {station}")
                     transform_mat = np.array(receiver["transform_matrix"])
-                    xyz = np.dot(zne, transform_mat.T)
+                    xyz = np.dot(transform_mat.T, zne).T
 
                     net_dot_sta = \
                         receiver["network"] + "." + receiver["station"]
