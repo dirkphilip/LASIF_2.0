@@ -785,7 +785,7 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
         iteration_dict["event_misfits"][event] = float(event_misfit)
         total_misfit += event_misfit
 
-    iteration_dict["total_misfit"] = total_misfit
+    iteration_dict["total_misfit"] = float(total_misfit)
     iteration_dict["weight_set_name"] = weight_set
     iteration_dict["window_set_name"] = window_set
 
