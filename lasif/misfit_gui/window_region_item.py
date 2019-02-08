@@ -3,9 +3,6 @@
 from PyQt5 import QtCore
 import pyqtgraph
 
-# TODO make DEFAULT_AD_SRC_TYPE a variable in config
-DEFAULT_AD_SRC_TYPE = "TimeFrequencyPhaseMisfitFichtner2008"
-
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
     def __init__(self, window_group_manager, channel_name, iteration,
@@ -65,9 +62,16 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
 
+        import salvus_misfit
         import matplotlib.pyplot as plt
         plt.close("all")
         plt.figure(figsize=(15, 10))
+        # station = self.channel_name.split(".")
+        # station = '_'.join([station[0], station[1]])
+        window_set = self.win_grp_manager.filename
+        window_set = window_set.split('/')
+        window_set = window_set[-1]
+        window_set = window_set[0:-7]
 
         data = self.comm.query.get_matching_waveforms(self.event_name,
                                                       self.iteration,
@@ -75,11 +79,12 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
 
         process_params = self.comm.project.processing_params
         adj_src = self.comm.project.config["misfit_type"]
-        self.comm.adj_sources.calculate_adjoint_source(
-            data=data.data[0], synth=data.synthetics[0], starttime=self.start,
-            endtime=self.end, taper="hann",
-            taper_percentage=0.05,
+        window = [(self.start, self.end)]
+        salvus_misfit.calculate_adjoint_source(
+            observed=data.data[0], synthetic=data.synthetics[0],
+            window=window,
             min_period=process_params["highpass_period"],
             max_period=process_params["lowpass_period"],
-            ad_src_type=adj_src, plot=True)
+            adj_src_type=adj_src, window_set=window_set,
+            taper_ratio=0.15, taper_type='cosine', plot=True)
         plt.show()

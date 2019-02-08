@@ -2,13 +2,127 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import itertools
 import numpy as np
 import os
 
 from lasif import LASIFError, LASIFNotFoundError
 
 from .component import Component
+from mpi4py import MPI
+
+
+def process_two_files_without_parallel_output(ds, other_ds,
+                                              process_function,
+                                              traceback_limit=3):
+    import traceback
+    import sys
+    """
+    Process data in two data sets.
+
+    This is mostly useful for comparing data in two data sets in any
+    number of scenarios. It again takes a function and will apply it on
+    each station that is common in both data sets. Please see the
+    :doc:`parallel_processing` document for more details.
+
+    Can only be run with MPI.
+
+    :type other_ds: :class:`.ASDFDataSet`
+    :param other_ds: The data set to compare to.
+    :param process_function: The processing function takes two
+        parameters: The station group from this data set and
+        the matching station group from the other data set.
+    :type traceback_limit: int
+    :param traceback_limit: The length of the traceback printed if an
+        error occurs in one of the workers.
+    :return: A dictionary for each station with gathered values. Will
+        only be available on rank 0.
+    """
+
+    # Collect the work that needs to be done on rank 0.
+    if MPI.COMM_WORLD.rank == 0:
+
+        def split(container, count):
+            """
+            Simple function splitting a container into equal length
+            chunks.
+            Order is not preserved but this is potentially an advantage
+            depending on the use case.
+            """
+            return [container[_i::count] for _i in range(count)]
+
+        this_stations = set(ds.waveforms.list())
+        other_stations = set(other_ds.waveforms.list())
+
+        # Usable stations are those that are part of both.
+        usable_stations = list(
+            this_stations.intersection(other_stations))
+        total_job_count = len(usable_stations)
+        jobs = split(usable_stations, MPI.COMM_WORLD.size)
+    else:
+        jobs = None
+
+    # Scatter jobs.
+    jobs = MPI.COMM_WORLD.scatter(jobs, root=0)
+
+    # Dictionary collecting results.
+    results = {}
+
+    for _i, station in enumerate(jobs):
+
+        if MPI.COMM_WORLD.rank == 0:
+            print(" -> Processing approximately task %i of %i ..." %
+                  ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
+                  flush=True)
+        try:
+            result = process_function(
+                getattr(ds.waveforms, station),
+                getattr(other_ds.waveforms, station))
+            # print("Working", flush=True)
+        except Exception:
+            # print("Not working", flush=True)
+            # If an exception is raised print a good error message
+            # and traceback to help diagnose the issue.
+            msg = ("\nError during the processing of station '%s' "
+                   "on rank %i:" % (station, MPI.COMM_WORLD.rank))
+
+            # Extract traceback from the exception.
+            exc_info = sys.exc_info()
+            stack = traceback.extract_stack(
+                limit=traceback_limit)
+            tb = traceback.extract_tb(exc_info[2])
+            full_tb = stack[:-1] + tb
+            exc_line = traceback.format_exception_only(
+                *exc_info[:2])
+            tb = ("Traceback (At max %i levels - most recent call "
+                  "last):\n" % traceback_limit)
+            tb += "".join(traceback.format_list(full_tb))
+            tb += "\n"
+            # A bit convoluted but compatible with Python 2 and
+            # 3 and hopefully all encoding problems.
+            tb += "".join(
+                _i.decode(errors="ignore")
+                if hasattr(_i, "decode") else _i
+                for _i in exc_line)
+
+            # These potentially keep references to the HDF5 file
+            # which in some obscure way and likely due to
+            # interference with internal HDF5 and Python references
+            # prevents it from getting garbage collected. We
+            # explicitly delete them here and MPI can finalize
+            # afterwards.
+            del exc_info
+            del stack
+
+            print(msg, flush=True)
+            print(tb, flush=True)
+        else:
+            # print("Else!", flush=True)
+            results[station] = result
+    # barrier but better be safe than sorry.
+    MPI.COMM_WORLD.Barrier()
+    if MPI.COMM_WORLD.rank == 0:
+        print("All ranks finished", flush=True)
+    return results
 
 
 class ActionsComponent(Component):
@@ -78,7 +192,7 @@ class ActionsComponent(Component):
         to_be_processed = [{"processing_info": _i}
                            for _i in processing_data_generator()]
 
-        # Load project specific window selection function.
+        # Load project specific data processing function.
         preprocessing_function_asdf = self.comm.project.get_project_function(
             "preprocessing_function_asdf")
         MPI.COMM_WORLD.Barrier()
@@ -87,11 +201,12 @@ class ActionsComponent(Component):
             MPI.COMM_WORLD.Barrier()
 
     def calculate_adjoint_sources(self, event, iteration, window_set_name,
-                                  **kwargs):
+                                  plot=False, **kwargs):
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
         import pyasdf
+        import salvus_misfit
 
         event = self.comm.events.get(event)
 
@@ -149,21 +264,29 @@ class ActionsComponent(Component):
                 iteration=iteration)
 
             adjoint_sources = {}
+            ad_src_type = self.comm.project.config["misfit_type"]
+            if ad_src_type == "weighted_waveform_misfit":
+                env_scaling = True
+                ad_src_type = "waveform_misfit"
+            else:
+                env_scaling = False
 
             for component in ["E", "N", "Z"]:
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
-
                 except LASIFNotFoundError:
                     continue
 
                 if self.comm.project.processing_params["scale_data_"
                                                        "to_synthetics"]:
-                    scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
-                    # Store and apply the scaling.
-                    data_tr.stats.scaling_factor = scaling_factor
-                    data_tr.data *= scaling_factor
+                    if not self.comm.project.config["misfit_type"] == \
+                            "L2NormWeighted":
+                        scaling_factor = \
+                            synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
 
                 net, sta, cha = data_tr.id.split(".", 2)
                 station = net + "." + sta
@@ -172,34 +295,31 @@ class ActionsComponent(Component):
                     continue
                 if data_tr.id not in all_windows[station]:
                     continue
-
                 # Collect all.
-                adj_srcs = []
                 windows = all_windows[station][data_tr.id]
                 try:
-                    for starttime, endtime in windows:
-                        config = self.comm.project.config
-                        asrc = \
-                            self.comm.\
-                            adj_sources.calculate_adjoint_source(
-                                data=data_tr, synth=synth_tr,
-                                starttime=starttime, endtime=endtime,
-                                taper="hann", taper_percentage=0.05,
-                                min_period=process_params["highpass_period"],
-                                max_period=process_params["lowpass_period"],
-                                ad_src_type=config["misfit_type"])
-                        adj_srcs.append(asrc)
+                    # for window in windows:
+                    asrc = salvus_misfit.calculate_adjoint_source(
+                        observed=data_tr, synthetic=synth_tr,
+                        window=windows,
+                        min_period=process_params["highpass_period"],
+                        max_period=process_params["lowpass_period"],
+                        adj_src_type=ad_src_type,
+                        window_set=window_set_name,
+                        taper_ratio=0.15, taper_type='cosine',
+                        plot=plot, envelope_scaling=env_scaling)
                 except:
                     # Either pass or fail for the whole component.
                     continue
 
-                if not adj_srcs:
+                if not asrc:
                     continue
-
                 # Sum up both misfit, and adjoint source.
-                misfit = sum([_i["misfit_value"] for _i in adj_srcs])
-                adj_source = np.sum([_i["adjoint_source"] for _i in adj_srcs],
-                                    axis=0)
+                misfit = asrc.misfit
+                adj_source = asrc.adjoint_source
+                # Time reversal is currently needed in Salvus but that will
+                # change later and this can be removed
+                adj_source = adj_source[::-1]
 
                 adjoint_sources[data_tr.id] = {
                     "misfit": misfit,
@@ -208,19 +328,46 @@ class ActionsComponent(Component):
 
             return adjoint_sources
 
-        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
-        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
-        results = ds.process_two_files_without_parallel_output(ds_synth,
-                                                               process)
+        results = process_two_files_without_parallel_output(ds, ds_synth,
+                                                            process)
+        # Write files on all ranks.
+        filename = self.comm.adj_sources.get_filename(
+            event=event["event_name"], iteration=iteration)
+        ad_src_counter = 0
+        size = MPI.COMM_WORLD.size
+        MPI.COMM_WORLD.Barrier()
+        for thread in range(size):
+            rank = MPI.COMM_WORLD.rank
+            if rank == thread:
+                print(
+                    f"Writing adjoint sources for rank: {rank+1} "
+                    f"out of {size}", flush=True)
+                with pyasdf.ASDFDataSet(filename=filename, mpi=False,
+                                        mode="a") as bs:
+                    for value in results.values():
+                        if not value:
+                            continue
+                        for c_id, adj_source in value.items():
+                            net, sta, loc, cha = c_id.split(".")
+                            bs.add_auxiliary_data(
+                                data=adj_source["adj_source"],
+                                data_type="AdjointSources",
+                                path="%s_%s/Channel_%s_%s" % (net, sta,
+                                                              loc, cha),
+                                parameters={"misfit": adj_source["misfit"]})
+                        ad_src_counter += 1
 
-        # Write files on rank 0.
+            MPI.COMM_WORLD.barrier()
         if MPI.COMM_WORLD.rank == 0:
-            self.comm.adj_sources.write_adjoint_sources(
-                event=event["event_name"], iteration=iteration,
-                adj_sources=results)
+            with pyasdf.ASDFDataSet(filename=filename, mpi=False,
+                                    mode="a")as ds:
+                length = len(ds.auxiliary_data.AdjointSources.list())
+            print(f"{length} Adjoint sources are in your file.")
 
     def select_windows(self, event, iteration_name, window_set_name, **kwargs):
         """
@@ -340,20 +487,27 @@ class ActionsComponent(Component):
             if all_windows:
                 return all_windows
 
-        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
-        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
 
-        # Launch the processing. This will be executed in parallel across
-        # ranks.
-        results = ds.process_two_files_without_parallel_output(
-            ds_synth, process)
-
+        results = process_two_files_without_parallel_output(ds, ds_synth,
+                                                            process)
+        MPI.COMM_WORLD.Barrier()
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            print("Selected windows: ", results)
-            self.comm.windows.write_windows_to_sql(
-                event_name=event["event_name"], windows=results,
-                window_set_name=window_set_name)
+            print("Finished window selection", flush=True)
+        size = MPI.COMM_WORLD.size
+        MPI.COMM_WORLD.Barrier()
+        for thread in range(size):
+            rank = MPI.COMM_WORLD.rank
+            if rank == thread:
+                print(
+                    f"Writing windows for rank: {rank+1} "
+                    f"out of {size}", flush=True)
+                self.comm.windows.write_windows_to_sql(
+                    event_name=event["event_name"], windows=results,
+                    window_set_name=window_set_name)
+            MPI.COMM_WORLD.Barrier()
 
     def select_windows_for_station(self, event, iteration, station,
                                    window_set_name, **kwargs):
@@ -429,7 +583,7 @@ class ActionsComponent(Component):
                                    station))
 
     def generate_input_files(self, iteration_name, event_name,
-                             simulation_type="forward"):
+                             simulation_type="forward", previous_iteration=None):
         """
         Generate the input files for one event.
 
@@ -437,7 +591,51 @@ class ActionsComponent(Component):
         :param event_name: The name of the event for which to generate the
             input files.
         :param simulation_type: forward, adjoint, step_length
+        :param previous_iteration: name of the iteration to copy input files
+            from.
         """
+        import shutil
+        if self.comm.project.config["mesh_file"] == "multiple":
+            mesh_file = os.path.join(self.comm.project.paths["models"],
+                                     "EVENT_SPECIFIC", event_name, "mesh.e")
+        else:
+            mesh_file = self.comm.project.config["mesh_file"]
+
+        input_files_dir = self.comm.project.paths['salvus_input']
+
+        # If previous iteration specified, copy files over and update mesh_file
+        # This part could be extended such that other parameters can be
+        # updated as well.
+        if previous_iteration:
+            long_prev_iter_name = self.comm.iterations.get_long_iteration_name(
+                previous_iteration)
+            prev_it_dir = os.path.join(input_files_dir, long_prev_iter_name,
+                                       event_name, simulation_type)
+        if previous_iteration and os.path.exists(prev_it_dir):
+            long_iter_name = self.comm.iterations.get_long_iteration_name(
+                iteration_name)
+            output_dir = os.path.join(input_files_dir, long_iter_name,
+                                      event_name,
+                                      simulation_type)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            if not prev_it_dir == output_dir:
+                shutil.copyfile(os.path.join(prev_it_dir, "run_salvus.sh"),
+                                os.path.join(output_dir, "run_salvus.sh"))
+            else:
+                print("Previous iteration is identical to current iteration.")
+            with open(os.path.join(output_dir, "run_salvus.sh"), "r") as fh:
+                cmd_string = fh.read()
+            l = cmd_string.split(" ")
+            l[l.index("--model-file") + 1] = mesh_file
+            l[l.index("--mesh-file") + 1] = mesh_file
+            cmd_string = " ".join(l)
+            with open(os.path.join(output_dir, "run_salvus.sh"), "w") as fh:
+                fh.write(cmd_string)
+            return
+        elif previous_iteration and not os.path.exists(prev_it_dir):
+            print(f"Could not find previous iteration directory for event: "
+                  f"{event_name}, generating input files")
 
         # =====================================================================
         # read weights toml file, get event and list of stations
@@ -471,7 +669,6 @@ class ActionsComponent(Component):
         recs = salvus_seismo.Receiver.parse(inv)
 
         solver_settings = self.comm.project.solver_settings
-        mesh_file = self.comm.project.config["mesh_file"]
         if solver_settings["number_of_absorbing_layers"] == 0:
             num_absorbing_layers = None
         else:
@@ -511,12 +708,12 @@ class ActionsComponent(Component):
                 with_anisotropy=self.comm.project.
                 solver_settings["with_anisotropy"])
 
-        # ==============================================================j===
+        # =====================================================================
         # output
-        # =================================================================
+        # =====================================================================
         long_iter_name = self.comm.iterations.get_long_iteration_name(
             iteration_name)
-        input_files_dir = self.comm.project.paths['salvus_input']
+
         output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
                                   simulation_type)
 
@@ -525,6 +722,7 @@ class ActionsComponent(Component):
 
         import shutil
         shutil.rmtree(output_dir)
+
         salvus_seismo.generate_cli_call(
             source=src, receivers=recs, config=config,
             output_folder=output_dir,
@@ -537,15 +735,14 @@ class ActionsComponent(Component):
             solver_settings["io_sampling_rate_volume"]
         memory_per_rank = self.comm.project.\
             solver_settings["io_memory_per_rank_in_MB"]
+        if self.comm.project.solver_settings["with_attenuation"]:
+            with open(run_salvus, "a") as fh:
+                fh.write(f" --with-attenuation")
         if simulation_type == "forward":
             with open(run_salvus, "a") as fh:
                 fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
                          f" --io-memory-per-rank-in-MB {memory_per_rank}"
                          f" --io-file-format bin")
-
-        if self.comm.project.solver_settings["with_attenuation"]:
-            with open(run_salvus, "a") as fh:
-                fh.write(f" --with-attenuation")
 
     def write_custom_stf(self, output_dir):
         import toml
@@ -602,34 +799,6 @@ class ActionsComponent(Component):
         with open(source_toml, "w") as fh:
             fh.write(source_str)
 
-    def calculate_all_adjoint_sources(self, iteration_name, event_name):
-        """
-        Function to calculate all adjoint sources for a certain iteration
-        and event.
-        """
-        window_manager = self.comm.windows.get(event_name, iteration_name)
-        event = self.comm.events.get(event_name)
-        iteration = self.comm.iterations.get(iteration_name)
-        iteration_event_def = iteration.events[event["event_name"]]
-        iteration_stations = iteration_event_def["stations"]
-
-        window_list = sorted(window_manager.list())
-        for station, windows in itertools.groupby(
-                window_list, key=lambda x: ".".join(x.split(".")[:2])):
-            if station not in iteration_stations:
-                continue
-            try:
-                for w in windows:
-                    w = window_manager.get(w)
-                    for window in w:
-                        # Access the property will trigger an adjoint source
-                        # calculation.
-                        window.adjoint_source
-            except LASIFError as e:
-                print("Could not calculate adjoint source for iteration %s "
-                      "and station %s. Repick windows? Reason: %s" % (
-                          iteration.name, station, str(e)))
-
     def finalize_adjoint_sources(self, iteration_name, event_name,
                                  weight_set_name=None):
         """
@@ -659,6 +828,11 @@ class ActionsComponent(Component):
         input_files_dir = self.comm.project.paths['salvus_input']
         receiver_dir = os.path.join(input_files_dir, long_iter_name,
                                     event_name, "forward")
+        with open(os.path.join(receiver_dir, "run_salvus.sh"), "r") as fh:
+            cmd_string = fh.read()
+        l = cmd_string.split(" ")
+        receivers_file = l[l.index("--receiver-toml") + 1]
+        
         output_dir = os.path.join(input_files_dir, long_iter_name,
                                   event_name, "adjoint")
 
@@ -667,7 +841,7 @@ class ActionsComponent(Component):
         os.mkdir(output_dir)
 
         receivers = toml.load(
-            os.path.join(receiver_dir, "receivers.toml"))["receiver"]
+            os.path.join(receivers_file))["receiver"]
 
         adjoint_source_file_name = os.path.join(
             output_dir, "adjoint_source.h5")
@@ -734,7 +908,11 @@ class ActionsComponent(Component):
         with open(toml_file_name, "w") as fh:
             fh.write(toml_string)
 
-        mesh_file = self.comm.project.config["mesh_file"]
+        if self.comm.project.config["mesh_file"] == "multiple":
+            mesh_file = os.path.join(self.comm.project.paths["models"],
+                                     "EVENT_SPECIFIC", event_name, "mesh.e")
+        else:
+            mesh_file = self.comm.project.config["mesh_file"]
         solver_settings = self.comm.project.solver_settings
         start_time = solver_settings["start_time"]
         end_time = solver_settings["end_time"]
@@ -760,12 +938,15 @@ class ActionsComponent(Component):
             f"--adjoint --kernel-file kernel_{event_name}.e " \
             f"--load-fields adjoint " \
             f"--load-wavefield-file wavefield.h5 " \
-            f"--save-static-fields gradient " \
-            f"--save-static-file-name {event_name}.h5 --kernel-fields TTI " \
-            f"--io-memory-per-rank-in-MB 5000 --with-anisotropy " \
+            f"--io-memory-per-rank-in-MB 5000 " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
             f"--source-toml {toml_file_name} " \
             f"--io-file-format bin"
+
+        if self.comm.project.solver_settings["with_anisotropy"]:
+            salvus_command += " --with-anisotropy --kernel-fields TTI"
+        else:
+            salvus_command += " --kernel-fields VP,VS,RHO"
 
         if num_absorbing_layers > 0:
             salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
@@ -776,3 +957,91 @@ class ActionsComponent(Component):
         salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
         with open(salvus_command_file, "w") as fh:
             fh.write(salvus_command)
+
+    # def make_event_mesh(self, event):
+    #     """
+    #     Make a specific mesh for an event. Uses location of event to
+    #     structure the mesh in a specific way to optimise simulations.
+    #     :param event: name of event
+    #     """
+    #     from lasif.tools.global_mesh_smoothiesem import mesh
+    #
+    #     n_axial_mask = 8
+    #     n_lat = 12
+    #     r_icb = 1221.5 / 6371.
+    #
+    #     event = self.comm.events.get(event)
+    #
+    #     src_lat = event["latitude"]
+    #     src_lon = event["longitude"]
+    #
+    #     src_azimuth = 0.0
+    #
+    #     # Do I want to relate these to iterations?
+    #     output_folder = os.path.join(self.comm.project.paths["models"],
+    #                                  "EVENT_SPECIFIC", event["event_name"])
+    #     if not os.path.exists(output_folder):
+    #         os.makedirs(output_folder)
+    #     output_filename = os.path.join(output_folder, "mesh.e")
+    #     axisem_mesh_params = "file.yaml"  # This will be referred to later.
+    #
+    #     theta_min_lat_refine = []
+    #     theta_max_lat_refine = []
+    #     r_min_lat_refine = []
+    #
+    #     mesh(n_axial_mask=n_axial_mask, n_lat=n_lat, r_icb=r_icb,
+    #          src_lat=src_lat,
+    #          src_lon=src_lon, theta_min_lat_refine=theta_min_lat_refine,
+    #          theta_max_lat_refine=theta_max_lat_refine,
+    #          r_min_lat_refine=r_min_lat_refine,
+    #          axisem_mesh_params=axisem_mesh_params,
+    #          output_filename=output_filename,
+    #          convert_element_type='tensorized', src_azimuth=src_azimuth)
+    # def region_of_interest(self, event, mesh_file, radius):
+    #     """
+    #     Add to mesh file a region of interest field which is used when
+    #     computing the gradient. The gradient will only be calculated
+    #     inside the region of interest. This function currently removes the
+    #     source imprint.
+    #     :param event: The name of the event
+    #     :param mesh_file: Where is the mesh which is used
+    #     :param radius: Radius in kilometers for the region of interest
+    #     :return: The mesh will include a binary ROI field.
+    #     """
+    #     from scipy.spatial import cKDTree
+    #     from csemlib.io.exodus_reader import ExodusReader
+    #     from csemlib.utils import sph2cart
+    #
+    #     event = self.comm.events.get(event)
+    #     radius *= 1000.0  # Convert to meters.
+    #
+    #     src_colat = 90.0 - event["latitude"]
+    #     src_lon = event["longitude"]
+    #     src_depth_in_m = event["depth_in_km"] * 1000.0
+    #     R_E = 6371000
+    #
+    #     b_x, b_y, b_z = sph2cart(np.radians(src_colat), np.radians(src_lon),
+    #                              R_E - src_depth_in_m)
+    #     src_point = [b_x, b_y, b_z]
+    #
+    #     e = ExodusReader(mesh_file)
+    #     e_centroids = e.get_element_centroid()
+    #     tree = cKDTree(e_centroids)
+    #     idx = []
+    #
+    #     idx += tree.query_ball_point(src_point, radius)
+    #
+    #     e.close()
+    #
+    #     import pyexodus
+    #
+    #     e = pyexodus.exodus(mesh_file, "a")
+    #     indices = list(idx)
+    #
+    #     e.put_element_variable_name("ROI", 1)
+    #     e.put_element_variable_values(1, "ROI", 1, np.ones(len(e_centroids)))
+    #     region_of_interest = e.get_element_variable_values(1, "ROI", 1)
+    #
+    #     region_of_interest[indices] = 0
+    #     e.put_element_variable_values(1, "ROI", 1, region_of_interest)
+    #     e.close()

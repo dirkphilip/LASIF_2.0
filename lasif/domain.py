@@ -12,16 +12,23 @@ Matplotlib is imported lazily to avoid heavy startup costs.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import pathlib
+import typing
+import warnings
+
 import numpy as np
 from pyexodus import exodus
 from scipy.spatial import cKDTree
-from lasif import LASIFNotFoundError, LASIFError
+
+from lasif import LASIFNotFoundError, LASIFError, LASIFWarning
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
 class ExodusDomain:
-    def __init__(self, exodus_file, num_buffer_elems):
-        self.exodus_file = exodus_file
+    def __init__(self,
+                 exodus_file: typing.Union[str, pathlib.Path],
+                 num_buffer_elems: int):
+        self.exodus_file = str(exodus_file)
         self.num_buffer_elems = num_buffer_elems
         self.r_earth = 6371000
         self.e = None
@@ -29,6 +36,7 @@ class ExodusDomain:
         self.domain_edge_tree = None
         self.earth_surface_tree = None
         self.approx_elem_width = None
+        self.max_elem_edge_length = None
         self.domain_edge_coords = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
@@ -61,6 +69,13 @@ class ExodusDomain:
         self.side_set_names = self.e.get_side_set_names()
         if len(self.side_set_names) <= 2 and 'outer_boundary' \
                 not in self.side_set_names:
+            self.is_global_mesh = True
+            self.min_lat = -90.0
+            self.max_lat = 90.0
+            self.min_lon = -180.0
+            self.max_lon = 180.0
+            return
+        if 'a0' in self.side_set_names:
             self.is_global_mesh = True
             self.min_lat = -90.0
             self.max_lat = 90.0
@@ -115,6 +130,12 @@ class ExodusDomain:
         r = np.sqrt(np.sum(distances_to_node ** 2, axis=1))
 
         self.approx_elem_width = np.sort(r)[2]
+
+        # get max element edge length
+        edge_aspect_ratio = self.e.get_element_variable_values(
+            1, "edge_aspect_ratio", 1)
+        hmin = self.e.get_element_variable_values(1, "hmin", 1)
+        self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
@@ -200,12 +221,12 @@ class ExodusDomain:
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
         # False if too close to edge of domain
-        if dist < (self.num_buffer_elems * self.approx_elem_width):
+        if dist < (self.num_buffer_elems * self.max_elem_edge_length):
             return False
 
         return True
 
-    def plot(self, ax=None, plot_inner_boundary=True):
+    def plot(self, ax=None, plot_inner_boundary=True, show_mesh=False):
         """
         Plots the domain
         Global domain is plotted using an equal area Mollweide projection.
@@ -213,12 +234,14 @@ class ExodusDomain:
         :param ax: matplotlib axes
         :param plot_inner_boundary: plot the convex hull of the mesh
         surface nodes that lie inside the domain.
+        :param show_mesh: Plot the mesh.
         :return: The created GeoAxes instance.
         """
         if not self.is_read:
             self._read()
 
         import matplotlib.pyplot as plt
+        from matplotlib.patches import Polygon
         from mpl_toolkits.basemap import Basemap
 
         if ax is None:
@@ -298,7 +321,8 @@ class ExodusDomain:
 
                 # Plot the hull simplices
                 for simplex in hull.simplices:
-                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5")
+                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5",
+                           zorder=6)
 
         except LASIFError:
             # Back up plot if the other one fails, which happens for
@@ -309,8 +333,38 @@ class ExodusDomain:
             x, y = m(lons, lats)
             m.scatter(x, y, color='k', label="Edge nodes", zorder=3000)
 
+        if show_mesh:
+            with exodus(self.exodus_file, mode='r') as e:
+                if "r1" not in e.get_side_set_names():
+                    msg = "Mesh not plotted as side set `r1` not part of mesh"
+                    warnings.warn(msg, LASIFWarning)
+                else:
+                    num_nodes, node_ids = e.get_side_set_node_list(
+                        e.get_side_set_ids()[
+                            e.get_side_set_names().index("r1")])
+                    # SHould not really happen - maybe with tet meshes?
+                    if not np.array_equal(np.unique(num_nodes), [4]):  # NOQA
+                        raise NotImplementedError
+                    # A bit ugly here that we read all points but probably
+                    # still faster than doing it directly on HDF5 with all
+                    # kinds or reordering tricks.
+                    points = np.array(e.get_coords()).T[node_ids - 1]
+                    lats, lons, _ = xyz_to_lat_lon_radius(
+                        points[:, 0], points[:, 1], points[:, 2])
+                    x, y = m(lons, lats)
+                    x = x.reshape((len(x) // 4, 4))
+                    y = y.reshape((len(y) // 4, 4))
+                    polygons = [
+                        Polygon(np.array([_x, _y]).T,
+                                facecolor=(0.90, 0.55, 0.28, 0.5),
+                                edgecolor=(0.1, 0.1, 0.1, 0.5),
+                                zorder=5, linewidth=0.5)
+                        for _x, _y in zip(x, y)]
+                    for p in polygons:
+                        m.ax.add_patch(p)
+
         _plot_features(m, stepsize=stepsize)
-        ax.legend(framealpha=0.5)
+        ax.legend(framealpha=0.5, loc="lower right")
         return m
 
     def get_sorted_edge_coords(self):

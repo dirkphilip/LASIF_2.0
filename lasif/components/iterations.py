@@ -29,8 +29,8 @@ class IterationsComponent(Component):
         >>> comm.iterations.get_long_iteration_name("1")
         'ITERATION_1'
         """
-
-        iteration_name = iteration_name.lstrip("ITERATION_")
+        if iteration_name[:10] == "ITERATION_":
+            iteration_name = iteration_name[10:]
         return "ITERATION_%s" % iteration_name
 
     def write_info_toml(self, iteration_name, simulation_type):
@@ -99,6 +99,99 @@ class IterationsComponent(Component):
         self._create_adjoint_sources_and_windows_folder_for_iteration(
             long_iter_name, remove_dirs)
         self._create_model_folder_for_iteration(long_iter_name, remove_dirs)
+        self._create_iteration_folder_for_iteration(long_iter_name,
+                                                    remove_dirs)
+        self._create_gradients_folder_for_iteration(long_iter_name,
+                                                    remove_dirs)
+
+    def setup_iteration_toml(self, iteration_name):
+        """
+        Sets up a toml file which can be used to keep track of needed
+        information related to the iteration. It can be used to specify which
+        events to use and it can remember which input parameters were used.
+        :param iteration_name: The iteration for which to create the folders.
+        :param remove_dirs: Boolean if set to True the iteration is removed
+        """
+
+        long_iter_name = self.get_long_iteration_name(iteration_name)
+
+        path = self.comm.project.paths["iterations"]
+        syn_folder = self.comm.project.paths["synthetics"]
+        sim_folder = os.path.join(syn_folder, "INFORMATION", long_iter_name)
+        file = os.path.join(path, long_iter_name, "central_info.toml")
+        event_file = os.path.join(path, long_iter_name, "events_used.toml")
+        forward_file = os.path.join(sim_folder, "forward.toml")
+        adjoint_file = os.path.join(sim_folder, "adjoint.toml")
+        step_file = os.path.join(sim_folder, "step_length.toml")
+
+        toml_string = f"# This toml file includes information relative to " \
+                      f"this iteration: {iteration_name}. \n" \
+                      f"# It contains direct information as well as paths " \
+                      f"to other toml files with other information.\n \n" \
+                      f"[events]\n" \
+                      f"    # In this file you can modify the used events " \
+                      f"in the iteration. \n    # This is what your " \
+                      f"commands will read when you don't specify events.\n" \
+                      f"    events_used = \"{event_file}\"\n\n" \
+                      f"[simulations]\n" \
+                      f"    # These files will be created or updated every " \
+                      f"time" \
+                      f" you generate input files for the respective " \
+                      f"simulations.\n" \
+                      f"    forward = \"{forward_file}\"\n" \
+                      f"    adjoint = \"{adjoint_file}\"\n" \
+                      f"    step_length = \"{step_file}\"\n\n" \
+                      f"    # That's it, if you need more, contact " \
+                      f"developers.\n" \
+
+        with open(file, "w") as fh:
+            fh.write(toml_string)
+        print(f"Information about iteration stored in {file}")
+
+    def setup_events_toml(self, iteration_name, events):
+        """
+        Writes all events into a toml file. User can modify this if he wishes
+        to use less events for this specific iteration. Lasif should be smart
+        enough to know which events were used in which iteration.
+        """
+        long_iter_name = self.get_long_iteration_name(iteration_name)
+        path = self.comm.project.paths["iterations"]
+
+        event_file = os.path.join(path, long_iter_name, "events_used.toml")
+
+        toml_string = "# Here we store information regarding which events " \
+                      "are " \
+                      "used \n# User can remove events at will and Lasif " \
+                      "should recognise it when input files are generated.\n" \
+                      "# Everything related to using all events, should " \
+                      "read this file and classify that as all events for " \
+                      "iteration.\n\n" \
+                      "[events]\n" \
+                      "    events_used = ["
+        s = 0
+        for event in events:
+            if s == len(events) - 1:
+                toml_string += "'" + event + "']"
+            else:
+                toml_string += "'" + event + "',\n"
+            s += 1
+
+        with open(event_file, "w") as fh:
+            fh.write(toml_string)
+
+    def _create_iteration_folder_for_iteration(self, long_iteration_name,
+                                               remove_dirs=False):
+        """
+        Create folder for this iteration in the iteration information directory
+        """
+
+        path = self.comm.project.paths["iterations"]
+
+        folder = os.path.join(path, long_iteration_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        if remove_dirs:
+            shutil.rmtree(folder)
 
     def _create_synthetics_folder_for_iteration(self, long_iteration_name,
                                                 remove_dirs=False):
@@ -181,7 +274,7 @@ class IterationsComponent(Component):
         """
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
             self.comm.project.paths["eq_synthetics"], "ITERATION_*"))]
-        iterations = [os.path.splitext(os.path.basename(_i))[0][10:]
+        iterations = [os.path.basename(_i)[10:]
                       for _i in files]
         return sorted(iterations)
 
@@ -189,7 +282,8 @@ class IterationsComponent(Component):
         """
         Checks for existance of an iteration
         """
-        iteration_name = iteration_name.lstrip("ITERATION_")
+        if iteration_name[:10] == "ITERATION_":
+            iteration_name = iteration_name[10:]
         if iteration_name in self.list():
             return True
         return False
