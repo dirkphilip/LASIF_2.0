@@ -328,8 +328,8 @@ class ActionsComponent(Component):
 
             return adjoint_sources
 
-        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
-        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
@@ -487,8 +487,8 @@ class ActionsComponent(Component):
             if all_windows:
                 return all_windows
 
-        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
-        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
 
         results = process_two_files_without_parallel_output(ds, ds_synth,
                                                             process)

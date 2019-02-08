@@ -70,7 +70,7 @@ class EventsComponent(Component):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        ds = pyasdf.ASDFDataSet(filename, mode='r')
+        ds = pyasdf.ASDFDataSet(filename, mode='r', mpi=False)
         event = ds.events[0]
 
         # Extract information.
