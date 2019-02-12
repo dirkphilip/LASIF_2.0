@@ -432,12 +432,13 @@ def generate_input_files(lasif_root, iteration, simulation_type, events=[],
         print(f"Generating input files for event "
               f"{_i + 1} of {len(events)} -- {event}")
         if simulation_type == "adjoint":
-            comm.actions.finalize_adjoint_sources(iteration, event,
+            comm.adj_sources.finalize_adjoint_sources(iteration, event,
                                                   weight_set)
 
         else:
-            comm.actions.generate_input_files(iteration, event,
-                                              simulation_type, prev_iter)
+            from lasif.utils import generate_input_files
+            generate_input_files(iteration, event, comm, simulation_type,
+                                 prev_iter)
 
     comm.iterations.write_info_toml(iteration, simulation_type)
 
@@ -461,15 +462,16 @@ def init_project(project_path):
         raise LASIFError(msg)
 
     Project(project_root_path=project_path, init_project=project_path.name)
-
+    print(f"Initialized project in {project_path.name}")
 
 def calculate_adjoint_sources(lasif_root, iteration, window_set,
-                              events=[]):
+                              weight_set=None, events=[]):
     """
     Calculate adjoint sources for a given iteration
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param window_set: name of window set
+    :param weight_set: name of station weight set [optional]
     :param events: events [optional]
     """
 
@@ -519,8 +521,13 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
                 os.remove(filename)
 
         MPI.COMM_WORLD.barrier()
-        comm.actions.calculate_adjoint_sources(event, iteration,
-                                               window_set)
+        comm.adj_sources.calculate_adjoint_sources(event, iteration,
+                                                       window_set)
+        MPI.COMM_WORLD.barrier()
+        if MPI.COMM_WORLD.rank == 0:
+            comm.adj_sources.finalize_adjoint_sources(iteration, 
+                                                          event,
+                                                          weight_set)
 
 
 def select_windows(lasif_root, iteration, window_set, events=[]):
@@ -539,7 +546,7 @@ def select_windows(lasif_root, iteration, window_set, events=[]):
 
     for event in events:
         print(f"Selecting windows for event: {event}")
-        comm.actions.select_windows(event, iteration, window_set)
+        comm.windows.select_windows(event, iteration, window_set)
 
 
 def open_gui(lasif_root):
@@ -618,116 +625,6 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set,
         events_dict=comm.query.get_stations_for_all_events())
-
-
-def get_weighting_bins(lasif_root, window_set, events=[], iteration=None):
-    """
-    Compute average envelopes for the observed data in certain station bins.
-    The binning is based on event-station distances.
-    :param lasif_root: path to lasif root directory
-    :param window_set: name of window set, station with no windows not used.
-    :param events: events to include [optional]
-    :param iteration: use all events for an iteration [optional]
-    """
-
-    from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
-    import obspy.signal.filter
-    import operator
-    from collections import OrderedDict
-    import pyasdf
-    import numpy as np
-    comm = find_project_comm(lasif_root)
-
-    if len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-
-    windows = comm.windows.get(window_set)
-
-    distances = OrderedDict()
-
-    # Collect information on event-station distances.
-    # Could be put into a new function
-    for event_name in events:
-        distances[event_name] = OrderedDict()
-        stations = comm.query.get_all_stations_for_event(event_name)
-        event = comm.events.get(event_name)
-        for station_id in stations:
-            if len(windows.get_all_windows_for_event_station(
-                    event_name, station_id)) == 0:
-                continue
-            station = comm.query.get_coordinates_for_station(
-                event_name, station_id)
-            dist = gps2dist_azimuth(event["latitude"], event["longitude"],
-                                    station["latitude"], station["longitude"])
-            dist = kilometer2degrees(dist[0] / 1000.0)
-            distances[event_name][station_id] = dist
-
-    # Sort the stations using distances. Bin them appropriately
-    bins_dict = OrderedDict()
-    for event_name in events:
-        asdf_file = comm.waveforms.get_asdf_filename(
-            event_name=event_name, data_type="processed",
-            tag_or_iteration=comm.waveforms.preprocessing_tag)
-        with pyasdf.ASDFDataSet(asdf_file) as ds:
-            if "BinEnvelope" in ds.auxiliary_data.list():
-                del ds.auxiliary_data["BinEnvelope"]
-            sorted_stations = sorted(distances[event_name].items(),
-                                     key=operator.itemgetter(1))
-            dist = [x[1]for x in sorted_stations]
-
-            # If stop=max(dist) we will have a bin with one station
-            stop = min(dist) + (dist[-1] - dist[0]) * 0.9
-            bins = np.linspace(start=min(dist), stop=stop, num=10)
-            # Organize the stations into bins
-            bin_array = np.digitize(
-                x=np.array(list(distances[event_name].values())), bins=bins)
-            i = 0
-            bins_dict[event_name] = OrderedDict()
-            for station in distances[event_name]:
-                bins_dict[event_name][station] = bin_array[i]
-                i += 1
-
-            # Now we need to get waveforms and calculate envelopes.
-            for s in range(1, len(bins) + 1):
-                stations = [k for k, v in
-                            bins_dict[event_name].items() if v == s]
-                storage = np.zeros((len(stations),
-                                    len(ds.waveforms[ds.waveforms.list()[0]]
-                                        [comm.waveforms.preprocessing_tag]
-                                        [0].data)))
-                i = 0
-                for station in stations:
-                    print(station)
-                    wave = comm.waveforms.get_waveforms_processed(
-                        event_name=event_name, station_id=station,
-                        tag=comm.waveforms.preprocessing_tag)
-                    wave_z = wave.select(component="Z")
-                    data_envelope = obspy.signal.filter.envelope(
-                        wave_z[0].data)
-
-                    storage[i, :] = data_envelope
-                    i += 1
-                if len(stations) == 0:
-                    envelope = np.zeros(len(data_envelope))
-                else:
-                    envelope = np.mean(storage, axis=0)
-
-                if s == len(bins):
-                    parameters = {"bin": s,
-                                  "min_dist": bins[s - 1],
-                                  "max_dist": "INFINITE",
-                                  "num_stations": len(stations),
-                                  "stations": ", ".join(stations)}
-                else:
-                    parameters = {"bin": s,
-                                  "min_dist": bins[s - 1],
-                                  "max_dist": bins[s],
-                                  "num_stations": len(stations),
-                                  "stations": ", ".join(stations)}
-                data_type = "BinEnvelope"
-                path = f"{s}_bin"
-                ds.add_auxiliary_data(data=envelope, data_type=data_type,
-                                      path=path, parameters=parameters)
 
 
 def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
@@ -940,7 +837,7 @@ def process_data(lasif_root, events=[], iteration=None):
 
     # Make sure all the ranks enter the processing at the same time.
     MPI.COMM_WORLD.barrier()
-    comm.actions.process_data(events)
+    comm.waveforms.process_data(events)
 
 
 def plot_window_statistics(lasif_root, window_set, save=False, events=[],

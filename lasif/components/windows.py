@@ -8,6 +8,8 @@ import os
 from .component import Component
 
 from ..window_manager_sql import WindowGroupManager
+from lasif.utils import process_two_files_without_parallel_output
+from lasif import LASIFError, LASIFNotFoundError
 
 
 class WindowsComponent(Component):
@@ -142,3 +144,217 @@ class WindowsComponent(Component):
             }
 
         return statistics
+
+    def select_windows(self, event, iteration_name, window_set_name, **kwargs):
+        """
+        Automatically select the windows for the given event and iteration.
+
+        Function must be called with MPI.
+
+        :param event: The event.
+        :param iteration_name: The iteration.
+        :param window_set_name: The name of the window set to pick into
+        """
+        from lasif.utils import select_component_from_stream
+
+        from mpi4py import MPI
+        import pyasdf
+
+        event = self.comm.events.get(event)
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration_name)
+
+        if not os.path.exists(processed_filename):
+            msg = "File '%s' does not exists." % processed_filename
+            raise LASIFNotFoundError(msg)
+
+        if not os.path.exists(synthetic_filename):
+            msg = "File '%s' does not exists." % synthetic_filename
+            raise LASIFNotFoundError(msg)
+
+        # Load project specific window selection function.
+        select_windows = self.comm.project.get_project_function(
+            "window_picking_function")
+
+        # Get source time function
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function")
+        delta = self.comm.project.solver_settings["time_increment"]
+        npts = self.comm.project.solver_settings["number_of_time_steps"]
+        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
+        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
+                            freqmax=freqmax)
+
+        process_params = self.comm.project.processing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
+
+        def process(observed_station, synthetic_station):
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            # Make sure both have length 1.
+            assert len(obs_tag) == 1, (
+                "Station: %s - Requires 1 observed waveform tag. Has %i." % (
+                    observed_station._station_name, len(obs_tag)))
+            assert len(syn_tag) == 1, (
+                "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
+                    observed_station._station_name, len(syn_tag)))
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Extract coordinates once.
+            coordinates = observed_station.coordinates
+
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(),
+                event_name=event["event_name"], iteration=iteration_name)
+
+            all_windows = {}
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+
+                    if self.comm.project.processing_params["scale_data_"
+                                                           "to_synthetics"]:
+                        scaling_factor = \
+                            synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
+
+                except LASIFNotFoundError:
+                    continue
+
+                windows = None
+                try:
+                    windows = select_windows(
+                        data_tr, synth_tr, stf_trace, event["latitude"],
+                        event["longitude"], event["depth_in_km"],
+                        coordinates["latitude"],
+                        coordinates["longitude"],
+                        minimum_period=minimum_period,
+                        maximum_period=maximum_period,
+                        iteration=iteration_name, **kwargs)
+                except Exception as e:
+                    print(e)
+
+                if not windows:
+                    continue
+                all_windows[data_tr.id] = windows
+
+            if all_windows:
+                return all_windows
+
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
+
+        results = process_two_files_without_parallel_output(ds, ds_synth,
+                                                            process)
+        MPI.COMM_WORLD.Barrier()
+        # Write files on rank 0.
+        if MPI.COMM_WORLD.rank == 0:
+            print("Finished window selection", flush=True)
+        size = MPI.COMM_WORLD.size
+        MPI.COMM_WORLD.Barrier()
+        for thread in range(size):
+            rank = MPI.COMM_WORLD.rank
+            if rank == thread:
+                print(
+                    f"Writing windows for rank: {rank+1} "
+                    f"out of {size}", flush=True)
+                self.comm.windows.write_windows_to_sql(
+                    event_name=event["event_name"], windows=results,
+                    window_set_name=window_set_name)
+            MPI.COMM_WORLD.Barrier()
+
+    def select_windows_for_station(self, event, iteration, station,
+                                   window_set_name, **kwargs):
+        """
+        Selects windows for the given event, iteration, and station. Will
+        delete any previously existing windows for that station if any.
+
+        :param event: The event.
+        :param iteration: The iteration.
+        :param station: The station id in the form NET.STA.
+        """
+        from lasif.utils import select_component_from_stream
+
+        # Load project specific window selection function.
+        select_windows = self.comm.project.get_project_function(
+            "window_picking_function")
+
+        event = self.comm.events.get(event)
+        data = self.comm.query.get_matching_waveforms(event["event_name"],
+                                                      iteration, station)
+
+        # Get source time function
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function")
+        delta = self.comm.project.solver_settings["time_increment"]
+        npts = self.comm.project.solver_settings["number_of_time_steps"]
+        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
+        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
+                            freqmax=freqmax)
+
+        process_params = self.comm.project.processing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
+
+        window_group_manager = self.comm.windows.get(
+            window_set_name)
+
+        found_something = False
+        for component in ["E", "N", "Z"]:
+            try:
+                data_tr = select_component_from_stream(data.data, component)
+                synth_tr = select_component_from_stream(data.synthetics,
+                                                        component)
+                # delete preexisting windows
+                window_group_manager.del_all_windows_from_event_channel(
+                    event["event_name"], data_tr.id)
+            except LASIFNotFoundError:
+                continue
+            found_something = True
+
+            windows = select_windows(data_tr, synth_tr, stf_trace,
+                                     event["latitude"],
+                                     event["longitude"], event["depth_in_km"],
+                                     data.coordinates["latitude"],
+                                     data.coordinates["longitude"],
+                                     minimum_period=minimum_period,
+                                     maximum_period=maximum_period,
+                                     iteration=iteration, **kwargs)
+            if not windows:
+                continue
+
+            for starttime, endtime in windows:
+                window_group_manager.add_window_to_event_channel(
+                    event_name=event["event_name"],
+                    channel_name=data_tr.id,
+                    start_time=starttime, end_time=endtime)
+
+        if found_something is False:
+            raise LASIFNotFoundError(
+                "No matching data found for event '%s', iteration '%s', and "
+                "station '%s'." % (event["event_name"], iteration.name,
+                                   station))
+
