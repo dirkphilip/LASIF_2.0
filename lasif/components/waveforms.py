@@ -7,6 +7,7 @@ import fnmatch
 import os
 import warnings
 import pyasdf
+from lasif.utils import process_two_files_without_parallel_output
 
 from lasif import LASIFNotFoundError, LASIFWarning
 from .component import Component
@@ -142,7 +143,7 @@ class WaveformsComponent(Component):
         """
         st, inv = self._get_waveforms(event_name, station_id,
                                       data_type="raw", get_inventory=True)
-        return self.process_data(st, inv, event_name)
+        return self.process_data_on_the_fly(st, inv, event_name)
 
     def get_waveforms_synthetic(self, event_name, station_id,
                                 long_iteration_name):
@@ -186,7 +187,7 @@ class WaveformsComponent(Component):
         return fct(st, processing_params,
                    event=self.comm.events.get(event_name))
 
-    def process_data(self, st, inv, event_name):
+    def process_data_on_the_fly(self, st, inv, event_name):
         """ This will process the data on the fly"""
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("processing_function")
@@ -204,28 +205,71 @@ class WaveformsComponent(Component):
         return fct(st, inv, processing_parmams,
                    event=self.comm.events.get(event_name))
 
-    def light_preprocess(self, event):
+    def process_data(self, events):
         """
-        A way to cheat LASIF to be able to work with larger data sets.
-        This should reduce size of data by downsampling and filtering.
+        Processes all data for a given iteration.
+
+        This function works with and without MPI.
+
+        :param events: event_ids is a list of events to process in this
+            run. It will process all events if not given.
         """
-        fct = self.comm.project.get_project_function(
-            "light_preprocessing_function")
-        params = self.comm.project.processing_params
+        from mpi4py import MPI
+        process_params = self.comm.project.processing_params
+        solver_settings = self.comm.project.solver_settings
+        npts = solver_settings["number_of_time_steps"]
+        dt = solver_settings["time_increment"]
+        salvus_start_time = solver_settings["start_time"]
 
-        freq = 1.0 / params["downsample_period"]
-        dt = 1.0 / freq / 4.0  # Sample each period at least four times
+        def processing_data_generator():
+            """
+            Generate a dictionary with information for processing for each
+            waveform.
+            """
+            # Loop over the chosen events.
+            for event_name in events:
+                output_folder = os.path.join(
+                    self.comm.project.paths["preproc_eq_data"], event_name)
+                asdf_file_name = self.comm.waveforms.get_asdf_filename(
+                    event_name, data_type="raw")
+                preprocessing_tag = self.comm.waveforms.preprocessing_tag
+                output_filename = os.path.join(output_folder,
+                                               preprocessing_tag + ".h5")
 
-        light_proc_params = {}
-        light_proc_params["max_freq"] = freq
-        light_proc_params["dt"] = dt
-        light_proc_params["event_file_name"] = \
-            self.get_asdf_filename(event, "raw")
+                if not os.path.exists(output_folder):
+                    os.makedirs(output_folder)
 
-        temp = self.get_asdf_filename(event, "raw") + "temp"
-        light_proc_params["temp_file"] = temp
+                lowpass_period = process_params["lowpass_period"]
+                highpass_period = process_params["highpass_period"]
 
-        return fct(event, light_proc_params)
+                # remove asdf file if it already exists
+                if MPI.COMM_WORLD.rank == 0:
+                    if os.path.exists(output_filename):
+                        os.remove(output_filename)
+
+                ret_dict = {
+                    "process_params": process_params,
+                    "asdf_input_filename": asdf_file_name,
+                    "asdf_output_filename": output_filename,
+                    "preprocessing_tag": preprocessing_tag,
+                    "dt": dt,
+                    "npts": npts,
+                    "salvus_start_time": salvus_start_time,
+                    "lowpass_period": lowpass_period,
+                    "highpass_period": highpass_period,
+                }
+                yield ret_dict
+
+        to_be_processed = [{"processing_info": _i}
+                           for _i in processing_data_generator()]
+
+        # Load project specific data processing function.
+        preprocessing_function_asdf = self.comm.project.get_project_function(
+            "preprocessing_function_asdf")
+        MPI.COMM_WORLD.Barrier()
+        for event in to_be_processed:
+            preprocessing_function_asdf(event["processing_info"])
+            MPI.COMM_WORLD.Barrier()
 
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None, get_inventory=False):

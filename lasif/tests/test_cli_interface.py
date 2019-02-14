@@ -30,17 +30,35 @@ import os
 import shutil
 import numpy as np
 from unittest import mock
+import inspect
+import pathlib
 
 import lasif
 from lasif.scripts import lasif_cli
 from lasif.tests.testing_helpers import reset_matplotlib
 from lasif.tests.testing_helpers import communicator, cli  # NOQA
-
+import pytest
+from lasif.components.project import Project
 
 # Get a list of all available commands.
 CMD_LIST = [key.replace("lasif_", "")
             for (key, value) in lasif_cli.__dict__.items()
             if (key.startswith("lasif_") and callable(value))]
+
+@pytest.fixture()
+def comm(tmpdir):
+    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))), "tests", "data",
+        "ExampleProject")
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
+    folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
+    os.chdir(os.path.abspath(folder_path))
+
+    return project.comm
 
 
 def setup_function(function):
@@ -183,33 +201,33 @@ def test_plotting_functions(cli):
 
     with mock.patch(vs + "plot_event") as patch:
         cli.run("lasif plot_event event_name")
-    patch.assert_called_once_with("event_name", None)
+    patch.assert_called_once_with("event_name", None, show_mesh=False)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:
         cli.run("lasif plot_event event_name --weight_set_name A")
-    patch.assert_called_once_with("event_name", "A")
+    patch.assert_called_once_with("event_name", "A", show_mesh=False)
     assert patch.call_count == 1
 
     # Test the different variations of the plot_events function.
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events")
-    patch.assert_called_once_with("map", iteration=None)
+    patch.assert_called_once_with("map", iteration=None, show_mesh=False)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=map")
-    patch.assert_called_once_with("map", iteration=None)
+    patch.assert_called_once_with("map", iteration=None, show_mesh=False)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=time")
-    patch.assert_called_once_with("time", iteration=None)
+    patch.assert_called_once_with("time", iteration=None, show_mesh=False)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=depth")
-    patch.assert_called_once_with("depth", iteration=None)
+    patch.assert_called_once_with("depth", iteration=None, show_mesh=False)
     assert patch.call_count == 1
 
     # Misc plotting functionality.
@@ -350,12 +368,12 @@ def test_plot_stf(cli):
     assert stf_delta == delta
 
 
-def test_generate_input_files(cli):
+def test_generate_input_files(cli, comm):
     """
     Mock test for generate_all_input_files.
     """
-    ac = "lasif.components.actions.ActionsComponent."
-    event = "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10"
+    ac = "lasif.utils."
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
     # Test if it gives an error if there is no iteration available
     with mock.patch(ac + 'generate_input_files') as patch:
         out = cli.run("lasif generate_input_files 2 " + event + ' forward')
@@ -369,7 +387,7 @@ def test_generate_input_files(cli):
     assert out.stderr == ""
     assert "Generating input files for event " in out.stdout
     assert event in out.stdout
-    patch.assert_called_once_with("1", event, 'forward')
+    patch.assert_called_once_with("1", event, comm, 'forward', None)
     assert patch.call_count == 1
 
     # No simulation type specified:
@@ -383,7 +401,7 @@ def test_generate_input_files(cli):
     with mock.patch(ac + 'generate_input_files') as patch:
         out = cli.run("lasif generate_input_files 1 " + event + ' step_length')
     assert out.stderr == ""
-    patch.assert_called_once_with("1", event, "step_length")
+    patch.assert_called_once_with("1", event, comm, "step_length", None)
     assert patch.call_count == 1
 
     # Adjoint simulation should get errors now since there are no files ready
@@ -404,14 +422,14 @@ def test_calculate_all_adjoint_sources(cli):
     """
     Simple mock test.
     """
-    with mock.patch("lasif.components.actions.ActionsComponent"
+    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
                     ".calculate_adjoint_sources") as p:
         out = cli.run("lasif calculate_adjoint_sources 1 B "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     assert "Window set B not known to LASIF" in out.stderr
     assert p.call_count == 0
 
-    with mock.patch("lasif.components.actions.ActionsComponent"
+    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
                     ".calculate_adjoint_sources") as p:
         out = cli.run("lasif calculate_adjoint_sources")
     assert "error: the following arguments are required: iteration_name, " \
@@ -429,7 +447,7 @@ def test_finalize_adjoint_sources(cli):
     Simple mock test.
     """
     cli.run("lasif set_up_iteration 1")
-    with mock.patch("lasif.components.actions.ActionsComponent"
+    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
                     ".finalize_adjoint_sources") as p:
         out = cli.run("lasif generate_input_files 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint")
@@ -477,7 +495,7 @@ def test_processing_event_limiting_works(cli):
     """
     Asserts that the event parsing is correct.
     """
-    ac = "lasif.components.actions.ActionsComponent."
+    ac = "lasif.components.waveforms.WaveformsComponent."
     # cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 
     # No event should result in None.

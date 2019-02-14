@@ -23,7 +23,6 @@ import warnings
 import lasif.domain
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from .adjoint_sources import AdjointSourcesComponent
-from .actions import ActionsComponent
 from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
@@ -203,8 +202,6 @@ class Project(Component):
         QueryComponent(communicator=self.comm, component_name="query")
         VisualizationsComponent(communicator=self.comm,
                                 component_name="visualizations")
-        ActionsComponent(communicator=self.comm,
-                         component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
         AdjointSourcesComponent(
