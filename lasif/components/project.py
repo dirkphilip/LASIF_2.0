@@ -23,7 +23,6 @@ import warnings
 import lasif.domain
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from .adjoint_sources import AdjointSourcesComponent
-from .actions import ActionsComponent
 from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
@@ -161,16 +160,18 @@ class Project(Component):
                              f"The only supported STF's are \"heaviside\" "
                              f"and \"bandpass_filtered_heaviside\". \n"
                              f"Please modify your config file.")
-        if misfit not in ("TimeFrequencyPhaseMisfitFichtner2008",
-                          "CCTimeShift", "L2Norm", "DoubleDifference"):
+        if misfit not in ("tf_phase_misfit",
+                          "waveform_misfit", "cc_traveltime_misfit",
+                          "cc_traveltime_misfit_Korta2018",
+                          "weighted_waveform_misfit"):
             raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
                              f"by LASIF. \n"
                              f"Currently the only supported misfit type"
                              f" is:\n "
-                             f"\"TimeFrequencyPhaseMisfitFichtner2008\" ,"
-                             f"\n \"CCTimeShift\", "
-                             f"\n \"L2Norm\", and "
-                             f"\n \"DoubleDifference\".")
+                             f"\"tf_phase_misfit\" ,"
+                             f"\n \"cc_traveltime_misfit\", "
+                             f"\n \"waveform_misfit\" and "
+                             f"\n \"cc_traveltime_misfit_Korta2018\".")
 
     def get_communicator(self):
         return self.__comm
@@ -201,8 +202,6 @@ class Project(Component):
         QueryComponent(communicator=self.comm, component_name="query")
         VisualizationsComponent(communicator=self.comm,
                                 component_name="visualizations")
-        ActionsComponent(communicator=self.comm,
-                         component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
         AdjointSourcesComponent(
@@ -252,7 +251,7 @@ class Project(Component):
         self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
         self.paths["models"] = root_path / "MODELS"
         self.paths["gradients"] = root_path / "GRADIENTS"
-
+        self.paths["iterations"] = root_path / "ITERATIONS"
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
 
@@ -293,10 +292,10 @@ class Project(Component):
                            f"  # A minimum amount of 3 is advised.\n" \
                            f"  num_buffer_elements = 8\n\n" \
                            f"  # Type of misift, choose from:\n" \
-                           f"  # [TimeFrequencyPhaseMisfitFichtner2008, " \
-                           f"L2Norm, CCTimeShift, DoubleDifference] \n" \
-                           f"  misfit_type = \"TimeFrequencyPhase" \
-                           f"MisfitFichtner2008\"\n\n" \
+                           f"  # [tf_phase_misfit, waveform_misfit, " \
+                           f"cc_traveltime_misfit, " \
+                           f"cc_traveltime_misfit_Korta2018 \n" \
+                           f"  misfit_type = \"tf_phase_misfit\"\n\n" \
                            f"  [lasif_project.download_settings]\n" \
                            f"    seconds_before_event = 300.0\n" \
                            f"    seconds_after_event = 3600.0\n" \

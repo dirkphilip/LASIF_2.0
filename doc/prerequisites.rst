@@ -40,7 +40,7 @@ installed almost everywhere.
     $ conda install -c conda-forge obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
     $ conda install -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
     # Install more packages via pip
-    $ pip install pyqtgraph geographiclib flask-cache geojson flake8 toml==0.9.2
+    $ pip install pyqtgraph geographiclib flask-cache geojson flake8 toml
     # Pick a directory where you want to store pyexodus and move into it
     $ git clone https://github.com/SalvusHub/pyexodus.git
     $ cd pyexodus
@@ -49,8 +49,8 @@ installed almost everywhere.
     $ conda uninstall mpi4py
     # re-install it using pip
     $ pip install mpi4py
-    # Install a parallel version of hdf5
-    $ conda install -c spectraldns h5py-parallel
+    # Install hdf5
+    $ pip install h5py
     # Install pyasdf. Move into the directory you want to keep it
     $ git clone https://github.com/SeismicData/pyasdf.git
     $ cd pyasdf

@@ -169,7 +169,7 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        events = self.comm.events.list()
+        events = self.comm.events.list(iteration=self.current_iteration)
 
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
@@ -326,6 +326,11 @@ class Window(QtGui.QMainWindow):
                            if tr.stats.channel[-1].upper() == component]
                 if data_tr:
                     tr = data_tr[0]
+                    highpass_period = \
+                        self.comm.project.processing_params["highpass_period"]
+                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    if tr.stats.sampling_rate > max_sampling_rate:
+                        tr.interpolate(max_sampling_rate)
                     plot_widget.data_id = tr.id
                     times = tr.times()
                     plot_widget.plot(times, tr.data, pen=pg.mkPen("k",
@@ -343,6 +348,20 @@ class Window(QtGui.QMainWindow):
                 comparison_wave = self.comm.query.get_matching_waveforms(
                     self.current_event, self.comparison_iteration,
                     self.current_station)
+
+                # Scale the synthetics if required.
+                if self.comm.project.processing_params[
+                        "scale_data_to_synthetics"]:
+                    for original_syn in wave.synthetics:
+                        synthetic_tr = [
+                            tr for tr in comparison_wave.synthetics
+                            if tr.stats.channel[-1].lower() ==
+                               original_syn.stats.channel[-1].lower()][0]
+                        scaling_factor = synthetic_tr.data.ptp() / \
+                                         original_syn.data.ptp()
+                        # Store and apply the scaling.
+                        synthetic_tr.stats.scaling_factor = scaling_factor
+                        synthetic_tr.data /= scaling_factor
         except Exception as e:
             for component in ["Z", "N", "E"]:
                 plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -375,6 +394,13 @@ class Window(QtGui.QMainWindow):
                        if tr.stats.channel[-1].upper() == component]
             if data_tr:
                 tr = data_tr[0]
+                highpass_period = \
+                    self.comm.project.processing_params["highpass_period"]
+                max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                if tr.stats.sampling_rate > max_sampling_rate:
+                    tr.interpolate(max_sampling_rate)
+                if tr.stats.sampling_rate > max_sampling_rate:
+                    tr.resample(max_sampling_rate)
                 plot_widget.data_id = tr.id
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen=pg.mkPen("k", width=2))
@@ -384,6 +410,11 @@ class Window(QtGui.QMainWindow):
                         if _i.stats.channel[-1].upper() == component]
             if synth_tr:
                 tr = synth_tr[0]
+                highpass_period = \
+                    self.comm.project.processing_params["highpass_period"]
+                max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                if tr.stats.sampling_rate > max_sampling_rate:
+                    tr.interpolate(max_sampling_rate)
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen=pg.mkPen("r", width=2), )
 
@@ -394,6 +425,11 @@ class Window(QtGui.QMainWindow):
 
                 if compare_synth_tr:
                     tr = compare_synth_tr[0]
+                    highpass_period = \
+                        self.comm.project.processing_params["highpass_period"]
+                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    if tr.stats.sampling_rate > max_sampling_rate:
+                        tr.interpolate(max_sampling_rate)
                     times = tr.times()
                     plot_widget.plot(
                         times, tr.data,
