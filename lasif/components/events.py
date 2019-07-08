@@ -71,6 +71,7 @@ class EventsComponent(Component):
         event per file is allows.
         """
         ds = pyasdf.ASDFDataSet(filename, mode='r', mpi=False)
+        print(filename)
         event = ds.events[0]
 
         # Extract information.
