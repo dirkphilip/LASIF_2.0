@@ -119,11 +119,13 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
     if save:
         if iteration:
             file = f"events_{iteration}.png"
+            timestamp = False
         else:
             file = "events.png"
+            timestamp = True
         outfile = os.path.join(
             comm.project.get_output_folder(
-                type="event_plots", tag="events", timestamp=True),
+                type="event_plots", tag="events", timestamp=timestamp),
             file)
         plt.savefig(outfile, dpi=200, transparent=True)
         print("Saved picture at %s" % outfile)
@@ -194,7 +196,7 @@ def download_data(lasif_root, event_name=[], providers=None):
         comm.downloads.download_data(event, providers=providers)
 
 
-def list_events(lasif_root, list=True, iteration=None):
+def list_events(lasif_root, just_list=True, iteration=None, output=False):
     """
     Print a list of events in project
     :param lasif_root: path to lasif root directory
@@ -203,10 +205,12 @@ def list_events(lasif_root, list=True, iteration=None):
     """
 
     comm = find_project_comm(lasif_root)
-
-    if list:
-        for event in sorted(comm.events.list(iteration=iteration)):
-            print(event)
+    if just_list:
+        if output:
+            return sorted(comm.events.list(iteration=iteration))
+        else:
+            for event in sorted(comm.events.list(iteration=iteration)):
+                print(event)
 
     else:
         print(f"%i event%s in %s:" % (
