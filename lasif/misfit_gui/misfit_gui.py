@@ -459,11 +459,12 @@ class Window(QtGui.QMainWindow):
                     plot_widget.windows = windows
                     for win in windows:
                         WindowLinearRegionItem(self.current_window_manager,
-                                               channel_name,
-                                               self.current_iteration,
-                                               start=win[0], end=win[1],
-                                               event=event, parent=plot_widget,
-                                               comm=self.comm)
+                                                channel_name,
+                                                self.current_iteration,
+                                                start=win[0], end=win[1],
+                                                b_wave=win[2],
+                                                event=event, parent=plot_widget,
+                                                comm=self.comm)
             except:
                 print(f"no windows available for {component}-component of "
                       f"station {self.current_station}")

@@ -953,7 +953,7 @@ def find_event_mesh(lasif_root, event: str):
     constructed already but not moved to iteration folder.
     If there is no mesh there it will return False and correct path.
     Otherwise it returns true and the path.
-    
+
     :param lasif_root: Path to project root
     :type lasif_root: str/communicator
     :param event: Name of event
@@ -965,7 +965,7 @@ def find_event_mesh(lasif_root, event: str):
         comm = find_project_comm(lasif_root)
 
     models = comm.project.paths["models"]
-    event_mesh = os.path.join(models, "EVENT_MESHES", event + ".h5")
+    event_mesh = os.path.join(models, "EVENT_MESHES", event, "mesh.h5")
     if os.path.exists(event_mesh):
         return True, event_mesh
     else:

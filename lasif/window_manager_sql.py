@@ -278,7 +278,10 @@ class WindowGroupManager(object):
                         for window in windows:
                             start_time = window[0].datetime
                             end_time = window[1].datetime
-                            weight = 1.0
+                            if window[2]:
+                                weight = 2.0
+                            else:
+                                weight = 1.0
                             assert end_time > start_time, \
                                 "end_time must be larger than start_time"
                             # delete overlapping windows if they exist
@@ -317,9 +320,13 @@ class WindowGroupManager(object):
                     trace_id = self.get_trace_id(event_name=event_name,
                                                  channel_name=channel)
                     for window in windows:
+                        if window[2]:
+                            weight = 2.0
+                        else:
+                            weight = 1.0
                         self.add_window(trace_id=trace_id,
                                         start_time=window[0],
-                                        end_time=window[1], weight=1.0)
+                                        end_time=window[1], weight=weight)
 
     def get_all_windows_for_event(self, event_name):
         """
@@ -356,7 +363,7 @@ class WindowGroupManager(object):
             if channel_name not in results[station].keys():
                 results[station][channel_name] = []
 
-            start_end = (start_time, end_time)
+            start_end = (start_time, end_time, weight)
             results[station][channel_name].append(start_end)
         return results
 
@@ -385,7 +392,7 @@ class WindowGroupManager(object):
             if channel_name not in results.keys():
                 results[channel_name] = []
 
-            start_end = (start_time, end_time)
+            start_end = (start_time, end_time, weight)
             results[channel_name].append(start_end)
         return results
 

@@ -134,8 +134,9 @@ class ExodusDomain:
         # get max element edge length
         edge_aspect_ratio = self.e.get_element_variable_values(
             1, "edge_aspect_ratio", 1)
-        hmin = self.e.get_element_variable_values(1, "hmin", 1)
-        self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
+        # hmin = self.e.get_element_variable_values(1, "hmin", 1)
+        # self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
+        self.max_elem_edge_length = 20.0 # remember to remove
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T

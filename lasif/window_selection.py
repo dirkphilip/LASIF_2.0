@@ -230,6 +230,23 @@ def _log_window_selection(tr_id, msg):
     """
     print("[Window selection for %s] %s" % (tr_id, msg))
 
+def find_body_wave_arrivals(event_latitude, event_longitude,
+                            event_depth_in_km, station_latitude,
+                            station_longitude, minimum_period):
+    """
+    Function which uses obspy TauP to find rough theoretical bodywave
+    arrival times. This will be used to label the windows
+    
+    :type event_latitude: float
+    :type event_longitude: float
+    :type event_depth_in_km: float
+    :type station_latitude: float
+    :type station_longitude: float
+    :param minimum_period: Shortest modelled period.
+    :type minimum_period: float
+    """
+
+
 
 # Dictionary to cache the TauPyModel so there is no need to reinitialize it
 # each time which is a fairly expensive operation.
@@ -245,7 +262,7 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
                    threshold_correlation=0.75, min_length_period=1.5,
                    min_peaks_troughs=2, max_energy_ratio=10.0,
                    min_envelope_similarity=0.2,
-                   verbose=True, plot=False):
+                   verbose=False, plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
@@ -343,13 +360,27 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     # for every epicentral distance. Its quite a bit faster than calculating
     # the arrival times for every phase.
     # Assumes the first sample is the centroid time of the event.
-    tts = model.get_travel_times(source_depth_in_km=event_depth_in_km,
+    ttp = model.get_travel_times(source_depth_in_km=event_depth_in_km,
                                  distance_in_degree=dist_in_deg,
                                  phase_list=["ttp"])
     # Sort just as a safety measure.
-    tts = sorted(tts, key=lambda x: x.time)
-    first_tt_arrival = tts[0].time
+    ttp = sorted(ttp, key=lambda x: x.time)
+    first_tt_arrival = ttp[0].time
 
+    # Get a few S arrival times to figure out which windows are bodywave
+    # windows. Will be conservative for now and have any window that starts
+    # before the arrival of the S-wave a bodywave window, otherwise not.
+    # Will use the SKS if available right now, otherwise first arrival.
+    # There are definitely ways to improve the selection of phases
+    # based on the distance travelled.
+    if dist_in_deg < 15.0:
+        s_arrival = 0.0
+    else:
+        tts = model.get_travel_times(source_depth_in_km=event_depth_in_km,
+                                    distance_in_degree=dist_in_deg,
+                                    phase_list=["tts"])
+        tts = sorted(tts, key=lambda x: x.time)
+        s_arrival = tts[0].time + minimum_period
     # -------------------------------------------------------------------------
     # Window settings
     # -------------------------------------------------------------------------
@@ -915,7 +946,16 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     for start, stop in final_windows:
         start = data_starttime + start * data_delta
         stop = data_starttime + stop * data_delta
-        windows.append((start, stop))
+        s_arrival = data_starttime + s_arrival
+        print(f"Start: {start}")
+        print(f"S arrival: {s_arrival}")
+        if start <= s_arrival:
+            b_wave = True
+            print("Body wave window!")
+        else:
+            print("Surface wave window!")
+            b_wave = False
+        windows.append((start, stop, b_wave))
 
     if plot:
         # Plot the final windows to the data axes.

@@ -6,7 +6,7 @@ import pyqtgraph
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
     def __init__(self, window_group_manager, channel_name, iteration,
-                 start, end, event, parent, comm=None, **kwargs):
+                 start, end, b_wave, event, parent, comm=None, **kwargs):
         """
 
         :param window: window collection object, this has to change!
@@ -23,13 +23,21 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
 
         self.start = start
         self.end = end
+        print(f"start: {start}")
+        self.b_wave = b_wave
+        # Color body wave windows red, surface wave blue
+        if self.b_wave == 2.0:
+            brush = pyqtgraph.mkBrush(pyqtgraph.intColor(1, alpha=200))
+        else:
+            brush = None
 
         rel_start = self.start - event["origin_time"]
         rel_end = self.end - event["origin_time"]
 
         values = [rel_start, rel_end]
 
-        super(WindowLinearRegionItem, self).__init__(values=values, **kwargs)
+        super(WindowLinearRegionItem, self).__init__(values=values,
+                                                     brush=brush, **kwargs)
         self._parent = parent
         self._parent.addItem(self)
         self.setZValue(-5)
