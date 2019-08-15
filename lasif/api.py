@@ -15,7 +15,7 @@ import os
 import pathlib
 
 import colorama
-from mpi4py import MPI
+# from mpi4py import MPI
 import toml
 import numpy as np
 
@@ -594,28 +594,20 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
     """
 
     comm = find_project_comm(lasif_root)
-    start = time.time()
 
     if len(events) == 0:
         events = comm.events.list(iteration=iteration)
 
     if not comm.weights.has_weight_set(weight_set):
-        print("Weight set does not exist. Will create new one.")
         comm.weights.create_new_weight_set(
             weight_set_name=weight_set,
             events_dict=comm.query.get_stations_for_all_events())
 
     w_set = comm.weights.get(weight_set)
-    s = 0
-
-    if len(events) == 1:
-        one_event = True
-    else:
-        one_event = False
-        import progressbar
-        bar = progressbar.ProgressBar(max_value=len(events))
+    from tqdm import tqdm
 
     for event in events:
+        print(f"Calculating station weights for event: {event}")
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
@@ -626,7 +618,7 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
 
         sum_value = 0.0
 
-        for station in stations:
+        for station in tqdm(stations):
             weight = comm.weights.calculate_station_weight(
                 lat_1=stations[station]["latitude"],
                 lon_1=stations[station]["longitude"],
@@ -637,9 +629,6 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
         for station in stations:
             w_set.events[event]["stations"][station]["station_weight"] *= \
                 (len(stations) / sum_value)
-        if not one_event:
-            s += 1
-            bar.update(s)
 
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set,
@@ -658,7 +647,12 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
 
     if len(events) == 0:
         events = comm.events.list()
-
+    
+    iterations = list_iterations(comm, output=True)
+    if isinstance(iterations, list):
+        if iteration in iterations:
+            print(f"{iteration} already exists")
+            return
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration, remove_dirs=remove_dirs)
 
@@ -713,10 +707,11 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
         toml.dump(iteration_dict, fh)
 
 
-def list_iterations(lasif_root):
+def list_iterations(lasif_root, output=False):
     """
     List iterations in project
     :param lasif_root: path to lasif root directory
+    :param output: If the function should return the list
     """
 
     comm = find_project_comm(lasif_root)
@@ -725,6 +720,8 @@ def list_iterations(lasif_root):
     if len(iterations) == 0:
         print("There are no iterations in this project")
     else:
+        if output:
+            return iterations 
         if len(iterations) == 1:
             print(f"There is {len(iterations)} iteration in this project")
             print("Iteration known to LASIF: \n")
@@ -991,10 +988,10 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
         comm = find_project_comm(lasif_root)
 
     models = comm.project.paths["models"]
-    it_name = comm.iteration.get_long_iteration_name(iteration)
+    it_name = comm.iterations.get_long_iteration_name(iteration)
     iteration_path = os.path.join(comm.project.paths["iterations"], it_name)
-    assert comm.project.has_iteration(
-        it_name), f"Iteration {iteration} not in project"
+    assert iteration in list_iterations(
+        comm, output=True), f"Iteration {iteration} not in project"
 
     events_in_iteration = toml.load(
         os.path.join(iteration_path, "events_used.toml"))

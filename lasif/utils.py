@@ -12,7 +12,7 @@ Some utility functionality.
 from collections import namedtuple
 from geographiclib import geodesic
 from fnmatch import fnmatch
-from mpi4py import MPI
+# from mpi4py import MPI
 import os
 import numpy as np
 

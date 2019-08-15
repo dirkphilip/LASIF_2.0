@@ -91,7 +91,7 @@ class WeightsComponent(Component):
             weight_set_name = weight_set_name.weight_set_name
         except AttributeError:
             pass
-        weight_set_name = weight_set_name.lstrip("WEIGHTS_")
+        weight_set_name = weight_set_name.replace("WEIGHTS_", "")
 
         return weight_set_name in self.get_weight_set_dict()
 
@@ -165,7 +165,7 @@ class WeightsComponent(Component):
             weight_set_name = str(weight_set_name.weight_set_name)
         except AttributeError:
             weight_set_name = str(weight_set_name)
-            weight_set_name = weight_set_name.lstrip("WEIGHTS_")
+            weight_set_name = weight_set_name.replace("WEIGHTS_", "")
 
         # Access cache.
         if weight_set_name in self.__cached_weights:
