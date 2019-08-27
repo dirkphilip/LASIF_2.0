@@ -462,7 +462,6 @@ class Window(QtGui.QMainWindow):
                                                 channel_name,
                                                 self.current_iteration,
                                                 start=win[0], end=win[1],
-                                                b_wave=win[2],
                                                 event=event, parent=plot_widget,
                                                 comm=self.comm)
             except:

@@ -278,10 +278,7 @@ class WindowGroupManager(object):
                         for window in windows:
                             start_time = window[0].datetime
                             end_time = window[1].datetime
-                            if window[2]:
-                                weight = 2.0
-                            else:
-                                weight = 1.0
+                            weight = 1.0
                             assert end_time > start_time, \
                                 "end_time must be larger than start_time"
                             # delete overlapping windows if they exist

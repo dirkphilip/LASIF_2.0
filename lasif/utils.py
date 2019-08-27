@@ -12,7 +12,7 @@ Some utility functionality.
 from collections import namedtuple
 from geographiclib import geodesic
 from fnmatch import fnmatch
-# from mpi4py import MPI
+from mpi4py import MPI
 import os
 import numpy as np
 
@@ -365,11 +365,11 @@ def write_custom_stf(stf_path, comm):
         raise LASIFError(f"{stf} is not supported by lasif. Use either "
                          f"bandpass_filtered_heaviside or heaviside.")
 
-    stf_mat = np.zeros((len(stf), len(moment_tensor)))
+    stf_mat = np.zeros((len(stf), 6))
     # for i, moment in enumerate(moment_tensor):
     #     stf_mat[:, i] = stf * moment
     # Now we add the spatial weights into salvus
-    for i in range(len(moment_tensor)):
+    for i in range(6):
         stf_mat[:,i] = stf
 
     heaviside_file_name = os.path.join(stf_path)
@@ -377,6 +377,7 @@ def write_custom_stf(stf_path, comm):
 
     source = f.create_dataset("source", data=stf_mat)
     source.attrs["dt"] = delta
+    source.attrs["sampling_rate"] = 1 / delta
     # source.attrs["location"] = location
     source.attrs["spatial-type"] = np.string_("moment_tensor")
     # Start time in nanoseconds
@@ -416,7 +417,7 @@ def place_receivers(event, comm):
         inv += ds.waveforms[station].StationXML
 
     import salvus_seismo
-    from salvus_seismo import locate_receiver, helpers
+    #from salvus_seismo import locate_receiver, helpers
 
     recs = salvus_seismo.Receiver.parse(inv)
 
@@ -457,7 +458,7 @@ def prepare_source(comm, event, iteration):
         with h5py.File(stf_path) as f:
             if "source" in f:
                 write_stf = False
-
+    
     if write_stf:
         write_custom_stf(stf_path, comm)
 

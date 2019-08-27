@@ -15,7 +15,7 @@ import os
 import pathlib
 
 import colorama
-# from mpi4py import MPI
+from mpi4py import MPI
 import toml
 import numpy as np
 
@@ -837,21 +837,21 @@ def process_data(lasif_root, events=[], iteration=None):
         events = comm.events.list(iteration=iteration)
 
     exceptions = []
-    if MPI.COMM_WORLD.rank == 0:
+    #if MPI.COMM_WORLD.rank == 0:
         # Check if the event ids are valid.
-        if not exceptions and events:
-            for event_name in events:
-                if not comm.events.has_event(event_name):
-                    msg = "Event '%s' not found." % event_name
-                    exceptions.append(msg)
-                    break
+    if not exceptions and events:
+        for event_name in events:
+            if not comm.events.has_event(event_name):
+                msg = "Event '%s' not found." % event_name
+                exceptions.append(msg)
+                break
 
-    exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
+    #exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise Exception(exceptions[0])
 
     # Make sure all the ranks enter the processing at the same time.
-    MPI.COMM_WORLD.barrier()
+    #MPI.COMM_WORLD.barrier()
     comm.waveforms.process_data(events)
 
 
