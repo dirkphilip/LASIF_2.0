@@ -178,7 +178,7 @@ class EventsComponent(Component):
             pass
         return event_name in self.all_events
 
-    def get_all_events(self):
+    def get_all_events(self, iteration=None):
         """
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
@@ -192,7 +192,11 @@ class EventsComponent(Component):
         """
         # make sure cache is filled
         self._update_cache()
-        return copy.deepcopy(self.__event_info_cache)
+        if iteration:
+            return copy.deepcopy({event: self.__event_info_cache[event]
+                                  for event in self.list(iteration)})
+        else:
+            return copy.deepcopy(self.__event_info_cache)
 
     def get(self, event_name):
         """

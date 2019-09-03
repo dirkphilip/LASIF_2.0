@@ -108,7 +108,7 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(self, save_plot=True, plot_stations=False):
+    def plot_raydensity(self, save_plot=True, plot_stations=False, iteration=None):
         """
         Plots the raydensity.
         """
@@ -121,7 +121,7 @@ class VisualizationsComponent(Component):
 
         event_stations = []
         for event_name, event_info in \
-                self.comm.events.get_all_events().items():
+                self.comm.events.get_all_events(iteration).items():
             try:
                 stations = \
                     self.comm.query.get_all_stations_for_event(event_name)
@@ -150,10 +150,16 @@ class VisualizationsComponent(Component):
 
         plt.tight_layout()
         if save_plot:
-            outfile = os.path.join(
-                self.comm.project.get_output_folder(
-                    type="raydensity_plots", tag="raydensity"),
-                "raydensity.png")
+            if iteration:
+                outfile = os.path.join(
+                    self.comm.project.get_output_folder(
+                        type="raydensity_plots", tag=f"raydensity_{iteration}"),
+                    "raydensity.png")
+            else:
+                outfile = os.path.join(
+                    self.comm.project.get_output_folder(
+                        type="raydensity_plots", tag="raydensity"),
+                    "raydensity.png")
             plt.savefig(outfile, dpi=200,
                         transparent=False)
             print("Saved picture at %s" % outfile)

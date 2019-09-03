@@ -228,9 +228,12 @@ def lasif_plot_raydensity(parser, args):
     """
     parser.add_argument("--plot_stations", help="also plot the stations",
                         action="store_true")
+    parser.add_argument("--iteration", help="Plot all events for an "
+                                            "iteration", default=None)
     args = parser.parse_args(args)
 
-    api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations)
+    api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations,
+                        iteration=args.iteration)
 
 
 @command_group("Plotting")
