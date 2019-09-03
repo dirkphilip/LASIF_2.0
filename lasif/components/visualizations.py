@@ -133,7 +133,7 @@ class VisualizationsComponent(Component):
                                       station_events=event_stations,
                                       domain=self.comm.project.domain)
 
-        visualization.plot_events(self.comm.events.get_all_events().values(),
+        visualization.plot_events(self.comm.events.get_all_events(iteration).values(),
                                   map_object=map_object)
 
         if plot_stations:
