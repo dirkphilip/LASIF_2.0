@@ -153,7 +153,7 @@ def plot_raydensity(map_object, station_events, domain):
     title = "%i Events, %i unique raypaths, "\
             "%i unique stations" % (len(station_events), circle_count,
                                     len(stations))
-    plt.title(title, size="xx-large")
+    #plt.title(title, size="xx-large")
 
     data = collected_bins.bins.transpose()
 

@@ -338,6 +338,10 @@ class ActionsComponent(Component):
         # Write files on all ranks.
         filename = self.comm.adj_sources.get_filename(
             event=event["event_name"], iteration=iteration)
+	# Delete file before writing sources
+        if MPI.COMM_WORLD.rank == 0:
+            if os.path.exists(filename):
+                os.remove(filename)
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
         MPI.COMM_WORLD.Barrier()
@@ -361,9 +365,12 @@ class ActionsComponent(Component):
                                                               loc, cha),
                                 parameters={"misfit": adj_source["misfit"]})
                         ad_src_counter += 1
+                    print("rank", rank, flush=True)
 
             MPI.COMM_WORLD.barrier()
+            print("after barrier", flush=True)
         if MPI.COMM_WORLD.rank == 0:
+            print("made it here")
             with pyasdf.ASDFDataSet(filename=filename, mpi=False,
                                     mode="a")as ds:
                 length = len(ds.auxiliary_data.AdjointSources.list())
@@ -742,7 +749,7 @@ class ActionsComponent(Component):
             with open(run_salvus, "a") as fh:
                 fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
                          f" --io-memory-per-rank-in-MB {memory_per_rank}"
-                         f" --io-file-format bin")
+                         f" --io-file-format BIN")
 
     def write_custom_stf(self, output_dir):
         import toml
@@ -941,7 +948,7 @@ class ActionsComponent(Component):
             f"--io-memory-per-rank-in-MB 5000 " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
             f"--source-toml {toml_file_name} " \
-            f"--io-file-format bin"
+            f"--io-file-format BIN"
 
         if self.comm.project.solver_settings["with_anisotropy"]:
             salvus_command += " --with-anisotropy --kernel-fields TTI"

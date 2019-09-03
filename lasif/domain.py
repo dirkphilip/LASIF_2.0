@@ -364,7 +364,7 @@ class ExodusDomain:
                         m.ax.add_patch(p)
 
         _plot_features(m, stepsize=stepsize)
-        ax.legend(framealpha=0.5, loc="lower right")
+        #ax.legend(framealpha=0.5, loc="lower right")
         return m
 
     def get_sorted_edge_coords(self):
