@@ -369,7 +369,7 @@ def lasif_list_events(parser, args):
                         default=None)
     args = parser.parse_args(args)
 
-    api.list_events(lasif_root=".", just_list=args.list,
+    api.list_events(lasif_root=".", just_list=args.just_list,
                     iteration=args.iteration)
 
 
