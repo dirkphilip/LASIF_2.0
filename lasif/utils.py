@@ -12,7 +12,6 @@ Some utility functionality.
 from collections import namedtuple
 from geographiclib import geodesic
 from fnmatch import fnmatch
-from mpi4py import MPI
 import os
 import numpy as np
 
@@ -487,6 +486,7 @@ def process_two_files_without_parallel_output(ds, other_ds,
                                               traceback_limit=3):
     import traceback
     import sys
+    from mpi4py import MPI
     """
     Process data in two data sets.
 

@@ -57,7 +57,7 @@ import traceback
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 
-from mpi4py import MPI
+#from mpi4py import MPI
 
 
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
@@ -1014,14 +1014,14 @@ def main():
     func = fcts[fct_name]
 
     # Make sure that only MPI enabled functions are called with MPI.
-    if MPI.COMM_WORLD.size > 1:
-        if not hasattr(func, "_is_mpi_enabled") or \
-                func._is_mpi_enabled is not True:
-            if MPI.COMM_WORLD.rank != 0:
-                return
-            sys.stderr.write("'lasif %s' must not be called with MPI.\n" %
-                             fct_name)
-            return
+    #if MPI.COMM_WORLD.size > 1:
+    #    if not hasattr(func, "_is_mpi_enabled") or \
+    #            func._is_mpi_enabled is not True:
+    #        if MPI.COMM_WORLD.rank != 0:
+    #            return
+    #        sys.stderr.write("'lasif %s' must not be called with MPI.\n" %
+    #                         fct_name)
+    #        return
 
     # Create a parser and pass it to the single function.
     if "--help" in further_args:

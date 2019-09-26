@@ -15,7 +15,7 @@ import os
 import pathlib
 
 import colorama
-from mpi4py import MPI
+#from mpi4py import MPI
 import toml
 import numpy as np
 
@@ -135,17 +135,20 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
 
 # @TODO: Add an option of plotting for a specific iteration
 # @TODO: Make sure coastlines are plotted
-def plot_raydensity(lasif_root, plot_stations):
+def plot_raydensity(lasif_root, plot_stations, iteration=None):
     """
     Plot a distribution of earthquakes and stations with great circle rays
     plotted underneath.
     :param lasif_root: Lasif root directory
     :param plot_stations: boolean argument whether stations should be plotted
+    :param iteration: If you only want events from a certain iteration
     """
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_raydensity(plot_stations=plot_stations)
+    comm.visualizations.plot_raydensity(
+            plot_stations=plot_stations,
+            iteration=iteration)
 
 
 def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
@@ -483,6 +486,7 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
     :param weight_set: name of station weight set [optional]
     :param events: events [optional]
     """
+    from mpi4py import MPI
 
     comm = find_project_comm(lasif_root)
 

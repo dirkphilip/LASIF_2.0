@@ -37,21 +37,20 @@ class AdjointSourcesComponent(Component):
 
     def get_filename(self, event, iteration):
         """
-        Gets the filename for the adjoint source and windows file.
+        Gets the filename for the adjoint source.
 
         :param event: The event.
         :param iteration: The iteration.
         """
-        event = self.comm.events.get(event)
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
             iteration)
 
-        folder = os.path.join(self._folder, iteration_long_name)
+        folder = os.path.join(self._folder, iteration_long_name, event)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
         return os.path.join(
-            folder, "ADJ_SRC_" + event["event_name"] + ".h5")
+            folder, "adjoint_source_auxiliary.h5")
 
     def get_misfit_for_event(self, event, iteration, weight_set_name=None):
         """
@@ -257,7 +256,7 @@ class AdjointSourcesComponent(Component):
         results = process_two_files_without_parallel_output(ds, ds_synth,
                                                             process)
         # Write files on all ranks.
-        filename = self.comm.adj_sources.get_filename(
+        filename = self.get_filename(
             event=event["event_name"], iteration=iteration)
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
@@ -307,10 +306,10 @@ class AdjointSourcesComponent(Component):
         iteration = self.comm.iterations.\
             get_long_iteration_name(iteration_name)
 
-        adj_src_file = self.comm.adj_sources.\
-            get_filename(event, iteration)
+        adj_src_file = self.\
+            get_filename(event_name, iteration)
 
-        ds = pyasdf.ASDFDataSet(adj_src_file)
+        ds = pyasdf.ASDFDataSet(adj_src_file, mpi=False)
         adj_srcs = ds.auxiliary_data["AdjointSources"]
 
         # Load receiver toml file
@@ -325,7 +324,7 @@ class AdjointSourcesComponent(Component):
         #l = cmd_string.split(" ")
         #receivers_file = l[l.index("--receiver-toml") + 1]
         
-        output_dir = os.path.join(input_files_dir, long_iter_name,
+        output_dir = os.path.join(input_files_dir, iteration,
                                   event_name)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
@@ -338,7 +337,7 @@ class AdjointSourcesComponent(Component):
         #    os.path.join(receivers_file))["receiver"]
 
         adjoint_source_file_name = os.path.join(
-            output_dir, "adjoint_source.h5")
+            output_dir, "stf.h5")
         #toml_file_name = os.path.join(output_dir, "adjoint.toml")
 
         #toml_string = f"source_input_file = \"{adjoint_source_file_name}\"\n\n"
@@ -372,7 +371,6 @@ class AdjointSourcesComponent(Component):
                 #station = receiver["network"] + "_" + receiver["station"]
 
                 if station == station_name:
-                    print(f"writing adjoint source for station: {station}")
                     #transform_mat = np.array(receiver["transform_matrix"])
                     #xyz = np.dot(transform_mat.T, zne).T
 
@@ -384,19 +382,21 @@ class AdjointSourcesComponent(Component):
                             event_weight
                         zne *= weight
 
-                    source = f.create_dataset(station, data=zne)
+                    source = f.create_dataset(station, data=zne.T)
                     source.attrs["dt"] = self.comm.project. \
                         solver_settings["time_increment"]
+                    source.attrs["sampling_rate_in_hertz"] = 1 / source.attrs["dt"]
                     #source.attrs['location'] = np.array(
                     #    [receivers[receiver]["s"]])
-                    #source.attrs['spatial-type'] = np.string_("vector")
+                    source.attrs['spatial-type'] = np.string_("vector")
                     # Start time in nanoseconds
-                    source.attrs['starttime'] = self.comm.project. \
-                        solver_settings["start_time"] * 1.0e9
+                    source.attrs['start_time_in_seconds'] = self.comm.project. \
+                        solver_settings["start_time"]
 
                     #toml_string += f"[[source]]\n" \
                     #               f"name = \"{station}\"\n" \
                     #               f"dataset_name = \"/{station}\"\n\n"
+
 
         f.close()
         """
