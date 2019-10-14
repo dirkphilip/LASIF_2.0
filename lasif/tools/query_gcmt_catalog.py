@@ -222,7 +222,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
 
         if distance < threshold_distance_in_km:
             print("\tNo events left with distance to the next closest event "
-                  "of more then %.1f km. Stopping here." %
+                  "of more than %.1f km. Stopping here." %
                   threshold_distance_in_km)
             break
 

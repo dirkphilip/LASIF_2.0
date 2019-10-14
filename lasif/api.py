@@ -219,7 +219,7 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
     """
     Print a list of events in project
     :param lasif_root: path to lasif root directory
-    :param list: Show only a list of events, good for scripting [optional]
+    :param just_list: Show only a list of events, good for scripting [optional]
     :param iteration: Show only events for specific iteration [optional]
     """
 
@@ -238,14 +238,17 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
 
         from lasif.tools.prettytable import PrettyTable
 
-        tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag"])
-        tab.align["Event Name"] = "l"
+        tab = PrettyTable(["Event Name", "Lat", "Lng", "Depth (km)", "Mag"])
+
         for event in comm.events.list(iteration=iteration):
             ev = comm.events.get(event)
-            tab.add_row([
-                event, "%6.1f / %6.1f / %3i / %3.1f" % (
-                    ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
-                    ev["magnitude"])])
+            tab.add_row([event,
+                         "%6.1f" % ev["latitude"],
+                         "%6.1f" % ev["longitude"],
+                         "%3i" % int(ev["depth_in_km"]),
+                         "%3.1f" % ev["magnitude"]])
+        tab.align = "r"
+        tab.align["Event Name"] = "l"
         print(tab)
 
 
@@ -653,6 +656,7 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set,
         events_dict=comm.query.get_stations_for_all_events())
+
 
 def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
     """

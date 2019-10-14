@@ -134,9 +134,40 @@ class ExodusDomain:
         # get max element edge length
         edge_aspect_ratio = self.e.get_element_variable_values(
             1, "edge_aspect_ratio", 1)
-        # hmin = self.e.get_element_variable_values(1, "hmin", 1)
+        
+        # TODO: This is not a completely stable way of assessing maximum edge
+        # length of a mesh, which in turn is used to determine whether or not
+        # a source lies in the domain. Should be looked in to.
+        try:
+            # See if the mesh contains the hmin field
+            hmin = self.e.get_element_variable_values(1, "hmin", 1)
+            self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
+        except ValueError:
+            # Otherwise use the CFL criterion to determine max dx /
+            # edge length:
+            #
+            #    max(v) * min(dt)
+            #    ----------------  =< 1 --> dx ~= max_v * min_dt
+            #           ?dx
+
+            # Get minimal timestep from the mesh
+            min_dt = self.e.get_global_variable_values("dt")
+            try:
+                # First try to access separate VPV/VPH fields ...
+                max_v = np.max([self.e.get_node_variable_values("VPV", 1), 
+                                self.e.get_node_variable_values("VPH", 1)])
+            except Exception as e:
+                # ... but some meshes only have VP ...
+                print(e)
+                max_v = np.max(self.e.get_node_variable_values("VP", 1))
+            except Exception as e:
+                # ... finally, if it has neither, we've run out of ideas
+                print(e)
+                raise ValueError("Was not able to estimate edge length.")
+            self.max_elem_edge_length = max_v * min_dt
+            
         # self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
-        self.max_elem_edge_length = 20.0 # remember to remove
+        # self.max_elem_edge_length = 20.0 # todo remember to remove
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
