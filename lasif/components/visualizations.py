@@ -116,18 +116,14 @@ class VisualizationsComponent(Component):
         from lasif import visualization
         import matplotlib.pyplot as plt
 
-        plt.figure(figsize=(20, 21))
+        plt.figure(figsize=(20, 12))
 
         map_object = self.plot_domain()
-        if iteration:
-            it_events = self.comm.events.list(iteration=iteration)
 
         event_stations = []
         for event_name, event_info in \
-                self.comm.events.get_all_events().items():
-            if iteration:
-                if event_name not in it_events:
-                    continue
+                self.comm.events.get_all_events(iteration).items():
+
             try:
                 stations = \
                     self.comm.query.get_all_stations_for_event(event_name)
@@ -139,7 +135,7 @@ class VisualizationsComponent(Component):
                                       station_events=event_stations,
                                       domain=self.comm.project.domain)
 
-        visualization.plot_events(self.comm.events.get_all_events().values(),
+        visualization.plot_events(self.comm.events.get_all_events(iteration).values(),
                                   map_object=map_object)
 
         if plot_stations:
@@ -162,13 +158,18 @@ class VisualizationsComponent(Component):
                         "raydensity_plots",
                         f"ITERATION_{iteration}",
                         "raydensity.png")
+                outfolder, _ = os.path.split(outfile)
+                if not os.path.exists(outfolder):
+                    os.makedirs(outfolder)
             else:
                 outfile = os.path.join(
                     self.comm.project.get_output_folder(
                         type="raydensity_plots", tag="raydensity"),
                     "raydensity.png")
+            if os.path.isfile(outfile):
+                os.remove(outfile)
             plt.savefig(outfile, dpi=200,
-                        transparent=False)
+                        transparent=False, overwrite=True)
             print("Saved picture at %s" % outfile)
 
     def plot_windows(self, event, window_set_name, distance_bins=500,

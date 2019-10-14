@@ -173,6 +173,22 @@ def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
                    threshold_distance_in_km=min_dist)
 
 
+def add_spud_event(lasif_root, url: str):
+    """
+    Adds events from the iris spud service, provided a link to the event
+    
+    :param lasif_root: Path to lasif project
+    :type lasif_root: str
+    :param url: URL to the spud event
+    :type url: str
+    """
+    from lasif.scripts.iris2quakeml import iris2quakeml
+
+    comm = find_project_comm(lasif_root)
+
+    iris2quakeml(url, comm.project.paths["eq_data"])
+
+
 def project_info(lasif_root):
     """
     Print a summary of the project
@@ -655,8 +671,9 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
     iterations = list_iterations(comm, output=True)
     if isinstance(iterations, list):
         if iteration in iterations:
-            print(f"{iteration} already exists")
-            return
+            if not remove_dirs:
+                print(f"{iteration} already exists")
+                return
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration, remove_dirs=remove_dirs)
 
@@ -666,13 +683,15 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
                                           events=events)
 
 
-def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
+def write_misfit(lasif_root, iteration, weight_set=None, window_set=None, 
+                 events=None):
     """
     Write misfit for iteration
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param weight_set: name of weight set [optional]
     :param window_set: name of window set [optional]
+    :param events: list of events [optional]
     """
 
     comm = find_project_comm(lasif_root)
@@ -681,15 +700,30 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
         if not comm.weights.has_weight_set(weight_set):
             raise LASIFNotFoundError(f"Weights {weight_set} not known"
                                      f"to LASIF")
-    # Check if iterations exist
+    # Check if iterations exists
     if not comm.iterations.has_iteration(iteration):
         raise LASIFNotFoundError(f"Iteration {iteration} "
                                  f"not known to LASIF")
 
-    events = comm.events.list(iteration=iteration)
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
 
+    path = comm.project.paths["iterations"]
+    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
     total_misfit = 0.0
-    iteration_dict = {"event_misfits": {}}
+
+    if not events:
+        events = comm.events.list(iteration=iteration)
+        iteration_dict = {"event_misfits": {}}
+    else:
+        # Check to see whether iteration_toml previously existed
+        if os.path.isfile(toml_filename):
+            iteration_dict = toml.load(toml_filename)
+            other_events = iteration_dict["event_misfits"].keys() - events
+            for event in other_events:
+                total_misfit += iteration_dict["event_misfits"][event]
+        else:
+            iteration_dict = {"event_misfits": {}}
+
     for event in events:
         event_misfit = \
             comm.adj_sources.get_misfit_for_event(event,
@@ -702,10 +736,7 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
     iteration_dict["weight_set_name"] = weight_set
     iteration_dict["window_set_name"] = window_set
 
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-
-    path = comm.project.paths["iterations"]
-    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
+    
 
     with open(toml_filename, "w") as fh:
         toml.dump(iteration_dict, fh)
@@ -948,6 +979,7 @@ def write_stations_to_file(lasif_root):
     stations.to_csv(path_or_buf=output_path, index=False)
     print(f"Wrote a list of stations to file: {output_path}")
 
+
 def find_event_mesh(lasif_root, event: str):
     """
     See if there is a version of the event mesh which has been
@@ -971,6 +1003,7 @@ def find_event_mesh(lasif_root, event: str):
         return True, event_mesh
     else:
         return False, event_mesh
+
 
 def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     """
