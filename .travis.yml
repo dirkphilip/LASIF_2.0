@@ -16,7 +16,7 @@ before_install:
 # - conda update --yes conda
 - conda config --add channels conda-forge
 # - conda update --yes -n base -c defaults conda
-- conda env create --yes -f environment.yml
+- conda env create -f environment.yml
 - source activate condaenv
 - cd ..
 - git clone https://github.com/SalvusHub/pyexodus.git
