@@ -16,7 +16,7 @@ from your **LASIF** directory.
 .. code-block:: bash
 
     # Position yourself in the root directory of the project.
-    $ cp -r {lasif folder}/lasif/tests/data/ExampleProject/SYNTHETICS/EARTHQUAKES/ITERATION_1/* ./SYNTHETICS/EARTHQUAKES/ITERATION_1/
+    $ cp -r {lasif folder}/lasif/tests/data/example_project/SYNTHETICS/EARTHQUAKES/ITERATION_1/* ./SYNTHETICS/EARTHQUAKES/ITERATION_1/
 
 This should copy some synthetics to the correct folder in your tutorial
 project. Your directory structure should look similar to this:

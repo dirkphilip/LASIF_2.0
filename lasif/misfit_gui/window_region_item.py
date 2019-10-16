@@ -23,7 +23,6 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
 
         self.start = start
         self.end = end
-        # Color body wave windows red, surface wave blue
 
         rel_start = self.start - event["origin_time"]
         rel_end = self.end - event["origin_time"]
@@ -31,7 +30,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         values = [rel_start, rel_end]
 
         super(WindowLinearRegionItem, self).__init__(values=values,
-                                                     brush=brush, **kwargs)
+                                                     **kwargs)
         self._parent = parent
         self._parent.addItem(self)
         self.setZValue(-5)
@@ -64,7 +63,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
 
-        import salvus_misfit
+        from lasif.tools.adjoint import calculate_adjoint_source
         import matplotlib.pyplot as plt
         plt.close("all")
         plt.figure(figsize=(15, 10))
@@ -82,7 +81,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         process_params = self.comm.project.processing_params
         adj_src = self.comm.project.config["misfit_type"]
         window = [(self.start, self.end)]
-        salvus_misfit.calculate_adjoint_source(
+        calculate_adjoint_source(
             observed=data.data[0], synthetic=data.synthetics[0],
             window=window,
             min_period=process_params["highpass_period"],

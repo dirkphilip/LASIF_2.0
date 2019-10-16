@@ -1,7 +1,7 @@
 language: python
 
 python:
-- '3.6'
+- '3.7'
 
 env:
   global:
@@ -12,13 +12,12 @@ before_install:
 - chmod +x miniconda.sh
 - ./miniconda.sh -b -p $HOME/miniconda
 - export PATH=$HOME/miniconda/bin:$PATH
+# - conda install --yes -c anaconda setuptools
+# - conda update --yes conda
 - conda config --add channels conda-forge
-- conda update --yes conda
-- conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
-- source activate condaenv
-- conda install --yes -c conda-forge numpy obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt numexpr
-- conda install --yes -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme ipython dill prov seaborn h5py
-- pip install geographiclib flask-cache geojson flake8 toml==0.9.2
+# - conda update --yes -n base -c defaults conda
+- conda env create -f environment.yml
+- source activate lasif
 - cd ..
 - git clone https://github.com/SalvusHub/pyexodus.git
 - cd pyexodus
@@ -37,7 +36,7 @@ install:
 - cd $TRAVIS_BUILD_DIR; pip install .
 
 script:
-- cd $TRAVIS_BUILD_DIR/lasif/whl; pip install salvus_wave-0.0.0-cp36-cp36m-linux_x86_64.whl
+# - cd $TRAVIS_BUILD_DIR/lasif/whl; pip install salvus_wave-0.0.0-cp36-cp36m-linux_x86_64.whl
 - cd $TRAVIS_BUILD_DIR; py.test
 - cd $TRAVIS_BUILD_DIR/doc; make html
 after_failure:

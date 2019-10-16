@@ -9,7 +9,6 @@ from lasif import LASIFNotFoundError, LASIFError
 from .component import Component
 
 
-
 class WeightsComponent(Component):
     """
     Component dealing with station and event weights.
@@ -135,7 +134,7 @@ class WeightsComponent(Component):
                                                weight_set))
         os.remove(self.get_filename_for_weight_set(weight_set_name))
         os.rename(temp, self.get_filename_for_weight_set(weight_set_name))
-    
+
     def calculate_station_weight(self, lat_1, lon_1, locations):
         """
         Calculates the weight set for a set of stations for one event
@@ -147,7 +146,9 @@ class WeightsComponent(Component):
         from obspy.geodetics import locations2degrees
 
         distance = np.zeros_like(locations[1, :])
-        distance = 1.0 / (1.0 + locations2degrees(lat_1, lon_1, locations[0, :], locations[1, :]))
+        distance = 1.0 / (1.0 + locations2degrees(lat_1, lon_1,
+                                                  locations[0, :],
+                                                  locations[1, :]))
         factor = np.sum(distance)
         weight = 1.0 / factor
 

@@ -16,6 +16,7 @@ It will be run by pytest, as specified in the pytest.ini file.
 import os
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
+
 import matplotlib
 matplotlib.use("agg")
 import matplotlib.pyplot as plt

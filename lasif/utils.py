@@ -336,7 +336,6 @@ def generate_input_files(iteration_name, event_name, comm,
 
 
 def write_custom_stf(stf_path, comm):
-    import toml
     import h5py
 
     # source_toml = os.path.join(output_dir, "source.toml")
@@ -369,7 +368,7 @@ def write_custom_stf(stf_path, comm):
     #     stf_mat[:, i] = stf * moment
     # Now we add the spatial weights into salvus
     for i in range(6):
-        stf_mat[:,i] = stf
+        stf_mat[:, i] = stf
 
     heaviside_file_name = os.path.join(stf_path)
     f = h5py.File(heaviside_file_name, 'w')
@@ -416,7 +415,6 @@ def place_receivers(event, comm):
         inv += ds.waveforms[station].StationXML
 
     import salvus_seismo
-    #from salvus_seismo import locate_receiver, helpers
 
     recs = salvus_seismo.Receiver.parse(inv)
 
@@ -444,7 +442,6 @@ def prepare_source(comm, event, iteration):
     :param iteration: Name of iteration for simulation
     :type iteration: String
     """
-    import pyasdf
     import h5py
 
     iteration = comm.iterations.get_long_iteration_name(iteration)
@@ -457,7 +454,7 @@ def prepare_source(comm, event, iteration):
         with h5py.File(stf_path) as f:
             if "source" in f:
                 write_stf = False
-    
+
     if write_stf:
         write_custom_stf(stf_path, comm)
 
