@@ -15,7 +15,6 @@ import os
 import pathlib
 
 import colorama
-#from mpi4py import MPI
 import toml
 import numpy as np
 
@@ -147,8 +146,8 @@ def plot_raydensity(lasif_root, plot_stations, iteration=None):
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_raydensity(
-            plot_stations=plot_stations,
-            iteration=iteration)
+        plot_stations=plot_stations,
+        iteration=iteration)
 
 
 def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
@@ -176,7 +175,7 @@ def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
 def add_spud_event(lasif_root, url: str):
     """
     Adds events from the iris spud service, provided a link to the event
-    
+
     :param lasif_root: Path to lasif project
     :type lasif_root: str
     :param url: URL to the spud event
@@ -671,7 +670,7 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
 
     if len(events) == 0:
         events = comm.events.list()
-    
+
     iterations = list_iterations(comm, output=True)
     if isinstance(iterations, list):
         if iteration in iterations:
@@ -687,7 +686,7 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
                                           events=events)
 
 
-def write_misfit(lasif_root, iteration, weight_set=None, window_set=None, 
+def write_misfit(lasif_root, iteration, weight_set=None, window_set=None,
                  events=None):
     """
     Write misfit for iteration
@@ -740,8 +739,6 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None,
     iteration_dict["weight_set_name"] = weight_set
     iteration_dict["window_set_name"] = window_set
 
-    
-
     with open(toml_filename, "w") as fh:
         toml.dump(iteration_dict, fh)
 
@@ -760,7 +757,7 @@ def list_iterations(lasif_root, output=False):
         print("There are no iterations in this project")
     else:
         if output:
-            return iterations 
+            return iterations
         if len(iterations) == 1:
             print(f"There is {len(iterations)} iteration in this project")
             print("Iteration known to LASIF: \n")
@@ -831,8 +828,9 @@ def compare_misfits(lasif_root, from_it, to_it, events=[], weight_set=None,
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
-            rel_change = ((to_it_misfit_event - from_it_misfit_event) /
-                          from_it_misfit_event * 100.0)
+            rel_change = (
+                (to_it_misfit_event - from_it_misfit_event)
+                / from_it_misfit_event * 100.0)
             print(f"Relative change: {rel_change:.2f}%")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
@@ -876,8 +874,8 @@ def process_data(lasif_root, events=[], iteration=None):
         events = comm.events.list(iteration=iteration)
 
     exceptions = []
-    #if MPI.COMM_WORLD.rank == 0:
-        # Check if the event ids are valid.
+    # if MPI.COMM_WORLD.rank == 0:
+    # Check if the event ids are valid.
     if not exceptions and events:
         for event_name in events:
             if not comm.events.has_event(event_name):
@@ -885,12 +883,12 @@ def process_data(lasif_root, events=[], iteration=None):
                 exceptions.append(msg)
                 break
 
-    #exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
+    # exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise Exception(exceptions[0])
 
     # Make sure all the ranks enter the processing at the same time.
-    #MPI.COMM_WORLD.barrier()
+    # MPI.COMM_WORLD.barrier()
     comm.waveforms.process_data(events)
 
 

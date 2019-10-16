@@ -7,7 +7,6 @@ import fnmatch
 import os
 import warnings
 import pyasdf
-from lasif.utils import process_two_files_without_parallel_output
 
 from lasif import LASIFNotFoundError, LASIFWarning
 from .component import Component
@@ -17,6 +16,7 @@ class LimitedSizeDict(collections.OrderedDict):
     """
     Based on http://stackoverflow.com/a/2437645/1657047
     """
+
     def __init__(self, *args, **kwds):
         self.size_limit = kwds.pop("size_limit", None)
         collections.OrderedDict.__init__(self, *args, **kwds)
@@ -44,6 +44,7 @@ class WaveformsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def __init__(self, data_folder, preproc_data_folder, synthetics_folder,
                  communicator, component_name):
         self._data_folder = data_folder

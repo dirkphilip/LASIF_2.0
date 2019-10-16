@@ -300,8 +300,8 @@ class WindowGroupManager(object):
                                     NULL, ?, ?, ?, ?
                                 )
                             """, (
-                            "{}".format(trace_id), start_time, end_time,
-                            weight))
+                                "{}".format(trace_id), start_time, end_time,
+                                weight))
 
     def write_windows_old(self, event_name, results):
         if not self.event_in_db(event_name):

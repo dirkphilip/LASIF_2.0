@@ -6,5 +6,7 @@ htmlcov
 lasif/misfit_gui/qt_window.py
 .cache
 .idea/*
+lasif/.idea
 lasif/RELEASE-VERSION
 .DS_Store
+.vscode

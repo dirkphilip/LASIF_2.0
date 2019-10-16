@@ -16,8 +16,8 @@ import os
 import obspy
 from scipy.io import loadmat
 
-from lasif.adjoint_sources import utils, time_frequency,\
-    ad_src_tf_phase_misfit
+from salvus_misfit import utils, time_frequency
+from salvus_misfit.adjoint_source_types import tf_phase_misfit
 
 from .testing_helpers import images_are_identical, reset_matplotlib
 
@@ -126,9 +126,14 @@ def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     import matplotlib.pyplot as plt
     plt.figure(figsize=(15, 10))
 
-    ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(obs.times(), obs.data,
-                                                 syn.data, 20.0, 100.0,
-                                                 plot=True)
+    tf_phase_misfit.calculate_adjoint_source(
+        observed=obs,
+        synthetic=syn,
+        window=None,
+        min_period=20.0,
+        max_period=100.0,
+        adjoint_src=True,
+        plot=True)
     # High tolerance as fonts are for some reason shifted on some systems.
     # This should still be safe as a differnce in the actual tf difference
     # or the waveforms would induce changes all over the plot which would

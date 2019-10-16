@@ -61,8 +61,8 @@ def communicator(tmpdir):
         ._ResourceIdentifier__resource_id_weak_dict.clear()
 
     # Copy the example project
-    example_project = os.path.join(DATA, "ExampleProject")
-    project_path = os.path.join(str(tmpdir), "ExampleProject")
+    example_project = os.path.join(DATA, "example_project")
+    project_path = os.path.join(str(tmpdir), "example_project")
     shutil.copytree(example_project, project_path)
     folder_path = pathlib.Path(project_path).absolute()
 

@@ -22,7 +22,7 @@ def comm():
     Returns a communicator with an initialized events component.
     """
     data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
+        inspect.getfile(inspect.currentframe())))), "data", "example_project",
         "DATA/EARTHQUAKES")
     comm = Communicator()
     # Add project comm with paths to this fake component.
@@ -110,10 +110,10 @@ def test_faulty_events(tmpdir, recwarn):
 
     tmpdir = str(tmpdir)
     file_1 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
+        inspect.getfile(inspect.currentframe())))), "data", "example_project",
         "DATA", "EARTHQUAKES", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.h5")
     file_2 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
+        inspect.getfile(inspect.currentframe())))), "data", "example_project",
         "DATA", "EARTHQUAKES", "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5")
     with pyasdf.ASDFDataSet(file_1) as ds:
         cat = ds.events

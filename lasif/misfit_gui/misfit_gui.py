@@ -2,6 +2,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import lasif.visualization
+from .window_region_item import WindowLinearRegionItem
+from ..colors import COLORS
+import sys
+import random
+import os
+from obspy.taup import TauPyModel
+from obspy.geodetics import locations2degrees
+import matplotlib.patheffects as PathEffects
+import inspect
+import imp
+from glob import iglob
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
@@ -9,20 +21,6 @@ import pyqtgraph as pg
 # Default to antialiased drawing.
 pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
 
-from glob import iglob
-import imp
-import inspect
-import matplotlib.patheffects as PathEffects
-from obspy.geodetics import locations2degrees
-from obspy.taup import TauPyModel
-import os
-import random
-import sys
-
-from ..colors import COLORS
-from .window_region_item import WindowLinearRegionItem
-
-import lasif.visualization
 
 taupy_model = TauPyModel("ak135")
 
@@ -356,9 +354,9 @@ class Window(QtGui.QMainWindow):
                         synthetic_tr = [
                             tr for tr in comparison_wave.synthetics
                             if tr.stats.channel[-1].lower() ==
-                               original_syn.stats.channel[-1].lower()][0]
+                            original_syn.stats.channel[-1].lower()][0]
                         scaling_factor = synthetic_tr.data.ptp() / \
-                                         original_syn.data.ptp()
+                            original_syn.data.ptp()
                         # Store and apply the scaling.
                         synthetic_tr.stats.scaling_factor = scaling_factor
                         synthetic_tr.data /= scaling_factor
@@ -459,11 +457,11 @@ class Window(QtGui.QMainWindow):
                     plot_widget.windows = windows
                     for win in windows:
                         WindowLinearRegionItem(self.current_window_manager,
-                                                channel_name,
-                                                self.current_iteration,
-                                                start=win[0], end=win[1],
-                                                event=event, parent=plot_widget,
-                                                comm=self.comm)
+                                               channel_name,
+                                               self.current_iteration,
+                                               start=win[0], end=win[1],
+                                               event=event, parent=plot_widget,
+                                               comm=self.comm)
             except:
                 print(f"no windows available for {component}-component of "
                       f"station {self.current_station}")

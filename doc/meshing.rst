@@ -55,7 +55,7 @@ paste it into your project folder. Then refer to its path in your config file.
 .. code-block:: bash
 
     # Position your self in the root of your lasif project
-    $ cp {lasif_code_folder}/lasif/tests/data/ExampleProject/MODELS/ITERATION_1/Turkey.e ./MODELS/.
+    $ cp {lasif_code_folder}/lasif/tests/data/example_project/MODELS/ITERATION_1/Turkey.e ./MODELS/.
 
 Then you should have the same mesh ready in your project folder and can
 go through the tutorial.

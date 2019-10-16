@@ -135,8 +135,9 @@ class VisualizationsComponent(Component):
                                       station_events=event_stations,
                                       domain=self.comm.project.domain)
 
-        visualization.plot_events(self.comm.events.get_all_events(iteration).values(),
-                                  map_object=map_object)
+        visualization.plot_events(
+            self.comm.events.get_all_events(iteration).values(),
+            map_object=map_object)
 
         if plot_stations:
             stations = itertools.chain.from_iterable((
@@ -154,10 +155,10 @@ class VisualizationsComponent(Component):
         if save_plot:
             if iteration:
                 outfile = os.path.join(
-                        self.comm.project.paths["output"],
-                        "raydensity_plots",
-                        f"ITERATION_{iteration}",
-                        "raydensity.png")
+                    self.comm.project.paths["output"],
+                    "raydensity_plots",
+                    f"ITERATION_{iteration}",
+                    "raydensity.png")
                 outfolder, _ = os.path.split(outfile)
                 if not os.path.exists(outfolder):
                     os.makedirs(outfolder)

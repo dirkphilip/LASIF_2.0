@@ -16,7 +16,7 @@ a spherical body, e.g. the Earth.
     somewhere close to Sumatra.
 
     :math:`\\theta` (theta) is the colatitude, e.g. 90.0 - latitude and is the
-    angle from the z-axis. :math:`\phi` (phi) is the longitude and the angle
+    angle from the z-axis. :math:`\\phi` (phi) is the longitude and the angle
     from the x-axis towards the y-axis, a.k.a the azimuth angle. These are also
     the generally used spherical coordinates.
 
@@ -52,19 +52,19 @@ def _get_vector(*args):
 
     >>> vec = _get_vector(1, 2, 3)
     >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([1., 2., 3.])
+    array([ 1.,  2.,  3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector([1, 2, 3])
     >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([1., 2., 3.])
+    array([ 1.,  2.,  3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector(np.array([1, 2, 3], dtype="int32"))
     >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([1., 2., 3.])
+    array([ 1.,  2.,  3.])
     >>> print(vec.dtype)
     float64
 

@@ -1,0 +1,7 @@
+# Here we store information regarding which events are used 
+# User can remove events at will and Lasif should recognise it when input files are generated.
+# Everything related to using all events, should read this file and classify that as all events for iteration.
+
+[events]
+    events_used = ['GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
+'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']

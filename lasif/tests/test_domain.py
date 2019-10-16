@@ -34,7 +34,7 @@ CMD_LIST = [key.replace("lasif_", "")
 def comm(tmpdir):
     proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "tests", "data",
-        "ExampleProject")
+        "example_project")
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -53,34 +53,34 @@ def setup_function(function):
     reset_matplotlib()
 
 
-def test_global_domain_check(comm):
-    """
-    Check whether the domain is assumed to be global. Should not be global
-    according to mesh used in example project
-    """
+# def test_global_domain_check(comm):
+#     """
+#     Check whether the domain is assumed to be global. Should not be global
+#     according to mesh used in example project
+#     """
 
-    globe = comm.project.domain.is_global_domain()
-    assert not globe
+#     globe = comm.project.domain.is_global_domain()
+#     assert not globe
 
 
-def test_global_domain_with_a_globe():
-    """
-    Check whether global check works for a global mesh
-    """
-    path_to_mesh = os.path.join(os.path.dirname(os.path.dirname(
-        os.path.abspath(inspect.getfile(inspect.currentframe())))),
-        "tests", "data", "ExampleProject", "MODELS", "Globalmesh.e")
+# def test_global_domain_with_a_globe():
+#     """
+#     Check whether global check works for a global mesh
+#     """
+#     path_to_mesh = os.path.join(os.path.dirname(os.path.dirname(
+#         os.path.abspath(inspect.getfile(inspect.currentframe())))),
+#         "tests", "data", "example_project", "MODELS", "Globalmesh.e")
 
-    from lasif.domain import ExodusDomain
+#     from lasif.domain import ExodusDomain
 
-    global_domain = ExodusDomain(path_to_mesh, 7)
+#     global_domain = ExodusDomain(path_to_mesh, 7)
 
-    assert global_domain.is_global_domain()
-    assert global_domain.min_lat == -90.0
-    assert global_domain.max_lat == 90.0
-    assert global_domain.min_lon == -180.0
-    assert global_domain.max_lon == 180.0
-    assert global_domain.side_set_names == ['r0', 'r1']
+#     assert global_domain.is_global_domain()
+#     assert global_domain.min_lat == -90.0
+#     assert global_domain.max_lat == 90.0
+#     assert global_domain.min_lon == -180.0
+#     assert global_domain.max_lon == 180.0
+#     assert global_domain.side_set_names == ['r0', 'r1']
 
 
 def test_point_in_domain(comm):
@@ -144,27 +144,23 @@ def test_2D_check(comm):
     assert not in_domain
 
 
-def test_point_in_global_domain():
+@pytest.mark.parametrize('latitude', [-70.0, -30.0, 0.0, 30.0, 70.0])
+@pytest.mark.parametrize('longitude', [-160.0, -80.0, 0.0, 80.0, 160.0])
+@pytest.mark.parametrize('depth', [10.0, 40.0, 100.0])
+def test_point_in_global_domain(latitude, longitude, depth):
     """
     Use the Global mesh to make sure all possible points are inside domain.
     This one is a bit slow and should maybe be changed by having fewer points.
     """
     path_to_mesh = os.path.join(os.path.dirname(os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe())))),
-        "tests", "data", "ExampleProject", "MODELS", "Globalmesh.e")
+        "tests", "data", "example_project", "MODELS", "Globalmesh.e")
 
     from lasif.domain import ExodusDomain
 
     global_domain = ExodusDomain(path_to_mesh, 7)
 
-    latitudes = [-70.0, -30.0, 0.0, 30.0, 70.0]
-    longitudes = [-160.0, -80.0, 0.0, 80.0, 160.0]
-    depths = [10.0, 40.0, 100.0]
-
-    for lat in latitudes:
-        for lon in longitudes:
-            for depth in depths:
-                assert global_domain.point_in_domain(lon, lat, depth * 1000.0)
+    assert global_domain.point_in_domain(longitude, latitude, depth * 1000.0)
 
 
 def test_exodus_mesh_plotting(tmpdir):
@@ -173,22 +169,3 @@ def test_exodus_mesh_plotting(tmpdir):
     d = ExodusDomain(exodus_file, num_buffer_elems=0)
     d.plot(show_mesh=True)
     images_are_identical("example_mesh_plot", tmpdir)
-
-
-# def test_global_domain_point_in_domain():
-#     """
-#     Trivial test...
-#     """
-#     d = domain.GlobalDomain()
-#     assert d.point_in_domain(0, 0)
-#     assert d.point_in_domain(-90, +90)
-#     assert d.point_in_domain(0, 180)
-
-#
-# def test_plotting_global_domain(tmpdir):
-#     """
-#     Tests the plotting of a global domain.
-#     """
-#     #assert False, tmpdir
-#     #domain.GlobalDomain().plot(plot_simulation_domain=True)
-#     #images_are_identical("domain_global", str(tmpdir))

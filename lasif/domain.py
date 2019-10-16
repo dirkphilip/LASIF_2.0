@@ -134,7 +134,7 @@ class ExodusDomain:
         # get max element edge length
         edge_aspect_ratio = self.e.get_element_variable_values(
             1, "edge_aspect_ratio", 1)
-        
+
         # TODO: This is not a completely stable way of assessing maximum edge
         # length of a mesh, which in turn is used to determine whether or not
         # a source lies in the domain. Should be looked in to.
@@ -154,7 +154,7 @@ class ExodusDomain:
             min_dt = self.e.get_global_variable_values("dt")
             try:
                 # First try to access separate VPV/VPH fields ...
-                max_v = np.max([self.e.get_node_variable_values("VPV", 1), 
+                max_v = np.max([self.e.get_node_variable_values("VPV", 1),
                                 self.e.get_node_variable_values("VPH", 1)])
             except Exception as e:
                 # ... but some meshes only have VP ...
@@ -165,7 +165,7 @@ class ExodusDomain:
                 print(e)
                 raise ValueError("Was not able to estimate edge length.")
             self.max_elem_edge_length = max_v * min_dt
-            
+
         # self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
         # self.max_elem_edge_length = 20.0 # todo remember to remove
 
@@ -179,6 +179,7 @@ class ExodusDomain:
 
         # get extent
         lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
+
         self.min_lat = min(lats)
         self.max_lat = max(lats)
         self.min_lon = min(lons)
@@ -246,6 +247,8 @@ class ExodusDomain:
 
         # Check whether domain is deep enough to include the point.
         # Multiply element width with 1.5 since they are larger at the bottom
+        # print(f"Max depth: {self.max_depth}")
+        # print(f"Approx el with: {self.approx_elem_width}")
         if depth:
             if depth > (self.max_depth - self.num_buffer_elems *
                         self.approx_elem_width * 1.5):

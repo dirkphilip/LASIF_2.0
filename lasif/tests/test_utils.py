@@ -27,7 +27,7 @@ data_dir = os.path.join(os.path.dirname(os.path.abspath(
 def comm(tmpdir):
     proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "tests", "data",
-        "ExampleProject")
+        "example_project")
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -57,5 +57,5 @@ def test_greatcircle_points_generator():
     # from obspy import read_events
     # filename = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
     #     inspect.getfile(inspect.currentframe())))), "tests", "data",
-    #     "ExampleProject", "DATA", "EARTHQUAKES")
+    #     "example_project", "DATA", "EARTHQUAKES")
     # read_events(filename, format="ndk")

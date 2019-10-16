@@ -13,7 +13,7 @@ folder:
 
 .. code-block:: bash
 
-    $ cp {lasif_code_folder}/lasif/tests/data/ExampleProject/DATA/EARTHQUAKES/* ./DATA/EARTHQUAKES/
+    $ cp {lasif_code_folder}/lasif/tests/data/example_project/DATA/EARTHQUAKES/* ./DATA/EARTHQUAKES/
 
 
 .. note::

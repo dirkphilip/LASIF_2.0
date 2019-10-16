@@ -44,7 +44,6 @@ import os
 import lasif
 from lasif import api
 from lasif.api import LASIFCommandLineException
-from lasif.tools.query_gcmt_catalog import get_subset_of_events
 import argparse
 import colorama
 import difflib
@@ -56,7 +55,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 warnings.filterwarnings('ignore', category=FutureWarning)
 
-#from mpi4py import MPI
+# from mpi4py import MPI
 
 
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
@@ -265,11 +264,7 @@ def lasif_add_spud_event(parser, args):
     args = parser.parse_args(args)
     url = args.url
 
-    from lasif.scripts.iris2quakeml import iris2quakeml
-
-    comm = api.find_project_comm(".")
     api.add_spud_event(lasif_root=".", url=url)
-    iris2quakeml(url, comm.project.paths["eq_data"])
 
 
 # # PERSONAL USE
@@ -796,8 +791,8 @@ def lasif_validate_data(parser, args):
 
     args = parser.parse_args(args)
     api.validate_data(lasif_root=".",
-                      data_station_file_availability=
-                      args.data_and_station_file_availability,
+                      data_station_file_availability=args.
+                      data_and_station_file_availability,
                       raypaths=args.raypaths,
                       full=args.full)
 
@@ -921,9 +916,9 @@ def _print_generic_help(fcts):
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
             print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
-                  colorama.Fore.CYAN,
-                  _get_cmd_description(fcts[name]),
-                  colorama.Style.RESET_ALL))
+                                        colorama.Fore.CYAN,
+                                        _get_cmd_description(fcts[name]),
+                                        colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
@@ -1019,7 +1014,7 @@ def main():
     func = fcts[fct_name]
 
     # Make sure that only MPI enabled functions are called with MPI.
-    #if MPI.COMM_WORLD.size > 1:
+    # if MPI.COMM_WORLD.size > 1:
     #    if not hasattr(func, "_is_mpi_enabled") or \
     #            func._is_mpi_enabled is not True:
     #        if MPI.COMM_WORLD.rank != 0:
