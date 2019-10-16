@@ -45,19 +45,18 @@ import lasif
 from lasif import api
 from lasif.api import LASIFCommandLineException
 from lasif.tools.query_gcmt_catalog import get_subset_of_events
-
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-
 import argparse
 import colorama
 import difflib
-import pathlib
 import sys
 import traceback
 import warnings
+
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 warnings.filterwarnings('ignore', category=FutureWarning)
 
-from mpi4py import MPI
+#from mpi4py import MPI
 
 
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
@@ -226,11 +225,14 @@ def lasif_plot_raydensity(parser, args):
     """
     Plot a binned raycoverage plot for all events.
     """
+    parser.add_argument("--iteration", default=None,
+                        help="Only plot data from a specific iteration")
     parser.add_argument("--plot_stations", help="also plot the stations",
                         action="store_true")
     args = parser.parse_args(args)
 
-    api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations)
+    api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations,
+                        iteration=args.iteration)
 
 
 @command_group("Plotting")
@@ -266,6 +268,7 @@ def lasif_add_spud_event(parser, args):
     from lasif.scripts.iris2quakeml import iris2quakeml
 
     comm = api.find_project_comm(".")
+    api.add_spud_event(lasif_root=".", url=url)
     iris2quakeml(url, comm.project.paths["eq_data"])
 
 
@@ -361,15 +364,17 @@ def lasif_list_events(parser, args):
     """
     Print a list of all events in the project.
     """
-    parser.add_argument("--list", help="Show only a list of events. Good for "
-                                       "scripting bash.",
+    parser.add_argument("--just_list", help="Show only a list of events"
+                                            "without properties. Good for "
+                                            "scripting bash.",
                         action="store_true")
     parser.add_argument("--iteration", help="Show only events related to "
                                             "a specific iteration",
                         default=None)
     args = parser.parse_args(args)
 
-    api.list_events(lasif_root=".", list=args.list, iteration=args.iteration)
+    api.list_events(lasif_root=".", just_list=args.just_list,
+                    iteration=args.iteration)
 
 
 @command_group("Iteration Management")
@@ -387,9 +392,9 @@ def lasif_submit_job(parser, args):
                                                 "step_length, adjoint")
     parser.add_argument("site", help="Computer to submit the job to")
     parser.add_argument("event", help="If you only want to submit selected "
-                                       "events. You can input more than one "
-                                       "separated by a space. If none is "
-                                       "specified, all will be taken",
+                                      "events. You can input more than one "
+                                      "separated by a space. If none is "
+                                      "specified, all will be taken",
                         nargs="*", default=None)
 
     args = parser.parse_args(args)
@@ -410,9 +415,9 @@ def lasif_retrieve_output(parser, args):
                                                 "step_length, adjoint")
     parser.add_argument("site", help="Computer to get output from")
     parser.add_argument("event", help="names of events you want to retrieve "
-                                       "output from. If more than one, "
-                                       "separate with space. If none specified"
-                                       " all will be used.", nargs="*",
+                                      "output from. If more than one, "
+                                      "separate with space. If none specified"
+                                      " all will be used.", nargs="*",
                         default=None)
 
     args = parser.parse_args(args)
@@ -876,7 +881,7 @@ def _get_cmd_description(fct, extended=False):
             return "\n".join(stripped_list) + "\n"
         else:
             return fct.__doc__.strip().split("\n")[0].strip()
-    except:
+    except Exception:
         return ""
 
 
@@ -1014,14 +1019,14 @@ def main():
     func = fcts[fct_name]
 
     # Make sure that only MPI enabled functions are called with MPI.
-    if MPI.COMM_WORLD.size > 1:
-        if not hasattr(func, "_is_mpi_enabled") or \
-                func._is_mpi_enabled is not True:
-            if MPI.COMM_WORLD.rank != 0:
-                return
-            sys.stderr.write("'lasif %s' must not be called with MPI.\n" %
-                             fct_name)
-            return
+    #if MPI.COMM_WORLD.size > 1:
+    #    if not hasattr(func, "_is_mpi_enabled") or \
+    #            func._is_mpi_enabled is not True:
+    #        if MPI.COMM_WORLD.rank != 0:
+    #            return
+    #        sys.stderr.write("'lasif %s' must not be called with MPI.\n" %
+    #                         fct_name)
+    #        return
 
     # Create a parser and pass it to the single function.
     if "--help" in further_args:
@@ -1036,7 +1041,7 @@ def main():
         print(colorama.Fore.YELLOW + ("Error: %s\n" % str(e)) +
               colorama.Style.RESET_ALL)
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         args = parser.parse_args(further_args)
         # Launch ipdb debugger right at the exception point if desired.
         # Greatly eases debugging things. Requires ipdb to be installed.

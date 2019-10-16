@@ -245,7 +245,7 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
                    threshold_correlation=0.75, min_length_period=1.5,
                    min_peaks_troughs=2, max_energy_ratio=10.0,
                    min_envelope_similarity=0.2,
-                   verbose=True, plot=False):
+                   verbose=False, plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
@@ -343,12 +343,12 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     # for every epicentral distance. Its quite a bit faster than calculating
     # the arrival times for every phase.
     # Assumes the first sample is the centroid time of the event.
-    tts = model.get_travel_times(source_depth_in_km=event_depth_in_km,
+    ttp = model.get_travel_times(source_depth_in_km=event_depth_in_km,
                                  distance_in_degree=dist_in_deg,
                                  phase_list=["ttp"])
     # Sort just as a safety measure.
-    tts = sorted(tts, key=lambda x: x.time)
-    first_tt_arrival = tts[0].time
+    ttp = sorted(ttp, key=lambda x: x.time)
+    first_tt_arrival = ttp[0].time
 
     # -------------------------------------------------------------------------
     # Window settings
@@ -915,7 +915,8 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     for start, stop in final_windows:
         start = data_starttime + start * data_delta
         stop = data_starttime + stop * data_delta
-        windows.append((start, stop))
+        weight = 1.0
+        windows.append((start, stop, weight))
 
     if plot:
         # Plot the final windows to the data axes.

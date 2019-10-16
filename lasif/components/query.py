@@ -41,10 +41,10 @@ class QueryComponent(Component):
             event_name=event_name, data_type="raw")
 
         if list_only:
-            with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
+            with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
                 return ds.waveforms.list()
 
-        with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
+        with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
             return ds.get_all_coordinates()
 
     def get_coordinates_for_station(self, event_name, station_id):

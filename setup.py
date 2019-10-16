@@ -21,13 +21,13 @@ from setuptools import setup, find_packages
 
 # Be very visible with the requires Python version!
 _v = sys.version_info
-if (_v.major, _v.minor) != (3, 6):
-    print("\n\n============================================")
-    print("============================================")
-    print("        LASIF 2 requires Python 3.6!        ")
-    print("============================================")
-    print("============================================\n\n")
-    raise Exception("LASIF 2 requires Python 3.6")
+#if (_v.major, _v.minor) != (3, 6):
+#    print("\n\n============================================")
+#    print("============================================")
+#    print("        LASIF 2 requires Python 3.6!        ")
+#    print("============================================")
+#    print("============================================\n\n")
+#    raise Exception("LASIF 2 requires Python 3.6")
 
 
 # Import the version string.

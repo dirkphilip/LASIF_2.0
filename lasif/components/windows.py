@@ -346,7 +346,7 @@ class WindowsComponent(Component):
             if not windows:
                 continue
 
-            for starttime, endtime in windows:
+            for starttime, endtime, b_wave in windows:
                 window_group_manager.add_window_to_event_channel(
                     event_name=event["event_name"],
                     channel_name=data_tr.id,

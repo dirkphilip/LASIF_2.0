@@ -249,8 +249,12 @@ class IterationsComponent(Component):
         path = self.comm.project.paths["models"]
 
         folder = os.path.join(path, long_iteration_name)
+        events = self.comm.events.list(iteration=long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
+            for event in events:
+                event_mesh_folder = os.path.join(folder, event)
+                os.makedirs(event_mesh_folder)
         if remove_dirs:
             shutil.rmtree(folder)
 

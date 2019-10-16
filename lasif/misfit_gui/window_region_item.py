@@ -23,13 +23,15 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
 
         self.start = start
         self.end = end
+        # Color body wave windows red, surface wave blue
 
         rel_start = self.start - event["origin_time"]
         rel_end = self.end - event["origin_time"]
 
         values = [rel_start, rel_end]
 
-        super(WindowLinearRegionItem, self).__init__(values=values, **kwargs)
+        super(WindowLinearRegionItem, self).__init__(values=values,
+                                                     brush=brush, **kwargs)
         self._parent = parent
         self._parent.addItem(self)
         self.setZValue(-5)

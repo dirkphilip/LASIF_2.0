@@ -7,7 +7,7 @@ import os
 
 from lasif import LASIFNotFoundError, LASIFError
 from .component import Component
-from obspy.geodetics import locations2degrees
+
 
 
 class WeightsComponent(Component):
@@ -91,7 +91,7 @@ class WeightsComponent(Component):
             weight_set_name = weight_set_name.weight_set_name
         except AttributeError:
             pass
-        weight_set_name = weight_set_name.lstrip("WEIGHTS_")
+        weight_set_name = weight_set_name.replace("WEIGHTS_", "")
 
         return weight_set_name in self.get_weight_set_dict()
 
@@ -135,25 +135,20 @@ class WeightsComponent(Component):
                                                weight_set))
         os.remove(self.get_filename_for_weight_set(weight_set_name))
         os.rename(temp, self.get_filename_for_weight_set(weight_set_name))
-
-    def calculate_station_weight(self, station, stations):
+    
+    def calculate_station_weight(self, lat_1, lon_1, locations):
         """
         Calculates the weight set for a set of stations for one event
         :param station: A station ID
         :param stations: A dictionary with all the stations for this event
         :return: weight. weight for this specific station
         """
+        import numpy as np
+        from obspy.geodetics import locations2degrees
 
-        factor = 0.0
-        lat_1 = stations[station]["latitude"]
-        lon_1 = stations[station]["longitude"]
-        for stat in stations:
-            lat_2 = stations[stat]["latitude"]
-            lon_2 = stations[stat]["longitude"]
-            if lat_1 == lat_2 and lon_1 == lon_2:
-                continue
-            distance = locations2degrees(lat_1, lon_1, lat_2, lon_2)
-            factor += 1.0 / (1.0 + distance)
+        distance = np.zeros_like(locations[1, :])
+        distance = 1.0 / (1.0 + locations2degrees(lat_1, lon_1, locations[0, :], locations[1, :]))
+        factor = np.sum(distance)
         weight = 1.0 / factor
 
         return weight
@@ -170,7 +165,7 @@ class WeightsComponent(Component):
             weight_set_name = str(weight_set_name.weight_set_name)
         except AttributeError:
             weight_set_name = str(weight_set_name)
-            weight_set_name = weight_set_name.lstrip("WEIGHTS_")
+            weight_set_name = weight_set_name.replace("WEIGHTS_", "")
 
         # Access cache.
         if weight_set_name in self.__cached_weights:
