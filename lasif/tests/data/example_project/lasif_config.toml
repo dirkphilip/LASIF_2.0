@@ -5,7 +5,7 @@
   description = "Toy Project used in the Test Suite"
 
   # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
-  mesh_file = "./MODELS/ITERATION_1/Turkey.e"
+  mesh_file = "./MODELS/Turkey.e"
 
   # Number of buffer elements at the domain edges, no events or receivers will be placed there.
   # A minimum amount of 3 is advised.
