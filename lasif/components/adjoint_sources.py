@@ -9,6 +9,7 @@ from lasif.utils import process_two_files_without_parallel_output
 
 from lasif import LASIFNotFoundError
 from .component import Component
+from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 
 # Map the adjoint source type names to functions implementing them.
 # MISFIT_MAPPING = {
@@ -124,7 +125,6 @@ class AdjointSourcesComponent(Component):
 
         from mpi4py import MPI
         import pyasdf
-        import salvus_misfit
 
         event = self.comm.events.get(event)
 
@@ -217,7 +217,7 @@ class AdjointSourcesComponent(Component):
                 windows = all_windows[station][data_tr.id]
                 try:
                     # for window in windows:
-                    asrc = salvus_misfit.calculate_adjoint_source(
+                    asrc = calculate_adjoint_source(
                         observed=data_tr, synthetic=synth_tr,
                         window=windows,
                         min_period=process_params["highpass_period"],

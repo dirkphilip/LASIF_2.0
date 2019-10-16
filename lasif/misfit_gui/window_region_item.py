@@ -63,7 +63,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
 
-        import salvus_misfit
+        from lasif.tools.adjoint import calculate_adjoint_source
         import matplotlib.pyplot as plt
         plt.close("all")
         plt.figure(figsize=(15, 10))
@@ -81,7 +81,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         process_params = self.comm.project.processing_params
         adj_src = self.comm.project.config["misfit_type"]
         window = [(self.start, self.end)]
-        salvus_misfit.calculate_adjoint_source(
+        calculate_adjoint_source(
             observed=data.data[0], synthetic=data.synthetics[0],
             window=window,
             min_period=process_params["highpass_period"],

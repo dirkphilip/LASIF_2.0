@@ -48,26 +48,6 @@ def _get_vector(*args):
 
     Creates a three component column vector from either a list or three single
     numbers. If it already is a correct vector, do nothing.
-
-
-    >>> vec = _get_vector(1, 2, 3)
-    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([ 1.,  2.,  3.])
-    >>> print(vec.dtype)
-    float64
-
-    >>> vec = _get_vector([1, 2, 3])
-    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([ 1.,  2.,  3.])
-    >>> print(vec.dtype)
-    float64
-
-    >>> vec = _get_vector(np.array([1, 2, 3], dtype="int32"))
-    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    array([ 1.,  2.,  3.])
-    >>> print(vec.dtype)
-    float64
-
     """
     if len(args) == 1 and isinstance(args[0], np.ndarray):
         return np.require(args[0], dtype="float64")

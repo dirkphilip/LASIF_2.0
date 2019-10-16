@@ -16,8 +16,8 @@ import os
 import obspy
 from scipy.io import loadmat
 
-from salvus_misfit import utils, time_frequency
-from salvus_misfit.adjoint_source_types import tf_phase_misfit
+from lasif.tools.adjoint import utils, time_frequency
+from lasif.tools.adjoint.adjoint_source_types import tf_phase_misfit
 
 from .testing_helpers import images_are_identical, reset_matplotlib
 
