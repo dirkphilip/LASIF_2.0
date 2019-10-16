@@ -9,7 +9,7 @@ from .component import Component
 
 from ..window_manager_sql import WindowGroupManager
 from lasif.utils import process_two_files_without_parallel_output
-from lasif import LASIFError, LASIFNotFoundError
+from lasif import LASIFNotFoundError
 
 
 class WindowsComponent(Component):
@@ -20,6 +20,7 @@ class WindowsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def __init__(self, communicator, component_name):
         super(WindowsComponent, self).__init__(
             communicator, component_name)
@@ -346,7 +347,7 @@ class WindowsComponent(Component):
             if not windows:
                 continue
 
-            for starttime, endtime in windows:
+            for starttime, endtime, b_wave in windows:
                 window_group_manager.add_window_to_event_channel(
                     event_name=event["event_name"],
                     channel_name=data_tr.id,
@@ -357,4 +358,3 @@ class WindowsComponent(Component):
                 "No matching data found for event '%s', iteration '%s', and "
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
-

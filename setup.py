@@ -21,13 +21,13 @@ from setuptools import setup, find_packages
 
 # Be very visible with the requires Python version!
 _v = sys.version_info
-if (_v.major, _v.minor) != (3, 6):
+if (_v.major, _v.minor) != (3, 7):
     print("\n\n============================================")
     print("============================================")
-    print("        LASIF 2 requires Python 3.6!        ")
+    print("        LASIF 2 requires Python 3.7!        ")
     print("============================================")
     print("============================================\n\n")
-    raise Exception("LASIF 2 requires Python 3.6")
+    raise Exception("LASIF 2 requires Python 3.7")
 
 
 # Import the version string.
@@ -65,9 +65,9 @@ setup_config = dict(
     name="lasif",
     version=get_git_version(),
     description="",
-    author="Lion Krischer and Andreas Fichtner",
-    author_email="krischer@geophysik.uni-muenchen.de",
-    url="https://github.com/krischer/LASIF",
+    author="Lion Krischer, Dirk-Philip van Herwaarden and Solvi Thrastarson",
+    author_email="dirkphilip.vanherwaarden@erdw.ethz.ch",
+    url="https://github.com/dirkphilip/LASIF_2.0",
     packages=find_packages(),
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
@@ -76,7 +76,7 @@ setup_config = dict(
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Physics'],
     install_requires=[

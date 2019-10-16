@@ -108,20 +108,22 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(self, save_plot=True, plot_stations=False):
+    def plot_raydensity(self, save_plot=True, plot_stations=False,
+                        iteration=None):
         """
         Plots the raydensity.
         """
         from lasif import visualization
         import matplotlib.pyplot as plt
 
-        plt.figure(figsize=(20, 21))
+        plt.figure(figsize=(20, 12))
 
         map_object = self.plot_domain()
 
         event_stations = []
         for event_name, event_info in \
-                self.comm.events.get_all_events().items():
+                self.comm.events.get_all_events(iteration).items():
+
             try:
                 stations = \
                     self.comm.query.get_all_stations_for_event(event_name)
@@ -133,8 +135,9 @@ class VisualizationsComponent(Component):
                                       station_events=event_stations,
                                       domain=self.comm.project.domain)
 
-        visualization.plot_events(self.comm.events.get_all_events().values(),
-                                  map_object=map_object)
+        visualization.plot_events(
+            self.comm.events.get_all_events(iteration).values(),
+            map_object=map_object)
 
         if plot_stations:
             stations = itertools.chain.from_iterable((
@@ -150,12 +153,24 @@ class VisualizationsComponent(Component):
 
         plt.tight_layout()
         if save_plot:
-            outfile = os.path.join(
-                self.comm.project.get_output_folder(
-                    type="raydensity_plots", tag="raydensity"),
-                "raydensity.png")
+            if iteration:
+                outfile = os.path.join(
+                    self.comm.project.paths["output"],
+                    "raydensity_plots",
+                    f"ITERATION_{iteration}",
+                    "raydensity.png")
+                outfolder, _ = os.path.split(outfile)
+                if not os.path.exists(outfolder):
+                    os.makedirs(outfolder)
+            else:
+                outfile = os.path.join(
+                    self.comm.project.get_output_folder(
+                        type="raydensity_plots", tag="raydensity"),
+                    "raydensity.png")
+            if os.path.isfile(outfile):
+                os.remove(outfile)
             plt.savefig(outfile, dpi=200,
-                        transparent=False)
+                        transparent=False, overwrite=True)
             print("Saved picture at %s" % outfile)
 
     def plot_windows(self, event, window_set_name, distance_bins=500,

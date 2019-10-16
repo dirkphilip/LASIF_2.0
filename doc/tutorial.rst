@@ -9,9 +9,9 @@ you can see how is done here: :doc:`meshing`
 
 .. caution::
 
-    This tutorial is written by hand and thus might not always be completely
-    up to date. If, for example, there are slight necessary deviations to the
-    arguments of a command, please refer to the command's documentation.
+    This tutorial is written for an older version of LASIF and is thus not
+    up to date. It will be properly updated once LASIF's dependencies are
+    stable enough.
 
     The rest of LASIF's documentation is generated from the actual code and
     thus is guaranteed to accurately reflect the code base.

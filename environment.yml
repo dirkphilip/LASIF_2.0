@@ -1,0 +1,34 @@
+name: lasif
+dependencies:
+    - python=3.7
+    - numpy
+    - scipy
+    - obspy
+    - nomkl
+    - basemap
+    - progressbar2
+    - colorama
+    - joblib
+    - pytest
+    - nose
+    - mock
+    - pyqt
+    - pip
+    - sphinx
+    - sphinx_rtd_theme
+    - numexpr
+    - ipython
+    - dill
+    - prov
+    - seaborn
+    - pandas
+    - h5py
+    - mpi4py
+    - pip:
+        - pyqtgraph
+        - geographiclib
+        - flask-cache
+        - geojson
+        - flake8
+        - toml
+        - tqdm

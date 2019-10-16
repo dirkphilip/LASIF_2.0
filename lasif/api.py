@@ -15,8 +15,8 @@ import os
 import pathlib
 
 import colorama
-from mpi4py import MPI
 import toml
+import numpy as np
 
 from lasif import LASIFError
 from lasif.components.communicator import Communicator
@@ -33,6 +33,9 @@ def find_project_comm(folder):
     Will search upwards from the given folder until a folder containing a
     LASIF root structure is found. The absolute path to the root is returned.
     """
+    if isinstance(folder, Communicator):
+        return folder
+
     folder = pathlib.Path(folder).absolute()
     max_folder_depth = 10
     folder = folder
@@ -115,11 +118,13 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
     if save:
         if iteration:
             file = f"events_{iteration}.png"
+            timestamp = False
         else:
             file = "events.png"
+            timestamp = True
         outfile = os.path.join(
             comm.project.get_output_folder(
-                type="event_plots", tag="events", timestamp=True),
+                type="event_plots", tag="events", timestamp=timestamp),
             file)
         plt.savefig(outfile, dpi=200, transparent=True)
         print("Saved picture at %s" % outfile)
@@ -129,17 +134,20 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
 
 # @TODO: Add an option of plotting for a specific iteration
 # @TODO: Make sure coastlines are plotted
-def plot_raydensity(lasif_root, plot_stations):
+def plot_raydensity(lasif_root, plot_stations, iteration=None):
     """
     Plot a distribution of earthquakes and stations with great circle rays
     plotted underneath.
     :param lasif_root: Lasif root directory
     :param plot_stations: boolean argument whether stations should be plotted
+    :param iteration: If you only want events from a certain iteration
     """
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_raydensity(plot_stations=plot_stations)
+    comm.visualizations.plot_raydensity(
+        plot_stations=plot_stations,
+        iteration=iteration)
 
 
 def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
@@ -162,6 +170,22 @@ def add_gcmt_events(lasif_root, count, min_mag, max_mag, min_dist,
     add_new_events(comm=comm, count=count, min_magnitude=min_mag,
                    max_magnitude=max_mag, min_year=min_year, max_year=max_year,
                    threshold_distance_in_km=min_dist)
+
+
+def add_spud_event(lasif_root, url: str):
+    """
+    Adds events from the iris spud service, provided a link to the event
+
+    :param lasif_root: Path to lasif project
+    :type lasif_root: str
+    :param url: URL to the spud event
+    :type url: str
+    """
+    from lasif.scripts.iris2quakeml import iris2quakeml
+
+    comm = find_project_comm(lasif_root)
+
+    iris2quakeml(url, comm.project.paths["eq_data"])
 
 
 def project_info(lasif_root):
@@ -190,19 +214,21 @@ def download_data(lasif_root, event_name=[], providers=None):
         comm.downloads.download_data(event, providers=providers)
 
 
-def list_events(lasif_root, list=True, iteration=None):
+def list_events(lasif_root, just_list=True, iteration=None, output=False):
     """
     Print a list of events in project
     :param lasif_root: path to lasif root directory
-    :param list: Show only a list of events, good for scripting [optional]
+    :param just_list: Show only a list of events, good for scripting [optional]
     :param iteration: Show only events for specific iteration [optional]
     """
 
     comm = find_project_comm(lasif_root)
-
-    if list:
-        for event in sorted(comm.events.list(iteration=iteration)):
-            print(event)
+    if just_list:
+        if output:
+            return sorted(comm.events.list(iteration=iteration))
+        else:
+            for event in sorted(comm.events.list(iteration=iteration)):
+                print(event)
 
     else:
         print(f"%i event%s in %s:" % (
@@ -211,14 +237,17 @@ def list_events(lasif_root, list=True, iteration=None):
 
         from lasif.tools.prettytable import PrettyTable
 
-        tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag"])
-        tab.align["Event Name"] = "l"
+        tab = PrettyTable(["Event Name", "Lat", "Lng", "Depth (km)", "Mag"])
+
         for event in comm.events.list(iteration=iteration):
             ev = comm.events.get(event)
-            tab.add_row([
-                event, "%6.1f / %6.1f / %3i / %3.1f" % (
-                    ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
-                    ev["magnitude"])])
+            tab.add_row([event,
+                         "%6.1f" % ev["latitude"],
+                         "%6.1f" % ev["longitude"],
+                         "%3i" % int(ev["depth_in_km"]),
+                         "%3.1f" % ev["magnitude"]])
+        tab.align = "r"
+        tab.align["Event Name"] = "l"
         print(tab)
 
 
@@ -425,15 +454,15 @@ def generate_input_files(lasif_root, iteration, simulation_type, events=[],
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
-                print(f"Event {event} not known to LASIF. "
-                      f"No input files for this event"
-                      f" will be generated. ")
-                continue
+            print(f"Event {event} not known to LASIF. "
+                  f"No input files for this event"
+                  f" will be generated. ")
+            continue
         print(f"Generating input files for event "
               f"{_i + 1} of {len(events)} -- {event}")
         if simulation_type == "adjoint":
             comm.adj_sources.finalize_adjoint_sources(iteration, event,
-                                                  weight_set)
+                                                      weight_set)
 
         else:
             from lasif.utils import generate_input_files
@@ -464,6 +493,7 @@ def init_project(project_path):
     Project(project_root_path=project_path, init_project=project_path.name)
     print(f"Initialized project in {project_path.name}")
 
+
 def calculate_adjoint_sources(lasif_root, iteration, window_set,
                               weight_set=None, events=[]):
     """
@@ -474,6 +504,7 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
     :param weight_set: name of station weight set [optional]
     :param events: events [optional]
     """
+    from mpi4py import MPI
 
     comm = find_project_comm(lasif_root)
 
@@ -522,12 +553,12 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
 
         MPI.COMM_WORLD.barrier()
         comm.adj_sources.calculate_adjoint_sources(event, iteration,
-                                                       window_set)
+                                                   window_set)
         MPI.COMM_WORLD.barrier()
         if MPI.COMM_WORLD.rank == 0:
-            comm.adj_sources.finalize_adjoint_sources(iteration, 
-                                                          event,
-                                                          weight_set)
+            comm.adj_sources.finalize_adjoint_sources(iteration,
+                                                      event,
+                                                      weight_set)
 
 
 def select_windows(lasif_root, iteration, window_set, events=[]):
@@ -583,44 +614,43 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
     :param events: name of event [optional]
     :param iteration: name of iteration to compute weights for [optional]
     """
-    import progressbar
+
     comm = find_project_comm(lasif_root)
 
     if len(events) == 0:
         events = comm.events.list(iteration=iteration)
 
     if not comm.weights.has_weight_set(weight_set):
-        print("Weight set does not exist. Will create new one.")
         comm.weights.create_new_weight_set(
             weight_set_name=weight_set,
             events_dict=comm.query.get_stations_for_all_events())
 
     w_set = comm.weights.get(weight_set)
-    s = 0
-
-    if len(events) == 1:
-        one_event = True
-    else:
-        one_event = False
-        bar = progressbar.ProgressBar(max_value=len(events))
+    from tqdm import tqdm
 
     for event in events:
+        print(f"Calculating station weights for event: {event}")
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
+        locations = np.zeros((2, len(stations.keys())), dtype=np.float64)
+        for _i, station in enumerate(stations):
+            locations[0, _i] = stations[station]["latitude"]
+            locations[1, _i] = stations[station]["latitude"]
+
         sum_value = 0.0
 
-        for station in stations:
-            weight = comm.weights.calculate_station_weight(station, stations)
+        for station in tqdm(stations):
+            weight = comm.weights.calculate_station_weight(
+                lat_1=stations[station]["latitude"],
+                lon_1=stations[station]["longitude"],
+                locations=locations)
             sum_value += weight
             w_set.events[event]["stations"][station]["station_weight"] = \
                 weight
         for station in stations:
             w_set.events[event]["stations"][station]["station_weight"] *= \
                 (len(stations) / sum_value)
-        if not one_event:
-            s += 1
-            bar.update(s)
 
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set,
@@ -641,6 +671,12 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
     if len(events) == 0:
         events = comm.events.list()
 
+    iterations = list_iterations(comm, output=True)
+    if isinstance(iterations, list):
+        if iteration in iterations:
+            if not remove_dirs:
+                print(f"{iteration} already exists")
+                return
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration, remove_dirs=remove_dirs)
 
@@ -650,13 +686,15 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
                                           events=events)
 
 
-def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
+def write_misfit(lasif_root, iteration, weight_set=None, window_set=None,
+                 events=None):
     """
     Write misfit for iteration
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param weight_set: name of weight set [optional]
     :param window_set: name of window set [optional]
+    :param events: list of events [optional]
     """
 
     comm = find_project_comm(lasif_root)
@@ -665,15 +703,30 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
         if not comm.weights.has_weight_set(weight_set):
             raise LASIFNotFoundError(f"Weights {weight_set} not known"
                                      f"to LASIF")
-    # Check if iterations exist
+    # Check if iterations exists
     if not comm.iterations.has_iteration(iteration):
-            raise LASIFNotFoundError(f"Iteration {iteration} "
-                                     f"not known to LASIF")
+        raise LASIFNotFoundError(f"Iteration {iteration} "
+                                 f"not known to LASIF")
 
-    events = comm.events.list(iteration=iteration)
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
 
+    path = comm.project.paths["iterations"]
+    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
     total_misfit = 0.0
-    iteration_dict = {"event_misfits": {}}
+
+    if not events:
+        events = comm.events.list(iteration=iteration)
+        iteration_dict = {"event_misfits": {}}
+    else:
+        # Check to see whether iteration_toml previously existed
+        if os.path.isfile(toml_filename):
+            iteration_dict = toml.load(toml_filename)
+            other_events = iteration_dict["event_misfits"].keys() - events
+            for event in other_events:
+                total_misfit += iteration_dict["event_misfits"][event]
+        else:
+            iteration_dict = {"event_misfits": {}}
+
     for event in events:
         event_misfit = \
             comm.adj_sources.get_misfit_for_event(event,
@@ -686,19 +739,15 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
     iteration_dict["weight_set_name"] = weight_set
     iteration_dict["window_set_name"] = window_set
 
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-
-    path = comm.project.paths["iterations"]
-    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
-
     with open(toml_filename, "w") as fh:
         toml.dump(iteration_dict, fh)
 
 
-def list_iterations(lasif_root):
+def list_iterations(lasif_root, output=False):
     """
     List iterations in project
     :param lasif_root: path to lasif root directory
+    :param output: If the function should return the list
     """
 
     comm = find_project_comm(lasif_root)
@@ -707,6 +756,8 @@ def list_iterations(lasif_root):
     if len(iterations) == 0:
         print("There are no iterations in this project")
     else:
+        if output:
+            return iterations
         if len(iterations) == 1:
             print(f"There is {len(iterations)} iteration in this project")
             print("Iteration known to LASIF: \n")
@@ -748,9 +799,9 @@ def compare_misfits(lasif_root, from_it, to_it, events=[], weight_set=None,
                                      f"to LASIF")
     # Check if iterations exist
     if not comm.iterations.has_iteration(from_it):
-            raise LASIFNotFoundError(f"Iteration {from_it} not known to LASIF")
+        raise LASIFNotFoundError(f"Iteration {from_it} not known to LASIF")
     if not comm.iterations.has_iteration(to_it):
-            raise LASIFNotFoundError(f"Iteration {to_it} not known to LASIF")
+        raise LASIFNotFoundError(f"Iteration {to_it} not known to LASIF")
 
     from_it_misfit = 0.0
     to_it_misfit = 0.0
@@ -777,8 +828,9 @@ def compare_misfits(lasif_root, from_it, to_it, events=[], weight_set=None,
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
-            rel_change = ((to_it_misfit_event - from_it_misfit_event) /
-                          from_it_misfit_event * 100.0)
+            rel_change = (
+                (to_it_misfit_event - from_it_misfit_event)
+                / from_it_misfit_event * 100.0)
             print(f"Relative change: {rel_change:.2f}%")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
@@ -822,21 +874,21 @@ def process_data(lasif_root, events=[], iteration=None):
         events = comm.events.list(iteration=iteration)
 
     exceptions = []
-    if MPI.COMM_WORLD.rank == 0:
-        # Check if the event ids are valid.
-        if not exceptions and events:
-            for event_name in events:
-                if not comm.events.has_event(event_name):
-                    msg = "Event '%s' not found." % event_name
-                    exceptions.append(msg)
-                    break
+    # if MPI.COMM_WORLD.rank == 0:
+    # Check if the event ids are valid.
+    if not exceptions and events:
+        for event_name in events:
+            if not comm.events.has_event(event_name):
+                msg = "Event '%s' not found." % event_name
+                exceptions.append(msg)
+                break
 
-    exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
+    # exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise Exception(exceptions[0])
 
     # Make sure all the ranks enter the processing at the same time.
-    MPI.COMM_WORLD.barrier()
+    # MPI.COMM_WORLD.barrier()
     comm.waveforms.process_data(events)
 
 
@@ -928,6 +980,107 @@ def write_stations_to_file(lasif_root):
         comm.project.paths["output"], "station_list.csv")
     stations.to_csv(path_or_buf=output_path, index=False)
     print(f"Wrote a list of stations to file: {output_path}")
+
+
+def find_event_mesh(lasif_root, event: str):
+    """
+    See if there is a version of the event mesh which has been
+    constructed already but not moved to iteration folder.
+    If there is no mesh there it will return False and correct path.
+    Otherwise it returns true and the path.
+
+    :param lasif_root: Path to project root
+    :type lasif_root: str/communicator
+    :param event: Name of event
+    :type event: str
+    """
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    models = comm.project.paths["models"]
+    event_mesh = os.path.join(models, "EVENT_MESHES", event, "mesh.h5")
+    if os.path.exists(event_mesh):
+        return True, event_mesh
+    else:
+        return False, event_mesh
+
+
+def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
+    """
+    In the multi mesh approach, each event has a unique mesh.
+    This function returns the path of the correct mesh.
+
+    :param lasif_root: Path to project root
+    :type lasif_root: str/communicator
+    :param event: Name of event
+    :type event: str
+    :param iteration: Name of iteration
+    :type iteration: str
+    """
+    import os
+    import toml
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    models = comm.project.paths["models"]
+    it_name = comm.iterations.get_long_iteration_name(iteration)
+    iteration_path = os.path.join(comm.project.paths["iterations"], it_name)
+    assert iteration in list_iterations(
+        comm, output=True), f"Iteration {iteration} not in project"
+
+    events_in_iteration = toml.load(
+        os.path.join(iteration_path, "events_used.toml"))
+    assert event in events_in_iteration["events"][
+        "events_used"], f"Event {event} not in iteration: {iteration}"
+
+    return os.path.join(models, it_name, event, "mesh.h5")
+
+
+def get_receivers(lasif_root, event: str):
+    """Get a list of receiver dictionaries which are compatible with Salvus.
+    SalvusFlow can then use these dictionaries to place the receivers.
+
+    :param lasif_root: Path to project root
+    :type lasif_root: string/path
+    :param event: Name of event which we want to find the receivers for
+    :type event: str
+    """
+    from lasif.utils import place_receivers
+
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    assert comm.events.has_event(event), f"Event: {event} not in project"
+
+    return place_receivers(event, comm)
+
+
+def get_source(lasif_root, event: str, iteration: str):
+    """Provide source information to give to Salvus
+
+    :param lasif_root: Path to project root
+    :type lasif_root: string/path
+    :param event: Name of event which we want to find the source for
+    :type event: string
+    :param iteration: Name of iteration
+    :type iteration: string
+    """
+    from lasif.utils import prepare_source
+
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    assert comm.events.has_event(event), f"Event: {event} not in project"
+
+    return prepare_source(comm, event, iteration)
 
 
 def get_subset(lasif_root, events, count, existing_events=None):

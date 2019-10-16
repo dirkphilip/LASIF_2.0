@@ -300,8 +300,8 @@ class WindowGroupManager(object):
                                     NULL, ?, ?, ?, ?
                                 )
                             """, (
-                            "{}".format(trace_id), start_time, end_time,
-                            weight))
+                                "{}".format(trace_id), start_time, end_time,
+                                weight))
 
     def write_windows_old(self, event_name, results):
         if not self.event_in_db(event_name):
@@ -317,9 +317,13 @@ class WindowGroupManager(object):
                     trace_id = self.get_trace_id(event_name=event_name,
                                                  channel_name=channel)
                     for window in windows:
+                        if window[2]:
+                            weight = 2.0
+                        else:
+                            weight = 1.0
                         self.add_window(trace_id=trace_id,
                                         start_time=window[0],
-                                        end_time=window[1], weight=1.0)
+                                        end_time=window[1], weight=weight)
 
     def get_all_windows_for_event(self, event_name):
         """
@@ -356,7 +360,7 @@ class WindowGroupManager(object):
             if channel_name not in results[station].keys():
                 results[station][channel_name] = []
 
-            start_end = (start_time, end_time)
+            start_end = (start_time, end_time, weight)
             results[station][channel_name].append(start_end)
         return results
 
@@ -385,7 +389,7 @@ class WindowGroupManager(object):
             if channel_name not in results.keys():
                 results[channel_name] = []
 
-            start_end = (start_time, end_time)
+            start_end = (start_time, end_time, weight)
             results[channel_name].append(start_end)
         return results
 

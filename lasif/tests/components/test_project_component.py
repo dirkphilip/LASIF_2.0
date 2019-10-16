@@ -15,7 +15,7 @@ from lasif.components.project import Project
 @pytest.fixture()
 def comm(tmpdir):
     proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject")
+        inspect.getfile(inspect.currentframe())))), "data", "example_project")
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -79,7 +79,7 @@ def test_string_representation(comm, capsys):
     print(comm.project)
     out = capsys.readouterr()[0]
     print(out)
-    assert "\"ExampleProject\"" in out
+    assert "\"example_project\"" in out
     assert "Toy Project used in the Test Suite" in out
     assert "2 events" in out
 

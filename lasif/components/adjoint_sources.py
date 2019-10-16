@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import copy
 import pyasdf
 import os
 import numpy as np
-from obspy.signal.invsim import cosine_taper
 from lasif.utils import process_two_files_without_parallel_output
 
-from lasif import LASIFAdjointSourceCalculationError, LASIFNotFoundError
+from lasif import LASIFNotFoundError
 from .component import Component
+from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 
 # Map the adjoint source type names to functions implementing them.
 # MISFIT_MAPPING = {
@@ -30,6 +29,7 @@ class AdjointSourcesComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def __init__(self, folder, communicator, component_name):
         self._folder = folder
         super(AdjointSourcesComponent, self).__init__(
@@ -37,21 +37,20 @@ class AdjointSourcesComponent(Component):
 
     def get_filename(self, event, iteration):
         """
-        Gets the filename for the adjoint source and windows file.
+        Gets the filename for the adjoint source.
 
         :param event: The event.
         :param iteration: The iteration.
         """
-        event = self.comm.events.get(event)
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
             iteration)
 
-        folder = os.path.join(self._folder, iteration_long_name)
+        folder = os.path.join(self._folder, iteration_long_name, event)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
         return os.path.join(
-            folder, "ADJ_SRC_" + event["event_name"] + ".h5")
+            folder, "adjoint_source_auxiliary.h5")
 
     def get_misfit_for_event(self, event, iteration, weight_set_name=None):
         """
@@ -120,14 +119,12 @@ class AdjointSourcesComponent(Component):
                     adj_src_counter += 1
         print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
 
-
     def calculate_adjoint_sources(self, event, iteration, window_set_name,
                                   plot=False, **kwargs):
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
         import pyasdf
-        import salvus_misfit
 
         event = self.comm.events.get(event)
 
@@ -220,7 +217,7 @@ class AdjointSourcesComponent(Component):
                 windows = all_windows[station][data_tr.id]
                 try:
                     # for window in windows:
-                    asrc = salvus_misfit.calculate_adjoint_source(
+                    asrc = calculate_adjoint_source(
                         observed=data_tr, synthetic=synth_tr,
                         window=windows,
                         min_period=process_params["highpass_period"],
@@ -257,7 +254,7 @@ class AdjointSourcesComponent(Component):
         results = process_two_files_without_parallel_output(ds, ds_synth,
                                                             process)
         # Write files on all ranks.
-        filename = self.comm.adj_sources.get_filename(
+        filename = self.get_filename(
             event=event["event_name"], iteration=iteration)
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
@@ -291,54 +288,39 @@ class AdjointSourcesComponent(Component):
             print(f"{length} Adjoint sources are in your file.")
 
     def finalize_adjoint_sources(self, iteration_name, event_name,
-                              weight_set_name=None):
+                                 weight_set_name=None):
         """
         Finalizes the adjoint sources.
         """
         import pyasdf
-        import toml
         import h5py
-        import shutil
 
         # This will do stuff for each event and a single iteration
-
         # Step one, read adj_src file that should have been created already
-        event = self.comm.events.get(event_name)
+        print(iteration_name)
+        print(event_name)
+        print(weight_set_name)
         iteration = self.comm.iterations.\
             get_long_iteration_name(iteration_name)
 
-        adj_src_file = self.comm.adj_sources.\
-            get_filename(event, iteration)
+        adj_src_file = self.\
+            get_filename(event_name, iteration)
 
-        ds = pyasdf.ASDFDataSet(adj_src_file)
+        ds = pyasdf.ASDFDataSet(adj_src_file, mpi=False)
         adj_srcs = ds.auxiliary_data["AdjointSources"]
 
-        # Load receiver toml file
-        long_iter_name = self.comm.iterations.get_long_iteration_name(
-            iteration_name)
-        input_files_dir = self.comm.project.paths['salvus_input']
-        receiver_dir = os.path.join(input_files_dir, long_iter_name,
-                                    event_name, "forward")
-        with open(os.path.join(receiver_dir, "run_salvus.sh"), "r") as fh:
-            cmd_string = fh.read()
-        l = cmd_string.split(" ")
-        receivers_file = l[l.index("--receiver-toml") + 1]
-        
-        output_dir = os.path.join(input_files_dir, long_iter_name,
-                                  event_name, "adjoint")
+        input_files_dir = self.comm.project.paths['adjoint_sources']
 
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
+        receivers = self.comm.query.get_all_stations_for_event(event_name)
 
-        receivers = toml.load(
-            os.path.join(receivers_file))["receiver"]
+        output_dir = os.path.join(input_files_dir, iteration,
+                                  event_name)
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
 
         adjoint_source_file_name = os.path.join(
-            output_dir, "adjoint_source.h5")
-        toml_file_name = os.path.join(output_dir, "adjoint.toml")
+            output_dir, "stf.h5")
 
-        toml_string = f"source_input_file = \"{adjoint_source_file_name}\"\n\n"
         f = h5py.File(adjoint_source_file_name, 'w')
 
         event_weight = 1.0
@@ -351,103 +333,52 @@ class AdjointSourcesComponent(Component):
             station_name = adj_src.auxiliary_data_type.split("/")[1]
             channels = adj_src.list()
 
-            e_comp = np.zeros_like(adj_src[channels[0]].data.value)
-            n_comp = np.zeros_like(adj_src[channels[0]].data.value)
-            z_comp = np.zeros_like(adj_src[channels[0]].data.value)
+            e_comp = np.zeros_like(adj_src[channels[0]].data[()])
+            n_comp = np.zeros_like(adj_src[channels[0]].data[()])
+            z_comp = np.zeros_like(adj_src[channels[0]].data[()])
 
             for channel in channels:
                 # check channel and set component
                 if channel[-1] == "E":
-                    e_comp = adj_src[channel].data.value
+                    e_comp = adj_src[channel].data[()]
                 elif channel[-1] == "N":
-                    n_comp = adj_src[channel].data.value
+                    n_comp = adj_src[channel].data[()]
                 elif channel[-1] == "Z":
-                    z_comp = adj_src[channel].data.value
+                    z_comp = adj_src[channel].data[()]
                 zne = np.array((z_comp, n_comp, e_comp))
-            for receiver in receivers:
-
-                station = receiver["network"] + "_" + receiver["station"]
+            for receiver in receivers.keys():
+                station = receiver.replace(".", "_")
+                # station = receiver["network"] + "_" + receiver["station"]
 
                 if station == station_name:
-                    print(f"writing adjoint source for station: {station}")
-                    transform_mat = np.array(receiver["transform_matrix"])
-                    xyz = np.dot(transform_mat.T, zne).T
+                    # transform_mat = np.array(receiver["transform_matrix"])
+                    # xyz = np.dot(transform_mat.T, zne).T
 
-                    net_dot_sta = \
-                        receiver["network"] + "." + receiver["station"]
+                    # net_dot_sta = \
+                    #    receiver["network"] + "." + receiver["station"]
                     if weight_set_name:
                         weight = \
-                            station_weights[net_dot_sta]["station_weight"] * \
+                            station_weights[receiver]["station_weight"] * \
                             event_weight
-                        xyz *= weight
+                        zne *= weight
 
-                    source = f.create_dataset(station, data=xyz)
+                    source = f.create_dataset(station, data=zne.T)
                     source.attrs["dt"] = self.comm.project. \
                         solver_settings["time_increment"]
-                    source.attrs['location'] = np.array(
-                        receiver["salvus_coordinates"])
+                    source.attrs["sampling_rate_in_hertz"] = 1 / \
+                        source.attrs["dt"]
+                    # source.attrs['location'] = np.array(
+                    #    [receivers[receiver]["s"]])
                     source.attrs['spatial-type'] = np.string_("vector")
                     # Start time in nanoseconds
-                    source.attrs['starttime'] = self.comm.project. \
-                        solver_settings["start_time"] * 1.0e9
+                    source.attrs['start_time_in_seconds'] = self.comm.\
+                        project.solver_settings["start_time"]
 
-                    toml_string += f"[[source]]\n" \
-                                   f"name = \"{station}\"\n" \
-                                   f"dataset_name = \"/{station}\"\n\n"
+                    # toml_string += f"[[source]]\n" \
+                    #               f"name = \"{station}\"\n" \
+                    #               f"dataset_name = \"/{station}\"\n\n"
 
         f.close()
-        with open(toml_file_name, "w") as fh:
-            fh.write(toml_string)
-
-        if self.comm.project.config["mesh_file"] == "multiple":
-            mesh_file = os.path.join(self.comm.project.paths["models"],
-                                     "EVENT_SPECIFIC", event_name, "mesh.e")
-        else:
-            mesh_file = self.comm.project.config["mesh_file"]
-        solver_settings = self.comm.project.solver_settings
-        start_time = solver_settings["start_time"]
-        end_time = solver_settings["end_time"]
-        time_step = solver_settings["time_increment"]
-        num_absorbing_layers = solver_settings["number_of_absorbing_layers"]
-        polynomial_order = solver_settings["polynomial_order"]
-
-        possible_boundaries = set(("r0", "t0", "t1", "p0", "p1",
-                                   "inner_boundary"))
-        absorbing_boundaries = \
-            possible_boundaries.intersection(
-                set(self.comm.project.domain.get_side_set_names()))
-        if absorbing_boundaries:
-            absorbing_boundaries = ",".join(sorted(absorbing_boundaries))
-            print("Automatically determined the following absorbing "
-                  "boundary side sets: %s" % absorbing_boundaries)
-
-        salvus_command = \
-            f"mpirun -n 4 --dimension 3 --mesh-file {mesh_file} " \
-            f"--model-file {mesh_file} --start-time {start_time} " \
-            f"--time-step {time_step} " \
-            f"--end-time {end_time} --polynomial-order {polynomial_order} " \
-            f"--adjoint --kernel-file kernel_{event_name}.e " \
-            f"--load-fields adjoint " \
-            f"--load-wavefield-file wavefield.h5 " \
-            f"--io-memory-per-rank-in-MB 5000 " \
-            f"--absorbing-boundaries {absorbing_boundaries} " \
-            f"--source-toml {toml_file_name} " \
-            f"--io-file-format bin"
-
-        if self.comm.project.solver_settings["with_anisotropy"]:
-            salvus_command += " --with-anisotropy --kernel-fields TTI"
-        else:
-            salvus_command += " --kernel-fields VP,VS,RHO"
-
-        if num_absorbing_layers > 0:
-            salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
-
-        if self.comm.project.solver_settings["with_attenuation"]:
-            salvus_command += f" --with-attenuation"
-
-        salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
-        with open(salvus_command_file, "w") as fh:
-            fh.write(salvus_command)
 
     @staticmethod
     def _validate_return_value(adsrc):

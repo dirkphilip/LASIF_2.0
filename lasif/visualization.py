@@ -143,7 +143,7 @@ def plot_raydensity(map_object, station_events, domain):
     for process in processes:
         process.join()
 
-    pbar.finish()
+    # pbar.finish()
 
     stations = chain.from_iterable((
         _i[1].values() for _i in station_events if _i[1]))

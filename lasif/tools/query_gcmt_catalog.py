@@ -7,6 +7,7 @@
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from lasif.utils import get_event_filename
 import glob
 import inspect
 import numpy as np
@@ -23,14 +24,13 @@ from lasif import LASIFNotFoundError, LASIFError
 
 EARTH_RADIUS = 6371.00
 
-from lasif.utils import get_event_filename
-
 
 class SphericalNearestNeighbour(object):
     """
     Spherical nearest neighbour queries using scipy's fast
     kd-tree implementation.
     """
+
     def __init__(self, data):
         cart_data = self.spherical2cartesian(data)
         self.data = data
@@ -119,7 +119,8 @@ def update_GCMT_catalog():
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
               "oct", "nov", "dec"]
 
-    web_address = "https://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY"
+    web_address = "https://www.ldeo.columbia.edu/"
+    web_address += "~gcmt/projects/CMT/catalog/NEW_MONTHLY"
     os.chdir(data_dir)
     for year in years:
         year_str = str(year)
@@ -222,7 +223,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
 
         if distance < threshold_distance_in_km:
             print("\tNo events left with distance to the next closest event "
-                  "of more then %.1f km. Stopping here." %
+                  "of more than %.1f km. Stopping here." %
                   threshold_distance_in_km)
             break
 

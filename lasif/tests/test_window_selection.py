@@ -14,7 +14,7 @@ import obspy
 import os
 
 from lasif.window_selection import select_windows
-from lasif.tests.testing_helpers import communicator, cli # NOQA
+from lasif.tests.testing_helpers import communicator, cli  # NOQA
 
 # Data path.
 DATA = os.path.join(os.path.dirname(os.path.abspath(
@@ -78,6 +78,10 @@ def test_select_windows(cli):
         max_energy_ratio=max_energy_ratio)
 
     expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000))]
+                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000),
+                         1.0),
+                        (obspy.UTCDateTime(2000, 8, 21, 17, 20, 21, 200000),
+                         obspy.UTCDateTime(2000, 8, 21, 17, 21, 44, 900000),
+                         1.0)]
 
     assert windows == expected_windows

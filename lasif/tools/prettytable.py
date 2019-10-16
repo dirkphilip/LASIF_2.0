@@ -128,7 +128,8 @@ class PrettyTable(object):
         self._options = ("start end fields header border sortby reversesort "
                          "sort_key attributes format hrules vrules").split()
         self._options.extend(("int_format float_format padding_width "
-                             "left_padding_width right_padding_width").split())
+                              "left_padding_width right_padding_width").
+                             split())
         self._options.extend(("vertical_char horizontal_char junction_char "
                               "header_style valign xhtml print_empty "
                               "oldsortslice").split())
@@ -440,6 +441,7 @@ class PrettyTable(object):
 
         fields - list or tuple of field names
         """
+
     def _set_field_names(self, val):
         val = [self._unicode(x) for x in val]
         self._validate_option("field_names", val)
@@ -1049,7 +1051,8 @@ class PrettyTable(object):
                 fieldname = self.field_names[index]
                 if fieldname in self.max_width:
                     widths[index] = max(widths[index], min(_get_size(value)[0],
-                                        self.max_width[fieldname]))
+                                                           self.max_width
+                                                           [fieldname]))
                 else:
                     widths[index] = max(widths[index], _get_size(value)[0])
         self._widths = widths
@@ -1186,8 +1189,8 @@ class PrettyTable(object):
             bits = [options["horizontal_char"]]
         # For tables with no data or fieldnames
         if not self._field_names:
-                bits.append(options["junction_char"])
-                return "".join(bits)
+            bits.append(options["junction_char"])
+            return "".join(bits)
         for field, width in zip(self._field_names, self._widths):
             if options["fields"] and field not in options["fields"]:
                 continue

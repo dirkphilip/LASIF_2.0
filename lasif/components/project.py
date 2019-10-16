@@ -42,8 +42,9 @@ class Project(Component):
 
     It represents the heart of LASIF.
     """
+
     def __init__(self, project_root_path: pathlib.Path,
-                 init_project: bool=False):
+                 init_project: bool = False):
         """
         Upon intialization, set the paths and read the config file.
 
