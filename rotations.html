@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="lasif.window_selection" href="window_selection.html" />
     <link rel="prev" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -170,7 +173,7 @@
 <p>A collection of functions to rotate vectors, seismograms and moment tensors on
 a spherical body, e.g. the Earth.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p><strong>On the used coordinate system</strong></p>
 <p>Latitude and longitude are natural geographical coordinates used on Earth.</p>
 <p>The coordinate system is right handed with the origin at the center of the
@@ -186,23 +189,21 @@ the generally used spherical coordinates.</p>
 coordinate system and all rotation angles have to given as degree. A
 positive rotation will rotate clockwise when looking in the direction of
 the rotation axis.</p>
-<p class="last">For convenience reasons, most function in this module work with coordinates
+<p>For convenience reasons, most function in this module work with coordinates
 given in latitude and longitude.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2012-2013</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
-(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2012-2013</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="lasif.rotations.colat2lat">
-<code class="descclassname">lasif.rotations.</code><code class="descname">colat2lat</code><span class="sig-paren">(</span><em>colat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#colat2lat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.colat2lat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.rotations.</code><code class="sig-name descname">colat2lat</code><span class="sig-paren">(</span><em class="sig-param">colat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#colat2lat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.colat2lat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert colatitude to latitude. This, surprisingly, is
 quite an error source.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">colat2lat</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span>
@@ -217,32 +218,25 @@ quite an error source.</p>
 <span class="go">90.0</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colat</strong> – The colatitude.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>colat</strong> – The colatitude.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.get_center_angle">
-<code class="descclassname">lasif.rotations.</code><code class="descname">get_center_angle</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_center_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_center_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.rotations.</code><code class="sig-name descname">get_center_angle</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_center_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_center_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angle of both angles on a sphere.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>a</strong> – Angle A in degrees.</li>
-<li><strong>b</strong> – Angle B in degrees.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – Angle A in degrees.</p></li>
+<li><p><strong>b</strong> – Angle B in degrees.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>The examples use round() to guard against floating point inaccuracies.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">get_center_angle</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
 <span class="go">0.0</span>
@@ -266,7 +260,7 @@ quite an error source.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.lat2colat">
-<code class="descclassname">lasif.rotations.</code><code class="descname">lat2colat</code><span class="sig-paren">(</span><em>lat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat2colat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat2colat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.rotations.</code><code class="sig-name descname">lat2colat</code><span class="sig-paren">(</span><em class="sig-param">lat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat2colat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat2colat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert latitude to colatitude. This, surprisingly, is
 quite an error source.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lat2colat</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">)</span>
@@ -281,38 +275,31 @@ quite an error source.</p>
 <span class="go">0.0</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lat</strong> – The latitude.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lat</strong> – The latitude.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.lat_lon_radius_to_xyz">
-<code class="descclassname">lasif.rotations.</code><code class="descname">lat_lon_radius_to_xyz</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat_lon_radius_to_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat_lon_radius_to_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.rotations.</code><code class="sig-name descname">lat_lon_radius_to_xyz</code><span class="sig-paren">(</span><em class="sig-param">lat</em>, <em class="sig-param">lon</em>, <em class="sig-param">r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat_lon_radius_to_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat_lon_radius_to_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts latitude, longitude and radius to x, y, and z.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> – The latitude.</li>
-<li><strong>lon</strong> – The longitude.</li>
-<li><strong>r</strong> – The radius.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat</strong> – The latitude.</p></li>
+<li><p><strong>lon</strong> – The longitude.</p></li>
+<li><p><strong>r</strong> – The radius.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.xyz_to_lat_lon_radius">
-<code class="descclassname">lasif.rotations.</code><code class="descname">xyz_to_lat_lon_radius</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#xyz_to_lat_lon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.xyz_to_lat_lon_radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.rotations.</code><code class="sig-name descname">xyz_to_lat_lon_radius</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#xyz_to_lat_lon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.xyz_to_lat_lon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts x, y, and z to latitude, longitude and radius.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 <span class="go">(-0.0, 0.0, 1.0)</span>
@@ -345,7 +332,7 @@ quite an error source.</p>
         <a href="window_selection.html" class="btn btn-neutral float-right" title="lasif.window_selection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iris2quakeml.html" class="btn btn-neutral float-left" title="lasif.scripts.iris2quakeml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -354,7 +341,7 @@ quite an error source.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
@@ -371,33 +358,16 @@ quite an error source.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.x',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

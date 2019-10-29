@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="lasif.tools" href="tools.html" />
     <link rel="prev" title="lasif.rotations" href="rotations.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -174,35 +177,29 @@ calculating phase misfits between two seismic waveforms.</p>
 multi-stage process. Initially all time steps are considered to be valid in
 the sense as being suitable for window selection. Then a number of selectors
 is applied, progressively excluding more and more time steps.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</td>
-</tr>
-<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
-(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
 <dl class="function">
 <dt id="lasif.window_selection.find_closest">
-<code class="descclassname">lasif.window_selection.</code><code class="descname">find_closest</code><span class="sig-paren">(</span><em>ref_array</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#find_closest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.find_closest" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.window_selection.</code><code class="sig-name descname">find_closest</code><span class="sig-paren">(</span><em class="sig-param">ref_array</em>, <em class="sig-param">target</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#find_closest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.find_closest" title="Permalink to this definition">¶</a></dt>
 <dd><p>For every value in target, find the index of ref_array to which
 the value is closest.</p>
 <p>from <a class="reference external" href="http://stackoverflow.com/a/8929827/1657047">http://stackoverflow.com/a/8929827/1657047</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ref_array</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – The reference array. Must be sorted!</li>
-<li><strong>target</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – The target array.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_array</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.17)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – The reference array. Must be sorted!</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.17)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>) – The target array.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">20.</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
@@ -213,7 +210,7 @@ the value is closest.</p>
 
 <dl class="function">
 <dt id="lasif.window_selection.find_local_extrema">
-<code class="descclassname">lasif.window_selection.</code><code class="descname">find_local_extrema</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#find_local_extrema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.find_local_extrema" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.window_selection.</code><code class="sig-name descname">find_local_extrema</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#find_local_extrema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.find_local_extrema" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function finding local extrema. It can also deal with flat extrema,
 e.g. a flat top or bottom. In that case the first index of all flat
 values will be returned.</p>
@@ -222,64 +219,60 @@ values will be returned.</p>
 
 <dl class="function">
 <dt id="lasif.window_selection.flatnotmasked_contiguous">
-<code class="descclassname">lasif.window_selection.</code><code class="descname">flatnotmasked_contiguous</code><span class="sig-paren">(</span><em>time_windows</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#flatnotmasked_contiguous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.flatnotmasked_contiguous" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.window_selection.</code><code class="sig-name descname">flatnotmasked_contiguous</code><span class="sig-paren">(</span><em class="sig-param">time_windows</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#flatnotmasked_contiguous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.flatnotmasked_contiguous" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function enabling to loop over empty time windows.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.window_selection.select_windows">
-<code class="descclassname">lasif.window_selection.</code><code class="descname">select_windows</code><span class="sig-paren">(</span><em>data_trace</em>, <em>synthetic_trace</em>, <em>stf_trace</em>, <em>event_latitude</em>, <em>event_longitude</em>, <em>event_depth_in_km</em>, <em>station_latitude</em>, <em>station_longitude</em>, <em>minimum_period</em>, <em>maximum_period</em>, <em>min_cc=0.1</em>, <em>max_noise=0.1</em>, <em>max_noise_window=0.4</em>, <em>min_velocity=2.4</em>, <em>threshold_shift=0.3</em>, <em>threshold_correlation=0.75</em>, <em>min_length_period=1.5</em>, <em>min_peaks_troughs=2</em>, <em>max_energy_ratio=10.0</em>, <em>min_envelope_similarity=0.2</em>, <em>verbose=True</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#select_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.select_windows" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">lasif.window_selection.</code><code class="sig-name descname">select_windows</code><span class="sig-paren">(</span><em class="sig-param">data_trace</em>, <em class="sig-param">synthetic_trace</em>, <em class="sig-param">stf_trace</em>, <em class="sig-param">event_latitude</em>, <em class="sig-param">event_longitude</em>, <em class="sig-param">event_depth_in_km</em>, <em class="sig-param">station_latitude</em>, <em class="sig-param">station_longitude</em>, <em class="sig-param">minimum_period</em>, <em class="sig-param">maximum_period</em>, <em class="sig-param">min_cc=0.1</em>, <em class="sig-param">max_noise=0.1</em>, <em class="sig-param">max_noise_window=0.4</em>, <em class="sig-param">min_velocity=2.4</em>, <em class="sig-param">threshold_shift=0.3</em>, <em class="sig-param">threshold_correlation=0.75</em>, <em class="sig-param">min_length_period=1.5</em>, <em class="sig-param">min_peaks_troughs=2</em>, <em class="sig-param">max_energy_ratio=10.0</em>, <em class="sig-param">min_envelope_similarity=0.2</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/window_selection.html#select_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.select_windows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Window selection algorithm for picking windows suitable for misfit
 calculation based on phase differences.</p>
 <p>Returns a list of windows which might be empty due to various reasons.</p>
 <p>This function is really long and a lot of things. For a more detailed
 description, please see the LASIF paper.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The data trace.</li>
-<li><strong>synthetic_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The synthetic trace.</li>
-<li><strong>stf_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.0) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The stf trace.</li>
-<li><strong>event_latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The event latitude.</li>
-<li><strong>event_longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The event longitude.</li>
-<li><strong>event_depth_in_km</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The event depth in km.</li>
-<li><strong>station_latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The station latitude.</li>
-<li><strong>station_longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The station longitude.</li>
-<li><strong>minimum_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The minimum period of the data in seconds.</li>
-<li><strong>maximum_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The maximum period of the data in seconds.</li>
-<li><strong>min_cc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Minimum normalised correlation coefficient of the
-complete traces.</li>
-<li><strong>max_noise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Maximum relative noise level for the whole trace.
-Measured from maximum amplitudes before and after the first arrival.</li>
-<li><strong>max_noise_window</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Maximum relative noise level for individual
-windows.</li>
-<li><strong>min_velocity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – All arrivals later than those corresponding to the
-threshold velocity [km/s] will be excluded.</li>
-<li><strong>threshold_shift</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Maximum allowable time shift within a window,
-as a fraction of the minimum period.</li>
-<li><strong>threshold_correlation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Minimum normalised correlation coeeficient
-within a window.</li>
-<li><strong>min_length_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Minimum length of the time windows relative to
-the minimum period.</li>
-<li><strong>min_peaks_troughs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Minimum number of extrema in an individual
-time window (excluding the edges).</li>
-<li><strong>max_energy_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Maximum energy ratio between data and
-synthetics within a time window. Don’t make this too small!</li>
-<li><strong>min_envelope_similarity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The minimum similarity of the envelopes of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.1) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The data trace.</p></li>
+<li><p><strong>synthetic_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.1) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The synthetic trace.</p></li>
+<li><p><strong>stf_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.1.1) v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a>) – The stf trace.</p></li>
+<li><p><strong>event_latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The event latitude.</p></li>
+<li><p><strong>event_longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The event longitude.</p></li>
+<li><p><strong>event_depth_in_km</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The event depth in km.</p></li>
+<li><p><strong>station_latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The station latitude.</p></li>
+<li><p><strong>station_longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The station longitude.</p></li>
+<li><p><strong>minimum_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The minimum period of the data in seconds.</p></li>
+<li><p><strong>maximum_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The maximum period of the data in seconds.</p></li>
+<li><p><strong>min_cc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum normalised correlation coefficient of the
+complete traces.</p></li>
+<li><p><strong>max_noise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Maximum relative noise level for the whole trace.
+Measured from maximum amplitudes before and after the first arrival.</p></li>
+<li><p><strong>max_noise_window</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Maximum relative noise level for individual
+windows.</p></li>
+<li><p><strong>min_velocity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – All arrivals later than those corresponding to the
+threshold velocity [km/s] will be excluded.</p></li>
+<li><p><strong>threshold_shift</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Maximum allowable time shift within a window,
+as a fraction of the minimum period.</p></li>
+<li><p><strong>threshold_correlation</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum normalised correlation coeeficient
+within a window.</p></li>
+<li><p><strong>min_length_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum length of the time windows relative to
+the minimum period.</p></li>
+<li><p><strong>min_peaks_troughs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum number of extrema in an individual
+time window (excluding the edges).</p></li>
+<li><p><strong>max_energy_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Maximum energy ratio between data and
+synthetics within a time window. Don’t make this too small!</p></li>
+<li><p><strong>min_envelope_similarity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The minimum similarity of the envelopes of
 both data and synthetics. This essentially assures that the
 amplitudes of data and synthetics can not diverge too much within a
 window. It is a bit like the inverse of the ratio of both envelopes
 so a value of 0.2 makes sure neither amplitude can be more then 5
-times larger than the other.</li>
-<li><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – No output by default.</li>
-<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Create a plot of the algortihm while it does its work.</li>
+times larger than the other.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – No output by default.</p></li>
+<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Create a plot of the algortihm while it does its work.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -295,7 +288,7 @@ times larger than the other.</li>
         <a href="tools.html" class="btn btn-neutral float-right" title="lasif.tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="rotations.html" class="btn btn-neutral" title="lasif.rotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="rotations.html" class="btn btn-neutral float-left" title="lasif.rotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -304,7 +297,7 @@ times larger than the other.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
@@ -321,33 +314,16 @@ times larger than the other.</li>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.x',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

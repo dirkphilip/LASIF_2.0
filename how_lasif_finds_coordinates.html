@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="FAQ" href="faq.html" />
     <link rel="prev" title="lasif.tools.parallel" href="tools.parallel.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -167,9 +170,9 @@
             
   <div class="section" id="how-lasif-finds-coordinates">
 <h1>How LASIF Finds Coordinates<a class="headerlink" href="#how-lasif-finds-coordinates" title="Permalink to this headline">¶</a></h1>
-<dl class="docutils">
-<dt>** This part has changed in LASIF 2.0 and is not valid anymore.</dt>
-<dd>This description be updated later.**</dd>
+<dl class="simple">
+<dt>** This part has changed in LASIF 2.0 and is not valid anymore.</dt><dd><p>This description be updated later.**</p>
+</dd>
 </dl>
 <p>LASIF needs to know the physical coordinates of data recordings, derived
 processed data, and of all synthetics waveforms. Due to the large variety of
@@ -182,20 +185,20 @@ station to be equal within a certain tolerance. This is explained and justified
 in more detail further down the page.</p>
 <p>A single strategy is employed to find the coordinates of any data recording:</p>
 <ol class="arabic simple">
-<li>Use the network and station code of the waveform file and see if any SEED or
+<li><p>Use the network and station code of the waveform file and see if any SEED or
 StationXML file has coordinates for this station. If coordinates are found,
 use them - if not keep searching. Notably RESP files do not contain
-coordinates and this step will not work for them.</li>
-<li>Attempt to extract the coordinates from the actual waveform file. This only
+coordinates and this step will not work for them.</p></li>
+<li><p>Attempt to extract the coordinates from the actual waveform file. This only
 works for SAC files. If the file in question is a processed or synthetic
 data file, the original raw data recording will be located and used. If
-coordinates are found that way, they will be returned.</li>
-<li>If all else fails, a webrequest will be dispatched to ArcLink and IRIS in an
+coordinates are found that way, they will be returned.</p></li>
+<li><p>If all else fails, a webrequest will be dispatched to ArcLink and IRIS in an
 attempt to get the coordinates or the user will have to manually enter the
 coordinates. There is currently no pretty interface to manually enter the
-coordinates so please contact the developers if that is something you need.</li>
-<li>A warning will be raised if all these steps failed and the user is expected
-to either remove the data in question or manually enter the coordinates.</li>
+coordinates so please contact the developers if that is something you need.</p></li>
+<li><p>A warning will be raised if all these steps failed and the user is expected
+to either remove the data in question or manually enter the coordinates.</p></li>
 </ol>
 <p>The following image illustrates the procedure:</p>
 <a class="reference internal image-reference" href="_images/how_lasif_finds_coordinates.png"><img alt="_images/how_lasif_finds_coordinates.png" src="_images/how_lasif_finds_coordinates.png" style="width: 100%;" /></a>
@@ -228,7 +231,7 @@ removed.</p>
         <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tools.parallel.html" class="btn btn-neutral" title="lasif.tools.parallel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tools.parallel.html" class="btn btn-neutral float-left" title="lasif.tools.parallel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -237,7 +240,7 @@ removed.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
@@ -254,33 +257,16 @@ removed.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1.x',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

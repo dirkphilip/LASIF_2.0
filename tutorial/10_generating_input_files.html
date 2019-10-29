@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="12. Synthetics" href="11_synthetic_waveforms.html" />
     <link rel="prev" title="10. Earth Model Handling" href="09_model_handling.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -194,22 +197,22 @@ the <em>SALVUS_INPUT_FILES/ITERATION_{iteration_name}</em> folder.</p>
 <p><code class="docutils literal notranslate"><span class="pre">SIMULATION_TYPE</span></code> has to be one of</p>
 <blockquote>
 <div><ul class="simple">
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">forward</span></code> - Run a forward simulation and store a wavefield.</dt>
-<dd>If you do not want to store a wavefield you can use the <code class="docutils literal notranslate"><span class="pre">step_length</span></code>
-option. Storing the wavefield generally requires a large diskspace.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">forward</span></code> - Run a forward simulation and store a wavefield.</dt><dd><p>If you do not want to store a wavefield you can use the <code class="docutils literal notranslate"><span class="pre">step_length</span></code>
+option. Storing the wavefield generally requires a large diskspace.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">adjoint</span></code> - Run the adjoint simulation to calculate gradients (sensitivity kernels).</dt>
-<dd>for your event/station pairs. This requires
-the adjoint sources to be calculated. More on that later on.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">adjoint</span></code> - Run the adjoint simulation to calculate gradients (sensitivity kernels).</dt><dd><p>for your event/station pairs. This requires
+the adjoint sources to be calculated. More on that later on.</p>
+</dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">step_length</span></code> - Optimize change in velocity model.</dt>
-<dd>This simulation is run to optimize how much your model
-parameters are changed with respect to the gradients.</dd>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">step_length</span></code> - Optimize change in velocity model.</dt><dd><p>This simulation is run to optimize how much your model
+parameters are changed with respect to the gradients.</p>
+</dd>
 </dl>
 </li>
 </ul>
@@ -329,7 +332,7 @@ time series and a time frequency representation of the source time function.</p>
         <a href="11_synthetic_waveforms.html" class="btn btn-neutral float-right" title="12. Synthetics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="09_model_handling.html" class="btn btn-neutral" title="10. Earth Model Handling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="09_model_handling.html" class="btn btn-neutral float-left" title="10. Earth Model Handling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -338,7 +341,7 @@ time series and a time frequency representation of the source time function.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
@@ -355,33 +358,16 @@ time series and a time frequency representation of the source time function.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'0.1.x',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -17,34 +17,37 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="7. Data Validation" href="06_data_validation.html" />
     <link rel="prev" title="5. Download Helpers" href="04_download_helpers.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -183,19 +186,19 @@ from the <strong>LASIF</strong> folder. You can also download data automatically
 events and use that data to continue the tutorial. This is how you could copy
 the data from the <strong>LASIF</strong> folder if you are positioned in the projects root
 folder:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp <span class="o">{</span>lasif_code_folder<span class="o">}</span>/lasif/tests/data/ExampleProject/DATA/EARTHQUAKES/* ./DATA/EARTHQUAKES/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ cp <span class="o">{</span>lasif_code_folder<span class="o">}</span>/lasif/tests/data/example_project/DATA/EARTHQUAKES/* ./DATA/EARTHQUAKES/
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
+<p class="admonition-title">Note</p>
 <p><strong>LASIF</strong> essentially needs three ingredients to be able to interpret waveform
 data:</p>
 <ul class="simple">
-<li>The actual waveforms</li>
-<li>The location of the recording seismometer</li>
-<li>The instrument response for each channel at the time of data recording</li>
+<li><p>The actual waveforms</p></li>
+<li><p>The location of the recording seismometer</p></li>
+<li><p>The instrument response for each channel at the time of data recording</p></li>
 </ul>
-<p class="last">This information needs to be existing in the ASDF file for each event.
+<p>This information needs to be existing in the ASDF file for each event.
 We will make a tutorial showing the way the data needs to be structured
 later.</p>
 </div>
@@ -227,8 +230,8 @@ Station and waveform information available at <span class="m">3</span> stations:
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The local depth is allowed to not be set. In that case it will be
+<p class="admonition-title">Note</p>
+<p>The local depth is allowed to not be set. In that case it will be
 assumed to be zero. For all practical purposes the local depth does not
 matter for continental scale inversions.</p>
 </div>
@@ -282,7 +285,7 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
         <a href="06_data_validation.html" class="btn btn-neutral float-right" title="7. Data Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="04_download_helpers.html" class="btn btn-neutral" title="5. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="04_download_helpers.html" class="btn btn-neutral float-left" title="5. Download Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -291,7 +294,7 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
@@ -308,33 +311,16 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'0.1.x',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
