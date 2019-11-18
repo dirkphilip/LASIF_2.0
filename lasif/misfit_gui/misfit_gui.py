@@ -35,16 +35,19 @@ def compile_and_import_ui_files():
     modifies the globals to be able to automatically import the created py-ui
     files. Its just very convenient.
     """
-    directory = os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))
-    for filename in iglob(os.path.join(directory, '*.ui')):
+    directory = os.path.dirname(
+        os.path.abspath(inspect.getfile(inspect.currentframe()))
+    )
+    for filename in iglob(os.path.join(directory, "*.ui")):
         ui_file = filename
-        py_ui_file = os.path.splitext(ui_file)[0] + os.path.extsep + 'py'
-        if not os.path.exists(py_ui_file) or \
-                (os.path.getmtime(ui_file) >= os.path.getmtime(py_ui_file)):
+        py_ui_file = os.path.splitext(ui_file)[0] + os.path.extsep + "py"
+        if not os.path.exists(py_ui_file) or (
+            os.path.getmtime(ui_file) >= os.path.getmtime(py_ui_file)
+        ):
             from PyQt5 import uic
+
             print("Compiling ui file: %s" % ui_file)
-            with open(py_ui_file, 'w') as open_file:
+            with open(py_ui_file, "w") as open_file:
                 uic.compileUi(ui_file, open_file)
         # Import the (compiled) file.
         try:
@@ -72,13 +75,17 @@ class Window(QtGui.QMainWindow):
         self.basemap = self.comm.project.domain.plot(ax=self.map_ax)
         self._draw()
         self.ui.data_only_CheckBox.stateChanged.connect(
-            self.on_data_only_CheckboxChanged)
+            self.on_data_only_CheckboxChanged
+        )
         self.ui.compare_iterations_CheckBox.stateChanged.connect(
-            self.on_compare_iterations_CheckboxChanged)
+            self.on_compare_iterations_CheckboxChanged
+        )
         self.ui.process_on_fly_CheckBox.stateChanged.connect(
-            self.on_process_on_fly_CheckBoxChanged)
+            self.on_process_on_fly_CheckBoxChanged
+        )
         self.ui.raw_data_CheckBox.stateChanged.connect(
-            self.on_raw_data_CheckBoxChanged)
+            self.on_raw_data_CheckBoxChanged
+        )
         self.ui.process_on_fly_CheckBox.setVisible(False)
         self.ui.iteration_2_label.setVisible(False)
         self.ui.iteration_2_selection_comboBox.setVisible(False)
@@ -91,11 +98,14 @@ class Window(QtGui.QMainWindow):
         self.ui.status_label = QtGui.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
         self.ui.iteration_selection_comboBox.addItems(
-            self.comm.iterations.list())
+            self.comm.iterations.list()
+        )
         self.ui.iteration_2_selection_comboBox.addItems(
-            self.comm.iterations.list())
+            self.comm.iterations.list()
+        )
         self.ui.window_set_selection_comboBox.addItems(
-            self.comm.windows.list())
+            self.comm.windows.list()
+        )
 
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
@@ -114,20 +124,23 @@ class Window(QtGui.QMainWindow):
         # Hack to get a proper legend.
         if self.ui.e_graph.plotItem.legend is not None:
             self.ui.e_graph.plotItem.legend.scene().removeItem(
-                self.ui.e_graph.plotItem.legend)
+                self.ui.e_graph.plotItem.legend
+            )
         self.ui.e_graph.addLegend(offset=(-2, 2))
 
         self.ui.e_graph.plot([0], [0], pen=pg.mkPen("k", width=2), name="Data")
         if self.ui.data_only_CheckBox.isChecked():
             return
-        self.ui.e_graph.plot([0], [0], pen=pg.mkPen("r", width=2),
-                             name="Synthetics")
+        self.ui.e_graph.plot(
+            [0], [0], pen=pg.mkPen("r", width=2), name="Synthetics"
+        )
         if self.ui.compare_iterations_CheckBox.isChecked():
-            self.ui.e_graph.plot([0], [0],
-                                 pen=pg.mkPen("#00b300",
-                                              style=pg.QtCore.Qt.DashLine,
-                                              width=2),
-                                 name="Synthetics 2")
+            self.ui.e_graph.plot(
+                [0],
+                [0],
+                pen=pg.mkPen("#00b300", style=pg.QtCore.Qt.DashLine, width=2),
+                name="Synthetics 2",
+            )
 
     def _draw(self):
         self.map_figure.canvas.draw()
@@ -173,8 +186,9 @@ class Window(QtGui.QMainWindow):
         self.ui.event_selection_comboBox.clear()
         self.ui.event_selection_comboBox.addItems(events)
         if self.comm.project.processing_params["scale_data_to_synthetics"]:
-            self.ui.status_label.setText("Data scaled to synthetics for "
-                                         "this iteration")
+            self.ui.status_label.setText(
+                "Data scaled to synthetics for " "this iteration"
+            )
         else:
             self.ui.status_label.setText("")
 
@@ -198,10 +212,16 @@ class Window(QtGui.QMainWindow):
 
         event_info = self.comm.events.get(self.current_event)
         self._current_raypath = self.basemap.drawgreatcircle(
-            event_info["longitude"], event_info["latitude"],
-            coordinates["longitude"], coordinates["latitude"],
+            event_info["longitude"],
+            event_info["latitude"],
+            coordinates["longitude"],
+            coordinates["latitude"],
             color=COLORS[random.randint(0, len(COLORS) - 1)],
-            lw=2, alpha=0.8, zorder=10, path_effects=path_effects)
+            lw=2,
+            alpha=0.8,
+            zorder=10,
+            path_effects=path_effects,
+        )
         self._draw()
 
     def _update_event_map(self):
@@ -211,7 +231,8 @@ class Window(QtGui.QMainWindow):
         event = self.comm.events.get(self.current_event)
 
         self.current_mt_patches = lasif.visualization.plot_events(
-            events=[event], map_object=self.basemap, beachball_size=0.04)
+            events=[event], map_object=self.basemap, beachball_size=0.04
+        )
 
         try:
             self.current_station_scatter.remove()
@@ -219,16 +240,23 @@ class Window(QtGui.QMainWindow):
             pass
 
         stations = self.comm.query.get_all_stations_for_event(
-            self.current_event)
+            self.current_event
+        )
 
         # Plot the stations. This will also plot raypaths.
-        self.current_station_scatter = lasif.visualization \
-            .plot_stations_for_event(map_object=self.basemap,
-                                     color="0.2", alpha=0.4,
-                                     station_dict=stations,
-                                     event_info=event, raypaths=False)
-        self.map_ax.set_title("No matter the projection,\n North for the "
-                              "moment tensors is always up.")
+        self.current_station_scatter = lasif.visualization.\
+            plot_stations_for_event(
+                map_object=self.basemap,
+                color="0.2",
+                alpha=0.4,
+                station_dict=stations,
+                event_info=event,
+                raypaths=False,
+                )
+        self.map_ax.set_title(
+            "No matter the projection,\n North for the "
+            "moment tensors is always up."
+        )
 
         if hasattr(self, "_current_raypath") and self._current_raypath:
             for _i in self._current_raypath:
@@ -243,10 +271,10 @@ class Window(QtGui.QMainWindow):
         if not value:
             return
         self.ui.stations_listWidget.clear()
-        stations = self.comm.query.get_all_stations_for_event(value,
-                                                              list_only=True)
-        self.ui.stations_listWidget.addItems(
-            sorted(stations))
+        stations = self.comm.query.get_all_stations_for_event(
+            value, list_only=True
+        )
+        self.ui.stations_listWidget.addItems(sorted(stations))
         self._reset_all_plots()
         self._update_event_map()
 
@@ -297,7 +325,8 @@ class Window(QtGui.QMainWindow):
             if self.ui.raw_data_CheckBox.isChecked():
                 try:
                     data = self.comm.waveforms.get_waveforms_raw(
-                        self.current_event, self.current_station)
+                        self.current_event, self.current_station
+                    )
                 except Exception as e:
                     print(e)
                     return
@@ -308,92 +337,119 @@ class Window(QtGui.QMainWindow):
                         print("Processing...")
                         data = self.comm.waveforms.\
                             get_waveforms_processed_on_the_fly(
-                                self.current_event, self.current_station)
+                                self.current_event, self.current_station
+                            )
                     else:
                         data = self.comm.waveforms.get_waveforms_processed(
-                            self.current_event, self.current_station, tag)
+                            self.current_event, self.current_station, tag
+                        )
                 except Exception as e:
                     print(e)
                     return
             coordinates = self.comm.query.get_coordinates_for_station(
-                self.current_event, self.current_station)
+                self.current_event, self.current_station
+            )
 
             for component in ["Z", "N", "E"]:
                 plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-                data_tr = [tr for tr in data
-                           if tr.stats.channel[-1].upper() == component]
+                data_tr = [
+                    tr
+                    for tr in data
+                    if tr.stats.channel[-1].upper() == component
+                ]
                 if data_tr:
                     tr = data_tr[0]
-                    highpass_period = \
-                        self.comm.project.processing_params["highpass_period"]
+                    highpass_period = self.comm.project.processing_params[
+                        "highpass_period"
+                    ]
                     max_sampling_rate = 10.0 * (1.0 / highpass_period)
                     if tr.stats.sampling_rate > max_sampling_rate:
                         tr.interpolate(max_sampling_rate)
                     plot_widget.data_id = tr.id
                     times = tr.times()
-                    plot_widget.plot(times, tr.data, pen=pg.mkPen("k",
-                                                                  width=2))
+                    plot_widget.plot(
+                        times, tr.data, pen=pg.mkPen("k", width=2)
+                    )
                     plot_widget.autoRange()
                     self._update_raypath(coordinates)
             return
 
         try:
             wave = self.comm.query.get_matching_waveforms(
-                self.current_event, self.current_iteration,
-                self.current_station)
+                self.current_event,
+                self.current_iteration,
+                self.current_station,
+            )
 
             if self.ui.compare_iterations_CheckBox.isChecked():
                 comparison_wave = self.comm.query.get_matching_waveforms(
-                    self.current_event, self.comparison_iteration,
-                    self.current_station)
+                    self.current_event,
+                    self.comparison_iteration,
+                    self.current_station,
+                )
 
                 # Scale the synthetics if required.
                 if self.comm.project.processing_params[
-                        "scale_data_to_synthetics"]:
+                    "scale_data_to_synthetics"
+                ]:
                     for original_syn in wave.synthetics:
                         synthetic_tr = [
-                            tr for tr in comparison_wave.synthetics
-                            if tr.stats.channel[-1].lower() ==
-                            original_syn.stats.channel[-1].lower()][0]
-                        scaling_factor = synthetic_tr.data.ptp() / \
-                            original_syn.data.ptp()
+                            tr
+                            for tr in comparison_wave.synthetics
+                            if tr.stats.channel[-1].lower()
+                            == original_syn.stats.channel[-1].lower()
+                        ][0]
+                        scaling_factor = (
+                            synthetic_tr.data.ptp() / original_syn.data.ptp()
+                        )
                         # Store and apply the scaling.
                         synthetic_tr.stats.scaling_factor = scaling_factor
                         synthetic_tr.data /= scaling_factor
         except Exception as e:
             for component in ["Z", "N", "E"]:
                 plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-                plot_widget.addItem(pg.TextItem(
-                    text=str(e), anchor=(0.5, 0.5),
-                    color=(200, 0, 0)))
+                plot_widget.addItem(
+                    pg.TextItem(
+                        text=str(e), anchor=(0.5, 0.5), color=(200, 0, 0)
+                    )
+                )
             return
 
         event = self.comm.events.get(self.current_event)
 
         great_circle_distance = locations2degrees(
-            event["latitude"], event["longitude"],
-            wave.coordinates["latitude"], wave.coordinates["longitude"])
+            event["latitude"],
+            event["longitude"],
+            wave.coordinates["latitude"],
+            wave.coordinates["longitude"],
+        )
         tts = taupy_model.get_travel_times(
             source_depth_in_km=event["depth_in_km"],
-            distance_in_degree=great_circle_distance)
+            distance_in_degree=great_circle_distance,
+        )
 
         # Try to obtain windows for a station,
         # if it fails continue plotting the data
         try:
-            windows_for_station = \
-                self.current_window_manager.get_all_windows_for_event_station(
-                    self.current_event, self.current_station)
+            windows_for_station = self.current_window_manager.\
+                get_all_windows_for_event_station(
+                    self.current_event, self.current_station
+                )
         except:
             pass
 
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-            data_tr = [tr for tr in wave.data
-                       if tr.stats.channel[-1].upper() == component]
+            data_tr = [
+                tr
+                for tr in wave.data
+                if tr.stats.channel[-1].upper() == component
+            ]
             if data_tr:
                 tr = data_tr[0]
-                highpass_period = \
-                    self.comm.project.processing_params["highpass_period"]
+                highpass_period = self.comm.project.processing_params[
+                    "highpass_period"
+                ]
                 max_sampling_rate = 10.0 * (1.0 / highpass_period)
                 if tr.stats.sampling_rate > max_sampling_rate:
                     tr.interpolate(max_sampling_rate)
@@ -404,35 +460,47 @@ class Window(QtGui.QMainWindow):
                 plot_widget.plot(times, tr.data, pen=pg.mkPen("k", width=2))
             else:
                 plot_widget.data_id = None
-            synth_tr = [_i for _i in wave.synthetics
-                        if _i.stats.channel[-1].upper() == component]
+            synth_tr = [
+                _i
+                for _i in wave.synthetics
+                if _i.stats.channel[-1].upper() == component
+            ]
             if synth_tr:
                 tr = synth_tr[0]
-                highpass_period = \
-                    self.comm.project.processing_params["highpass_period"]
+                highpass_period = self.comm.project.processing_params[
+                    "highpass_period"
+                ]
                 max_sampling_rate = 10.0 * (1.0 / highpass_period)
                 if tr.stats.sampling_rate > max_sampling_rate:
                     tr.interpolate(max_sampling_rate)
                 times = tr.times()
-                plot_widget.plot(times, tr.data, pen=pg.mkPen("r", width=2), )
+                plot_widget.plot(
+                    times, tr.data, pen=pg.mkPen("r", width=2),
+                )
 
             if self.ui.compare_iterations_CheckBox.isChecked():
-                compare_synth_tr = \
-                    [_i for _i in comparison_wave.synthetics
-                     if _i.stats.channel[-1].upper() == component]
+                compare_synth_tr = [
+                    _i
+                    for _i in comparison_wave.synthetics
+                    if _i.stats.channel[-1].upper() == component
+                ]
 
                 if compare_synth_tr:
                     tr = compare_synth_tr[0]
-                    highpass_period = \
-                        self.comm.project.processing_params["highpass_period"]
+                    highpass_period = self.comm.project.processing_params[
+                        "highpass_period"
+                    ]
                     max_sampling_rate = 10.0 * (1.0 / highpass_period)
                     if tr.stats.sampling_rate > max_sampling_rate:
                         tr.interpolate(max_sampling_rate)
                     times = tr.times()
                     plot_widget.plot(
-                        times, tr.data,
-                        pen=pg.mkPen("#00b300", style=pg.QtCore.Qt.DashLine,
-                                     width=2), )
+                        times,
+                        tr.data,
+                        pen=pg.mkPen(
+                            "#00b300", style=pg.QtCore.Qt.DashLine, width=2
+                        ),
+                    )
 
             if data_tr or synth_tr:
                 for tt in tts:
@@ -456,15 +524,21 @@ class Window(QtGui.QMainWindow):
                 if windows:
                     plot_widget.windows = windows
                     for win in windows:
-                        WindowLinearRegionItem(self.current_window_manager,
-                                               channel_name,
-                                               self.current_iteration,
-                                               start=win[0], end=win[1],
-                                               event=event, parent=plot_widget,
-                                               comm=self.comm)
+                        WindowLinearRegionItem(
+                            self.current_window_manager,
+                            channel_name,
+                            self.current_iteration,
+                            start=win[0],
+                            end=win[1],
+                            event=event,
+                            parent=plot_widget,
+                            comm=self.comm,
+                        )
             except:
-                print(f"no windows available for {component}-component of "
-                      f"station {self.current_station}")
+                print(
+                    f"no windows available for {component}-component of "
+                    f"station {self.current_station}"
+                )
         self._update_raypath(wave.coordinates)
 
     def on_reset_view_Button_released(self):
@@ -475,16 +549,20 @@ class Window(QtGui.QMainWindow):
         id = plot_widget.data_id
         if id is None:
             QtGui.QMessageBox.information(
-                self, "", "Can only create windows if data is available.")
+                self, "", "Can only create windows if data is available."
+            )
             return
 
         channel_name = id
         event = self.comm.events.get(self.current_event)
 
         self.current_window_manager.add_window_to_event_channel(
-            self.current_event, channel_name,
+            self.current_event,
+            channel_name,
             start_time=event["origin_time"] + x_1,
-            end_time=event["origin_time"] + x_2, weight=1.0)
+            end_time=event["origin_time"] + x_2,
+            weight=1.0,
+        )
 
         self.on_stations_listWidget_currentItemChanged(True, False)
 
@@ -508,10 +586,12 @@ class Window(QtGui.QMainWindow):
     def on_delete_station_Button_released(self):
         curRow = self.ui.stations_listWidget.currentRow()
 
-        self.comm.waveforms.delete_station_from_raw(self.current_event,
-                                                    self.current_station)
-        filename = self.comm.waveforms.get_asdf_filename(self.current_event,
-                                                         data_type="raw")
+        self.comm.waveforms.delete_station_from_raw(
+            self.current_event, self.current_station
+        )
+        filename = self.comm.waveforms.get_asdf_filename(
+            self.current_event, data_type="raw"
+        )
         print(f"{self.current_station} was deleted from {filename}")
         self.ui.stations_listWidget.takeItem(curRow)
 
@@ -521,13 +601,15 @@ class Window(QtGui.QMainWindow):
             id = plot_widget.data_id
             if id:
                 self.current_window_manager.del_all_windows_from_event_channel(
-                    event_name=self.current_event, channel_name=id)
+                    event_name=self.current_event, channel_name=id
+                )
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):
-        windows_for_event = \
-            self.current_window_manager.get_all_windows_for_event(
-                self.current_event)
+        windows_for_event = self.current_window_manager.\
+            get_all_windows_for_event(
+                self.current_event
+            )
         if self.current_station in windows_for_event:
             windows_for_station = windows_for_event[self.current_station]
         else:
@@ -535,14 +617,19 @@ class Window(QtGui.QMainWindow):
 
         if windows_for_station:
             QtGui.QMessageBox.information(
-                self, "", "Autoselection only works if no windows exists for "
-                          "the station.")
+                self,
+                "",
+                "Autoselection only works if no windows exists for "
+                "the station.",
+            )
             return
 
-        self.comm.actions.select_windows_for_station(self.current_event,
-                                                     self.current_iteration,
-                                                     self.current_station,
-                                                     self.current_window_set)
+        self.comm.actions.select_windows_for_station(
+            self.current_event,
+            self.current_iteration,
+            self.current_station,
+            self.current_window_set,
+        )
         self.on_stations_listWidget_currentItemChanged(True, False)
 
 
@@ -550,13 +637,15 @@ def launch(comm):
     # Automatically compile all ui files if they have been changed.
     compile_and_import_ui_files()
     from PyQt5 import QtWidgets
+
     # Launch and open the window.
     app = QtWidgets.QApplication(sys.argv)
     window = Window(comm)
 
     # Move window to center of screen.
     window.move(
-        app.desktop().screen().rect().center() - window.rect().center())
+        app.desktop().screen().rect().center() - window.rect().center()
+    )
     # Show and bring window to foreground.
     window.show()
     window.raise_()

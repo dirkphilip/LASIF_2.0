@@ -26,11 +26,24 @@ def plot_events(events, map_object, beachball_size=0.02):
         # Add beachball plot.
         x, y = map_object(event["longitude"], event["latitude"])
 
-        focmec = [event["m_rr"], event["m_tt"], event["m_pp"], event["m_rt"],
-                  event["m_rp"], event["m_tp"]]
+        focmec = [
+            event["m_rr"],
+            event["m_tt"],
+            event["m_pp"],
+            event["m_rt"],
+            event["m_rp"],
+            event["m_tp"],
+        ]
         # Attempt to calculate the best beachball size.
-        width = max((map_object.xmax - map_object.xmin,
-                     map_object.ymax - map_object.ymin)) * beachball_size
+        width = (
+            max(
+                (
+                    map_object.xmax - map_object.xmin,
+                    map_object.ymax - map_object.ymin,
+                )
+            )
+            * beachball_size
+        )
         b = beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_zorder(200000000)
         map_object.ax.add_collection(b)
@@ -80,20 +93,33 @@ def plot_raydensity(map_object, station_events, domain):
         data.dtype = dtype
         return data.reshape(shape)
 
-    print("\nLaunching %i great circle calculations on %i CPUs..."
-          % (circle_count, cpu_count))
+    print(
+        "\nLaunching %i great circle calculations on %i CPUs..."
+        % (circle_count, cpu_count)
+    )
 
-    widgets = ["Progress: ", progressbar.Percentage(),
-               progressbar.Bar(), "", progressbar.ETA()]
-    pbar = progressbar.ProgressBar(widgets=widgets,
-                                   maxval=circle_count).start()
+    widgets = [
+        "Progress: ",
+        progressbar.Percentage(),
+        progressbar.Bar(),
+        "",
+        progressbar.ETA(),
+    ]
+    pbar = progressbar.ProgressBar(
+        widgets=widgets, maxval=circle_count
+    ).start()
 
-    def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
-                             lock, counter):
+    def great_circle_binning(
+        sta_evs, bin_data_buffer, bin_data_shape, lock, counter
+    ):
         new_bins = GreatCircleBinner(
-            domain.min_lat, domain.max_lat,
-            lat_lng_count, domain.min_lon,
-            domain.max_lon, lat_lng_count)
+            domain.min_lat,
+            domain.max_lat,
+            lat_lng_count,
+            domain.min_lon,
+            domain.max_lon,
+            lat_lng_count,
+        )
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -111,22 +137,29 @@ def plot_raydensity(map_object, station_events, domain):
         out = []
         last = 0.0
         while last < len(seq):
-            out.append(seq[int(last):int(last + avg)])
+            out.append(seq[int(last): int(last + avg)])
             last += avg
         return out
+
     chunks = chunk(station_event_list, cpu_count)
 
     # One instance that collects everything.
     collected_bins = GreatCircleBinner(
-        domain.min_lat, domain.max_lat,
-        lat_lng_count, domain.min_lon,
-        domain.max_lon, lat_lng_count)
+        domain.min_lat,
+        domain.max_lat,
+        lat_lng_count,
+        domain.min_lon,
+        domain.max_lon,
+        lat_lng_count,
+    )
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
-    collected_bins_data = multiprocessing.Array(C.c_uint32,
-                                                collected_bins.bins.size)
-    collected_bins.bins = to_numpy(collected_bins_data, np.uint32,
-                                   collected_bins.bins.shape)
+    collected_bins_data = multiprocessing.Array(
+        C.c_uint32, collected_bins.bins.size
+    )
+    collected_bins.bins = to_numpy(
+        collected_bins_data, np.uint32, collected_bins.bins.shape
+    )
 
     # Create, launch and join one process per CPU. Use a shared value as a
     # counter and a lock to avoid race conditions.
@@ -134,10 +167,18 @@ def plot_raydensity(map_object, station_events, domain):
     lock = multiprocessing.Lock()
     counter = multiprocessing.Value("i", 0)
     for _i in range(cpu_count):
-        processes.append(multiprocessing.Process(
-            target=great_circle_binning, args=(chunks[_i], collected_bins_data,
-                                               collected_bins.bins.shape, lock,
-                                               counter)))
+        processes.append(
+            multiprocessing.Process(
+                target=great_circle_binning,
+                args=(
+                    chunks[_i],
+                    collected_bins_data,
+                    collected_bins.bins.shape,
+                    lock,
+                    counter,
+                ),
+            )
+        )
     for process in processes:
         process.start()
     for process in processes:
@@ -145,14 +186,17 @@ def plot_raydensity(map_object, station_events, domain):
 
     # pbar.finish()
 
-    stations = chain.from_iterable((
-        _i[1].values() for _i in station_events if _i[1]))
+    stations = chain.from_iterable(
+        (_i[1].values() for _i in station_events if _i[1])
+    )
     # Remove duplicates
     stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
     stations = set(stations)
-    title = "%i Events, %i unique raypaths, "\
-            "%i unique stations" % (len(station_events), circle_count,
-                                    len(stations))
+    title = "%i Events, %i unique raypaths, " "%i unique stations" % (
+        len(station_events),
+        circle_count,
+        len(stations),
+    )
     plt.title(title, size="xx-large")
 
     data = collected_bins.bins.transpose()
@@ -170,22 +214,29 @@ def plot_raydensity(map_object, station_events, domain):
     cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
 
     # Slightly change the appearance of the map so it suits the rays.
-    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=1)
+    map_object.fillcontinents(color="#dddddd", lake_color="#dddddd", zorder=1)
 
     lngs, lats = collected_bins.coordinates
     # Rotate back if necessary!
     ln, la = map_object(lngs, lats)
-    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val,
-                          zorder=10)
+    map_object.pcolormesh(
+        ln, la, data, cmap=cmap, vmin=0, vmax=max_val, zorder=10
+    )
     # Draw the coastlines so they appear over the rays. Otherwise things are
     # sometimes hard to see.
     map_object.drawcoastlines(zorder=3)
     map_object.drawcountries(linewidth=0.2, zorder=3)
 
 
-def plot_stations_for_event(map_object, station_dict, event_info,
-                            color="green", alpha=1.0, raypaths=True,
-                            weight_set=None):
+def plot_stations_for_event(
+    map_object,
+    station_dict,
+    event_info,
+    color="green",
+    alpha=1.0,
+    raypaths=True,
+    weight_set=None,
+):
     """
     Plots all stations for one event.
 
@@ -211,16 +262,18 @@ def plot_stations_for_event(map_object, station_dict, event_info,
         weights = []
         for id in station_ids:
             weights.append(
-                weight_set.events[event]["stations"][id]["station_weight"])
-        cmap = cm.get_cmap('seismic')
-        stations = map_object.scatter(x, y, c=weights, cmap=cmap, s=35,
-                                      marker="v", alpha=alpha, zorder=5)
+                weight_set.events[event]["stations"][id]["station_weight"]
+            )
+        cmap = cm.get_cmap("seismic")
+        stations = map_object.scatter(
+            x, y, c=weights, cmap=cmap, s=35, marker="v", alpha=alpha, zorder=5
+        )
         plt.colorbar(stations)
 
     else:
-        stations = map_object.scatter(x, y, color=color, s=35,
-                                      marker="v", alpha=alpha,
-                                      zorder=5)
+        stations = map_object.scatter(
+            x, y, color=color, s=35, marker="v", alpha=alpha, zorder=5
+        )
         # Setting the picker overwrites the edgecolor attribute on certain
         # matplotlib and basemap versions. Fix it here.
         stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
@@ -230,13 +283,20 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     if raypaths:
         for sta_lng, sta_lat in zip(lngs, lats):
             map_object.drawgreatcircle(
-                event_info["longitude"], event_info["latitude"], sta_lng,
-                sta_lat, lw=2, alpha=0.3)
+                event_info["longitude"],
+                event_info["latitude"],
+                sta_lng,
+                sta_lat,
+                lw=2,
+                alpha=0.3,
+            )
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
-        event_info["region"], re.sub(
-            r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
-        event_info["magnitude"], len(station_dict))
+        event_info["region"],
+        re.sub(r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
+        event_info["magnitude"],
+        len(station_dict),
+    )
     map_object.ax.set_title(title, size="large")
     return stations
 
@@ -248,8 +308,13 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     """
     npts = len(data)
 
-    fig = plot_tfr(data, dt=delta, fmin=1.0 / (npts * delta),
-                   fmax=1.0 / (2.0 * delta), show=False)
+    fig = plot_tfr(
+        data,
+        dt=delta,
+        fmin=1.0 / (npts * delta),
+        fmax=1.0 / (2.0 * delta),
+        show=False,
+    )
 
     # Get the different axes...use some kind of logic to determine which is
     # which. This is super flaky as dependent on the ObsPy version and what
@@ -296,17 +361,22 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
         xmin, xmax = axes["tf"].get_xlim()
         axes["tf"].hlines(freqmin, xmin, xmax, color="green", lw=2)
         axes["tf"].hlines(freqmax, xmin, xmax, color="red", lw=2)
-        axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
-                        freqmin,
-                        "%.1f s" % (1.0 / freqmin),
-                        color="green",
-                        horizontalalignment="right", verticalalignment="top")
-        axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
-                        freqmax,
-                        "%.1f s" % (1.0 / freqmax),
-                        color="red",
-                        horizontalalignment="right",
-                        verticalalignment="bottom")
+        axes["tf"].text(
+            xmax - (0.02 * (xmax - xmin)),
+            freqmin,
+            "%.1f s" % (1.0 / freqmin),
+            color="green",
+            horizontalalignment="right",
+            verticalalignment="top",
+        )
+        axes["tf"].text(
+            xmax - (0.02 * (xmax - xmin)),
+            freqmax,
+            "%.1f s" % (1.0 / freqmax),
+            color="red",
+            horizontalalignment="right",
+            verticalalignment="bottom",
+        )
 
         xmin, xmax = axes["spec"].get_xlim()
         axes["spec"].hlines(freqmin, xmin, xmax, color="green", lw=2)
@@ -350,8 +420,11 @@ def plot_event_histogram(events, plot_type):
     plt.hist(values, bins=250)
 
     if plot_type == "time":
-        plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(
-            lambda numdate, _: num2date(numdate).strftime('%Y-%d-%m')))
+        plt.gca().xaxis.set_major_formatter(
+            ticker.FuncFormatter(
+                lambda numdate, _: num2date(numdate).strftime("%Y-%d-%m")
+            )
+        )
         plt.gcf().autofmt_xdate()
         plt.xlabel("Origin time (UTC)")
         plt.title("Origin time distribution (%i events)" % len(events))

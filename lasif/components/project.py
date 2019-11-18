@@ -43,8 +43,9 @@ class Project(Component):
     It represents the heart of LASIF.
     """
 
-    def __init__(self, project_root_path: pathlib.Path,
-                 init_project: bool = False):
+    def __init__(
+        self, project_root_path: pathlib.Path, init_project: bool = False
+    ):
         """
         Upon intialization, set the paths and read the config file.
 
@@ -63,8 +64,10 @@ class Project(Component):
             self.__init_new_project(init_project)
 
         if not self.paths["config_file"].exists():
-            msg = ("Could not find the project's config file. Wrong project "
-                   "path or uninitialized project?")
+            msg = (
+                "Could not find the project's config file. Wrong project "
+                "path or uninitialized project?"
+            )
             raise LASIFError(msg)
 
         # Setup the communicator and register this component.
@@ -85,16 +88,17 @@ class Project(Component):
 
         # Write a default window set file
         if init_project:
-            default_window_filename = os.path.join(self.paths["windows"],
-                                                   "A.sqlite")
-            open(default_window_filename, 'w').close()
+            default_window_filename = os.path.join(
+                self.paths["windows"], "A.sqlite"
+            )
+            open(default_window_filename, "w").close()
 
     def __str__(self):
         """
         Pretty string representation.
         """
         # Count all files and sizes.
-        ret_str = "LASIF project \"%s\"\n" % self.config["project_name"]
+        ret_str = 'LASIF project "%s"\n' % self.config["project_name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
@@ -121,8 +125,10 @@ class Project(Component):
                         f"Function template '{filename.name}' did not exist. "
                         f"It does now. Did you update a later LASIF version? "
                         f"Please make sure you are aware of the changes.",
-                        LASIFWarning)
+                        LASIFWarning,
+                    )
                 import shutil
+
                 shutil.copy(src=filename, dst=new_filename)
 
     def _read_config_file(self):
@@ -130,24 +136,34 @@ class Project(Component):
         Parse the config file.
         """
         import toml
+
         with open(self.paths["config_file"], "r") as fh:
             config_dict = toml.load(fh)
 
         self.config = config_dict["lasif_project"]
         self.solver_settings = config_dict["solver_settings"]
-        self.solver_settings["start_time"] = \
-            - self.solver_settings["time_increment"]
-        self.solver_settings["number_of_time_steps"] = int(round((
-            self.solver_settings["end_time"] -
-            self.solver_settings["start_time"]) /
-            self.solver_settings["time_increment"]) + 1)
+        self.solver_settings["start_time"] = -self.solver_settings[
+            "time_increment"
+        ]
+        self.solver_settings["number_of_time_steps"] = int(
+            round(
+                (
+                    self.solver_settings["end_time"]
+                    - self.solver_settings["start_time"]
+                )
+                / self.solver_settings["time_increment"]
+            )
+            + 1
+        )
 
         self.processing_params = config_dict["data_processing"]
-        self.processing_params["stf"] = \
-            self.solver_settings["source_time_function_type"]
+        self.processing_params["stf"] = self.solver_settings[
+            "source_time_function_type"
+        ]
 
-        self.domain = lasif.domain.ExodusDomain(
-            self.config["mesh_file"], self.config["num_buffer_elements"])
+        self.domain = lasif.domain.HDF5Domain(
+            self.config["mesh_file"], self.config["num_buffer_elements"]
+        )
 
     def _validate_config_file(self):
         """
@@ -156,23 +172,30 @@ class Project(Component):
         stf = self.processing_params["stf"]
         misfit = self.config["misfit_type"]
         if stf not in ("heaviside", "bandpass_filtered_heaviside"):
-            raise LASIFError(f" \n\nSource time function {stf} is not "
-                             f"supported by Lasif. \n"
-                             f"The only supported STF's are \"heaviside\" "
-                             f"and \"bandpass_filtered_heaviside\". \n"
-                             f"Please modify your config file.")
-        if misfit not in ("tf_phase_misfit",
-                          "waveform_misfit", "cc_traveltime_misfit",
-                          "cc_traveltime_misfit_Korta2018",
-                          "weighted_waveform_misfit"):
-            raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
-                             f"by LASIF. \n"
-                             f"Currently the only supported misfit type"
-                             f" is:\n "
-                             f"\"tf_phase_misfit\" ,"
-                             f"\n \"cc_traveltime_misfit\", "
-                             f"\n \"waveform_misfit\" and "
-                             f"\n \"cc_traveltime_misfit_Korta2018\".")
+            raise LASIFError(
+                f" \n\nSource time function {stf} is not "
+                f"supported by Lasif. \n"
+                f'The only supported STF\'s are "heaviside" '
+                f'and "bandpass_filtered_heaviside". \n'
+                f"Please modify your config file."
+            )
+        if misfit not in (
+            "tf_phase_misfit",
+            "waveform_misfit",
+            "cc_traveltime_misfit",
+            "cc_traveltime_misfit_Korta2018",
+            "weighted_waveform_misfit",
+        ):
+            raise LASIFError(
+                f"\n\nMisfit type {misfit} is not supported "
+                f"by LASIF. \n"
+                f"Currently the only supported misfit type"
+                f" is:\n "
+                f'"tf_phase_misfit" ,'
+                f'\n "cc_traveltime_misfit", '
+                f'\n "waveform_misfit" and '
+                f'\n "cc_traveltime_misfit_Korta2018".'
+            )
 
     def get_communicator(self):
         return self.__comm
@@ -187,35 +210,42 @@ class Project(Component):
         keep the references to the single components.
         """
         # Basic components.
-        EventsComponent(folder=self.paths["eq_data"], communicator=self.comm,
-                        component_name="events")
-        WaveformsComponent(data_folder=self.paths["eq_data"],
-                           preproc_data_folder=self.paths["preproc_eq_data"],
-                           synthetics_folder=self.paths["eq_synthetics"],
-                           communicator=self.comm, component_name="waveforms")
-        WeightsComponent(weights_folder=self.paths["weights"],
-                         communicator=self.comm,
-                         component_name="weights")
-        IterationsComponent(communicator=self.comm,
-                            component_name="iterations")
+        EventsComponent(
+            folder=self.paths["eq_data"],
+            communicator=self.comm,
+            component_name="events",
+        )
+        WaveformsComponent(
+            data_folder=self.paths["eq_data"],
+            preproc_data_folder=self.paths["preproc_eq_data"],
+            synthetics_folder=self.paths["eq_synthetics"],
+            communicator=self.comm,
+            component_name="waveforms",
+        )
+        WeightsComponent(
+            weights_folder=self.paths["weights"],
+            communicator=self.comm,
+            component_name="weights",
+        )
+        IterationsComponent(
+            communicator=self.comm, component_name="iterations"
+        )
 
         # Action and query components.
         QueryComponent(communicator=self.comm, component_name="query")
-        VisualizationsComponent(communicator=self.comm,
-                                component_name="visualizations")
-        ValidatorComponent(communicator=self.comm,
-                           component_name="validator")
+        VisualizationsComponent(
+            communicator=self.comm, component_name="visualizations"
+        )
+        ValidatorComponent(communicator=self.comm, component_name="validator")
         AdjointSourcesComponent(
             folder=self.paths["adjoint_sources"],
             communicator=self.comm,
-            component_name="adj_sources")
-        WindowsComponent(
-            communicator=self.comm,
-            component_name="windows")
+            component_name="adj_sources",
+        )
+        WindowsComponent(communicator=self.comm, component_name="windows")
 
         # Data downloading component.
-        DownloadsComponent(communicator=self.comm,
-                           component_name="downloads")
+        DownloadsComponent(communicator=self.comm, component_name="downloads")
 
     def __setup_paths(self, root_path: pathlib.Path):
         """
@@ -232,15 +262,18 @@ class Project(Component):
         self.paths["eq_data"] = root_path / "DATA" / "EARTHQUAKES"
 
         self.paths["synthetics"] = root_path / "SYNTHETICS"
-        self.paths["corr_synthetics"] = \
+        self.paths["corr_synthetics"] = (
             root_path / "SYNTHETICS" / "CORRELATIONS"
+        )
         self.paths["eq_synthetics"] = root_path / "SYNTHETICS" / "EARTHQUAKES"
 
         self.paths["preproc_data"] = root_path / "PROCESSED_DATA"
-        self.paths["preproc_eq_data"] =\
+        self.paths["preproc_eq_data"] = (
             root_path / "PROCESSED_DATA" / "EARTHQUAKES"
-        self.paths["preproc_corr_data"] =\
+        )
+        self.paths["preproc_corr_data"] = (
             root_path / "PROCESSED_DATA" / "CORRELATIONS"
+        )
 
         self.paths["sets"] = root_path / "SETS"
         self.paths["windows"] = root_path / "SETS" / "WINDOWS"
@@ -278,72 +311,76 @@ class Project(Component):
             project_name = "LASIFProject"
         directory = self.paths["root"]
 
-        lasif_config_str = f"# Please fill in this config file before " \
-                           f"proceeding with using LASIF. \n \n" \
-                           f"[lasif_project]\n" \
-                           f"  project_name = \"{project_name}\"\n" \
-                           f"  description = \"\"\n\n" \
-                           f"  # Name of the exodus file used for the " \
-                           f"simulation. Without a mesh file, LASIF" \
-                           f" will not work.\n" \
-                           f"  mesh_file = \"{directory}/\"\n\n" \
-                           f"  # Number of buffer elements at the domain" \
-                           f" edges, no events or receivers will be placed" \
-                           f" there.\n" \
-                           f"  # A minimum amount of 3 is advised.\n" \
-                           f"  num_buffer_elements = 8\n\n" \
-                           f"  # Type of misift, choose from:\n" \
-                           f"  # [tf_phase_misfit, waveform_misfit, " \
-                           f"cc_traveltime_misfit, " \
-                           f"cc_traveltime_misfit_Korta2018 \n" \
-                           f"  misfit_type = \"tf_phase_misfit\"\n\n" \
-                           f"  [lasif_project.download_settings]\n" \
-                           f"    seconds_before_event = 300.0\n" \
-                           f"    seconds_after_event = 3600.0\n" \
-                           f"    interstation_distance_in_meters = 1000.0\n" \
-                           f"    channel_priorities = [ \"BH[Z,N,E]\", " \
-                           f"\"LH[Z,N,E]\", " \
-                           f"\"HH[Z,N,E]\", \"EH[Z,N,E]\", " \
-                           f"\"MH[Z,N,E]\",]\n" \
-                           f"    location_priorities = " \
-                           f"[ \"\", \"00\", \"10\", \"20\"," \
-                           f" \"01\", \"02\",]\n" \
-                           f"\n"
+        lasif_config_str = (
+            f"# Please fill in this config file before "
+            f"proceeding with using LASIF. \n \n"
+            f"[lasif_project]\n"
+            f'  project_name = "{project_name}"\n'
+            f'  description = ""\n\n'
+            f"  # Name of the exodus file used for the "
+            f"simulation. Without a mesh file, LASIF"
+            f" will not work.\n"
+            f'  mesh_file = "{directory}/"\n\n'
+            f"  # Number of buffer elements at the domain"
+            f" edges, no events or receivers will be placed"
+            f" there.\n"
+            f"  # A minimum amount of 3 is advised.\n"
+            f"  num_buffer_elements = 8\n\n"
+            f"  # Type of misift, choose from:\n"
+            f"  # [tf_phase_misfit, waveform_misfit, "
+            f"cc_traveltime_misfit, "
+            f"cc_traveltime_misfit_Korta2018 \n"
+            f'  misfit_type = "tf_phase_misfit"\n\n'
+            f"  [lasif_project.download_settings]\n"
+            f"    seconds_before_event = 300.0\n"
+            f"    seconds_after_event = 3600.0\n"
+            f"    interstation_distance_in_meters = 1000.0\n"
+            f'    channel_priorities = [ "BH[Z,N,E]", '
+            f'"LH[Z,N,E]", '
+            f'"HH[Z,N,E]", "EH[Z,N,E]", '
+            f'"MH[Z,N,E]",]\n'
+            f"    location_priorities = "
+            f'[ "", "00", "10", "20",'
+            f' "01", "02",]\n'
+            f"\n"
+        )
 
-        data_preproc_str = "# Data processing settings,  " \
-                           "high- and lowpass period are given in seconds.\n" \
-                           "[data_processing]\n" \
-                           "  highpass_period = 30.0 # Periods longer than" \
-                           " the highpass_period can pass.\n" \
-                           "  lowpass_period = 50.0 # Periods longer than" \
-                           " the lowpass_period will be blocked.\n" \
-                           "  # Only worry about this if you will reduce" \
-                           " the size of the raw data set: \n"\
-                           "  downsample_period = 1.0 # Minimum period " \
-                           "of the period range you will have in your " \
-                           "(raw) recordings. \n\n"\
-                           "  # You most likely want to keep this" \
-                           " setting at true.\n" \
-                           "  scale_data_to_synthetics = true\n\n" \
-
-        solver_par_str = "[solver_settings]\n" \
-                         "    number_of_absorbing_layers = 7\n" \
-                         "    end_time = 2700.0\n" \
-                         "    time_increment = 0.1\n" \
-                         "    polynomial_order = 4\n\n" \
-                         "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
-                         "    number_of_processors = 4\n" \
-                         "    io_sampling_rate_volume = 20\n" \
-                         "    io_memory_per_rank_in_MB = 5000\n" \
-                         "    salvus_call = \"mpirun -n 4\"\n\n" \
-                         "    with_anisotropy = true\n" \
-                         "    with_attenuation = false\n\n" \
-                         "    # Source time function type, " \
-                         "currently only \"bandpass_filtered_heaviside\"" \
-                         " and \"heaviside\" is supported \n" \
-                         "    source_time_function_type = " \
-                         "\"bandpass_filtered_heaviside\"\n"  \
-
+        data_preproc_str = (
+            "# Data processing settings,  "
+            "high- and lowpass period are given in seconds.\n"
+            "[data_processing]\n"
+            "  highpass_period = 30.0 # Periods longer than"
+            " the highpass_period can pass.\n"
+            "  lowpass_period = 50.0 # Periods longer than"
+            " the lowpass_period will be blocked.\n"
+            "  # Only worry about this if you will reduce"
+            " the size of the raw data set: \n"
+            "  downsample_period = 1.0 # Minimum period "
+            "of the period range you will have in your "
+            "(raw) recordings. \n\n"
+            "  # You most likely want to keep this"
+            " setting at true.\n"
+            "  scale_data_to_synthetics = true\n\n"
+        )
+        solver_par_str = (
+            "[solver_settings]\n"
+            "    number_of_absorbing_layers = 7\n"
+            "    end_time = 2700.0\n"
+            "    time_increment = 0.1\n"
+            "    polynomial_order = 4\n\n"
+            '    salvus_bin = "salvus_wave/build/salvus"\n'
+            "    number_of_processors = 4\n"
+            "    io_sampling_rate_volume = 20\n"
+            "    io_memory_per_rank_in_MB = 5000\n"
+            '    salvus_call = "mpirun -n 4"\n\n'
+            "    with_anisotropy = true\n"
+            "    with_attenuation = false\n\n"
+            "    # Source time function type, "
+            'currently only "bandpass_filtered_heaviside"'
+            ' and "heaviside" is supported \n'
+            "    source_time_function_type = "
+            '"bandpass_filtered_heaviside"\n'
+        )
         lasif_config_str += data_preproc_str + solver_par_str
 
         with open(self.paths["config_file"], "w") as fh:
@@ -366,31 +403,39 @@ class Project(Component):
             "preprocessing_function_asdf": "preprocessing_function_asdf.py",
             "process_synthetics": "process_synthetics.py",
             "source_time_function": "source_time_function.py",
-            "light_preprocessing_function": "light_preprocessing.py"
+            "light_preprocessing_function": "light_preprocessing.py",
         }
 
         if fct_type not in fct_type:
             msg = "Function '%s' not found. Available types: %s" % (
-                fct_type, str(list(fct_type_map.keys())))
+                fct_type,
+                str(list(fct_type_map.keys())),
+            )
             raise LASIFNotFoundError(msg)
 
-        filename = os.path.join(self.paths["functions"],
-                                fct_type_map[fct_type])
+        filename = os.path.join(
+            self.paths["functions"], fct_type_map[fct_type]
+        )
         if not os.path.exists(filename):
             msg = "No file '%s' in existence." % filename
             raise LASIFNotFoundError(msg)
         fct_template = importlib.machinery.SourceFileLoader(
-            "_lasif_fct_template", filename).load_module("_lasif_fct_template")
+            "_lasif_fct_template", filename
+        ).load_module("_lasif_fct_template")
 
         try:
             fct = getattr(fct_template, fct_type)
         except AttributeError:
-            raise LASIFNotFoundError("Could not find function %s in file '%s'"
-                                     % (fct_type, filename))
+            raise LASIFNotFoundError(
+                "Could not find function %s in file '%s'"
+                % (fct_type, filename)
+            )
 
         if not callable(fct):
-            raise LASIFError("Attribute %s in file '%s' is not a function."
-                             % (fct_type, filename))
+            raise LASIFError(
+                "Attribute %s in file '%s' is not a function."
+                % (fct_type, filename)
+            )
 
         # Add to cache.
         self.__project_function_cache[fct_type] = fct
@@ -406,14 +451,16 @@ class Project(Component):
         uniqueness.
         """
         from obspy import UTCDateTime
+
         if timestamp:
             d = str(UTCDateTime()).replace(":", "-").split(".")[0]
             folder_name = "%s__%s" % (d, tag)
         else:
             folder_name = "%s" % tag
 
-        output_dir = os.path.join(self.paths["output"], type.lower(),
-                                  folder_name)
+        output_dir = os.path.join(
+            self.paths["output"], type.lower(), folder_name
+        )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         return output_dir
@@ -429,8 +476,9 @@ class Project(Component):
             Will be used to derive the name of the logfile.
         """
         from obspy import UTCDateTime
+
         log_dir = os.path.join(self.paths["logs"], log_type)
-        filename = ("%s___%s" % (str(UTCDateTime()), description))
+        filename = "%s___%s" % (str(UTCDateTime()), description)
         filename += os.path.extsep + "log"
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)

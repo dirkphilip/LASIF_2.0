@@ -24,8 +24,9 @@ from lasif.adjoint_sources import time_frequency, utils
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
-                          plot=False, max_criterion=7.0):
+def adsrc_tf_phase_misfit(
+    t, data, synthetic, min_period, max_period, plot=False, max_criterion=7.0
+):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -72,11 +73,25 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     original_data = data
     original_synthetic = synthetic
     data = lanczos_interpolation(
-        data=data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+        data=data,
+        old_start=t[0],
+        old_dt=t[1] - t[0],
+        new_start=t[0],
+        new_dt=dt_new,
+        new_npts=len(ti),
+        a=8,
+        window="blackmann",
+    )
     synthetic = lanczos_interpolation(
-        data=synthetic, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+        data=synthetic,
+        old_start=t[0],
+        old_dt=t[1] - t[0],
+        new_start=t[0],
+        new_dt=dt_new,
+        new_npts=len(ti),
+        a=8,
+        window="blackmann",
+    )
     original_time = t
     t = ti
 
@@ -88,10 +103,12 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # Compute time-frequency representation of the cross-correlation
     _, _, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, data, synthetic, width)
+        t, data, synthetic, width
+    )
     # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
-                                                                width)
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(
+        t, synthetic, width
+    )
 
     # -------------------------------------------------------------------------
     # compute tf window and weighting function
@@ -104,17 +121,19 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # highpass filter (periods longer than max_period are suppressed
     # exponentially)
-    weight *= (1.0 - np.exp(-(nu_t * max_period) ** 2))
+    weight *= 1.0 - np.exp(-((nu_t * max_period) ** 2))
 
     # lowpass filter (periods shorter than min_period are suppressed
     # exponentially)
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
-    thres = (nu_t <= 1.0 / min_period)
+    thres = nu_t <= 1.0 / min_period
     nu_t_large[np.invert(thres)] = 1.0
     nu_t_small[thres] = 1.0
-    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large +
-               nu_t_small)
+    weight *= (
+        np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large
+        + nu_t_small
+    )
 
     # normalisation
     weight /= weight.max()
@@ -149,23 +168,24 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # The misfit can still be computed, even if not adjoint source is
     # available.
     if criterion > max_criterion:
-        warning = ("Possible phase jump detected. Misfit included. No "
-                   "adjoint source computed. Criterion: %.1f - Max allowed "
-                   "criterion: %.1f" % (criterion, max_criterion))
+        warning = (
+            "Possible phase jump detected. Misfit included. No "
+            "adjoint source computed. Criterion: %.1f - Max allowed "
+            "criterion: %.1f" % (criterion, max_criterion)
+        )
         warnings.warn(warning)
         messages.append(warning)
 
         ret_dict = {
             "adjoint_source": None,
             "misfit_value": phase_misfit,
-            "details": {"messages": messages}
+            "details": {"messages": messages},
         }
 
         return ret_dict
 
     # Make kernel for the inverse tf transform
-    idp = ne.evaluate(
-        "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
+    idp = ne.evaluate("weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
 
     # Invert tf transform and make adjoint source
     ad_src, it, I = time_frequency.itfa(tau, idp, width)
@@ -180,16 +200,18 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         old_dt=tau[1] - tau[0],
         new_start=original_time[0],
         new_dt=original_time[1] - original_time[0],
-        new_npts=len(original_time), a=8, window="blackmann")
+        new_npts=len(original_time),
+        a=8,
+        window="blackmann",
+    )
 
     # Divide by the misfit and change sign.
-    ad_src /= (phase_misfit + eps)
+    ad_src /= phase_misfit + eps
     ad_src = ad_src / ((t[1] - t[0]) ** 2) * dt_old
 
     # Taper at both ends. Exploit ObsPy to not have to deal with all the
     # nasty things.
-    ad_src = \
-        obspy.Trace(ad_src).taper(max_percentage=0.05, type="hann").data
+    ad_src = obspy.Trace(ad_src).taper(max_percentage=0.05, type="hann").data
 
     # Reverse time and add a leading zero so the adjoint source has the
     # same length as the input time series.
@@ -199,6 +221,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     if plot:
         import matplotlib as mpl
         import matplotlib.pyplot as plt
+
         plt.style.use("seaborn-whitegrid")
         from lasif.colors import get_colormap
 
@@ -221,49 +244,85 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         # Plot the weighted phase difference.
         weighted_phase_difference = (DP * weight).transpose()
         mappable = tf_axis.pcolormesh(
-            tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0,
+            tau,
+            nu,
+            weighted_phase_difference,
+            vmin=-1.0,
+            vmax=1.0,
             cmap=get_colormap("tomo_full_scale_linear_lightness_r"),
-            shading="gouraud", zorder=-10)
+            shading="gouraud",
+            zorder=-10,
+        )
         tf_axis.grid(True)
-        tf_axis.grid(True, which='minor', axis='both', linestyle='-',
-                     color='k')
+        tf_axis.grid(
+            True, which="minor", axis="both", linestyle="-", color="k"
+        )
 
         cm = fig.colorbar(mappable, cax=cm_axis)
         cm.set_label("Phase difference in radian", fontsize="large")
 
         # Various texts on the time frequency domain plot.
         text = "Misfit: %.4f" % phase_misfit
-        tf_axis.text(x=0.99, y=0.02, s=text, transform=tf_axis.transAxes,
-                     fontsize="large", color="#C25734", fontweight=900,
-                     verticalalignment="bottom",
-                     horizontalalignment="right")
+        tf_axis.text(
+            x=0.99,
+            y=0.02,
+            s=text,
+            transform=tf_axis.transAxes,
+            fontsize="large",
+            color="#C25734",
+            fontweight=900,
+            verticalalignment="bottom",
+            horizontalalignment="right",
+        )
 
-        txt = "Weighted Phase Difference - red is a phase advance of the " \
-              "synthetics"
-        tf_axis.text(x=0.99, y=0.95, s=txt,
-                     fontsize="large", color="0.1",
-                     transform=tf_axis.transAxes,
-                     verticalalignment="top",
-                     horizontalalignment="right")
+        txt = (
+            "Weighted Phase Difference - red is a phase advance of the "
+            "synthetics"
+        )
+        tf_axis.text(
+            x=0.99,
+            y=0.95,
+            s=txt,
+            fontsize="large",
+            color="0.1",
+            transform=tf_axis.transAxes,
+            verticalalignment="top",
+            horizontalalignment="right",
+        )
 
         if messages:
             message = "\n".join(messages)
-            tf_axis.text(x=0.99, y=0.98, s=message,
-                         transform=tf_axis.transAxes,
-                         bbox=dict(facecolor='red', alpha=0.8),
-                         verticalalignment="top",
-                         horizontalalignment="right")
+            tf_axis.text(
+                x=0.99,
+                y=0.98,
+                s=message,
+                transform=tf_axis.transAxes,
+                bbox=dict(facecolor="red", alpha=0.8),
+                verticalalignment="top",
+                horizontalalignment="right",
+            )
 
         # Adjoint source.
-        adj_src_axis.plot(original_time, ad_src[::-1], color="0.1", lw=2,
-                          label="Adjoint source (non-time-reversed)")
+        adj_src_axis.plot(
+            original_time,
+            ad_src[::-1],
+            color="0.1",
+            lw=2,
+            label="Adjoint source (non-time-reversed)",
+        )
         adj_src_axis.legend()
 
         # Waveforms.
-        waveforms_axis.plot(original_time, original_data, color="0.1", lw=2,
-                            label="Observed")
-        waveforms_axis.plot(original_time, original_synthetic,
-                            color="#C11E11", lw=2, label="Synthetic")
+        waveforms_axis.plot(
+            original_time, original_data, color="0.1", lw=2, label="Observed"
+        )
+        waveforms_axis.plot(
+            original_time,
+            original_synthetic,
+            color="#C11E11",
+            lw=2,
+            label="Synthetic",
+        )
         waveforms_axis.legend()
 
         # Set limits for all axes.
@@ -278,8 +337,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
         # Hack to keep ticklines but remove the ticks - there is probably a
         # better way to do this.
-        waveforms_axis.set_xticklabels([
-            "" for _i in waveforms_axis.get_xticks()])
+        waveforms_axis.set_xticklabels(
+            ["" for _i in waveforms_axis.get_xticks()]
+        )
         tf_axis.set_xticklabels(["" for _i in tf_axis.get_xticks()])
 
         _l = tf_axis.get_ylim()
@@ -293,13 +353,15 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         waveforms_axis.get_yaxis().set_label_coords(-0.08, 0.5)
         tf_axis.get_yaxis().set_label_coords(-0.08, 0.5)
 
-        fig.suptitle("Time Frequency Phase Misfit and Adjoint Source",
-                     fontsize="xx-large")
+        fig.suptitle(
+            "Time Frequency Phase Misfit and Adjoint Source",
+            fontsize="xx-large",
+        )
 
     ret_dict = {
         "adjoint_source": ad_src,
         "misfit_value": phase_misfit,
-        "details": {"messages": messages}
+        "details": {"messages": messages},
     }
 
     return ret_dict

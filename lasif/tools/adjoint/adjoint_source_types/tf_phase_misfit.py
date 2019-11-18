@@ -67,12 +67,20 @@ ADDITIONAL_PARAMETERS = r"""
 """
 
 
-def calculate_adjoint_source(observed, synthetic, window, min_period,
-                             max_period,
-                             adjoint_src,
-                             plot=False, max_criterion=7.0,
-                             taper=True, taper_ratio=0.15,
-                             taper_type="cosine", ** kwargs):
+def calculate_adjoint_source(
+    observed,
+    synthetic,
+    window,
+    min_period,
+    max_period,
+    adjoint_src,
+    plot=False,
+    max_criterion=7.0,
+    taper=True,
+    taper_ratio=0.15,
+    taper_type="cosine",
+    **kwargs
+):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -101,18 +109,22 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
     synthetic = synthetic.copy()
 
     if window:
-        observed = utils.window_trace(trace=observed,
-                                      window=window,
-                                      taper=taper,
-                                      taper_ratio=taper_ratio,
-                                      taper_type=taper_type,
-                                      **kwargs)
-        synthetic = utils.window_trace(trace=synthetic,
-                                       window=window,
-                                       taper=taper,
-                                       taper_ratio=taper_ratio,
-                                       taper_type=taper_type,
-                                       **kwargs)
+        observed = utils.window_trace(
+            trace=observed,
+            window=window,
+            taper=taper,
+            taper_ratio=taper_ratio,
+            taper_type=taper_type,
+            **kwargs
+        )
+        synthetic = utils.window_trace(
+            trace=synthetic,
+            window=window,
+            taper=taper,
+            taper_ratio=taper_ratio,
+            taper_type=taper_type,
+            **kwargs
+        )
 
     messages = []
 
@@ -146,12 +158,25 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
     # adjoint source at the end is re-interpolated to the original sampling
     # points.
     data = lanczos_interpolation(
-        data=observed.data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+        data=observed.data,
+        old_start=t[0],
+        old_dt=t[1] - t[0],
+        new_start=t[0],
+        new_dt=dt_new,
+        new_npts=len(ti),
+        a=8,
+        window="blackmann",
+    )
     synthetic = lanczos_interpolation(
-        data=synthetic.data, old_start=t[0], old_dt=t[1] - t[0],
-        new_start=t[0], new_dt=dt_new, new_npts=len(ti), a=8,
-        window="blackmann")
+        data=synthetic.data,
+        old_start=t[0],
+        old_dt=t[1] - t[0],
+        new_start=t[0],
+        new_dt=dt_new,
+        new_npts=len(ti),
+        a=8,
+        window="blackmann",
+    )
     original_time = t
     t = ti
 
@@ -163,10 +188,12 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
 
     # Compute time-frequency representation of the cross-correlation
     _, _, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, data, synthetic, width)
+        t, data, synthetic, width
+    )
     # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
-                                                                width)
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(
+        t, synthetic, width
+    )
 
     # -------------------------------------------------------------------------
     # compute tf window and weighting function
@@ -179,17 +206,19 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
 
     # highpass filter (periods longer than max_period are suppressed
     # exponentially)
-    weight *= (1.0 - np.exp(-(nu_t * max_period) ** 2))
+    weight *= 1.0 - np.exp(-((nu_t * max_period) ** 2))
 
     # lowpass filter (periods shorter than min_period are suppressed
     # exponentially)
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
-    thres = (nu_t <= 1.0 / min_period)
+    thres = nu_t <= 1.0 / min_period
     nu_t_large[np.invert(thres)] = 1.0
     nu_t_small[thres] = 1.0
-    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large +
-               nu_t_small)
+    weight *= (
+        np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large
+        + nu_t_small
+    )
 
     # normalisation
     weight /= weight.max()
@@ -224,25 +253,28 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
     # The misfit can still be computed, even if not adjoint source is
     # available.
     if criterion > max_criterion:
-        warning = ("Possible phase jump detected. Misfit included. No "
-                   "adjoint source computed. Criterion: %.1f - Max allowed "
-                   "criterion: %.1f" % (criterion, max_criterion))
+        warning = (
+            "Possible phase jump detected. Misfit included. No "
+            "adjoint source computed. Criterion: %.1f - Max allowed "
+            "criterion: %.1f" % (criterion, max_criterion)
+        )
         warnings.warn(warning)
         messages.append(warning)
 
         ret_dict = {
-
-            "adjoint_source": obspy.Trace(data=np.zeros_like(observed.data),
-                                          header=observed.stats),
+            "adjoint_source": obspy.Trace(
+                data=np.zeros_like(observed.data), header=observed.stats
+            ),
             "misfit": phase_misfit,
-            "details": {"messages": messages}
+            "details": {"messages": messages},
         }
 
         return ret_dict
     if adjoint_src:
         # Make kernel for the inverse tf transform
         idp = ne.evaluate(
-            "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
+            "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)"
+        )
 
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, idp, width)
@@ -257,10 +289,13 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
             old_dt=tau[1] - tau[0],
             new_start=original_time[0],
             new_dt=original_time[1] - original_time[0],
-            new_npts=len(original_time), a=8, window="blackmann")
+            new_npts=len(original_time),
+            a=8,
+            window="blackmann",
+        )
 
         # Divide by the misfit and change sign.
-        ad_src /= (phase_misfit + eps)
+        ad_src /= phase_misfit + eps
         ad_src = ad_src / ((t[1] - t[0]) ** 2) * dt_old
 
         # Reverse time and add a leading zero so the adjoint source has the
@@ -268,18 +303,23 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
         # ad_src = ad_src[::-1]
 
         # Calculate actual adjoint source. Not time reversed
-        adj_src = obspy.Trace(data=ad_src * window_weight,
-                              header=observed.stats)
+        adj_src = obspy.Trace(
+            data=ad_src * window_weight, header=observed.stats
+        )
         if window:
-            adj_src = utils.window_trace(trace=adj_src, window=window,
-                                         taper=taper,
-                                         taper_ratio=taper_ratio,
-                                         taper_type=taper_type, **kwargs)
+            adj_src = utils.window_trace(
+                trace=adj_src,
+                window=window,
+                taper=taper,
+                taper_ratio=taper_ratio,
+                taper_type=taper_type,
+                **kwargs
+            )
 
     ret_dict = {
         "adjoint_source": adj_src,
         "misfit": phase_misfit,
-        "details": {"messages": messages}
+        "details": {"messages": messages},
     }
 
     return ret_dict

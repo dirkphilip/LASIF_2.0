@@ -22,8 +22,10 @@ from lasif.tools.adjoint.adjoint_source_types import tf_phase_misfit
 from .testing_helpers import images_are_identical, reset_matplotlib
 
 
-data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
-    inspect.currentframe()))), "data")
+data_dir = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "data",
+)
 
 
 def setup_function(function):
@@ -37,12 +39,9 @@ def test_matlab_range():
     """
     Tests the Matlab range command.
     """
-    np.testing.assert_array_equal(utils.matlab_range(0, 5, 1),
-                                  np.arange(6))
-    np.testing.assert_array_equal(utils.matlab_range(0, 5.5, 1),
-                                  np.arange(6))
-    np.testing.assert_array_equal(utils.matlab_range(0, 4.9, 1),
-                                  np.arange(5))
+    np.testing.assert_array_equal(utils.matlab_range(0, 5, 1), np.arange(6))
+    np.testing.assert_array_equal(utils.matlab_range(0, 5.5, 1), np.arange(6))
+    np.testing.assert_array_equal(utils.matlab_range(0, 4.9, 1), np.arange(5))
 
 
 def test_dispersive_wavetrain():
@@ -52,7 +51,8 @@ def test_dispersive_wavetrain():
     """
     # Load the matlab file.
     matlab_file = os.path.join(
-        data_dir, "matlab_dispersive_wavetrain_reference_solution.mat")
+        data_dir, "matlab_dispersive_wavetrain_reference_solution.mat"
+    )
     matlab_file = loadmat(matlab_file)
     u_matlab = matlab_file["u"][0]
     u0_matlab = matlab_file["u0"][0]
@@ -60,8 +60,12 @@ def test_dispersive_wavetrain():
     np.testing.assert_allclose(u, u_matlab)
     np.testing.assert_allclose(t, np.arange(901))
     t0, u0 = utils.get_dispersed_wavetrain(
-        a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
-        body_wave_freq_scale=1.0 / 2.2)
+        a=3.91,
+        b=0.87,
+        c=0.8,
+        body_wave_factor=0.015,
+        body_wave_freq_scale=1.0 / 2.2,
+    )
     np.testing.assert_allclose(u0, u0_matlab)
     np.testing.assert_allclose(t0, np.arange(901))
 
@@ -73,14 +77,19 @@ def test_cross_correlation():
     """
     # Load the matlab file.
     matlab_file = os.path.join(
-        data_dir, "matlab_cross_correlation_reference_solution.mat")
+        data_dir, "matlab_cross_correlation_reference_solution.mat"
+    )
     cc_matlab = loadmat(matlab_file)["cc"][0]
 
     # Calculate two test signals.
     _, u = utils.get_dispersed_wavetrain()
     _, u0 = utils.get_dispersed_wavetrain(
-        a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
-        body_wave_freq_scale=1.0 / 2.2)
+        a=3.91,
+        b=0.87,
+        c=0.8,
+        body_wave_factor=0.015,
+        body_wave_freq_scale=1.0 / 2.2,
+    )
 
     cc = utils.cross_correlation(u, u0)
     np.testing.assert_allclose(cc, cc_matlab)
@@ -92,11 +101,11 @@ def test_time_frequency_transform():
     """
     t, u = utils.get_dispersed_wavetrain(dt=2.0)
     tau, nu, tfs = time_frequency.time_frequency_transform(
-        t=t, s=u, width=10.0)
+        t=t, s=u, width=10.0
+    )
 
     # Load the matlab output.
-    matlab = os.path.join(
-        data_dir, "matlab_tfa_output_reference_solution.mat")
+    matlab = os.path.join(data_dir, "matlab_tfa_output_reference_solution.mat")
     matlab = loadmat(matlab)
     tfs_matlab = matlab["tfs"]
 
@@ -107,7 +116,7 @@ def test_time_frequency_transform():
     tfs_matlab = tfs_matlab[200:, :]
 
     # Some tolerance is needed to due numeric differences.
-    tolerance = 1E-5
+    tolerance = 1e-5
     min_value = np.abs(tfs).max() * tolerance
     tfs[np.abs(tfs) < min_value] = 0 + 0j
     tfs_matlab[np.abs(tfs_matlab) < min_value] = 0 + 0j
@@ -120,10 +129,10 @@ def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     """
     Tests the plot for a time-frequency misfit adjoint source.
     """
-    obs, syn = obspy.read(
-        os.path.join(data_dir, "adj_src_test.mseed")).traces
+    obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
 
     import matplotlib.pyplot as plt
+
     plt.figure(figsize=(15, 10))
 
     tf_phase_misfit.calculate_adjoint_source(
@@ -133,7 +142,8 @@ def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
         min_period=20.0,
         max_period=100.0,
         adjoint_src=True,
-        plot=True)
+        plot=True,
+    )
     # High tolerance as fonts are for some reason shifted on some systems.
     # This should still be safe as a differnce in the actual tf difference
     # or the waveforms would induce changes all over the plot which would

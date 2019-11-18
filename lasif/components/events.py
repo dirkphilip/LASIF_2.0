@@ -27,6 +27,7 @@ class EventsComponent(Component):
     :param component_name: The name of this component for the
         communicator.
     """
+
     def __init__(self, folder, communicator, component_name):
         super(EventsComponent, self).__init__(communicator, component_name)
         self.__event_info_cache = {}
@@ -47,19 +48,20 @@ class EventsComponent(Component):
             ("m_tp"),
             ("magnitude"),
             ("magnitude_type"),
-            ("region")]
+            ("region"),
+        ]
 
         self.all_events = {}
         self.fill_all_events()
 
     def fill_all_events(self):
-        files = glob.glob(os.path.join(self.folder, '*.h5'))
+        files = glob.glob(os.path.join(self.folder, "*.h5"))
         for file in files:
             event_name = os.path.splitext(os.path.basename(file))[0]
             self.all_events[event_name] = file
 
     def _update_cache(self):
-        files = glob.glob(os.path.join(self.folder, '*.h5'))
+        files = glob.glob(os.path.join(self.folder, "*.h5"))
         for filename in files:
             event_name = os.path.splitext(os.path.basename(filename))[0]
             self.get(event_name)
@@ -70,19 +72,23 @@ class EventsComponent(Component):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        ds = pyasdf.ASDFDataSet(filename, mode='r', mpi=False)
+        ds = pyasdf.ASDFDataSet(filename, mode="r", mpi=False)
         event = ds.events[0]
 
         # Extract information.
         mag = event.preferred_magnitude() or event.magnitudes[0]
         org = event.preferred_origin() or event.origins[0]
         if org.depth is None:
-            warnings.warn("Origin contains no depth. Will be assumed to be 0",
-                          LASIFWarning)
+            warnings.warn(
+                "Origin contains no depth. Will be assumed to be 0",
+                LASIFWarning,
+            )
             org.depth = 0.0
         if mag.magnitude_type is None:
-            warnings.warn("Magnitude has no specified type. Will be assumed "
-                          "to be Mw", LASIFWarning)
+            warnings.warn(
+                "Magnitude has no specified type. Will be assumed " "to be Mw",
+                LASIFWarning,
+            )
             mag.magnitude_type = "Mw"
 
         # Get the moment tensor.
@@ -106,7 +112,7 @@ class EventsComponent(Component):
             float(mt.m_tp),
             float(mag.mag),
             str(mag.magnitude_type),
-            str(FlinnEngdahl().get_region(org.longitude, org.latitude))
+            str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
         ]
 
     def list(self, iteration=None):
@@ -120,12 +126,18 @@ class EventsComponent(Component):
         self._update_cache()
         if iteration:
             import toml
+
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)
-            path = os.path.join(self.comm.project.paths["iterations"],
-                                iter_name, "central_info.toml")
+            path = os.path.join(
+                self.comm.project.paths["iterations"],
+                iter_name,
+                "central_info.toml",
+            )
             if not os.path.exists(path):
-                print("You do not have any iteration toml. "
-                      "Will give all events")
+                print(
+                    "You do not have any iteration toml. "
+                    "Will give all events"
+                )
                 return sorted(self.__event_info_cache.keys())
             iter_info = toml.load(path)
             event_toml = iter_info["events"]["events_used"]
@@ -145,12 +157,18 @@ class EventsComponent(Component):
         """
         if iteration:
             import toml
+
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)
-            path = os.path.join(self.comm.project.paths["iterations"],
-                                iter_name, "central_info.toml")
+            path = os.path.join(
+                self.comm.project.paths["iterations"],
+                iter_name,
+                "central_info.toml",
+            )
             if not os.path.exists(path):
-                print("You do not have any iteration toml. "
-                      "Will give all events")
+                print(
+                    "You do not have any iteration toml. "
+                    "Will give all events"
+                )
                 return len(self.all_events)
             iter_info = toml.load(path)
             event_toml = iter_info["events"]["events_used"]
@@ -193,8 +211,12 @@ class EventsComponent(Component):
         # make sure cache is filled
         self._update_cache()
         if iteration:
-            return copy.deepcopy({event: self.__event_info_cache[event]
-                                  for event in self.list(iteration)})
+            return copy.deepcopy(
+                {
+                    event: self.__event_info_cache[event]
+                    for event in self.list(iteration)
+                }
+            )
         else:
             return copy.deepcopy(self.__event_info_cache)
 
@@ -240,13 +262,19 @@ class EventsComponent(Component):
             pass
 
         if event_name not in self.all_events:
-            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
-                                     event_name)
+            raise LASIFNotFoundError(
+                "Event '%s' not known to LASIF." % event_name
+            )
 
         if event_name not in self.__event_info_cache:
-            values = dict(zip(self.index_values,
-                              self._extract_index_values_quakeml(
-                                  self.all_events[event_name])))
+            values = dict(
+                zip(
+                    self.index_values,
+                    self._extract_index_values_quakeml(
+                        self.all_events[event_name]
+                    ),
+                )
+            )
             values["origin_time"] = obspy.UTCDateTime(values["origin_time"])
             self.__event_info_cache[event_name] = values
         return self.__event_info_cache[event_name]

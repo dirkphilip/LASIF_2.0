@@ -14,8 +14,15 @@ from lasif.components.project import Project
 
 @pytest.fixture()
 def comm(tmpdir):
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -30,8 +37,10 @@ def test_config_file_creation_and_parsing(tmpdir):
     Tests the creation of a default config file and the reading of the file.
     """
     # Create a new project.
-    pr = Project(project_root_path=pathlib.Path(str(tmpdir)).absolute(),
-                 init_project="TestProject")
+    pr = Project(
+        project_root_path=pathlib.Path(str(tmpdir)).absolute(),
+        init_project="TestProject",
+    )
     del pr
 
     # Init it once again.
@@ -42,11 +51,24 @@ def test_config_file_creation_and_parsing(tmpdir):
     assert pr.config["project_name"] == "TestProject"
     assert pr.config["description"] == ""
     assert pr.config["download_settings"]["channel_priorities"] == [
-        "BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]"]
+        "BH[Z,N,E]",
+        "LH[Z,N,E]",
+        "HH[Z,N,E]",
+        "EH[Z,N,E]",
+        "MH[Z,N,E]",
+    ]
     assert pr.config["download_settings"]["location_priorities"] == [
-        "", "00", "10", "20", "01", "02"]
-    assert pr.config["download_settings"]["interstation_"
-                                          "distance_in_meters"] == 1000.0
+        "",
+        "00",
+        "10",
+        "20",
+        "01",
+        "02",
+    ]
+    assert (
+        pr.config["download_settings"]["interstation_" "distance_in_meters"]
+        == 1000.0
+    )
     assert pr.config["download_settings"]["seconds_after_event"] == 3600.0
     assert pr.config["download_settings"]["seconds_before_event"] == 300.0
 
@@ -56,10 +78,12 @@ def test_output_folder_name(comm):
     Silly test to safeguard against regressions.
     """
     import obspy
+
     cur_time = obspy.UTCDateTime()
 
     output_dir = comm.project.get_output_folder(
-        type="random", tag="some_string")
+        type="random", tag="some_string"
+    )
 
     basename = os.path.basename(output_dir)
     type_dir = os.path.basename(os.path.dirname(output_dir))
@@ -79,7 +103,7 @@ def test_string_representation(comm, capsys):
     print(comm.project)
     out = capsys.readouterr()[0]
     print(out)
-    assert "\"example_project\"" in out
+    assert '"example_project"' in out
     assert "Toy Project used in the Test Suite" in out
     assert "2 events" in out
 
@@ -89,6 +113,7 @@ def test_log_filename_creation(comm):
     Tests the logfiles.
     """
     import obspy
+
     cur_time = obspy.UTCDateTime()
 
     log_file = comm.project.get_log_file("DOWNLOADS", "some_event")

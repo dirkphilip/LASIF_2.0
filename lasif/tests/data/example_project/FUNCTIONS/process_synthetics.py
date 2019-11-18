@@ -11,6 +11,7 @@ Project specific function for modifying synthetics on the fly.
 """
 import copy
 
+
 def process_synthetics(st, processing_params, event):  # NOQA
     """
     This function is called after a synthetic file has been read.
@@ -30,8 +31,8 @@ def process_synthetics(st, processing_params, event):  # NOQA
     if/else on the iteration objects.
     """
 
-    min_period = processing_params['highpass_period']
-    max_period = processing_params['lowpass_period']
+    min_period = processing_params["highpass_period"]
+    max_period = processing_params["lowpass_period"]
     st = copy.deepcopy(st)  # We do not want to modify actual synthetics
     # Currently a no-op.
     # This function will modify each waveform stream. It must
@@ -43,8 +44,9 @@ def process_synthetics(st, processing_params, event):  # NOQA
 
     # Assuming displacement seismograms
     for tr in st:
-        tr.stats.starttime = \
+        tr.stats.starttime = (
             event["origin_time"] + processing_params["salvus_start_time"]
+        )
 
     if processing_params["stf"] == "heaviside":
 
@@ -52,14 +54,24 @@ def process_synthetics(st, processing_params, event):  # NOQA
         st.detrend("linear")
         st.detrend("demean")
         st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=False)
+        st.filter(
+            "bandpass",
+            freqmin=1.0 / max_period,
+            freqmax=1.0 / min_period,
+            corners=3,
+            zerophase=False,
+        )
 
         st.detrend("linear")
         st.detrend("demean")
         st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=False)
+        st.filter(
+            "bandpass",
+            freqmin=1.0 / max_period,
+            freqmax=1.0 / min_period,
+            corners=3,
+            zerophase=False,
+        )
     # for tr in st:
     #     tr.data = np.require(tr.data, dtype="float32", requirements="C")
 

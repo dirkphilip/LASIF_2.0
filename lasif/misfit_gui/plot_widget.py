@@ -29,8 +29,10 @@ class PlotWidget(pyqtgraph.PlotWidget):
         t = time.time()
         if self.click_active:
             self.click_active = False
-            if not self.last_click or (t - self.last_click.time) > \
-                    MAX_TIME_BETWEEN_CLICKS:
+            if (
+                not self.last_click
+                or (t - self.last_click.time) > MAX_TIME_BETWEEN_CLICKS
+            ):
                 self.click_active = True
                 self.last_click = Click(ev, t)
                 return

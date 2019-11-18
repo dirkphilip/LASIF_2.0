@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Classes handling the domain definition and associated functionality for LASIF.
 
 Matplotlib is imported lazily to avoid heavy startup costs.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
+    Solvi Thrastarson, (soelvi.thrastarson@erdw.ethz.ch) 2019
 
 :license:
     GNU General Public License, Version 3
@@ -14,24 +12,23 @@ Matplotlib is imported lazily to avoid heavy startup costs.
 """
 import pathlib
 import typing
-import warnings
 
 import numpy as np
-from pyexodus import exodus
+import h5py
 from scipy.spatial import cKDTree
 
-from lasif import LASIFNotFoundError, LASIFError, LASIFWarning
+from lasif import LASIFNotFoundError, LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
-class ExodusDomain:
-    def __init__(self,
-                 exodus_file: typing.Union[str, pathlib.Path],
-                 num_buffer_elems: int):
-        self.exodus_file = str(exodus_file)
+class HDF5Domain:
+    def __init__(
+        self, mesh_file: typing.Union[str, pathlib.Path], num_buffer_elems: int
+    ):
+        self.mesh_file = str(mesh_file)
         self.num_buffer_elems = num_buffer_elems
         self.r_earth = 6371000
-        self.e = None
+        self.m = None
         self.is_global_mesh = False
         self.domain_edge_tree = None
         self.earth_surface_tree = None
@@ -58,24 +55,28 @@ class ExodusDomain:
         further processing is not necessary.
         """
         try:
-            self.e = exodus(self.exodus_file, mode='r')
+            self.m = h5py.File(self.mesh_file, mode="r")
         except AssertionError:
-            msg = ("Could not open the project's mesh file. "
-                   "Please ensure that the path specified "
-                   "in config is correct.")
+            msg = (
+                "Could not open the project's mesh file. "
+                "Please ensure that the path specified "
+                "in config is correct."
+            )
             raise LASIFNotFoundError(msg)
 
         # if less than 2 side sets, this must be a global mesh.  Return
-        self.side_set_names = self.e.get_side_set_names()
-        if len(self.side_set_names) <= 2 and 'outer_boundary' \
-                not in self.side_set_names:
+        self.side_set_names = list(self.m["SIDE_SETS"].keys())
+        if (
+            len(self.side_set_names) <= 2
+            and "outer_boundary" not in self.side_set_names
+        ):
             self.is_global_mesh = True
             self.min_lat = -90.0
             self.max_lat = 90.0
             self.min_lon = -180.0
             self.max_lon = 180.0
             return
-        if 'a0' in self.side_set_names:
+        if "a0" in self.side_set_names:
             self.is_global_mesh = True
             self.min_lat = -90.0
             self.max_lat = 90.0
@@ -83,99 +84,120 @@ class ExodusDomain:
             self.max_lon = 180.0
             return
 
-        side_nodes = []
-        earth_surface_nodes = []
-        earth_bottom_nodes = []
+        side_elements = []
+        earth_surface_elements = []
+        earth_bottom_elements = []
         for side_set in self.side_set_names:
             if side_set == "surface":
                 continue
-            if side_set == "r0":
-                idx = self.e.get_side_set_ids()[
-                    self.side_set_names.index(side_set)]
-                _, earth_bottom_nodes = self.e.get_side_set_node_list(idx)
-                continue
-            idx = self.e.get_side_set_ids()[
-                self.side_set_names.index(side_set)]
+            elif side_set == "r0":
+                earth_bottom_elements = self.m["SIDE_SETS"][side_set][
+                    "elements"
+                ][()]
 
-            if side_set == "r1":
-                _, earth_surface_nodes = self.e.get_side_set_node_list(idx)
-                continue
+            elif side_set == "r1":
+                earth_surface_elements = self.m["SIDE_SETS"][side_set][
+                    "elements"
+                ][()]
 
-            _, nodes_side_set = list(self.e.get_side_set_node_list(idx))
-            side_nodes.extend(nodes_side_set)
+            else:
+                side_elements.append(
+                    self.m["SIDE_SETS"][side_set]["elements"][()]
+                )
+
+        side_elements_tmp = np.array([], dtype=np.int)
+        for i in range(len(side_elements)):
+            side_elements_tmp = np.concatenate(
+                (side_elements_tmp, side_elements[i])
+            )
 
         # Remove Duplicates
-        side_nodes = np.unique(side_nodes)
+        side_elements = np.unique(side_elements_tmp)
 
         # Get node numbers of the nodes specifying the domain boundaries
-        boundary_nodes = np.intersect1d(side_nodes, earth_surface_nodes)
-        bottom_boundaries = np.intersect1d(side_nodes, earth_bottom_nodes)
-
-        # Deduct 1 from the nodes indices, (exodus is 1 based)
-        boundary_nodes -= 1
-        bottom_boundaries -= 1
-        earth_surface_nodes -= 1
-        earth_bottom_nodes -= 1
+        surface_boundaries = np.intersect1d(
+            side_elements, earth_surface_elements
+        )
+        bottom_boundaries = np.intersect1d(
+            side_elements, earth_bottom_elements
+        )
 
         # Get coordinates
-        points = np.array(self.e.get_coords()).T
-        self.domain_edge_coords = points[boundary_nodes]
-        self.earth_surface_coords = points[earth_surface_nodes]
-        self.earth_bottom_coords = points[earth_bottom_nodes]
-        self.bottom_edge_coords = points[bottom_boundaries]
+        coords = self.m["MODEL/coordinates"][()]
+        self.domain_edge_coords = coords[surface_boundaries]
+        self.earth_surface_coords = coords[earth_surface_elements]
+        self.earth_bottom_coords = coords[earth_bottom_elements]
+        self.bottom_edge_coords = coords[bottom_boundaries]
 
         # Get approximation of element width, take second smallest value
-        first_node = self.domain_edge_coords[0, :]
-        distances_to_node = self.domain_edge_coords - first_node
-        r = np.sqrt(np.sum(distances_to_node ** 2, axis=1))
-
-        self.approx_elem_width = np.sort(r)[2]
+        # first_node = self.domain_edge_coords[0, :]
+        # distances_to_node = self.domain_edge_coords - first_node
+        # r = np.sqrt(np.sum(distances_to_node ** 2, axis=1))
+        # For now we will just take a random point on the surface and
+        # take the maximum distance between gll points and use that
+        # as the element with. It should be an overestimation
+        x, y, z = self.earth_surface_coords[0, :, :].T
+        r = np.sqrt(
+            (max(x) - min(x)) ** 2
+            + (max(y) - min(y)) ** 2
+            + (max(z) - min(z)) ** 2
+        )
+        self.approx_elem_width = r
+        print(r)
+        # self.approx_elem_width = np.sort(r)[2]
 
         # get max element edge length
-        edge_aspect_ratio = self.e.get_element_variable_values(
-            1, "edge_aspect_ratio", 1)
 
         # TODO: This is not a completely stable way of assessing maximum edge
         # length of a mesh, which in turn is used to determine whether or not
         # a source lies in the domain. Should be looked in to.
-        try:
-            # See if the mesh contains the hmin field
-            hmin = self.e.get_element_variable_values(1, "hmin", 1)
-            self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
-        except ValueError:
-            # Otherwise use the CFL criterion to determine max dx /
-            # edge length:
-            #
-            #    max(v) * min(dt)
-            #    ----------------  =< 1 --> dx ~= max_v * min_dt
-            #           ?dx
+        # try:
+        #     # See if the mesh contains the hmin field
+        #     edge_aspect_ratio = self.e.get_element_variable_values(
+        #       1, "edge_aspect_ratio", 1)
+        #     hmin = self.e.get_element_variable_values(1, "hmin", 1)
+        #     self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
+        # except ValueError:
+        # Otherwise use the CFL criterion to determine max dx /
+        # edge length:
+        #
+        #    max(v) * min(dt)
+        #    ----------------  =< 1 --> dx ~= max_v * min_dt
+        #           ?dx
 
-            # Get minimal timestep from the mesh
-            min_dt = self.e.get_global_variable_values("dt")
-            try:
-                # First try to access separate VPV/VPH fields ...
-                max_v = np.max([self.e.get_node_variable_values("VPV", 1),
-                                self.e.get_node_variable_values("VPH", 1)])
-            except Exception as e:
-                # ... but some meshes only have VP ...
-                print(e)
-                max_v = np.max(self.e.get_node_variable_values("VP", 1))
-            except Exception as e:
-                # ... finally, if it has neither, we've run out of ideas
-                print(e)
-                raise ValueError("Was not able to estimate edge length.")
-            self.max_elem_edge_length = max_v * min_dt
+        # Get minimal timestep from the mesh
+        # min_dt = self.e.get_global_variable_values("dt")
+        min_dt = 0.2  # TODO: Fix this
+        # try:
+        #     # First try to access separate VPV/VPH fields ...
+        #     max_v = np.max([self.e.get_node_variable_values("VPV", 1),
+        #                     self.e.get_node_variable_values("VPH", 1)])
+        # except Exception as e:
+        #     # ... but some meshes only have VP ...
+        #     print(e)
+        # max_v = np.max(self.e.get_node_variable_values("VP", 1))
+        # except Exception as e:
+        #     # ... finally, if it has neither, we've run out of ideas
+        #     print(e)
+        #     raise ValueError("Was not able to estimate edge length.")
+        max_v = 7000.0
+        self.max_elem_edge_length = max_v * min_dt
 
         # self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
         # self.max_elem_edge_length = 20.0 # todo remember to remove
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
+        # pick a random GLL point to represent the boundary
+        x = x[0]
+        y = y[0]
+        z = z[0]
 
         # get center lat/lon
-        x_cen, y_cen, z_cen = np.sum(x), np.sum(y), np.sum(z)
-        self.center_lat, self.center_lon, _ = \
-            xyz_to_lat_lon_radius(x_cen, y_cen, z_cen)
+        x_cen, y_cen, z_cen = np.median(x), np.median(y), np.median(z)
+        self.center_lat, self.center_lon, _ = xyz_to_lat_lon_radius(
+            x_cen, y_cen, z_cen
+        )
 
         # get extent
         lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
@@ -187,6 +209,7 @@ class ExodusDomain:
 
         # Get coords for the bottom edge of mesh
         x, y, z = self.bottom_edge_coords.T
+        x, y, z = x[0], y[0], z[0]
 
         # Figure out maximum depth of mesh
         _, _, r = xyz_to_lat_lon_radius(x, y, z)
@@ -196,7 +219,7 @@ class ExodusDomain:
         self.is_read = True
 
         # Close file
-        self.e.close()
+        self.m.close()
 
     def _initialize_kd_trees(self):
         if not self.is_read:
@@ -207,8 +230,8 @@ class ExodusDomain:
             return
 
         # build KDTree that can be used for querying later
-        self.earth_surface_tree = cKDTree(self.earth_surface_coords)
-        self.domain_edge_tree = cKDTree(self.domain_edge_coords)
+        self.earth_surface_tree = cKDTree(self.earth_surface_coords[:, 0, :])
+        self.domain_edge_tree = cKDTree(self.domain_edge_coords[:, 0, :])
         self.KDTrees_initialized = True
 
     def get_side_set_names(self):
@@ -235,14 +258,17 @@ class ExodusDomain:
 
         # Assuming a spherical Earth without topography
         point_on_surface = lat_lon_radius_to_xyz(
-            latitude, longitude, self.r_earth)
+            latitude, longitude, self.r_earth
+        )
 
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
+        # print(f"Dist: {dist}")
+        # print(f"Approx elem with: {self.approx_elem_width}")
 
         # False if not close enough to domain surface, this might go wrong
         # for meshes with significant topography/ellipticity in
         # combination with a small element size.
-        if dist > 3 * self.approx_elem_width:
+        if dist > 1.5 * self.approx_elem_width:
             return False
 
         # Check whether domain is deep enough to include the point.
@@ -250,8 +276,10 @@ class ExodusDomain:
         # print(f"Max depth: {self.max_depth}")
         # print(f"Approx el with: {self.approx_elem_width}")
         if depth:
-            if depth > (self.max_depth - self.num_buffer_elems *
-                        self.approx_elem_width * 1.5):
+            if depth > (
+                self.max_depth
+                - self.num_buffer_elems * self.approx_elem_width * 1.5
+            ):
                 return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
@@ -276,7 +304,7 @@ class ExodusDomain:
             self._read()
 
         import matplotlib.pyplot as plt
-        from matplotlib.patches import Polygon
+        # from matplotlib.patches import Polygon
         from mpl_toolkits.basemap import Basemap
 
         if ax is None:
@@ -285,7 +313,7 @@ class ExodusDomain:
 
         # if global mesh return moll
         if self.is_global_mesh:
-            m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
+            m = Basemap(projection="moll", lon_0=0, resolution="c", ax=ax)
             _plot_features(m, stepsize=45.0)
             return m
 
@@ -295,13 +323,23 @@ class ExodusDomain:
 
         # Use a global plot for very large domains.
         if lat_extent >= 120.0 and lon_extent >= 120.0:
-            m = Basemap(projection='moll', lon_0=self.center_lon,
-                        lat_0=self.center_lat, resolution="c", ax=ax)
+            m = Basemap(
+                projection="moll",
+                lon_0=self.center_lon,
+                lat_0=self.center_lat,
+                resolution="c",
+                ax=ax,
+            )
             stepsize = 45.0
 
         elif max_extent >= 75.0:
-            m = Basemap(projection='ortho', lon_0=self.center_lon,
-                        lat_0=self.center_lat, resolution="c", ax=ax)
+            m = Basemap(
+                projection="ortho",
+                lon_0=self.center_lon,
+                lat_0=self.center_lat,
+                resolution="c",
+                ax=ax,
+            )
             stepsize = 10.0
         else:
             resolution = "l"
@@ -322,21 +360,27 @@ class ExodusDomain:
             width *= 110000 * 1.1
             height *= 110000 * 1.3
 
-            m = Basemap(projection='lcc', resolution=resolution, width=width,
-                        height=height, lat_0=self.center_lat,
-                        lon_0=self.center_lon, ax=ax)
+            m = Basemap(
+                projection="lcc",
+                resolution=resolution,
+                width=width,
+                height=height,
+                lat_0=self.center_lat,
+                lon_0=self.center_lon,
+                ax=ax,
+            )
 
         try:
-            sorted_indices = self.get_sorted_edge_coords()
-            x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
-            lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
-            lines = np.array([lats, lons]).T
-            _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
+            # sorted_indices = self.get_sorted_edge_coords()
+            # x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
+            # lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
+            # lines = np.array([lats, lons]).T
+            # _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
 
             if plot_inner_boundary:
                 # Get surface points
                 x, y, z = self.earth_surface_coords.T
-                latlonrad = np.array(xyz_to_lat_lon_radius(x, y, z))
+                latlonrad = np.array(xyz_to_lat_lon_radius(x[0], y[0], z[0]))
 
                 # This part is potentially slow when lots
                 # of points need to be checked
@@ -350,53 +394,59 @@ class ExodusDomain:
 
                 # Get the complex hull from projected (to 2D) points
                 from scipy.spatial import ConvexHull
+
                 x, y = m(lons, lats)
                 points = np.array((x, y)).T
                 hull = ConvexHull(points)
 
                 # Plot the hull simplices
                 for simplex in hull.simplices:
-                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5",
-                           zorder=6)
+                    m.plot(
+                        points[simplex, 0],
+                        points[simplex, 1],
+                        color="0.5",
+                        zorder=6,
+                    )
 
         except LASIFError:
             # Back up plot if the other one fails, which happens for
             # very weird meshes sometimes.
             # This Scatter all edge nodes on the plotted domain
             x, y, z = self.domain_edge_coords.T
-            lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
+            lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
             x, y = m(lons, lats)
-            m.scatter(x, y, color='k', label="Edge nodes", zorder=3000)
+            m.scatter(x, y, color="k", label="Edge nodes", zorder=3000)
 
-        if show_mesh:
-            with exodus(self.exodus_file, mode='r') as e:
-                if "r1" not in e.get_side_set_names():
-                    msg = "Mesh not plotted as side set `r1` not part of mesh"
-                    warnings.warn(msg, LASIFWarning)
-                else:
-                    num_nodes, node_ids = e.get_side_set_node_list(
-                        e.get_side_set_ids()[
-                            e.get_side_set_names().index("r1")])
-                    # SHould not really happen - maybe with tet meshes?
-                    if not np.array_equal(np.unique(num_nodes), [4]):  # NOQA
-                        raise NotImplementedError
-                    # A bit ugly here that we read all points but probably
-                    # still faster than doing it directly on HDF5 with all
-                    # kinds or reordering tricks.
-                    points = np.array(e.get_coords()).T[node_ids - 1]
-                    lats, lons, _ = xyz_to_lat_lon_radius(
-                        points[:, 0], points[:, 1], points[:, 2])
-                    x, y = m(lons, lats)
-                    x = x.reshape((len(x) // 4, 4))
-                    y = y.reshape((len(y) // 4, 4))
-                    polygons = [
-                        Polygon(np.array([_x, _y]).T,
-                                facecolor=(0.90, 0.55, 0.28, 0.5),
-                                edgecolor=(0.1, 0.1, 0.1, 0.5),
-                                zorder=5, linewidth=0.5)
-                        for _x, _y in zip(x, y)]
-                    for p in polygons:
-                        m.ax.add_patch(p)
+        # if show_mesh:
+        #     with exodus(self.exodus_file, mode='r') as e:
+        #         if "r1" not in e.get_side_set_names():
+        #             msg = "Mesh not plotted as side set `r1` not part of
+        #                   mesh"
+        #             warnings.warn(msg, LASIFWarning)
+        #         else:
+        #             num_nodes, node_ids = e.get_side_set_node_list(
+        #                 e.get_side_set_ids()[
+        #                     e.get_side_set_names().index("r1")])
+        #             # SHould not really happen - maybe with tet meshes?
+        #             if not np.array_equal(np.unique(num_nodes), [4]):  # NOQA
+        #                 raise NotImplementedError
+        #             # A bit ugly here that we read all points but probably
+        #             # still faster than doing it directly on HDF5 with all
+        #             # kinds or reordering tricks.
+        #             points = np.array(e.get_coords()).T[node_ids - 1]
+        #             lats, lons, _ = xyz_to_lat_lon_radius(
+        #                 points[:, 0], points[:, 1], points[:, 2])
+        #             x, y = m(lons, lats)
+        #             x = x.reshape((len(x) // 4, 4))
+        #             y = y.reshape((len(y) // 4, 4))
+        #             polygons = [
+        #                 Polygon(np.array([_x, _y]).T,
+        #                         facecolor=(0.90, 0.55, 0.28, 0.5),
+        #                         edgecolor=(0.1, 0.1, 0.1, 0.5),
+        #                         zorder=5, linewidth=0.5)
+        #                 for _x, _y in zip(x, y)]
+        #             for p in polygons:
+        #                 m.ax.add_patch(p)
 
         _plot_features(m, stepsize=stepsize)
         ax.legend(framealpha=0.5, loc="lower right")
@@ -408,6 +458,7 @@ class ExodusDomain:
         this method should work, as long as the top surfaces of the elements
         are approximately square
         """
+        # This function is not working currently as we move to hdf5
 
         if not self.KDTrees_initialized:
             self._initialize_kd_trees()
@@ -415,7 +466,8 @@ class ExodusDomain:
         # For each point get the indices of the five nearest points, of
         # which the first one is the point itself.
         _, indices_nearest = self.domain_edge_tree.query(
-            self.domain_edge_coords, k=5)
+            self.domain_edge_coords, k=5
+        )
 
         num_edge_points = len(self.domain_edge_coords)
         indices_sorted = np.zeros(num_edge_points, dtype=int)
@@ -435,8 +487,10 @@ class ExodusDomain:
             elif not closest_indices[3] in indices_sorted:
                 indices_sorted[i] = closest_indices[3]
             else:
-                raise LASIFError("Edge node sort algorithm only works "
-                                 "for reasonably square elements")
+                raise LASIFError(
+                    "Edge node sort algorithm only works "
+                    "for reasonably square elements"
+                )
         return indices_sorted
 
     def get_max_extent(self):
@@ -453,15 +507,19 @@ class ExodusDomain:
             self._read()
 
         if self.is_global_mesh:
-            return {"minimum_latitude": -90.0,
-                    "maximum_latitude": 90.0,
-                    "minimum_longitude": -180.0,
-                    "maximum_longitude": 180.0}
+            return {
+                "minimum_latitude": -90.0,
+                "maximum_latitude": 90.0,
+                "minimum_longitude": -180.0,
+                "maximum_longitude": 180.0,
+            }
 
-        return {"minimum_latitude": self.min_lat,
-                "maximum_latitude": self.max_lat,
-                "minimum_longitude": self.min_lon,
-                "maximum_longitude": self.max_lon}
+        return {
+            "minimum_latitude": self.min_lat,
+            "maximum_latitude": self.max_lat,
+            "minimum_longitude": self.min_lon,
+            "maximum_longitude": self.max_lon,
+        }
 
     def __str__(self):
         return "Exodus Domain"
@@ -481,15 +539,12 @@ def _plot_features(map_object, stepsize):
     """
     import matplotlib.pyplot as plt
 
-    map_object.drawmapboundary(fill_color='#bbbbbb')
-    map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=1)
+    map_object.drawmapboundary(fill_color="#bbbbbb")
+    map_object.fillcontinents(color="white", lake_color="#cccccc", zorder=1)
     plt.gcf().patch.set_alpha(0.0)
 
     # Style for parallels and meridians.
-    LINESTYLE = {
-        "linewidth": 0.5,
-        "dashes": [],
-        "color": "#999999"}
+    LINESTYLE = {"linewidth": 0.5, "dashes": [], "color": "#999999"}
 
     # Parallels.
     if map_object.projection in ["moll", "laea"]:
@@ -497,8 +552,9 @@ def _plot_features(map_object, stepsize):
     else:
         label = False
     parallels = np.arange(-90.0, 90.0, stepsize)
-    map_object.drawparallels(parallels, labels=[False, label, False, False],
-                             zorder=200, **LINESTYLE)
+    map_object.drawparallels(
+        parallels, labels=[False, label, False, False], zorder=200, **LINESTYLE
+    )
     # Meridians.
     if map_object.projection in ["laea"]:
         label = True
@@ -506,15 +562,16 @@ def _plot_features(map_object, stepsize):
         label = False
     meridians = np.arange(0.0, 360.0, stepsize)
     map_object.drawmeridians(
-        meridians, labels=[False, False, False, label], zorder=200,
-        **LINESTYLE)
+        meridians, labels=[False, False, False, label], zorder=200, **LINESTYLE
+    )
 
     map_object.drawcoastlines(color="#444444", linewidth=0.7)
     map_object.drawcountries(linewidth=0.2, color="#999999")
 
 
-def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
-                effects=False):
+def _plot_lines(
+    map_object, lines, color, lw, alpha=1.0, label=None, effects=False
+):
     import matplotlib.patheffects as PathEffects
 
     lines = np.array(lines)
@@ -526,8 +583,8 @@ def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
     # boundaries.
     # XXX: No local area stitching so far!
     if map_object.projection == "ortho":
-        lats = np.ma.masked_greater(lats, 1E15)
-        lngs = np.ma.masked_greater(lngs, 1E15)
+        lats = np.ma.masked_greater(lats, 1e15)
+        lngs = np.ma.masked_greater(lngs, 1e15)
     elif map_object.projection == "moll":
         x = np.diff(lngs)
         y = np.diff(lats)
@@ -535,7 +592,8 @@ def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
         lngs = np.ma.array(lngs, mask=False)
         max_jump = 0.3 * min(
             map_object.xmax - map_object.xmin,
-            map_object.ymax - map_object.ymin)
+            map_object.ymax - map_object.ymin,
+        )
         idx_1 = np.where(np.abs(x) > max_jump)
         idx_2 = np.where(np.abs(y) > max_jump)
         if idx_1:
@@ -544,8 +602,18 @@ def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
             lats.mask[idx_2] = True
         lngs.mask = lats.mask
 
-    path_effects = [PathEffects.withStroke(linewidth=5, foreground="white")] \
-        if effects else None
+    path_effects = (
+        [PathEffects.withStroke(linewidth=5, foreground="white")]
+        if effects
+        else None
+    )
 
-    map_object.plot(lngs, lats, color=color, lw=lw, alpha=alpha,
-                    label=label, path_effects=path_effects)
+    map_object.plot(
+        lngs,
+        lats,
+        color=color,
+        lw=lw,
+        alpha=alpha,
+        label=label,
+        path_effects=path_effects,
+    )

@@ -10,6 +10,7 @@ Test suite for the domain definitions in LASIF.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from __future__ import absolute_import
+
 # from unittest import mock
 
 import inspect
@@ -17,24 +18,35 @@ import os
 import pathlib
 import shutil
 
-from lasif.domain import ExodusDomain
+# from lasif.domain import HDF5Domain
 from lasif.scripts import lasif_cli
-from lasif.tests.testing_helpers import reset_matplotlib, images_are_identical
+from lasif.tests.testing_helpers import reset_matplotlib
+# images_are_identical
 
 import pytest
 
 from lasif.components.project import Project
+
 # Get a list of all available commands.
-CMD_LIST = [key.replace("lasif_", "")
-            for (key, value) in lasif_cli.__dict__.items()
-            if (key.startswith("lasif_") and callable(value))]
+CMD_LIST = [
+    key.replace("lasif_", "")
+    for (key, value) in lasif_cli.__dict__.items()
+    if (key.startswith("lasif_") and callable(value))
+]
 
 
 @pytest.fixture()
 def comm(tmpdir):
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "tests", "data",
-        "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "tests",
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -91,9 +103,9 @@ def test_point_in_domain(comm):
     for event_name in event_list:
         event_dir = comm.events.get(event_name)
         in_domain = comm.project.domain.point_in_domain(
-            longitude=event_dir['longitude'],
-            latitude=event_dir['latitude'],
-            depth=event_dir['depth_in_km'] * 1000.0
+            longitude=event_dir["longitude"],
+            latitude=event_dir["latitude"],
+            depth=event_dir["depth_in_km"] * 1000.0,
         )
         assert in_domain
 
@@ -126,8 +138,7 @@ def test_2D_check(comm):
     for event_name in event_list:
         event_dir = comm.events.get(event_name)
         in_domain = comm.project.domain.point_in_domain(
-            longitude=event_dir['longitude'],
-            latitude=event_dir['latitude'],
+            longitude=event_dir["longitude"], latitude=event_dir["latitude"],
         )
         assert in_domain
 
@@ -144,28 +155,37 @@ def test_2D_check(comm):
     assert not in_domain
 
 
-@pytest.mark.parametrize('latitude', [-70.0, -30.0, 0.0, 30.0, 70.0])
-@pytest.mark.parametrize('longitude', [-160.0, -80.0, 0.0, 80.0, 160.0])
-@pytest.mark.parametrize('depth', [10.0, 40.0, 100.0])
+@pytest.mark.parametrize("latitude", [-70.0, -30.0, 0.0, 30.0, 70.0])
+@pytest.mark.parametrize("longitude", [-160.0, -80.0, 0.0, 80.0, 160.0])
+@pytest.mark.parametrize("depth", [10.0, 40.0, 100.0])
 def test_point_in_global_domain(latitude, longitude, depth):
     """
     Use the Global mesh to make sure all possible points are inside domain.
     This one is a bit slow and should maybe be changed by having fewer points.
     """
-    path_to_mesh = os.path.join(os.path.dirname(os.path.dirname(
-        os.path.abspath(inspect.getfile(inspect.currentframe())))),
-        "tests", "data", "example_project", "MODELS", "Globalmesh.e")
+    path_to_mesh = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "tests",
+        "data",
+        "example_project",
+        "MODELS",
+        "Global.h5",
+    )
 
-    from lasif.domain import ExodusDomain
+    from lasif.domain import HDF5Domain
 
-    global_domain = ExodusDomain(path_to_mesh, 7)
+    global_domain = HDF5Domain(path_to_mesh, 7)
 
     assert global_domain.point_in_domain(longitude, latitude, depth * 1000.0)
 
 
-def test_exodus_mesh_plotting(tmpdir):
-    exodus_file = (pathlib.Path(__file__).parent / "data" /
-                   "very_simple_1000s_single_layer_mesh.e")
-    d = ExodusDomain(exodus_file, num_buffer_elems=0)
-    d.plot(show_mesh=True)
-    images_are_identical("example_mesh_plot", tmpdir)
+# def test_exodus_mesh_plotting(tmpdir):
+#     exodus_file = (pathlib.Path(__file__).parent / "data" /
+#                    "very_simple_1000s_single_layer_mesh.e")
+#     d = HDF5Domain(exodus_file, num_buffer_elems=0)
+#     d.plot(show_mesh=True)
+#     images_are_identical("example_mesh_plot", tmpdir)

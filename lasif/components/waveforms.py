@@ -45,8 +45,14 @@ class WaveformsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def __init__(self, data_folder, preproc_data_folder, synthetics_folder,
-                 communicator, component_name):
+    def __init__(
+        self,
+        data_folder,
+        preproc_data_folder,
+        synthetics_folder,
+        communicator,
+        component_name,
+    ):
         self._data_folder = data_folder
         self._preproc_data_folder = preproc_data_folder
         self._synthetics_folder = synthetics_folder
@@ -67,8 +73,9 @@ class WaveformsComponent(Component):
             if not tag_or_iteration:
                 msg = "Tag must be given for processed data."
                 raise ValueError(msg)
-            return os.path.join(self._preproc_data_folder, event_name,
-                                tag_or_iteration + ".h5")
+            return os.path.join(
+                self._preproc_data_folder, event_name, tag_or_iteration + ".h5"
+            )
         elif data_type == "synthetic":
             if not tag_or_iteration:
                 msg = "Long iteration name must be given for synthetic data."
@@ -79,7 +86,8 @@ class WaveformsComponent(Component):
                 self._synthetics_folder,
                 tag_or_iteration,
                 event_name,
-                "receivers.h5")
+                "receivers.h5",
+            )
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
@@ -91,12 +99,14 @@ class WaveformsComponent(Component):
         this only has to be one tag.
         :return:
         """
-        highpass_period = \
-            self.comm.project.processing_params["highpass_period"]
-        lowpass_period = \
-            self.comm.project.processing_params["lowpass_period"]
-        return "preprocessed_%is_to_%is" % (int(highpass_period),
-                                            int(lowpass_period))
+        highpass_period = self.comm.project.processing_params[
+            "highpass_period"
+        ]
+        lowpass_period = self.comm.project.processing_params["lowpass_period"]
+        return "preprocessed_%is_to_%is" % (
+            int(highpass_period),
+            int(lowpass_period),
+        )
 
     def delete_station_from_raw(self, event_name, station_id):
         """
@@ -130,8 +140,9 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form ``NET.STA``.
         :param tag: The processing tag.
         """
-        return self._get_waveforms(event_name, station_id,
-                                   data_type="processed", tag_or_iteration=tag)
+        return self._get_waveforms(
+            event_name, station_id, data_type="processed", tag_or_iteration=tag
+        )
 
     def get_waveforms_processed_on_the_fly(self, event_name, station_id):
         """
@@ -142,12 +153,14 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form ``NET.STA``.
         :param tag: The processing tag.
         """
-        st, inv = self._get_waveforms(event_name, station_id,
-                                      data_type="raw", get_inventory=True)
+        st, inv = self._get_waveforms(
+            event_name, station_id, data_type="raw", get_inventory=True
+        )
         return self.process_data_on_the_fly(st, inv, event_name)
 
-    def get_waveforms_synthetic(self, event_name, station_id,
-                                long_iteration_name):
+    def get_waveforms_synthetic(
+        self, event_name, station_id, long_iteration_name
+    ):
         """
         Gets the synthetic waveforms for the given event and station as a
         :class:`~obspy.core.stream.Stream` object.
@@ -157,36 +170,49 @@ class WaveformsComponent(Component):
         :param long_iteration_name: The long form of an iteration name.
         """
 
-        st = self._get_waveforms(event_name, station_id,
-                                 data_type="synthetic",
-                                 tag_or_iteration=long_iteration_name)
+        st = self._get_waveforms(
+            event_name,
+            station_id,
+            data_type="synthetic",
+            tag_or_iteration=long_iteration_name,
+        )
 
-        return self.process_synthetics(st=st, event_name=event_name,
-                                       iteration=long_iteration_name)
+        return self.process_synthetics(
+            st=st, event_name=event_name, iteration=long_iteration_name
+        )
 
     def process_synthetics(self, st, event_name, iteration):
         # Apply the project function that modifies synthetics on the fly.
         import toml
+
         fct = self.comm.project.get_project_function("process_synthetics")
         if not iteration.startswith("ITERATION"):
             iteration = f"ITERATION_{iteration}"
 
-        info_file = os.path.join(self.comm.project.paths["synthetics"],
-                                 "INFORMATION", iteration, "forward.toml")
+        info_file = os.path.join(
+            self.comm.project.paths["synthetics"],
+            "INFORMATION",
+            iteration,
+            "forward.toml",
+        )
         if os.path.exists(info_file):
             with open(info_file, "r") as fh:
                 iter_info = toml.load(fh)
             processing_params = iter_info["parameters"]
-            processing_params["end_time"] = \
-                self.comm.project.solver_settings["end_time"]
+            processing_params["end_time"] = self.comm.project.solver_settings[
+                "end_time"
+            ]
         else:
             processing_params = self.comm.project.processing_params
-            processing_params["salvus_start_time"] = \
-                self.comm.project.solver_settings["start_time"]
-            processing_params["end_time"] = \
-                self.comm.project.solver_settings["end_time"]
-        return fct(st, processing_params,
-                   event=self.comm.events.get(event_name))
+            processing_params[
+                "salvus_start_time"
+            ] = self.comm.project.solver_settings["start_time"]
+            processing_params["end_time"] = self.comm.project.solver_settings[
+                "end_time"
+            ]
+        return fct(
+            st, processing_params, event=self.comm.events.get(event_name)
+        )
 
     def process_data_on_the_fly(self, st, inv, event_name):
         """ This will process the data on the fly"""
@@ -194,17 +220,22 @@ class WaveformsComponent(Component):
         fct = self.comm.project.get_project_function("processing_function")
 
         processing_parmams = self.comm.project.processing_params
-        processing_parmams["salvus_start_time"] = \
-            self.comm.project.solver_settings["start_time"]
-        processing_parmams["dt"] = \
-            self.comm.project.solver_settings["time_increment"]
-        processing_parmams["npts"] = \
-            self.comm.project.solver_settings["number_of_time_steps"]
-        processing_parmams["end_time"] =\
-            self.comm.project.solver_settings["end_time"]
+        processing_parmams[
+            "salvus_start_time"
+        ] = self.comm.project.solver_settings["start_time"]
+        processing_parmams["dt"] = self.comm.project.solver_settings[
+            "time_increment"
+        ]
+        processing_parmams["npts"] = self.comm.project.solver_settings[
+            "number_of_time_steps"
+        ]
+        processing_parmams["end_time"] = self.comm.project.solver_settings[
+            "end_time"
+        ]
 
-        return fct(st, inv, processing_parmams,
-                   event=self.comm.events.get(event_name))
+        return fct(
+            st, inv, processing_parmams, event=self.comm.events.get(event_name)
+        )
 
     def process_data(self, events):
         """
@@ -216,6 +247,7 @@ class WaveformsComponent(Component):
             run. It will process all events if not given.
         """
         from mpi4py import MPI
+
         process_params = self.comm.project.processing_params
         solver_settings = self.comm.project.solver_settings
         npts = solver_settings["number_of_time_steps"]
@@ -230,12 +262,15 @@ class WaveformsComponent(Component):
             # Loop over the chosen events.
             for event_name in events:
                 output_folder = os.path.join(
-                    self.comm.project.paths["preproc_eq_data"], event_name)
+                    self.comm.project.paths["preproc_eq_data"], event_name
+                )
                 asdf_file_name = self.comm.waveforms.get_asdf_filename(
-                    event_name, data_type="raw")
+                    event_name, data_type="raw"
+                )
                 preprocessing_tag = self.comm.waveforms.preprocessing_tag
-                output_filename = os.path.join(output_folder,
-                                               preprocessing_tag + ".h5")
+                output_filename = os.path.join(
+                    output_folder, preprocessing_tag + ".h5"
+                )
 
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
@@ -261,34 +296,47 @@ class WaveformsComponent(Component):
                 }
                 yield ret_dict
 
-        to_be_processed = [{"processing_info": _i}
-                           for _i in processing_data_generator()]
+        to_be_processed = [
+            {"processing_info": _i} for _i in processing_data_generator()
+        ]
 
         # Load project specific data processing function.
         preprocessing_function_asdf = self.comm.project.get_project_function(
-            "preprocessing_function_asdf")
+            "preprocessing_function_asdf"
+        )
         MPI.COMM_WORLD.Barrier()
         for event in to_be_processed:
             preprocessing_function_asdf(event["processing_info"])
             MPI.COMM_WORLD.Barrier()
 
-    def _get_waveforms(self, event_name, station_id, data_type,
-                       tag_or_iteration=None, get_inventory=False):
-        filename = self.get_asdf_filename(event_name=event_name,
-                                          data_type=data_type,
-                                          tag_or_iteration=tag_or_iteration)
+    def _get_waveforms(
+        self,
+        event_name,
+        station_id,
+        data_type,
+        tag_or_iteration=None,
+        get_inventory=False,
+    ):
+        filename = self.get_asdf_filename(
+            event_name=event_name,
+            data_type=data_type,
+            tag_or_iteration=tag_or_iteration,
+        )
 
         if not os.path.exists(filename):
-            raise LASIFNotFoundError("No '%s' waveform data found for event "
-                                     "'%s' and station '%s'." % (data_type,
-                                                                 event_name,
-                                                                 station_id))
+            raise LASIFNotFoundError(
+                "No '%s' waveform data found for event "
+                "'%s' and station '%s'." % (data_type, event_name, station_id)
+            )
 
         with pyasdf.ASDFDataSet(filename, mode="r") as ds:
             station_group = ds.waveforms[station_id]
 
-            tag = self._assert_tags(station_group=station_group,
-                                    data_type=data_type, filename=filename)
+            tag = self._assert_tags(
+                station_group=station_group,
+                data_type=data_type,
+                filename=filename,
+            )
 
             # Get the waveform data.
             st = station_group[tag]
@@ -296,9 +344,11 @@ class WaveformsComponent(Component):
             # Make sure it only contains data from a single location.
             locs = sorted(set([tr.stats.location for tr in st]))
             if len(locs) != 1:
-                msg = ("File '%s' contains %i location codes for station "
-                       "'%s'. The alphabetically first one will be chosen."
-                       % (filename, len(locs), station_id))
+                msg = (
+                    "File '%s' contains %i location codes for station "
+                    "'%s'. The alphabetically first one will be chosen."
+                    % (filename, len(locs), station_id)
+                )
                 warnings.warn(msg, LASIFWarning)
 
                 st = st.filter(location=locs[0])
@@ -317,16 +367,18 @@ class WaveformsComponent(Component):
 
         tags = station_group.get_waveform_tags()
         if len(tags) == 0:
-            raise ValueError("Station '%s' in file '%s' contains no "
-                             "tag. LASIF currently expects a "
-                             "single waveform tag per station." % (
-                                 station_id, filename))
+            raise ValueError(
+                "Station '%s' in file '%s' contains no "
+                "tag. LASIF currently expects a "
+                "single waveform tag per station." % (station_id, filename)
+            )
 
         if len(tags) != 1:
-            raise ValueError("Station '%s' in file '%s' contains more "
-                             "than one tag. LASIF currently expects a "
-                             "single waveform tag per station." % (
-                                 station_id, filename))
+            raise ValueError(
+                "Station '%s' in file '%s' contains more "
+                "than one tag. LASIF currently expects a "
+                "single waveform tag per station." % (station_id, filename)
+            )
         tag = tags[0]
 
         # Currently has some expectations on the used waveform tags.
@@ -334,16 +386,19 @@ class WaveformsComponent(Component):
         if data_type == "raw":
             assert tag == "raw_recording", (
                 "The tag for station '%s' in file '%s' must be "
-                "'raw_recording' for raw data." % (station_id, filename))
+                "'raw_recording' for raw data." % (station_id, filename)
+            )
         elif data_type == "processed":
             assert "processed" in tag, (
                 "The tag for station '%s' in file '%s' must contain "
-                "'processed' for processed data." % (station_id, filename))
+                "'processed' for processed data." % (station_id, filename)
+            )
         elif data_type == "synthetic":
             assert "displacement" in tag, (
                 "The tag for station '%s' in file '%s' must contain "
-                "'displacement' for displacement data." % (station_id,
-                                                           filename))
+                "'displacement' for displacement data."
+                % (station_id, filename)
+            )
         else:
             raise ValueError
 
@@ -358,77 +413,101 @@ class WaveformsComponent(Component):
         :param event_name: The event name.
         :param station_id: The station id.
         """
-        information = {
-            "raw": {},
-            "processed": {},
-            "synthetic": {}
-        }
+        information = {"raw": {}, "processed": {}, "synthetic": {}}
 
         # Check the raw data components.
-        raw_filename = self.get_asdf_filename(event_name=event_name,
-                                              data_type="raw")
+        raw_filename = self.get_asdf_filename(
+            event_name=event_name, data_type="raw"
+        )
         with pyasdf.ASDFDataSet(raw_filename, mode="r") as ds:
             station_group = ds.waveforms[station_id]
 
-            tag = self._assert_tags(station_group=station_group,
-                                    data_type="raw", filename=raw_filename)
+            tag = self._assert_tags(
+                station_group=station_group,
+                data_type="raw",
+                filename=raw_filename,
+            )
 
-            raw_components = [_i.split("__")[0].split(".")[-1][-1] for _i in
-                              station_group.list() if _i.endswith("__" + tag)]
+            raw_components = [
+                _i.split("__")[0].split(".")[-1][-1]
+                for _i in station_group.list()
+                if _i.endswith("__" + tag)
+            ]
         information["raw"]["raw"] = raw_components
 
         # Now figure out which processing tags are available.
         folder = os.path.join(self._data_folder, event_name)
-        processing_tags = [os.path.splitext(_i)[0] for _i in os.listdir(folder)
-                           if os.path.isfile(os.path.join(folder, _i)) and
-                           _i.endswith(".h5") and _i != "raw.h5"]
+        processing_tags = [
+            os.path.splitext(_i)[0]
+            for _i in os.listdir(folder)
+            if os.path.isfile(os.path.join(folder, _i))
+            and _i.endswith(".h5")
+            and _i != "raw.h5"
+        ]
 
         for proc_tag in processing_tags:
             filename = self.get_asdf_filename(
-                event_name=event_name, data_type="processed",
-                tag_or_iteration=proc_tag)
+                event_name=event_name,
+                data_type="processed",
+                tag_or_iteration=proc_tag,
+            )
             with pyasdf.ASDFDataSet(filename, mode="r") as ds:
                 station_group = ds.waveforms[station_id]
 
-                tag = self._assert_tags(station_group=station_group,
-                                        data_type="processed",
-                                        filename=filename)
+                tag = self._assert_tags(
+                    station_group=station_group,
+                    data_type="processed",
+                    filename=filename,
+                )
 
-                components = [_i.split("__")[0].split(".")[-1][-1] for _i in
-                              station_group.list() if _i.endswith("__" + tag)]
+                components = [
+                    _i.split("__")[0].split(".")[-1][-1]
+                    for _i in station_group.list()
+                    if _i.endswith("__" + tag)
+                ]
             information["processed"][proc_tag] = components
 
         # And the synthetics.
-        iterations = [_i.lstrip("ITERATION_") for _i in
-                      os.listdir(self._synthetics_folder)
-                      if _i.startswith("ITERATION_")
-                      if os.path.isdir(os.path.join(self._synthetics_folder,
-                                                    _i))]
+        iterations = [
+            _i.lstrip("ITERATION_")
+            for _i in os.listdir(self._synthetics_folder)
+            if _i.startswith("ITERATION_")
+            if os.path.isdir(os.path.join(self._synthetics_folder, _i))
+        ]
 
-        synthetic_coordinates_mapping = {"X": "N",
-                                         "Y": "E",
-                                         "Z": "Z",
-                                         "N": "N",
-                                         "E": "E"}
+        synthetic_coordinates_mapping = {
+            "X": "N",
+            "Y": "E",
+            "Z": "Z",
+            "N": "N",
+            "E": "E",
+        }
 
         for iteration in iterations:
             filename = self.get_asdf_filename(
-                event_name=event_name, data_type="synthetic",
-                tag_or_iteration=iteration)
+                event_name=event_name,
+                data_type="synthetic",
+                tag_or_iteration=iteration,
+            )
             if not os.path.exists(filename):
                 continue
             with pyasdf.ASDFDataSet(filename, mode="r") as ds:
                 station_group = ds.waveforms[station_id]
 
-                tag = self._assert_tags(station_group=station_group,
-                                        data_type="synthetic",
-                                        filename=filename)
+                tag = self._assert_tags(
+                    station_group=station_group,
+                    data_type="synthetic",
+                    filename=filename,
+                )
 
-                components = [_i.split("__")[0].split(".")[-1][-1].upper()
-                              for _i in
-                              station_group.list() if _i.endswith("__" + tag)]
+                components = [
+                    _i.split("__")[0].split(".")[-1][-1].upper()
+                    for _i in station_group.list()
+                    if _i.endswith("__" + tag)
+                ]
             information["synthetic"][iteration] = [
-                synthetic_coordinates_mapping[_i] for _i in components]
+                synthetic_coordinates_mapping[_i] for _i in components
+            ]
         return information
 
     def get_available_synthetics(self, event_name):
@@ -439,13 +518,14 @@ class WaveformsComponent(Component):
         """
         data_dir = os.path.join(self._synthetics_folder, event_name)
         if not os.path.exists(data_dir):
-            raise LASIFNotFoundError("No synthetic data for event '%s'." %
-                                     event_name)
+            raise LASIFNotFoundError(
+                "No synthetic data for event '%s'." % event_name
+            )
         iterations = []
         for folder in os.listdir(data_dir):
-            if not os.path.isdir(os.path.join(
-                    self._synthetics_folder, event_name, folder)) \
-                    or not fnmatch.fnmatch(folder, "ITERATION_*"):
+            if not os.path.isdir(
+                os.path.join(self._synthetics_folder, event_name, folder)
+            ) or not fnmatch.fnmatch(folder, "ITERATION_*"):
                 continue
             iterations.append(folder)
 

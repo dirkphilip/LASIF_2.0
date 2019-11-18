@@ -30,21 +30,24 @@ class WeightsComponent(Component):
         long_weight_set_name = self.get_long_weight_set_name(weight_set)
         folder = self._get_folder_for_weight_set(weight_set)
         return os.path.join(
-            folder, long_weight_set_name + os.path.extsep + "toml")
+            folder, long_weight_set_name + os.path.extsep + "toml"
+        )
 
     def _get_folder_for_weight_set(self, weight_set_name):
         """
         Helper function returning the path of a weights folder.
         """
         long_weight_set_name = self.get_long_weight_set_name(weight_set_name)
-        folder = os.path.join(self.comm.project.paths["weights"],
-                              long_weight_set_name)
+        folder = os.path.join(
+            self.comm.project.paths["weights"], long_weight_set_name
+        )
         return folder
 
     def create_folder_for_weight_set(self, weight_set_name):
         long_weight_set_name = self.get_long_weight_set_name(weight_set_name)
-        folder = os.path.join(self.comm.project.paths["weights"],
-                              long_weight_set_name)
+        folder = os.path.join(
+            self.comm.project.paths["weights"], long_weight_set_name
+        )
         if not os.path.exists(folder):
             os.makedirs(folder)
 
@@ -53,11 +56,18 @@ class WeightsComponent(Component):
         Returns a dictionary with the keys being the weight_set names and the
         values the weight_set filenames.
         """
-        files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
-            self.comm.project.paths["weights"],
-            "WEIGHTS_*/WEIGHTS_*%stoml" % os.extsep))]
-        weight_dict = {os.path.splitext(os.path.basename(_i))[0][8:]: _i
-                       for _i in files}
+        files = [
+            os.path.abspath(_i)
+            for _i in glob.iglob(
+                os.path.join(
+                    self.comm.project.paths["weights"],
+                    "WEIGHTS_*/WEIGHTS_*%stoml" % os.extsep,
+                )
+            )
+        ]
+        weight_dict = {
+            os.path.splitext(os.path.basename(_i))[0][8:]: _i for _i in files
+        }
         return weight_dict
 
     def get_long_weight_set_name(self, weight_set_name):
@@ -109,10 +119,13 @@ class WeightsComponent(Component):
         self.create_folder_for_weight_set(weight_set_name)
 
         from lasif.weights_toml import create_weight_set_toml_string
-        with open(self.get_filename_for_weight_set(weight_set_name),
-                  "wt") as fh:
+
+        with open(
+            self.get_filename_for_weight_set(weight_set_name), "wt"
+        ) as fh:
             fh.write(
-                create_weight_set_toml_string(weight_set_name, events_dict))
+                create_weight_set_toml_string(weight_set_name, events_dict)
+            )
 
     def change_weight_set(self, weight_set_name, weight_set, events_dict):
         """
@@ -126,12 +139,15 @@ class WeightsComponent(Component):
         weight_set_name = str(weight_set_name)
 
         from lasif.weights_toml import replace_weight_set_toml_string
+
         temp = self.get_filename_for_weight_set(weight_set_name)
         temp = temp + "_tmp"
         with open(temp, "w+") as fh:
             fh.write(
-                replace_weight_set_toml_string(weight_set_name, events_dict,
-                                               weight_set))
+                replace_weight_set_toml_string(
+                    weight_set_name, events_dict, weight_set
+                )
+            )
         os.remove(self.get_filename_for_weight_set(weight_set_name))
         os.rename(temp, self.get_filename_for_weight_set(weight_set_name))
 
@@ -146,9 +162,10 @@ class WeightsComponent(Component):
         from obspy.geodetics import locations2degrees
 
         distance = np.zeros_like(locations[1, :])
-        distance = 1.0 / (1.0 + locations2degrees(lat_1, lon_1,
-                                                  locations[0, :],
-                                                  locations[1, :]))
+        distance = 1.0 / (
+            1.0
+            + locations2degrees(lat_1, lon_1, locations[0, :], locations[1, :])
+        )
         factor = np.sum(distance)
         weight = 1.0 / factor
 
@@ -178,6 +195,7 @@ class WeightsComponent(Component):
             raise LASIFNotFoundError(msg)
 
         from lasif.weights_toml import WeightSet
+
         weight_set = WeightSet(weights_dict[weight_set_name])
 
         # Store in cache.

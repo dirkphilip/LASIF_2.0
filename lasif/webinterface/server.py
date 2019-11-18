@@ -5,6 +5,7 @@ from flask_cache import Cache
 
 import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
+
 plt.switch_backend("agg")
 
 import collections
@@ -18,8 +19,9 @@ import numpy as np
 import os
 
 
-WEBSERVER_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
-    inspect.currentframe())))
+WEBSERVER_DIRECTORY = os.path.dirname(
+    os.path.abspath(inspect.getfile(inspect.currentframe()))
+)
 STATIC_DIRECTORY = os.path.join(WEBSERVER_DIRECTORY, "static")
 
 app = flask.Flask("LASIF Webinterface", static_folder=STATIC_DIRECTORY)
@@ -29,7 +31,7 @@ cache = Cache()
 def make_cache_key(*args, **kwargs):
     path = flask.request.path
     args = str(hash(frozenset(flask.request.args.items())))
-    return (path + args).encode('utf-8')
+    return (path + args).encode("utf-8")
 
 
 @app.route("/rest/domain.geojson")
@@ -42,10 +44,12 @@ def get_domain_geojson():
     outer_border = domain.border
     inner_border = domain.inner_border
 
-    border = geojson.MultiLineString([
-        [(_i[1], _i[0]) for _i in inner_border],
-        [(_i[1], _i[0]) for _i in outer_border],
-    ])
+    border = geojson.MultiLineString(
+        [
+            [(_i[1], _i[0]) for _i in inner_border],
+            [(_i[1], _i[0]) for _i in outer_border],
+        ]
+    )
     return flask.jsonify(**border)
 
 
@@ -56,7 +60,7 @@ def get_info():
     """
     info = {
         "project_name": app.comm.project.config["project_name"],
-        "project_root": app.comm.project.paths["root"]
+        "project_root": app.comm.project.paths["root"],
     }
     return flask.jsonify(**info)
 
@@ -80,11 +84,9 @@ def get_output():
             details = split[-1]
         else:
             flask.abort(500)
-        all_folders.append({
-            "time": split[0],
-            "type": split[1],
-            "details": details
-        })
+        all_folders.append(
+            {"time": split[0], "type": split[1], "details": details}
+        )
 
     return flask.jsonify(folders=all_folders)
 
@@ -95,10 +97,7 @@ def mt_plot():
     """
     Return a moment tensor image.
     """
-    formats = {
-        "png": "image/png",
-        "svg": "image/svg+xml"
-    }
+    formats = {"png": "image/png", "svg": "image/svg+xml"}
 
     args = flask.request.args
     m_rr = float(args["m_rr"])
@@ -126,10 +125,10 @@ def mt_plot():
         flask.abort(500)
 
     dpi = 100
-    fig = plt.figure(figsize=(float(size) / float(dpi),
-                              float(size) / float(dpi)),
-                     dpi=dpi)
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    fig = plt.figure(
+        figsize=(float(size) / float(dpi), float(size) / float(dpi)), dpi=dpi
+    )
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
 
@@ -144,9 +143,12 @@ def mt_plot():
     plt.close("all")
     temp.seek(0, 0)
 
-    return flask.send_file(temp, mimetype=formats[format],
-                           add_etags=False,
-                           attachment_filename="mt.%s" % format)
+    return flask.send_file(
+        temp,
+        mimetype=formats[format],
+        add_etags=False,
+        attachment_filename="mt.%s" % format,
+    )
 
 
 @app.route("/rest/iteration")
@@ -176,7 +178,8 @@ def list_windows():
 @app.route("/rest/window_statistics/<iteration_name>")
 def get_window_statistics_for_iteration(iteration_name):
     return flask.jsonify(
-        app.comm.windows.get_window_statistics(iteration_name))
+        app.comm.windows.get_window_statistics(iteration_name)
+    )
 
 
 @app.route("/rest/window_plot")
@@ -191,16 +194,16 @@ def get_window_plot():
     if plot_type == "window_distance":
         iteration = args.get("iteration")
         event = args.get("event")
-        app.comm.visualizations.plot_windows(event=event, iteration=iteration,
-                                             distance_bins=500, show=False)
+        app.comm.visualizations.plot_windows(
+            event=event, iteration=iteration, distance_bins=500, show=False
+        )
 
     temp = io.BytesIO()
     plt.savefig(temp, format="png", dpi=200, transparent=True)
     plt.close("all")
     temp.seek(0, 0)
 
-    return flask.send_file(temp, mimetype="image/png",
-                           add_etags=False)
+    return flask.send_file(temp, mimetype="image/png", add_etags=False)
 
 
 @app.route("/rest/iteration/<iteration_name>")
@@ -223,7 +226,8 @@ def get_iteration_detail(iteration_name):
         processing_tag=iteration.processing_tag,
         solver=iteration.solver_settings["solver"],
         solver_settings=iteration.solver_settings["solver_settings"],
-        source_time_function=stf)
+        source_time_function=stf,
+    )
 
 
 @app.route("/rest/iteration/<iteration_name>/stf")
@@ -257,7 +261,8 @@ def get_event_details(event_name):
 @app.route("/rest/available_data/<event_name>/<station_id>")
 def get_available_data(event_name, station_id):
     available_data = app.comm.waveforms.get_available_data(
-        event_name=event_name, station_id=station_id)
+        event_name=event_name, station_id=station_id
+    )
     return flask.jsonify(**available_data)
 
 
@@ -267,10 +272,12 @@ def get_data(event_name, station_id, name):
         st = app.comm.waveforms.get_waveforms_raw(event_name, station_id)
     elif name.startswith("preprocessed_"):
         st = app.comm.waveforms.get_waveforms_processed(
-            event_name, station_id, tag=name)
+            event_name, station_id, tag=name
+        )
     else:
         st = app.comm.waveforms.get_waveforms_synthetic(
-            event_name, station_id, long_iteration_name=name)
+            event_name, station_id, long_iteration_name=name
+        )
 
     BIN_LENGTH = 2000
     data = {}
@@ -290,32 +297,42 @@ def get_data(event_name, station_id, name):
             per_bin = tr.stats.npts // BIN_LENGTH
             if rest:
                 final_data = np.empty(2 * BIN_LENGTH + 2)
-                final_data[::2][:BIN_LENGTH] = tr.data[:-rest].reshape(
-                    (BIN_LENGTH, per_bin)).min(axis=1)
-                final_data[1::2][:BIN_LENGTH] = tr.data[:-rest].reshape(
-                    (BIN_LENGTH, per_bin)).max(axis=1)
+                final_data[::2][:BIN_LENGTH] = (
+                    tr.data[:-rest].reshape((BIN_LENGTH, per_bin)).min(axis=1)
+                )
+                final_data[1::2][:BIN_LENGTH] = (
+                    tr.data[:-rest].reshape((BIN_LENGTH, per_bin)).max(axis=1)
+                )
             else:
                 final_data = np.empty(2 * BIN_LENGTH)
                 final_data[::2][:BIN_LENGTH] = tr.data.reshape(
-                    (BIN_LENGTH, per_bin)).min(axis=1)
+                    (BIN_LENGTH, per_bin)
+                ).min(axis=1)
                 final_data[1::2][:BIN_LENGTH] = tr.data.reshape(
-                    (BIN_LENGTH, per_bin)).max(axis=1)
+                    (BIN_LENGTH, per_bin)
+                ).max(axis=1)
             if rest:
                 final_data[-2] = tr.data[-rest:].min()
                 final_data[-1] = tr.data[-rest:].max()
             time_array = np.empty(len(final_data))
-            time_array[::2] = np.linspace(tr.stats.starttime.timestamp,
-                                          tr.stats.endtime.timestamp,
-                                          len(final_data) / 2)
-            time_array[1::2] = np.linspace(tr.stats.starttime.timestamp,
-                                           tr.stats.endtime.timestamp,
-                                           len(final_data) / 2)
+            time_array[::2] = np.linspace(
+                tr.stats.starttime.timestamp,
+                tr.stats.endtime.timestamp,
+                len(final_data) / 2,
+            )
+            time_array[1::2] = np.linspace(
+                tr.stats.starttime.timestamp,
+                tr.stats.endtime.timestamp,
+                len(final_data) / 2,
+            )
         else:
             final_data = tr.data
             # Create times array.
-            time_array = np.linspace(tr.stats.starttime.timestamp,
-                                     tr.stats.endtime.timestamp,
-                                     tr.stats.npts)
+            time_array = np.linspace(
+                tr.stats.starttime.timestamp,
+                tr.stats.endtime.timestamp,
+                tr.stats.npts,
+            )
 
         temp = np.empty((len(final_data), 2), dtype="float64")
         temp[:, 0] = time_array

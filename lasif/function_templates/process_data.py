@@ -84,6 +84,7 @@ def processing_function(st, inv, processing_params, event):  # NOQA
     objects can do.
 
     """
+
     def zerophase_chebychev_lowpass_filter(trace, freqmax):
         """
         Custom Chebychev type two zerophase lowpass filter useful for
@@ -120,12 +121,13 @@ def processing_function(st, inv, processing_params, event):  # NOQA
     # =========================================================================
     npts = processing_params["npts"]
     dt = processing_params["dt"]
-    min_period = processing_params['highpass_period']
-    max_period = processing_params['lowpass_period']
+    min_period = processing_params["highpass_period"]
+    max_period = processing_params["lowpass_period"]
 
     starttime = event["origin_time"] + processing_params["salvus_start_time"]
-    endtime = starttime + processing_params["dt"] * \
-        (processing_params["npts"] - 1)
+    endtime = starttime + processing_params["dt"] * (
+        processing_params["npts"] - 1
+    )
     duration = endtime - starttime
 
     f2 = 0.9 / max_period
@@ -139,11 +141,12 @@ def processing_function(st, inv, processing_params, event):  # NOQA
         # Make sure the seismograms are long enough. If not, skip them.
         if starttime < tr.stats.starttime or endtime > tr.stats.endtime:
 
-            msg = ("The seismogram does not cover the required time span.\n"
-                   "Seismogram time span: %s - %s\n"
-                   "Requested time span: %s - %s" % (
-                       tr.stats.starttime, tr.stats.endtime,
-                       starttime, endtime))
+            msg = (
+                "The seismogram does not cover the required time span.\n"
+                "Seismogram time span: %s - %s\n"
+                "Requested time span: %s - %s"
+                % (tr.stats.starttime, tr.stats.endtime, starttime, endtime)
+            )
             raise LASIFError(msg)
 
         # Trim to reduce processing cost.
@@ -154,8 +157,10 @@ def processing_function(st, inv, processing_params, event):  # NOQA
         # =====================================================================
         # Non-zero length
         if not len(tr):
-            msg = "No data found in time window around the event." \
-                  " File skipped."
+            msg = (
+                "No data found in time window around the event."
+                " File skipped."
+            )
             raise LASIFError(msg)
 
         # No nans or infinity values allowed.
@@ -177,8 +182,9 @@ def processing_function(st, inv, processing_params, event):  # NOQA
             if decimation_factor > 8:
                 decimation_factor = 8
             if decimation_factor > 1:
-                new_nyquist = tr.stats.sampling_rate / 2.0 / float(
-                    decimation_factor)
+                new_nyquist = (
+                    tr.stats.sampling_rate / 2.0 / float(decimation_factor)
+                )
                 zerophase_chebychev_lowpass_filter(tr, new_nyquist)
                 tr.decimate(factor=decimation_factor, no_filter=True)
             else:
@@ -197,14 +203,24 @@ def processing_function(st, inv, processing_params, event):  # NOQA
         # ======================================================================
         try:
             tr.attach_response(inv)
-            tr.remove_response(output="DISP", pre_filt=pre_filt,
-                               zero_mean=False, taper=False)
+            tr.remove_response(
+                output="DISP", pre_filt=pre_filt, zero_mean=False, taper=False
+            )
         except Exception as e:
-            station = tr.stats.network + "." + tr.stats.station + ".." + \
-                tr.stats.channel
-            msg = ("File  could not be corrected with the help of the "
-                   "StationXML file '%s'. Due to: '%s'  Will be skipped.") % \
-                  (station, e.__repr__()),
+            station = (
+                tr.stats.network
+                + "."
+                + tr.stats.station
+                + ".."
+                + tr.stats.channel
+            )
+            msg = (
+                (
+                    "File  could not be corrected with the help of the "
+                    "StationXML file '%s'. Due to: '%s'  Will be skipped."
+                )
+                % (station, e.__repr__()),
+            )
             raise LASIFError(msg)
 
         # =====================================================================
@@ -215,22 +231,36 @@ def processing_function(st, inv, processing_params, event):  # NOQA
         tr.detrend("linear")
         tr.detrend("demean")
         tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3,
-                  zerophase=False)
+        tr.filter(
+            "bandpass",
+            freqmin=1.0 / max_period,
+            freqmax=1.0 / min_period,
+            corners=3,
+            zerophase=False,
+        )
         tr.detrend("linear")
         tr.detrend("demean")
         tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3,
-                  zerophase=False)
+        tr.filter(
+            "bandpass",
+            freqmin=1.0 / max_period,
+            freqmax=1.0 / min_period,
+            corners=3,
+            zerophase=False,
+        )
 
         # =====================================================================
         # Step 5: Sinc interpolation
         # =====================================================================
         tr.data = np.require(tr.data, requirements="C")
-        tr.interpolate(sampling_rate=1.0 / dt, method="lanczos",
-                       starttime=starttime, window="blackman", a=12, npts=npts)
+        tr.interpolate(
+            sampling_rate=1.0 / dt,
+            method="lanczos",
+            starttime=starttime,
+            window="blackman",
+            a=12,
+            npts=npts,
+        )
 
         # =====================================================================
         # Save processed data and clean up.

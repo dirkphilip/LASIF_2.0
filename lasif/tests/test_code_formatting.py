@@ -27,20 +27,27 @@ else:
 
 @pytest.mark.skipif(
     not HAS_FLAKE8_AT_LEAST_VERSION_3,
-    reason="Formatting test requires at least flake8 version 3.0.")
+    reason="Formatting test requires at least flake8 version 3.0.",
+)
 def test_flake8():
-    test_dir = os.path.dirname(os.path.abspath(inspect.getfile(
-        inspect.currentframe())))
+    test_dir = os.path.dirname(
+        os.path.abspath(inspect.getfile(inspect.currentframe()))
+    )
     lasif_dir = os.path.dirname(test_dir)
 
     # Ignore automatically generated files.
-    ignore_files = [os.path.join("misfit_gui", "qt_window.py"),
-                    os.path.join("ses3d_model_gui", "ses3d_model_gui.py")]
+    ignore_files = [
+        os.path.join("misfit_gui", "qt_window.py"),
+        os.path.join("ses3d_model_gui", "ses3d_model_gui.py"),
+    ]
     ignore_files = [os.path.join(lasif_dir, _i) for _i in ignore_files]
     files = []
     for dirpath, _, filenames in os.walk(lasif_dir):
-        filenames = [_i for _i in filenames if
-                     os.path.splitext(_i)[-1] == os.path.extsep + "py"]
+        filenames = [
+            _i
+            for _i in filenames
+            if os.path.splitext(_i)[-1] == os.path.extsep + "py"
+        ]
         if not filenames:
             continue
         for py_file in filenames:
@@ -52,9 +59,11 @@ def test_flake8():
     # Import the legacy API as flake8 3.0 currently has not official
     # public API - this has to be changed at some point.
     from flake8.api import legacy as flake8
-    style_guide = flake8.get_style_guide(extend_ignore=("F811", "E402", "E722",
-                                                        "E741", "E503",
-                                                        "W503", "W605"))
+
+    style_guide = flake8.get_style_guide(
+        extend_ignore=("F811", "E402", "E722", "E741", "E503", "W503",
+                       "W605", "E203")
+    )
     report = style_guide.check_files(files)
 
     # Make sure no error occured.

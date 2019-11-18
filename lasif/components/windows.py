@@ -22,8 +22,7 @@ class WindowsComponent(Component):
     """
 
     def __init__(self, communicator, component_name):
-        super(WindowsComponent, self).__init__(
-            communicator, component_name)
+        super(WindowsComponent, self).__init__(communicator, component_name)
 
     def get(self, window_set_name):
         """
@@ -39,10 +38,15 @@ class WindowsComponent(Component):
         Returns a list of window sets currently
         present within the LASIF project.
         """
-        files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
-            self.comm.project.paths["windows"], "*.sqlite"))]
-        window_sets = [os.path.splitext(os.path.basename(_i))[0][:]
-                       for _i in files]
+        files = [
+            os.path.abspath(_i)
+            for _i in glob.iglob(
+                os.path.join(self.comm.project.paths["windows"], "*.sqlite")
+            )
+        ]
+        window_sets = [
+            os.path.splitext(os.path.basename(_i))[0][:] for _i in files
+        ]
 
         return sorted(window_sets)
 
@@ -62,8 +66,9 @@ class WindowsComponent(Component):
         :param window_set_name: The name of the window set
         :return: filename of the window set
         """
-        filename = os.path.join(self.comm.project.paths['windows'],
-                                window_set_name + ".sqlite")
+        filename = os.path.join(
+            self.comm.project.paths["windows"], window_set_name + ".sqlite"
+        )
         return filename
 
     def write_windows_to_sql(self, event_name, window_set_name, windows):
@@ -98,15 +103,17 @@ class WindowsComponent(Component):
         statistics = {}
 
         for _i, event in enumerate(events):
-            print("Collecting statistics for event %i of %i ..." % (
-                _i + 1, len(events)))
+            print(
+                "Collecting statistics for event %i of %i ..."
+                % (_i + 1, len(events))
+            )
 
-            wm = self.read_all_windows(event=event,
-                                       window_set_name=window_set_name)
+            wm = self.read_all_windows(
+                event=event, window_set_name=window_set_name
+            )
 
             # wm is dict with stations/channels/list of start_end tuples
-            station_details = \
-                self.comm.query.get_all_stations_for_event(event)
+            station_details = self.comm.query.get_all_stations_for_event(event)
 
             component_window_count = {"E": 0, "N": 0, "Z": 0}
             component_length_sum = {"E": 0, "N": 0, "Z": 0}
@@ -141,7 +148,7 @@ class WindowsComponent(Component):
                 "total_window_length": sum(component_length_sum.values()),
                 "window_length_vertical_components": component_length_sum["Z"],
                 "window_length_north_components": component_length_sum["N"],
-                "window_length_east_components": component_length_sum["E"]
+                "window_length_east_components": component_length_sum["E"],
             }
 
         return statistics
@@ -167,11 +174,13 @@ class WindowsComponent(Component):
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="processed",
-            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
-            tag_or_iteration=iteration_name)
+            tag_or_iteration=iteration_name,
+        )
 
         if not os.path.exists(processed_filename):
             msg = "File '%s' does not exists." % processed_filename
@@ -183,17 +192,20 @@ class WindowsComponent(Component):
 
         # Load project specific window selection function.
         select_windows = self.comm.project.get_project_function(
-            "window_picking_function")
+            "window_picking_function"
+        )
 
         # Get source time function
         stf_fct = self.comm.project.get_project_function(
-            "source_time_function")
+            "source_time_function"
+        )
         delta = self.comm.project.solver_settings["time_increment"]
         npts = self.comm.project.solver_settings["number_of_time_steps"]
         freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
         freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
-        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
-                            freqmax=freqmax)
+        stf_trace = stf_fct(
+            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
+        )
 
         process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
@@ -205,11 +217,13 @@ class WindowsComponent(Component):
 
             # Make sure both have length 1.
             assert len(obs_tag) == 1, (
-                "Station: %s - Requires 1 observed waveform tag. Has %i." % (
-                    observed_station._station_name, len(obs_tag)))
+                "Station: %s - Requires 1 observed waveform tag. Has %i."
+                % (observed_station._station_name, len(obs_tag))
+            )
             assert len(syn_tag) == 1, (
-                "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
-                    observed_station._station_name, len(syn_tag)))
+                "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                % (observed_station._station_name, len(syn_tag))
+            )
 
             obs_tag = obs_tag[0]
             syn_tag = syn_tag[0]
@@ -224,7 +238,9 @@ class WindowsComponent(Component):
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
                 st=st_syn.copy(),
-                event_name=event["event_name"], iteration=iteration_name)
+                event_name=event["event_name"],
+                iteration=iteration_name,
+            )
 
             all_windows = {}
 
@@ -233,10 +249,12 @@ class WindowsComponent(Component):
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
 
-                    if self.comm.project.processing_params["scale_data_"
-                                                           "to_synthetics"]:
-                        scaling_factor = \
+                    if self.comm.project.processing_params[
+                        "scale_data_" "to_synthetics"
+                    ]:
+                        scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()
+                        )
                         # Store and apply the scaling.
                         data_tr.stats.scaling_factor = scaling_factor
                         data_tr.data *= scaling_factor
@@ -247,13 +265,19 @@ class WindowsComponent(Component):
                 windows = None
                 try:
                     windows = select_windows(
-                        data_tr, synth_tr, stf_trace, event["latitude"],
-                        event["longitude"], event["depth_in_km"],
+                        data_tr,
+                        synth_tr,
+                        stf_trace,
+                        event["latitude"],
+                        event["longitude"],
+                        event["depth_in_km"],
                         coordinates["latitude"],
                         coordinates["longitude"],
                         minimum_period=minimum_period,
                         maximum_period=maximum_period,
-                        iteration=iteration_name, **kwargs)
+                        iteration=iteration_name,
+                        **kwargs,
+                    )
                 except Exception as e:
                     print(e)
 
@@ -267,8 +291,9 @@ class WindowsComponent(Component):
         ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
         ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
 
-        results = process_two_files_without_parallel_output(ds, ds_synth,
-                                                            process)
+        results = process_two_files_without_parallel_output(
+            ds, ds_synth, process
+        )
         MPI.COMM_WORLD.Barrier()
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
@@ -279,15 +304,19 @@ class WindowsComponent(Component):
             rank = MPI.COMM_WORLD.rank
             if rank == thread:
                 print(
-                    f"Writing windows for rank: {rank+1} "
-                    f"out of {size}", flush=True)
+                    f"Writing windows for rank: {rank+1} " f"out of {size}",
+                    flush=True,
+                )
                 self.comm.windows.write_windows_to_sql(
-                    event_name=event["event_name"], windows=results,
-                    window_set_name=window_set_name)
+                    event_name=event["event_name"],
+                    windows=results,
+                    window_set_name=window_set_name,
+                )
             MPI.COMM_WORLD.Barrier()
 
-    def select_windows_for_station(self, event, iteration, station,
-                                   window_set_name, **kwargs):
+    def select_windows_for_station(
+        self, event, iteration, station, window_set_name, **kwargs
+    ):
         """
         Selects windows for the given event, iteration, and station. Will
         delete any previously existing windows for that station if any.
@@ -300,50 +329,61 @@ class WindowsComponent(Component):
 
         # Load project specific window selection function.
         select_windows = self.comm.project.get_project_function(
-            "window_picking_function")
+            "window_picking_function"
+        )
 
         event = self.comm.events.get(event)
-        data = self.comm.query.get_matching_waveforms(event["event_name"],
-                                                      iteration, station)
+        data = self.comm.query.get_matching_waveforms(
+            event["event_name"], iteration, station
+        )
 
         # Get source time function
         stf_fct = self.comm.project.get_project_function(
-            "source_time_function")
+            "source_time_function"
+        )
         delta = self.comm.project.solver_settings["time_increment"]
         npts = self.comm.project.solver_settings["number_of_time_steps"]
         freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
         freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
-        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
-                            freqmax=freqmax)
+        stf_trace = stf_fct(
+            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
+        )
 
         process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
 
-        window_group_manager = self.comm.windows.get(
-            window_set_name)
+        window_group_manager = self.comm.windows.get(window_set_name)
 
         found_something = False
         for component in ["E", "N", "Z"]:
             try:
                 data_tr = select_component_from_stream(data.data, component)
-                synth_tr = select_component_from_stream(data.synthetics,
-                                                        component)
+                synth_tr = select_component_from_stream(
+                    data.synthetics, component
+                )
                 # delete preexisting windows
                 window_group_manager.del_all_windows_from_event_channel(
-                    event["event_name"], data_tr.id)
+                    event["event_name"], data_tr.id
+                )
             except LASIFNotFoundError:
                 continue
             found_something = True
 
-            windows = select_windows(data_tr, synth_tr, stf_trace,
-                                     event["latitude"],
-                                     event["longitude"], event["depth_in_km"],
-                                     data.coordinates["latitude"],
-                                     data.coordinates["longitude"],
-                                     minimum_period=minimum_period,
-                                     maximum_period=maximum_period,
-                                     iteration=iteration, **kwargs)
+            windows = select_windows(
+                data_tr,
+                synth_tr,
+                stf_trace,
+                event["latitude"],
+                event["longitude"],
+                event["depth_in_km"],
+                data.coordinates["latitude"],
+                data.coordinates["longitude"],
+                minimum_period=minimum_period,
+                maximum_period=maximum_period,
+                iteration=iteration,
+                **kwargs,
+            )
             if not windows:
                 continue
 
@@ -351,10 +391,13 @@ class WindowsComponent(Component):
                 window_group_manager.add_window_to_event_channel(
                     event_name=event["event_name"],
                     channel_name=data_tr.id,
-                    start_time=starttime, end_time=endtime)
+                    start_time=starttime,
+                    end_time=endtime,
+                )
 
         if found_something is False:
             raise LASIFNotFoundError(
                 "No matching data found for event '%s', iteration '%s', and "
-                "station '%s'." % (event["event_name"], iteration.name,
-                                   station))
+                "station '%s'."
+                % (event["event_name"], iteration.name, station)
+            )

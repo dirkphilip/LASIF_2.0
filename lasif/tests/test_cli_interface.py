@@ -34,6 +34,7 @@ import numpy as np
 import shutil
 import os
 import matplotlib as mpl
+
 mpl.use("agg")
 
 # import numpy as np
@@ -41,16 +42,25 @@ mpl.use("agg")
 from lasif.tests.testing_helpers import communicator, cli  # NOQA
 
 # Get a list of all available commands.
-CMD_LIST = [key.replace("lasif_", "")
-            for (key, value) in lasif_cli.__dict__.items()
-            if (key.startswith("lasif_") and callable(value))]
+CMD_LIST = [
+    key.replace("lasif_", "")
+    for (key, value) in lasif_cli.__dict__.items()
+    if (key.startswith("lasif_") and callable(value))
+]
 
 
 @pytest.fixture()
 def comm(tmpdir):
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "tests", "data",
-        "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "tests",
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -96,8 +106,9 @@ def test_help_messages(cli):
     """
     for cmd in CMD_LIST:
         # Both invocations should work
-        assert cli.run("lasif %s --help" % cmd) == \
-            cli.run("lasif help %s" % cmd)
+        assert cli.run("lasif %s --help" % cmd) == cli.run(
+            "lasif help %s" % cmd
+        )
         # Some things should always be shown.
         # This also more or less tests that
         # the argparse parser is used everywhere.
@@ -122,8 +133,10 @@ def test_unknown_command(cli):
     """
     out = cli.run("lasif asdflkjaskldfj")
     assert out.stdout == ""
-    assert out.stderr == ("lasif: 'asdflkjaskldfj' is not a LASIF command. "
-                          "See 'lasif --help'.\n")
+    assert out.stderr == (
+        "lasif: 'asdflkjaskldfj' is not a LASIF command. "
+        "See 'lasif --help'.\n"
+    )
 
 
 def test_fuzzy_command_matching(cli):
@@ -136,7 +149,8 @@ def test_fuzzy_command_matching(cli):
     assert out.stderr == (
         "lasif: 'infi' is not a LASIF command. See 'lasif --help'.\n\n"
         "Did you mean this?\n"
-        "\tinfo\n")
+        "\tinfo\n"
+    )
 
     out = cli.run("lasif plot_eventos")
     assert out.stdout == ""
@@ -146,7 +160,8 @@ def test_fuzzy_command_matching(cli):
         "    list_events\n"
         "    plot_event\n"
         "    plot_events\n"
-        "    plot_windows\n")
+        "    plot_windows\n"
+    )
 
 
 def test_cli_parsing_corner_cases(cli):
@@ -165,11 +180,15 @@ def test_project_init_without_arguments(cli):
     """
     # Invocation without a folder path fails.
     log = cli.run("lasif init_project")
-    assert "error: the following arguments are required: folder_path" \
-           in log.stderr
+    assert (
+        "error: the following arguments are required: folder_path"
+        in log.stderr
+    )
     log2 = cli.run("lasif plot_event")
-    assert "error: the following arguments are required: event_name" \
-           in log2.stderr
+    assert (
+        "error: the following arguments are required: event_name"
+        in log2.stderr
+    )
 
 
 def test_project_init(cli):
@@ -253,31 +272,36 @@ def test_download_utitlies(cli):
     with mock.patch("lasif.scripts.iris2quakeml.iris2quakeml") as patch:
         cli.run("lasif add_spud_event https://test.org")
     patch.assert_called_once_with(
-        "https://test.org", cli.comm.project.paths["eq_data"])
+        "https://test.org", cli.comm.project.paths["eq_data"]
+    )
     assert patch.call_count == 1
 
     # Test the download data invocation.
-    with mock.patch("lasif.components.downloads.DownloadsComponent"
-                    ".download_data") \
-            as download_patch:
-        out = cli.run("lasif download_data "
-                      "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10")
+    with mock.patch(
+        "lasif.components.downloads.DownloadsComponent" ".download_data"
+    ) as download_patch:
+        out = cli.run(
+            "lasif download_data " "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10"
+        )
     assert out.stderr == ""
     download_patch.assert_called_once_with(
-        "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10", providers=None)
+        "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10", providers=None
+    )
     assert download_patch.call_count == 1
 
     # Test setting the providers.
-    with mock.patch("lasif.components.downloads.DownloadsComponent"
-                    ".download_data") \
-            as download_patch:
-        out = cli.run("lasif download_data "
-                      "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10 "
-                      "--providers IRIS ORFEUS")
+    with mock.patch(
+        "lasif.components.downloads.DownloadsComponent" ".download_data"
+    ) as download_patch:
+        out = cli.run(
+            "lasif download_data "
+            "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10 "
+            "--providers IRIS ORFEUS"
+        )
     assert out.stderr == ""
     download_patch.assert_called_once_with(
-        "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10",
-        providers=["IRIS", "ORFEUS"])
+        "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10", providers=["IRIS", "ORFEUS"]
+    )
     assert download_patch.call_count == 1
 
 
@@ -286,7 +310,7 @@ def test_lasif_info(cli):
     Tests the 'lasif info' command.
     """
     out = cli.run("lasif info").stdout
-    assert "\"example_project\"" in out
+    assert '"example_project"' in out
     assert "Toy Project used in the Test Suite" in out
     assert "2 events" in out
 
@@ -304,7 +328,8 @@ def test_various_list_functions(cli):
     events = cli.run("lasif list_events --just_list").stdout
     assert events == (
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n"
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15\n")
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15\n"
+    )
 
     iterations = cli.run("lasif list_iterations").stdout
     assert "1 iteration in this project" in iterations
@@ -328,10 +353,12 @@ def test_lasif_event_info(cli):
     """
     Tests the event info function.
     """
-    event_1 = cli.run("lasif event_info "
-                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11").stdout
-    event_2 = cli.run("lasif event_info "
-                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15").stdout
+    event_1 = cli.run(
+        "lasif event_info " "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    ).stdout
+    event_2 = cli.run(
+        "lasif event_info " "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+    ).stdout
 
     assert "5.1 Mw" in event_1
     assert "TURKEY" in event_1
@@ -359,8 +386,12 @@ def test_plot_stf(cli):
     stf_freqmin = 1.0 / cli.comm.project.processing_params["lowpass_period"]
     stf_freqmax = 1.0 / cli.comm.project.processing_params["highpass_period"]
 
-    stf_data = stf_fct(npts=stf_npts, delta=stf_delta, freqmin=stf_freqmin,
-                       freqmax=stf_freqmax)
+    stf_data = stf_fct(
+        npts=stf_npts,
+        delta=stf_delta,
+        freqmin=stf_freqmin,
+        freqmax=stf_freqmax,
+    )
     np.testing.assert_array_equal(data, stf_data)
     assert stf_delta == delta
 
@@ -369,18 +400,26 @@ def test_calculate_all_adjoint_sources(cli):
     """
     Simple mock test.
     """
-    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
-                    ".calculate_adjoint_sources") as p:
-        out = cli.run("lasif calculate_adjoint_sources 1 B "
-                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    with mock.patch(
+        "lasif.components.adjoint_sources.AdjointSourcesComponent"
+        ".calculate_adjoint_sources"
+    ) as p:
+        out = cli.run(
+            "lasif calculate_adjoint_sources 1 B "
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+        )
     assert "Window set B not known to LASIF" in out.stderr
     assert p.call_count == 0
 
-    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
-                    ".calculate_adjoint_sources") as p:
+    with mock.patch(
+        "lasif.components.adjoint_sources.AdjointSourcesComponent"
+        ".calculate_adjoint_sources"
+    ) as p:
         out = cli.run("lasif calculate_adjoint_sources")
-    assert "error: the following arguments are required: iteration_name, " \
-           "window_set_name, events" in out.stderr
+    assert (
+        "error: the following arguments are required: iteration_name, "
+        "window_set_name, events" in out.stderr
+    )
     assert p.call_count == 0
 
     """
@@ -395,15 +434,21 @@ def test_finalize_adjoint_sources(cli):
     Simple mock test. Don't know why it fails
     """
     cli.run(
-        "lasif set_up_iteration 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    with mock.patch("lasif.components.adjoint_sources.AdjointSourcesComponent"
-                    ".finalize_adjoint_sources") as p:
-        out = cli.run("lasif calculate_adjoint_sources 1 A "
-                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        "lasif set_up_iteration 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    )
+    with mock.patch(
+        "lasif.components.adjoint_sources.AdjointSourcesComponent"
+        ".finalize_adjoint_sources"
+    ) as p:
+        out = cli.run(
+            "lasif calculate_adjoint_sources 1 A "
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+        )
 
     assert out.stderr == ""
     p.assert_called_once_with(
-        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", None)
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", None
+    )
     assert p.call_count == 1
 
 
@@ -424,6 +469,7 @@ def test_preprocessing(cli):
 
     import shutil
     import glob
+
     for path in glob.glob(os.path.join(processing_path, "*")):
         shutil.rmtree(path)
 
@@ -452,27 +498,37 @@ def test_processing_event_limiting_works(cli):
     with mock.patch(ac + "process_data") as patch:
         cli.run("lasif process_data")
     assert patch.call_count == 1
-    patch.assert_called_once_with(["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-                                   "GCMT_event_TURKEY_Mag_5.9"
-                                   "_2011-5-19-20-15"])
+    patch.assert_called_once_with(
+        [
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "GCMT_event_TURKEY_Mag_5.9" "_2011-5-19-20-15",
+        ]
+    )
 
     # One specified event should result in one event.
     with mock.patch(ac + "process_data") as patch:
-        cli.run("lasif process_data "
-                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        cli.run(
+            "lasif process_data " "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+        )
     assert patch.call_count == 1
     patch.assert_called_once_with(
-        ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
+        ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
+    )
 
     # Multiple result in multiple.
     with mock.patch(ac + "process_data") as patch:
-        cli.run("lasif process_data "
-                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
-                "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+        cli.run(
+            "lasif process_data "
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+            "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+        )
     assert patch.call_count == 1
-    patch.assert_called_once_with(["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-                                   "GCMT_event_TURKEY_Mag_5.9_"
-                                   "2011-5-19-20-15"])
+    patch.assert_called_once_with(
+        [
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "GCMT_event_TURKEY_Mag_5.9_" "2011-5-19-20-15",
+        ]
+    )
 
     out = cli.run("lasif process_data blub")
     assert "Event 'blub' not found." in out.stderr
@@ -485,22 +541,26 @@ def test_validate_data(cli):
     vc = "lasif.components.validator.ValidatorComponent."
     with mock.patch(vc + "validate_data") as patch:
         cli.run("lasif validate_data")
-        patch.assert_called_once_with(data_and_station_file_availability=False,
-                                      raypaths=False)
+        patch.assert_called_once_with(
+            data_and_station_file_availability=False, raypaths=False
+        )
 
     with mock.patch(vc + "validate_data") as patch:
         cli.run("lasif validate_data --full")
-        patch.assert_called_once_with(data_and_station_file_availability=True,
-                                      raypaths=True)
+        patch.assert_called_once_with(
+            data_and_station_file_availability=True, raypaths=True
+        )
 
-    with mock.patch("lasif.domain.ExodusDomain.point_in_domain") as patch:
+    with mock.patch("lasif.domain.HDF5Domain.point_in_domain") as patch:
         cli.run("lasif validate_data")
         assert patch.call_count == 2
 
     # Have the raypath check fail.
     # Add this one when we have some data. Now it doesn't perform the ray check
-    with mock.patch('lasif.components.validator.ValidatorComponent'
-                    '.is_event_station_raypath_within_boundaries') as p:
+    with mock.patch(
+        "lasif.components.validator.ValidatorComponent"
+        ".is_event_station_raypath_within_boundaries"
+    ) as p:
         p.return_value = False
         out = cli.run("lasif validate_data --full")
         assert "Validating 2 event files" in out.stdout

@@ -24,23 +24,28 @@ def test_LatLonRadiusToXyz():
     # For (0/0)
     np.testing.assert_array_almost_equal(
         rotations.lat_lon_radius_to_xyz(0.0, 0.0, 1.0),
-        np.array([1.0, 0.0, 0.0]))
+        np.array([1.0, 0.0, 0.0]),
+    )
     # At the North Pole
     np.testing.assert_array_almost_equal(
         rotations.lat_lon_radius_to_xyz(90.0, 0.0, 1.0),
-        np.array([0.0, 0.0, 1.0]))
+        np.array([0.0, 0.0, 1.0]),
+    )
     # At the South Pole
     np.testing.assert_array_almost_equal(
         rotations.lat_lon_radius_to_xyz(-90.0, 0.0, 1.0),
-        np.array([0.0, 0.0, -1.0]))
+        np.array([0.0, 0.0, -1.0]),
+    )
     # At the "West Pole"
     np.testing.assert_array_almost_equal(
         rotations.lat_lon_radius_to_xyz(0.0, -90.0, 1.0),
-        np.array([0.0, -1.0, 0.0]))
+        np.array([0.0, -1.0, 0.0]),
+    )
     # At the "East Pole"
     np.testing.assert_array_almost_equal(
         rotations.lat_lon_radius_to_xyz(0.0, 90.0, 1.0),
-        np.array([0.0, 1.0, 0.0]))
+        np.array([0.0, 1.0, 0.0]),
+    )
 
 
 def test_XyzToLatLonRadius():
