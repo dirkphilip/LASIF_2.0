@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="2.0">
+  <Domain>
+    <Grid Name="Salvus Skeleton Mesh" GridType="Uniform">
+      <Topology TopologyType="Hexahedron" NodesPerElement="8" NumberOfElements="4736">
+        <DataItem Format="HDF" Dimensions="4736 8" NumberType="Int">Global.h5:/TOPOLOGY/cells</DataItem>
+      </Topology>
+      <Geometry GeometryType="XYZ">
+        <DataItem Format="HDF" Dimensions="4975 3">Global.h5:/TOPOLOGY/coordinates</DataItem>
+      </Geometry>
+      <Set Name="r1" SetType="Face">
+        <DataItem Format="HDF" Dimensions="384">Global.h5:/SIDE_SETS/r1/elements</DataItem>
+        <DataItem Format="HDF" Dimensions="384">Global.h5:/SIDE_SETS/r1/sides</DataItem>
+      </Set>
+      <Attribute Name="fluid" Center="Cell" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="4736 1">
+          <DataItem Dimensions="3 2">0 0 1 1 4736 1</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 3">Global.h5:/MODEL/element_data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="layer" Center="Cell" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="4736 1">
+          <DataItem Dimensions="3 2">0 1 1 1 4736 1</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 3">Global.h5:/MODEL/element_data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="z_centroid_1D" Center="Cell" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="4736 1">
+          <DataItem Dimensions="3 2">0 2 1 1 4736 1</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 3">Global.h5:/MODEL/element_data</DataItem>
+        </DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="Salvus GLL Model" GridType="Uniform">
+      <Topology TopologyType="Hexahedron" NodesPerElement="8" NumberOfElements="37888">
+        <DataItem Format="HDF" Dimensions="37888 8" NumberType="Int">Global.h5:/MODEL/sub_connectivity</DataItem>
+      </Topology>
+      <Geometry GeometryType="XYZ">
+        <DataItem Format="HDF" Dimensions="127872 3">Global.h5:/MODEL/coordinates</DataItem>
+      </Geometry>
+      <Attribute Name="QKAPPA" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 0 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="QMU" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 1 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="RHO" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 2 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="VP" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 3 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="VS" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 4 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+      <Attribute Name="z_node_1D" Center="Node" AttributeType="Scalar">
+        <DataItem ItemType="HyperSlab" Type="HyperSlab" Dimensions="127872 1">
+          <DataItem Dimensions="3 3">0 5 0 1 1 1 4736 1 27</DataItem>
+          <DataItem Format="HDF" Dimensions="4736 6 27">Global.h5:/MODEL/data</DataItem>
+        </DataItem>
+      </Attribute>
+    </Grid>
+    <Grid Name="Salvus GLL Mesh" GridType="Uniform">
+      <Topology TopologyType="Hexahedron" NodesPerElement="8" NumberOfElements="37888">
+        <DataItem Format="HDF" Dimensions="37888 8" NumberType="Int">Global.h5:/MODEL/non_duplicated_sub_connectivity</DataItem>
+      </Topology>
+      <Geometry GeometryType="XYZ">
+        <DataItem Format="HDF" Dimensions="38749 3">Global.h5:/MODEL/non_duplicated_coordinates</DataItem>
+      </Geometry>
+    </Grid>
+  </Domain>
+</Xdmf>

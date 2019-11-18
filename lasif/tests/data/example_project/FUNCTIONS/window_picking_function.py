@@ -12,12 +12,20 @@ Project specific function picking windows.
 from lasif.window_selection import select_windows
 
 
-def window_picking_function(data_trace, synthetic_trace, stf_trace,
-                            event_latitude,
-                            event_longitude, event_depth_in_km,
-                            station_latitude, station_longitude,
-                            minimum_period, maximum_period,
-                            iteration, **kwargs):  # NOQA
+def window_picking_function(
+    data_trace,
+    synthetic_trace,
+    stf_trace,
+    event_latitude,
+    event_longitude,
+    event_depth_in_km,
+    station_latitude,
+    station_longitude,
+    minimum_period,
+    maximum_period,
+    iteration,
+    **kwargs
+):  # NOQA
     """
     Function that will be called every time a window is picked. This is part
     of the project so it can change depending on the project.
@@ -134,6 +142,7 @@ def window_picking_function(data_trace, synthetic_trace, stf_trace,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
         max_energy_ratio=MAX_ENERGY_RATIO,
         min_envelope_similarity=MIN_ENVELOPE_SIMILARITY,
-        **kwargs)
+        **kwargs
+    )
 
     return windows

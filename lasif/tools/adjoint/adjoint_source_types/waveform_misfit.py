@@ -11,8 +11,12 @@ sources to lasif.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 from obspy import Trace
 from scipy.integrate import simps
@@ -79,10 +83,20 @@ ADDITIONAL_PARAMETERS = r"""
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 
-def calculate_adjoint_source(observed, synthetic, window, min_period,
-                             max_period, adjoint_src, plot=False, taper=False,
-                             taper_ratio=0.15,
-                             taper_type="cosine", **kwargs):  # NOQA
+
+def calculate_adjoint_source(
+    observed,
+    synthetic,
+    window,
+    min_period,
+    max_period,
+    adjoint_src,
+    plot=False,
+    taper=False,
+    taper_ratio=0.15,
+    taper_type="cosine",
+    **kwargs
+):  # NOQA
     # There is no need to perform any sanity checks on the passed trace
     # object. At this point they will be guaranteed to have the same
     # sampling rate, be sampled at the same points in time and a couple
@@ -97,12 +111,12 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
 
     diff = observed.data - synthetic.data
     # Integrate with the composite Simpson's rule.
-    ret_val["misfit"] = 0.5 * simps(
-        y=diff ** 2, dx=observed.stats.delta)
+    ret_val["misfit"] = 0.5 * simps(y=diff ** 2, dx=observed.stats.delta)
 
     if adjoint_src is True:
-        adj_src = Trace(data=diff * weight * synthetic.stats.delta,
-                        header=observed.stats)
+        adj_src = Trace(
+            data=diff * weight * synthetic.stats.delta, header=observed.stats
+        )
 
         ret_val["adjoint_source"] = adj_src
 

@@ -24,10 +24,13 @@ def find_envelope(station, asdf_file):
     :return: weighting_function: The envelope which is used for weighting
     """
     import pyasdf
+
     with pyasdf.ASDFDataSet(asdf_file, mode="r") as db:
         if "BinEnvelope" not in db.auxiliary_data.list():
-            msg = "You have yet to create your station bins and envelopes.\n "\
-                  "Run lasif get_weighting_bins --help for more information."
+            msg = (
+                "You have yet to create your station bins and envelopes.\n "
+                "Run lasif get_weighting_bins --help for more information."
+            )
             raise LASIFNotFoundError(msg)
 
         envelopes = db.auxiliary_data["BinEnvelope"]
@@ -41,8 +44,10 @@ def find_envelope(station, asdf_file):
                 weighting_function = np.array(envelope.data)
                 found = True
         if not found:
-            raise ValueError(f"Did not find station {station} in "
-                             f"the available envelopes.")
+            raise ValueError(
+                f"Did not find station {station} in "
+                f"the available envelopes."
+            )
 
         eps = 0.1
         weighting_function += eps
@@ -50,8 +55,9 @@ def find_envelope(station, asdf_file):
         return weighting_function
 
 
-def adsrc_l2_norm_weighted(t, data, synthetic, min_period,
-                           event, station, envelope, plot=False):
+def adsrc_l2_norm_weighted(
+    t, data, synthetic, min_period, event, station, envelope, plot=False
+):
     """
     Calculates the L2-norm misfit and adjoint source.
 
@@ -118,7 +124,8 @@ def adsrc_l2_norm_weighted(t, data, synthetic, min_period,
     ret_dict = {
         "adjoint_source": adjoint_source,
         "misfit_value": l2norm,
-        "details": {"messages": messages}}
+        "details": {"messages": messages},
+    }
 
     if plot:
         adjoint_source_plot(t, data, synthetic, adjoint_source, l2norm, weight)
@@ -132,16 +139,16 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit, envelope):
 
     plt.subplot(211)
     plt.plot(t, data, color="0.2", label="Data", lw=2)
-    plt.plot(t, synthetic, color="#bb474f",
-             label="Synthetic", lw=2)
+    plt.plot(t, synthetic, color="#bb474f", label="Synthetic", lw=2)
     plt.plot(t, envelope * (max(data) / max(envelope)), color="blue")
 
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     plt.subplot(212)
-    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    plt.plot(
+        t, adjoint_source[::-1], color="#2f8d5b", lw=2, label="Adjoint Source"
+    )
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 

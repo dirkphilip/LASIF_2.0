@@ -53,7 +53,7 @@ import warnings
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
-warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # from mpi4py import MPI
 
@@ -87,18 +87,12 @@ COMMAND_GROUP_DOCS = {
         "Functions dealing with one or more iterations inside a LASIF "
         "project."
     ),
-    "Misc": (
-        "All functions that do not fit in one of the other categories."
-    ),
-    "Misc": (
-        "All functions that do not fit in one of the other categories."
-    ),
-    "Plotting": (
-        "Functions producing pictures."
-    ),
+    "Misc": ("All functions that do not fit in one of the other categories."),
+    "Misc": ("All functions that do not fit in one of the other categories."),
+    "Plotting": ("Functions producing pictures."),
     "Project Management": (
         "Functions dealing with LASIF projects as a whole."
-    )
+    ),
 }
 
 
@@ -106,9 +100,11 @@ def command_group(group_name):
     """
     Decorator to be able to logically group commands.
     """
+
     def wrapper(func):
         func.group_name = group_name
         return func
+
     return wrapper
 
 
@@ -139,12 +135,14 @@ def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
     """
-    parser.add_argument("--save", help="Save the plot in a file",
-                        action="store_true")
+    parser.add_argument(
+        "--save", help="Save the plot in a file", action="store_true"
+    )
     parser.add_argument(
         "--show_mesh",
         action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.")
+        help="Also plot the mesh. Currently works for exodus meshes/domains.",
+    )
     args = parser.parse_args(args)
     save = args.save
 
@@ -162,6 +160,7 @@ def lasif_shell(parser, args):
     print("LASIF shell, 'comm' object is available in the local namespace.\n")
     print(comm)
     from IPython import embed
+
     embed(display_banner=False)
 
 
@@ -170,23 +169,33 @@ def lasif_plot_event(parser, args):
     """
     Plot a single event including stations on a map.
     """
-    parser.add_argument("--save", help="Saves the plot in a file",
-                        action="store_true")
+    parser.add_argument(
+        "--save", help="Saves the plot in a file", action="store_true"
+    )
     parser.add_argument("event_name", help="name of the event to plot")
-    parser.add_argument("--weight_set_name", help="for stations to be "
-                                                  "color coded as a function "
-                                                  "of their respective "
-                                                  "weights", default=None)
+    parser.add_argument(
+        "--weight_set_name",
+        help="for stations to be "
+        "color coded as a function "
+        "of their respective "
+        "weights",
+        default=None,
+    )
     parser.add_argument(
         "--show_mesh",
         action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.")
+        help="Also plot the mesh. Currently works for exodus meshes/domains.",
+    )
 
     args = parser.parse_args(args)
 
-    api.plot_event(lasif_root=".", event_name=args.event_name,
-                   weight_set_name=args.weight_set_name,
-                   save=args.save, show_mesh=args.show_mesh)
+    api.plot_event(
+        lasif_root=".",
+        event_name=args.event_name,
+        weight_set_name=args.weight_set_name,
+        save=args.save,
+        show_mesh=args.show_mesh,
+    )
 
 
 @command_group("Plotting")
@@ -199,24 +208,35 @@ def lasif_plot_events(parser, args):
         * ``depth`` - a depth distribution histogram
         * ``time`` - a time distribution histogram
     """
-    parser.add_argument("--type", default="map", choices=["map", "depth",
-                                                          "time"],
-                        help="the type of plot. "
-                        "``map``: beachballs on a map, "
-                        "``depth``: depth distribution histogram, "
-                        "``time``: time distribution histogram")
-    parser.add_argument("--iteration", help="Plot all events for an "
-                                            "iteration", default=None)
-    parser.add_argument("--save", help="Saves the plot in a file",
-                        action="store_true")
+    parser.add_argument(
+        "--type",
+        default="map",
+        choices=["map", "depth", "time"],
+        help="the type of plot. "
+        "``map``: beachballs on a map, "
+        "``depth``: depth distribution histogram, "
+        "``time``: time distribution histogram",
+    )
+    parser.add_argument(
+        "--iteration", help="Plot all events for an " "iteration", default=None
+    )
+    parser.add_argument(
+        "--save", help="Saves the plot in a file", action="store_true"
+    )
     parser.add_argument(
         "--show_mesh",
         action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.")
+        help="Also plot the mesh. Currently works for exodus meshes/domains.",
+    )
     args = parser.parse_args(args)
 
-    api.plot_events(lasif_root=".", type=args.type, iteration=args.iteration,
-                    save=args.save, show_mesh=args.show_mesh)
+    api.plot_events(
+        lasif_root=".",
+        type=args.type,
+        iteration=args.iteration,
+        save=args.save,
+        show_mesh=args.show_mesh,
+    )
 
 
 @command_group("Plotting")
@@ -224,14 +244,21 @@ def lasif_plot_raydensity(parser, args):
     """
     Plot a binned raycoverage plot for all events.
     """
-    parser.add_argument("--iteration", default=None,
-                        help="Only plot data from a specific iteration")
-    parser.add_argument("--plot_stations", help="also plot the stations",
-                        action="store_true")
+    parser.add_argument(
+        "--iteration",
+        default=None,
+        help="Only plot data from a specific iteration",
+    )
+    parser.add_argument(
+        "--plot_stations", help="also plot the stations", action="store_true"
+    )
     args = parser.parse_args(args)
 
-    api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations,
-                        iteration=args.iteration)
+    api.plot_raydensity(
+        lasif_root=".",
+        plot_stations=args.plot_stations,
+        iteration=args.iteration,
+    )
 
 
 @command_group("Plotting")
@@ -240,19 +267,28 @@ def lasif_plot_section(parser, args):
     Plot a binned section plot of the processed data for an event.
     """
     parser.add_argument("event_name", help="name of the event to plot")
-    parser.add_argument("--num_bins", default=1, type=int,
-                        help="number of bins to be used for binning the "
-                             "event-station offsets")
-    parser.add_argument("--traces_per_bin", default=500, type=int,
-                        help="number of traces per bin")
+    parser.add_argument(
+        "--num_bins",
+        default=1,
+        type=int,
+        help="number of bins to be used for binning the "
+        "event-station offsets",
+    )
+    parser.add_argument(
+        "--traces_per_bin",
+        default=500,
+        type=int,
+        help="number of traces per bin",
+    )
     args = parser.parse_args(args)
     event_name = args.event_name
     traces_per_bin = args.traces_per_bin
     num_bins = args.num_bins
 
     comm = api.find_project_comm(".")
-    comm.visualizations.plot_section(event_name=event_name, num_bins=num_bins,
-                                     traces_per_bin=traces_per_bin)
+    comm.visualizations.plot_section(
+        event_name=event_name, num_bins=num_bins, traces_per_bin=traces_per_bin
+    )
 
 
 @command_group("Data Acquisition")
@@ -296,27 +332,45 @@ def lasif_add_gcmt_events(parser, args):
     """
     Selects and adds optimally distributed events from the GCMT catalog.
     """
-    parser.add_argument("count", type=int,
-                        help="maximum amount of events to add")
-    parser.add_argument("min_magnitude", type=float,
-                        help="minimum magnitude off events to add")
-    parser.add_argument("max_magnitude", type=float,
-                        help="maximum magnitude off events to add")
-    parser.add_argument("min_distance", type=float,
-                        help="The minimum acceptable distance to the next "
-                             "closest event in km.")
-    parser.add_argument("--min_year", default=None, type=int,
-                        help="minimum year from which to add events")
-    parser.add_argument("--max_year", default=None, type=int,
-                        help="maximum year from which to add events")
+    parser.add_argument(
+        "count", type=int, help="maximum amount of events to add"
+    )
+    parser.add_argument(
+        "min_magnitude", type=float, help="minimum magnitude off events to add"
+    )
+    parser.add_argument(
+        "max_magnitude", type=float, help="maximum magnitude off events to add"
+    )
+    parser.add_argument(
+        "min_distance",
+        type=float,
+        help="The minimum acceptable distance to the next "
+        "closest event in km.",
+    )
+    parser.add_argument(
+        "--min_year",
+        default=None,
+        type=int,
+        help="minimum year from which to add events",
+    )
+    parser.add_argument(
+        "--max_year",
+        default=None,
+        type=int,
+        help="maximum year from which to add events",
+    )
 
     args = parser.parse_args(args)
 
-    api.add_gcmt_events(lasif_root=".", count=args.count,
-                        min_mag=args.min_magnitude,
-                        max_mag=args.max_magnitude,
-                        min_dist=args.min_distance,
-                        min_year=args.min_year, max_year=args.max_year)
+    api.add_gcmt_events(
+        lasif_root=".",
+        count=args.count,
+        min_mag=args.min_magnitude,
+        max_mag=args.max_magnitude,
+        min_dist=args.min_distance,
+        min_year=args.min_year,
+        max_year=args.max_year,
+    )
 
 
 @command_group("Project Management")
@@ -334,24 +388,36 @@ def lasif_download_data(parser, args):
     Download waveform and station data for one or more events.
     Can be used to download data for all events in LASIF project.
     """
-    parser.add_argument("event_name", help="name of the event. Possible to add"
-                        " more than one event separated by a space. If "
-                        "argument is left empty. data will be downloaded "
-                        "for all events", nargs="*")
-    parser.add_argument("--providers", default=None,
-                        type=str, nargs="+",
-                        help="FDSN providers to query. Will use all known "
-                             "ones if not set.")
-    parser.add_argument("--downsample_data", action="store_true",
-                        help="If the dataset could get too big this can"
-                             " help with reducing the size."
-                             " Be very careful while using this one. "
-                             "Currently it changes the waveforms a bit.")
+    parser.add_argument(
+        "event_name",
+        help="name of the event. Possible to add"
+        " more than one event separated by a space. If "
+        "argument is left empty. data will be downloaded "
+        "for all events",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--providers",
+        default=None,
+        type=str,
+        nargs="+",
+        help="FDSN providers to query. Will use all known " "ones if not set.",
+    )
+    parser.add_argument(
+        "--downsample_data",
+        action="store_true",
+        help="If the dataset could get too big this can"
+        " help with reducing the size."
+        " Be very careful while using this one. "
+        "Currently it changes the waveforms a bit.",
+    )
     args = parser.parse_args(args)
 
-    api.download_data(lasif_root=".",
-                      event_name=args.event_name if args.event_name else [],
-                      providers=args.providers)
+    api.download_data(
+        lasif_root=".",
+        event_name=args.event_name if args.event_name else [],
+        providers=args.providers,
+    )
 
 
 @command_group("Event Management")
@@ -359,17 +425,23 @@ def lasif_list_events(parser, args):
     """
     Print a list of all events in the project.
     """
-    parser.add_argument("--just_list", help="Show only a list of events"
-                                            "without properties. Good for "
-                                            "scripting bash.",
-                        action="store_true")
-    parser.add_argument("--iteration", help="Show only events related to "
-                                            "a specific iteration",
-                        default=None)
+    parser.add_argument(
+        "--just_list",
+        help="Show only a list of events"
+        "without properties. Good for "
+        "scripting bash.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--iteration",
+        help="Show only events related to " "a specific iteration",
+        default=None,
+    )
     args = parser.parse_args(args)
 
-    api.list_events(lasif_root=".", just_list=args.just_list,
-                    iteration=args.iteration)
+    api.list_events(
+        lasif_root=".", just_list=args.just_list, iteration=args.iteration
+    )
 
 
 @command_group("Iteration Management")
@@ -383,21 +455,31 @@ def lasif_submit_job(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("ranks", help="amount of ranks", type=int)
     parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
-    parser.add_argument("simulation_type", help="forward, "
-                                                "step_length, adjoint")
+    parser.add_argument(
+        "simulation_type", help="forward, " "step_length, adjoint"
+    )
     parser.add_argument("site", help="Computer to submit the job to")
-    parser.add_argument("event", help="If you only want to submit selected "
-                                      "events. You can input more than one "
-                                      "separated by a space. If none is "
-                                      "specified, all will be taken",
-                        nargs="*", default=None)
+    parser.add_argument(
+        "event",
+        help="If you only want to submit selected "
+        "events. You can input more than one "
+        "separated by a space. If none is "
+        "specified, all will be taken",
+        nargs="*",
+        default=None,
+    )
 
     args = parser.parse_args(args)
 
-    api.submit_job(lasif_root=".", iteration=args.iteration_name,
-                   ranks=args.ranks, wall_time=args.wall_time_in_seconds,
-                   simulation_type=args.simulation_type,
-                   site=args.site, events=args.event if args.event else [])
+    api.submit_job(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        ranks=args.ranks,
+        wall_time=args.wall_time_in_seconds,
+        simulation_type=args.simulation_type,
+        site=args.site,
+        events=args.event if args.event else [],
+    )
 
 
 @command_group("Iteration Management")
@@ -406,21 +488,29 @@ def lasif_retrieve_output(parser, args):
     EXPERIMENTAL: Retrieves output from simulation, No QA.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("simulation_type", help="forward, "
-                                                "step_length, adjoint")
+    parser.add_argument(
+        "simulation_type", help="forward, " "step_length, adjoint"
+    )
     parser.add_argument("site", help="Computer to get output from")
-    parser.add_argument("event", help="names of events you want to retrieve "
-                                      "output from. If more than one, "
-                                      "separate with space. If none specified"
-                                      " all will be used.", nargs="*",
-                        default=None)
+    parser.add_argument(
+        "event",
+        help="names of events you want to retrieve "
+        "output from. If more than one, "
+        "separate with space. If none specified"
+        " all will be used.",
+        nargs="*",
+        default=None,
+    )
 
     args = parser.parse_args(args)
 
-    api.retrieve_output(lasif_root=".", iteration=args.iteration_name,
-                        simulation_type=args.simulation_type,
-                        site=args.site,
-                        events=args.event if args.event else [])
+    api.retrieve_output(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        simulation_type=args.simulation_type,
+        site=args.site,
+        events=args.event if args.event else [],
+    )
 
 
 @command_group("Event Management")
@@ -429,8 +519,9 @@ def lasif_event_info(parser, args):
     Print information about a single event.
     """
     parser.add_argument("event_name", help="name of the event")
-    parser.add_argument("-v", help="Verbose. Print all contained events.",
-                        action="store_true")
+    parser.add_argument(
+        "-v", help="Verbose. Print all contained events.", action="store_true"
+    )
     args = parser.parse_args(args)
 
     api.event_info(lasif_root=".", event_name=args.event_name, verbose=args.v)
@@ -442,9 +533,11 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
-    parser.add_argument("--unfiltered", help="Add this tag if you want to "
-                                             "plot an unfiltered STF",
-                        action="store_true")
+    parser.add_argument(
+        "--unfiltered",
+        help="Add this tag if you want to " "plot an unfiltered STF",
+        action="store_true",
+    )
     args = parser.parse_args(args)
     api.plot_stf(lasif_root=".")
 
@@ -456,27 +549,40 @@ def lasif_generate_input_files(parser, args):
     """
     parser.add_argument("iteration_name", help="name of the iteration ")
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
-    parser.add_argument("simulation_type", help="forward, "
-                                                "step_length, adjoint",
-                        default="forward")
-    parser.add_argument("--weight_set_name", default=None, type=str,
-                        help="Set of station and event weights,"
-                             "used to scale the adjoint sources")
-    parser.add_argument("--prev_iter", default=None, type=str,
-                        help="Optionally specify a previous iteration"
-                             "to use input files_from, only updates"
-                             "the mesh file.")
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
+    parser.add_argument(
+        "simulation_type",
+        help="forward, " "step_length, adjoint",
+        default="forward",
+    )
+    parser.add_argument(
+        "--weight_set_name",
+        default=None,
+        type=str,
+        help="Set of station and event weights,"
+        "used to scale the adjoint sources",
+    )
+    parser.add_argument(
+        "--prev_iter",
+        default=None,
+        type=str,
+        help="Optionally specify a previous iteration"
+        "to use input files_from, only updates"
+        "the mesh file.",
+    )
 
     args = parser.parse_args(args)
-    api.generate_input_files(lasif_root=".", iteration=args.iteration_name,
-                             simulation_type=args.simulation_type,
-                             events=args.events if args.events else [],
-                             weight_set=args.weight_set_name if
-                             args.weight_set_name else None,
-                             prev_iter=args.prev_iter if args.prev_iter else
-                             None)
+    api.generate_input_files(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        simulation_type=args.simulation_type,
+        events=args.events if args.events else [],
+        weight_set=args.weight_set_name if args.weight_set_name else None,
+        prev_iter=args.prev_iter if args.prev_iter else None,
+    )
 
 
 @command_group("Project Management")
@@ -499,15 +605,19 @@ def lasif_calculate_adjoint_sources(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("window_set_name", help="name of the window_set")
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
 
     args = parser.parse_args(args)
 
-    api.calculate_adjoint_sources(lasif_root=".",
-                                  iteration=args.iteration_name,
-                                  window_set=args.window_set_name,
-                                  events=args.events if args.events else [])
+    api.calculate_adjoint_sources(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        window_set=args.window_set_name,
+        events=args.events if args.events else [],
+    )
 
 
 @mpi_enabled
@@ -523,12 +633,17 @@ def lasif_select_windows(parser, args):
     parser.add_argument("iteration", help="name of the iteration")
     parser.add_argument("window_set_name", help="name of the window_set")
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
     args = parser.parse_args(args)
-    api.select_windows(lasif_root=".", iteration=args.iteration,
-                       window_set=args.window_set_name,
-                       events=args.events if args.events else [])
+    api.select_windows(
+        lasif_root=".",
+        iteration=args.iteration,
+        window_set=args.window_set_name,
+        events=args.events if args.events else [],
+    )
 
 
 @command_group("Iteration Management")
@@ -546,8 +661,9 @@ def lasif_create_weight_set(parser, args):
     """
     Create a new set of event and station weights.
     """
-    parser.add_argument("weight_set_name",
-                        help="name of the weight set, i.e. \"A\"")
+    parser.add_argument(
+        "weight_set_name", help='name of the weight set, i.e. "A"'
+    )
 
     args = parser.parse_args(args)
     api.create_weight_set(lasif_root=".", weight_set=args.weight_set_name)
@@ -560,24 +676,35 @@ def lasif_compute_station_weights(parser, args):
     Weights are calculated for each event. This may take a while if you have
     many stations.
     """
-    parser.add_argument("weight_set_name", help="Pick a name for the "
-                                                "weight set. If the weight"
-                                                "set already exists, it will"
-                                                "overwrite")
-    parser.add_argument("event_name", default=None,
-                        help="name of event. If none is specified weights will"
-                             "be calculated for all. Also possible to specify"
-                             "more than one separated by a space", nargs="*")
-    parser.add_argument("--iteration", default=None,
-                        help="If you only want to do this for the events "
-                             "specified for an iteration")
+    parser.add_argument(
+        "weight_set_name",
+        help="Pick a name for the "
+        "weight set. If the weight"
+        "set already exists, it will"
+        "overwrite",
+    )
+    parser.add_argument(
+        "event_name",
+        default=None,
+        help="name of event. If none is specified weights will"
+        "be calculated for all. Also possible to specify"
+        "more than one separated by a space",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--iteration",
+        default=None,
+        help="If you only want to do this for the events "
+        "specified for an iteration",
+    )
     args = parser.parse_args(args)
 
-    api.compute_station_weights(lasif_root=".",
-                                weight_set=args.weight_set_name,
-                                events=args.event_name if args.event_name
-                                else [],
-                                iteration=args.iteration)
+    api.compute_station_weights(
+        lasif_root=".",
+        weight_set=args.weight_set_name,
+        events=args.event_name if args.event_name else [],
+        iteration=args.iteration,
+    )
 
 
 # API
@@ -588,17 +715,22 @@ def lasif_get_weighting_bins(parser, args):
     The binning is based on event-station distances.
     """
     parser.add_argument("window_set_name", help="Name of window set")
-    parser.add_argument("event_name", default=None, help="Name of event",
-                        nargs="*")
-    parser.add_argument("--iteration", default=None, help="Take all events"
-                                                          "used in a specific"
-                                                          "iteration.")
+    parser.add_argument(
+        "event_name", default=None, help="Name of event", nargs="*"
+    )
+    parser.add_argument(
+        "--iteration",
+        default=None,
+        help="Take all events" "used in a specific" "iteration.",
+    )
     args = parser.parse_args(args)
 
-    api.get_weighting_bins(lasif_root=".",
-                           window_set=args.window_set_name,
-                           events=args.event_name if args.event_name else [],
-                           iteration=args.iteration)
+    api.get_weighting_bins(
+        lasif_root=".",
+        window_set=args.window_set_name,
+        events=args.event_name if args.event_name else [],
+        iteration=args.iteration,
+    )
 
 
 @command_group("Iteration Management")
@@ -606,22 +738,31 @@ def lasif_set_up_iteration(parser, args):
     """
     Creates or removes directory structure for an iteration.
     """
-    parser.add_argument("iteration_name",
-                        help="name of the iteration, i.e. \"1\"")
+    parser.add_argument(
+        "iteration_name", help='name of the iteration, i.e. "1"'
+    )
     parser.add_argument(
         "--remove_dirs",
         help="Removes all directories related to the specified iteration. ",
-        action="store_true")
-    parser.add_argument("events", help="If you only want to submit selected "
-                                       "events. You can input more than one "
-                                       "separated by a space. If none is "
-                                       "specified, all will be taken",
-                        nargs="*", default=None)
+        action="store_true",
+    )
+    parser.add_argument(
+        "events",
+        help="If you only want to submit selected "
+        "events. You can input more than one "
+        "separated by a space. If none is "
+        "specified, all will be taken",
+        nargs="*",
+        default=None,
+    )
 
     args = parser.parse_args(args)
-    api.set_up_iteration(lasif_root=".", iteration=args.iteration_name,
-                         events=args.events if args.events else [],
-                         remove_dirs=args.remove_dirs)
+    api.set_up_iteration(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        events=args.events if args.events else [],
+        remove_dirs=args.remove_dirs,
+    )
 
 
 @command_group("Iteration Management")
@@ -629,15 +770,26 @@ def lasif_write_misfit(parser, args):
     """
     """
     parser.add_argument("iteration_name", help="current iteration")
-    parser.add_argument("--weight_set_name", default=None, type=str,
-                        help="Set of station and event weights")
-    parser.add_argument("--window_set_name", default=None, type=str,
-                        help="name of the window set")
+    parser.add_argument(
+        "--weight_set_name",
+        default=None,
+        type=str,
+        help="Set of station and event weights",
+    )
+    parser.add_argument(
+        "--window_set_name",
+        default=None,
+        type=str,
+        help="name of the window set",
+    )
     args = parser.parse_args(args)
 
-    api.write_misfit(lasif_root=".", iteration=args.iteration_name,
-                     weight_set=args.weight_set_name,
-                     window_set=args.window_set_name)
+    api.write_misfit(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        weight_set=args.weight_set_name,
+        window_set=args.window_set_name,
+    )
 
 
 @command_group("Iteration Management")
@@ -665,24 +817,34 @@ def lasif_compare_misfits(parser, args):
     value.
     """
 
-    parser.add_argument("from_iteration",
-                        help="past iteration")
+    parser.add_argument("from_iteration", help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
-    parser.add_argument("--weight_set_name", default=None, type=str,
-                        help="Set of station and event weights")
-    parser.add_argument("--print_events", help="compare misfits"
-                                               " for each event",
-                        action="store_true")
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--weight_set_name",
+        default=None,
+        type=str,
+        help="Set of station and event weights",
+    )
+    parser.add_argument(
+        "--print_events",
+        help="compare misfits" " for each event",
+        action="store_true",
+    )
     args = parser.parse_args(args)
 
-    api.compare_misfits(lasif_root=".", from_it=args.from_iteration,
-                        to_it=args.to_iteration,
-                        events=args.events if args.events else [],
-                        weight_set=args.weight_set_name,
-                        print_events=args.print_events)
+    api.compare_misfits(
+        lasif_root=".",
+        from_it=args.from_iteration,
+        to_it=args.to_iteration,
+        events=args.events if args.events else [],
+        weight_set=args.weight_set_name,
+        print_events=args.print_events,
+    )
 
 
 # API
@@ -707,14 +869,22 @@ def lasif_process_data(parser, args):
     core actually does any work.
     """
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
-    parser.add_argument("--iteration", help="Take all events used in "
-                                            "iteration", default=None)
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--iteration",
+        help="Take all events used in " "iteration",
+        default=None,
+    )
 
     args = parser.parse_args(args)
-    api.process_data(lasif_root=".", events=args.events if args.events else [],
-                     iteration=args.iteration)
+    api.process_data(
+        lasif_root=".",
+        events=args.events if args.events else [],
+        iteration=args.iteration,
+    )
 
 
 @command_group("Plotting")
@@ -722,20 +892,29 @@ def lasif_plot_window_statistics(parser, args):
     """
     Plot the selected windows.
     """
-    parser.add_argument("--save", help="Saves the plot in a file",
-                        action="store_true")
+    parser.add_argument(
+        "--save", help="Saves the plot in a file", action="store_true"
+    )
     parser.add_argument("window_set_name", help="name of the window set")
     parser.add_argument(
-        "events", help="One or more events. If none given, all will be done.",
-        nargs="*")
-    parser.add_argument("--iteration", help="Take all events used in "
-                                            "iteration", default=None)
+        "events",
+        help="One or more events. If none given, all will be done.",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--iteration",
+        help="Take all events used in " "iteration",
+        default=None,
+    )
     args = parser.parse_args(args)
 
-    api.plot_window_statistics(lasif_root=".", window_set=args.window_set_name,
-                               save=args.save,
-                               events=args.events if args.events else [],
-                               iteration=args.iteration)
+    api.plot_window_statistics(
+        lasif_root=".",
+        window_set=args.window_set_name,
+        save=args.save,
+        events=args.events if args.events else [],
+        iteration=args.iteration,
+    )
 
 
 @command_group("Plotting")
@@ -745,14 +924,20 @@ def lasif_plot_windows(parser, args):
     """
     parser.add_argument("event_name", help="name of the event")
     parser.add_argument("window_set_name", help="name of the window set")
-    parser.add_argument("--distance_bins", type=int,
-                        help="The number of bins on the distance axis for "
-                             "the combined plot.",
-                        default=500)
+    parser.add_argument(
+        "--distance_bins",
+        type=int,
+        help="The number of bins on the distance axis for "
+        "the combined plot.",
+        default=500,
+    )
     args = parser.parse_args(args)
-    api.plot_windows(lasif_root=".", event_name=args.event_name,
-                     window_set=args.window_set_name,
-                     distance_bins=args.distance_bins)
+    api.plot_windows(
+        lasif_root=".",
+        event_name=args.event_name,
+        window_set=args.window_set_name,
+        distance_bins=args.distance_bins,
+    )
 
 
 @command_group("Project Management")
@@ -782,19 +967,25 @@ def lasif_validate_data(parser, args):
         "--data_and_station_file_availability",
         help="asserts that all stations have corresponding station "
         "files and all stations have waveforms. Very slow.",
-        action="store_true")
+        action="store_true",
+    )
     parser.add_argument(
-        "--raypaths", help="assert that all raypaths are within the "
-        "set boundaries. Very slow.", action="store_true")
-    parser.add_argument("--full", help="run all validations.",
-                        action="store_true")
+        "--raypaths",
+        help="assert that all raypaths are within the "
+        "set boundaries. Very slow.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--full", help="run all validations.", action="store_true"
+    )
 
     args = parser.parse_args(args)
-    api.validate_data(lasif_root=".",
-                      data_station_file_availability=args.
-                      data_and_station_file_availability,
-                      raypaths=args.raypaths,
-                      full=args.full)
+    api.validate_data(
+        lasif_root=".",
+        data_station_file_availability=args.data_and_station_file_availability,
+        raypaths=args.raypaths,
+        full=args.full,
+    )
 
 
 @command_group("Project Management")
@@ -885,22 +1076,29 @@ def _print_generic_help(fcts):
     Small helper function printing a generic help message.
     """
     print(100 * "#")
-    header = ("{default_style}LASIF - Large Scale Seismic "
-              "{inverted_style}Inversion"
-              "{default_style} Framework{reset_style}  [Version {version}]"
-              .format(
-                  default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
-                  colorama.Back.BLACK,
-                  inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
-                  colorama.Back.WHITE,
-                  reset_style=colorama.Style.RESET_ALL,
-                  version=lasif.__version__))
+    header = (
+        "{default_style}LASIF - Large Scale Seismic "
+        "{inverted_style}Inversion"
+        "{default_style} Framework{reset_style}  [Version {version}]".format(
+            default_style=colorama.Style.BRIGHT
+            + colorama.Fore.WHITE
+            + colorama.Back.BLACK,
+            inverted_style=colorama.Style.BRIGHT
+            + colorama.Fore.BLACK
+            + colorama.Back.WHITE,
+            reset_style=colorama.Style.RESET_ALL,
+            version=lasif.__version__,
+        )
+    )
     print("    " + header)
     print("    http://krischer.github.io/LASIF")
     print(100 * "#")
-    print("\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n".format(
-        cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
-        reset=colorama.Style.RESET_ALL))
+    print(
+        "\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n".format(
+            cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
+            reset=colorama.Style.RESET_ALL,
+        )
+    )
 
     # Group the functions. Functions with no group will be placed in the group
     # "Misc".
@@ -915,10 +1113,16 @@ def _print_generic_help(fcts):
         print("{0:=>25s} Functions".format(" " + group_name))
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
-            print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
-                                        colorama.Fore.CYAN,
-                                        _get_cmd_description(fcts[name]),
-                                        colorama.Style.RESET_ALL))
+            print(
+                "%s  %32s: %s%s%s"
+                % (
+                    colorama.Fore.YELLOW,
+                    name,
+                    colorama.Fore.CYAN,
+                    _get_cmd_description(fcts[name]),
+                    colorama.Style.RESET_ALL,
+                )
+            )
     print("\nTo get help for a specific function type")
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
@@ -930,18 +1134,23 @@ def _get_argument_parser(fct, extended=False):
     parser = argparse.ArgumentParser(
         prog="lasif %s" % fct.__name__.replace("lasif_", ""),
         description=_get_cmd_description(fct, extended),
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
     parser.add_argument(
         "--ipdb",
         help="If true, a debugger will be launched upon encountering an "
-             "exception. Requires ipdb.",
-        action="store_true")
+        "exception. Requires ipdb.",
+        action="store_true",
+    )
 
     # Exceptions. If any are missed, its not mission critical but just
     # less nice.
-    exceptions = ["lasif_tutorial", "lasif_init_project",
-                  "lasif_build_all_caches"]
+    exceptions = [
+        "lasif_tutorial",
+        "lasif_init_project",
+        "lasif_build_all_caches",
+    ]
 
     if fct.__name__ in exceptions:
         return parser
@@ -954,9 +1163,11 @@ def _get_functions():
     Get a list of all CLI functions defined in this file.
     """
     # Get all functions in this script starting with "lasif_".
-    fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
-            globals().items()
-            if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
+    fcts = {
+        fct_name[len(FCT_PREFIX) :]: fct
+        for (fct_name, fct) in globals().items()
+        if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")
+    }
     return fcts
 
 
@@ -996,18 +1207,26 @@ def main():
 
     # Unknown function.
     if fct_name not in fcts:
-        sys.stderr.write("lasif: '{fct_name}' is not a LASIF command. See "
-                         "'lasif --help'.\n".format(fct_name=fct_name))
+        sys.stderr.write(
+            "lasif: '{fct_name}' is not a LASIF command. See "
+            "'lasif --help'.\n".format(fct_name=fct_name)
+        )
         # Attempt to fuzzy match commands.
-        close_matches = sorted(difflib.get_close_matches(fct_name, fcts.keys(),
-                                                         n=4))
+        close_matches = sorted(
+            difflib.get_close_matches(fct_name, fcts.keys(), n=4)
+        )
         if len(close_matches) == 1:
-            sys.stderr.write("\nDid you mean this?\n\t{match}\n".format(
-                match=close_matches[0]))
+            sys.stderr.write(
+                "\nDid you mean this?\n\t{match}\n".format(
+                    match=close_matches[0]
+                )
+            )
         elif close_matches:
             sys.stderr.write(
                 "\nDid you mean one of these?\n    {matches}\n".format(
-                    matches="\n    ".join(close_matches)))
+                    matches="\n    ".join(close_matches)
+                )
+            )
 
         sys.exit(1)
 
@@ -1033,8 +1252,11 @@ def main():
     try:
         func(parser, further_args)
     except LASIFCommandLineException as e:
-        print(colorama.Fore.YELLOW + ("Error: %s\n" % str(e)) +
-              colorama.Style.RESET_ALL)
+        print(
+            colorama.Fore.YELLOW
+            + ("Error: %s\n" % str(e))
+            + colorama.Style.RESET_ALL
+        )
         sys.exit(1)
     except Exception:
         args = parser.parse_args(further_args)
@@ -1042,6 +1264,7 @@ def main():
         # Greatly eases debugging things. Requires ipdb to be installed.
         if args.ipdb:
             import ipdb  # NOQA
+
             _, _, tb = sys.exc_info()
             traceback.print_exc()
             ipdb.post_mortem(tb)

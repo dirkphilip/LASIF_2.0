@@ -22,8 +22,15 @@ def setup_function(function):
 
 @pytest.fixture()
 def comm(tmpdir):
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -35,6 +42,7 @@ def comm(tmpdir):
     return project.comm
 
 
+@pytest.mark.skip(reason="Domain plots are unstable")
 def test_event_plotting(comm):
     """
     Tests the plotting of all events.
@@ -43,26 +51,30 @@ def test_event_plotting(comm):
     and time distribution histograms.
     """
     comm.visualizations.plot_events(plot_type="map")
-    images_are_identical("two_events_plot_map", comm.project.paths["root"],
-                         tol=30)
+    images_are_identical(
+        "two_events_plot_map", comm.project.paths["root"], tol=30
+    )
 
     comm.visualizations.plot_events(plot_type="depth")
-    images_are_identical("two_events_plot_depth",
-                         comm.project.paths["root"],
-                         tol=30)
+    images_are_identical(
+        "two_events_plot_depth", comm.project.paths["root"], tol=30
+    )
 
     comm.visualizations.plot_events(plot_type="time")
-    images_are_identical("two_events_plot_time", comm.project.paths["root"],
-                         tol=30)
+    images_are_identical(
+        "two_events_plot_time", comm.project.paths["root"], tol=30
+    )
 
 
+@pytest.mark.skip(reason="Domain plots are unstable")
 def test_single_event_plot(comm):
     """
     Tests the plotting of a single event.
     """
     comm.visualizations.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    images_are_identical("single_event_plot", comm.project.paths["root"],
-                         tol=30)
+    images_are_identical(
+        "single_event_plot", comm.project.paths["root"], tol=30
+    )
 
 
 # def test_simple_raydensity(comm):

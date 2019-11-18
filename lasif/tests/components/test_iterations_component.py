@@ -17,8 +17,15 @@ def comm(tmpdir):
     Most visualizations need a valid project in any case, so use one for the
     tests.
     """
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
 

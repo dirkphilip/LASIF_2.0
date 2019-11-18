@@ -94,12 +94,16 @@ def iris2quakeml(url, output_folder=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=(
-        "Download the QuakeML files provided by the IRIS SPUD "
-        "momenttensor service. Will be saved as a QuakeML file in the "
-        "current folder."))
-    parser.add_argument("url", metavar="U", type=str,
-                        help="The URL to download.")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Download the QuakeML files provided by the IRIS SPUD "
+            "momenttensor service. Will be saved as a QuakeML file in the "
+            "current folder."
+        )
+    )
+    parser.add_argument(
+        "url", metavar="U", type=str, help="The URL to download."
+    )
     args = parser.parse_args()
 
     url = args.url

@@ -33,7 +33,8 @@ class AdjointSourcesComponent(Component):
     def __init__(self, folder, communicator, component_name):
         self._folder = folder
         super(AdjointSourcesComponent, self).__init__(
-            communicator, component_name)
+            communicator, component_name
+        )
 
     def get_filename(self, event, iteration):
         """
@@ -43,14 +44,14 @@ class AdjointSourcesComponent(Component):
         :param iteration: The iteration.
         """
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
-            iteration)
+            iteration
+        )
 
         folder = os.path.join(self._folder, iteration_long_name, event)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        return os.path.join(
-            folder, "adjoint_source_auxiliary.h5")
+        return os.path.join(folder, "adjoint_source_auxiliary.h5")
 
     def get_misfit_for_event(self, event, iteration, weight_set_name=None):
         """
@@ -79,15 +80,17 @@ class AdjointSourcesComponent(Component):
                 channels = adj_src_data[station].list()
                 for channel in channels:
                     if weight_set_name:
-                        station_weight = \
-                            station_weights[".".join(
-                                station.split("_"))]["station_weight"]
-                        misfit = \
-                            adj_src_data[station][channel].parameters[
-                                "misfit"] * station_weight
-                    else:
-                        misfit = \
+                        station_weight = station_weights[
+                            ".".join(station.split("_"))
+                        ]["station_weight"]
+                        misfit = (
                             adj_src_data[station][channel].parameters["misfit"]
+                            * station_weight
+                        )
+                    else:
+                        misfit = adj_src_data[station][channel].parameters[
+                            "misfit"
+                        ]
                     total_misfit += misfit
         return total_misfit * event_weight
 
@@ -115,12 +118,14 @@ class AdjointSourcesComponent(Component):
                         data=adj_source["adj_source"],
                         data_type="AdjointSources",
                         path="%s_%s/Channel_%s_%s" % (net, sta, loc, cha),
-                        parameters={"misfit": adj_source["misfit"]})
+                        parameters={"misfit": adj_source["misfit"]},
+                    )
                     adj_src_counter += 1
         print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
 
-    def calculate_adjoint_sources(self, event, iteration, window_set_name,
-                                  plot=False, **kwargs):
+    def calculate_adjoint_sources(
+        self, event, iteration, window_set_name, plot=False, **kwargs
+    ):
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
@@ -132,11 +137,13 @@ class AdjointSourcesComponent(Component):
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="processed",
-            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
-            tag_or_iteration=iteration)
+            tag_or_iteration=iteration,
+        )
 
         if not os.path.exists(processed_filename):
             msg = "File '%s' does not exists." % processed_filename
@@ -163,11 +170,13 @@ class AdjointSourcesComponent(Component):
 
             # Make sure both have length 1.
             assert len(obs_tag) == 1, (
-                "Station: %s - Requires 1 observed waveform tag. Has %i." % (
-                    observed_station._station_name, len(obs_tag)))
+                "Station: %s - Requires 1 observed waveform tag. Has %i."
+                % (observed_station._station_name, len(obs_tag))
+            )
             assert len(syn_tag) == 1, (
-                "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
-                    observed_station._station_name, len(syn_tag)))
+                "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                % (observed_station._station_name, len(syn_tag))
+            )
 
             obs_tag = obs_tag[0]
             syn_tag = syn_tag[0]
@@ -178,8 +187,10 @@ class AdjointSourcesComponent(Component):
 
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
-                st=st_syn.copy(), event_name=event["event_name"],
-                iteration=iteration)
+                st=st_syn.copy(),
+                event_name=event["event_name"],
+                iteration=iteration,
+            )
 
             adjoint_sources = {}
             ad_src_type = self.comm.project.config["misfit_type"]
@@ -196,12 +207,16 @@ class AdjointSourcesComponent(Component):
                 except LASIFNotFoundError:
                     continue
 
-                if self.comm.project.processing_params["scale_data_"
-                                                       "to_synthetics"]:
-                    if not self.comm.project.config["misfit_type"] == \
-                            "L2NormWeighted":
-                        scaling_factor = \
+                if self.comm.project.processing_params[
+                    "scale_data_" "to_synthetics"
+                ]:
+                    if (
+                        not self.comm.project.config["misfit_type"]
+                        == "L2NormWeighted"
+                    ):
+                        scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()
+                        )
                         # Store and apply the scaling.
                         data_tr.stats.scaling_factor = scaling_factor
                         data_tr.data *= scaling_factor
@@ -218,14 +233,18 @@ class AdjointSourcesComponent(Component):
                 try:
                     # for window in windows:
                     asrc = calculate_adjoint_source(
-                        observed=data_tr, synthetic=synth_tr,
+                        observed=data_tr,
+                        synthetic=synth_tr,
                         window=windows,
                         min_period=process_params["highpass_period"],
                         max_period=process_params["lowpass_period"],
                         adj_src_type=ad_src_type,
                         window_set=window_set_name,
-                        taper_ratio=0.15, taper_type='cosine',
-                        plot=plot, envelope_scaling=env_scaling)
+                        taper_ratio=0.15,
+                        taper_type="cosine",
+                        plot=plot,
+                        envelope_scaling=env_scaling,
+                    )
                 except:
                     # Either pass or fail for the whole component.
                     continue
@@ -234,14 +253,13 @@ class AdjointSourcesComponent(Component):
                     continue
                 # Sum up both misfit, and adjoint source.
                 misfit = asrc.misfit
-                adj_source = asrc.adjoint_source
+                adj_source = asrc.adjoint_source.data
                 # Time reversal is currently needed in Salvus but that will
                 # change later and this can be removed
-                adj_source = adj_source[::-1]
 
                 adjoint_sources[data_tr.id] = {
                     "misfit": misfit,
-                    "adj_source": adj_source
+                    "adj_source": adj_source,
                 }
 
             return adjoint_sources
@@ -251,11 +269,13 @@ class AdjointSourcesComponent(Component):
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
-        results = process_two_files_without_parallel_output(ds, ds_synth,
-                                                            process)
+        results = process_two_files_without_parallel_output(
+            ds, ds_synth, process
+        )
         # Write files on all ranks.
         filename = self.get_filename(
-            event=event["event_name"], iteration=iteration)
+            event=event["event_name"], iteration=iteration
+        )
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
         MPI.COMM_WORLD.Barrier()
@@ -264,9 +284,12 @@ class AdjointSourcesComponent(Component):
             if rank == thread:
                 print(
                     f"Writing adjoint sources for rank: {rank+1} "
-                    f"out of {size}", flush=True)
-                with pyasdf.ASDFDataSet(filename=filename, mpi=False,
-                                        mode="a") as bs:
+                    f"out of {size}",
+                    flush=True,
+                )
+                with pyasdf.ASDFDataSet(
+                    filename=filename, mpi=False, mode="a"
+                ) as bs:
                     for value in results.values():
                         if not value:
                             continue
@@ -275,20 +298,23 @@ class AdjointSourcesComponent(Component):
                             bs.add_auxiliary_data(
                                 data=adj_source["adj_source"],
                                 data_type="AdjointSources",
-                                path="%s_%s/Channel_%s_%s" % (net, sta,
-                                                              loc, cha),
-                                parameters={"misfit": adj_source["misfit"]})
+                                path="%s_%s/Channel_%s_%s"
+                                % (net, sta, loc, cha),
+                                parameters={"misfit": adj_source["misfit"]},
+                            )
                         ad_src_counter += 1
 
             MPI.COMM_WORLD.barrier()
         if MPI.COMM_WORLD.rank == 0:
-            with pyasdf.ASDFDataSet(filename=filename, mpi=False,
-                                    mode="a")as ds:
+            with pyasdf.ASDFDataSet(
+                filename=filename, mpi=False, mode="a"
+            ) as ds:
                 length = len(ds.auxiliary_data.AdjointSources.list())
             print(f"{length} Adjoint sources are in your file.")
 
-    def finalize_adjoint_sources(self, iteration_name, event_name,
-                                 weight_set_name=None):
+    def finalize_adjoint_sources(
+        self, iteration_name, event_name, weight_set_name=None
+    ):
         """
         Finalizes the adjoint sources.
         """
@@ -300,28 +326,26 @@ class AdjointSourcesComponent(Component):
         print(iteration_name)
         print(event_name)
         print(weight_set_name)
-        iteration = self.comm.iterations.\
-            get_long_iteration_name(iteration_name)
+        iteration = self.comm.iterations.get_long_iteration_name(
+            iteration_name
+        )
 
-        adj_src_file = self.\
-            get_filename(event_name, iteration)
+        adj_src_file = self.get_filename(event_name, iteration)
 
         ds = pyasdf.ASDFDataSet(adj_src_file, mpi=False)
         adj_srcs = ds.auxiliary_data["AdjointSources"]
 
-        input_files_dir = self.comm.project.paths['adjoint_sources']
+        input_files_dir = self.comm.project.paths["adjoint_sources"]
 
         receivers = self.comm.query.get_all_stations_for_event(event_name)
 
-        output_dir = os.path.join(input_files_dir, iteration,
-                                  event_name)
+        output_dir = os.path.join(input_files_dir, iteration, event_name)
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
 
-        adjoint_source_file_name = os.path.join(
-            output_dir, "stf.h5")
+        adjoint_source_file_name = os.path.join(output_dir, "stf.h5")
 
-        f = h5py.File(adjoint_source_file_name, 'w')
+        f = h5py.File(adjoint_source_file_name, "w")
 
         event_weight = 1.0
         if weight_set_name:
@@ -357,22 +381,26 @@ class AdjointSourcesComponent(Component):
                     # net_dot_sta = \
                     #    receiver["network"] + "." + receiver["station"]
                     if weight_set_name:
-                        weight = \
-                            station_weights[receiver]["station_weight"] * \
-                            event_weight
+                        weight = (
+                            station_weights[receiver]["station_weight"]
+                            * event_weight
+                        )
                         zne *= weight
 
                     source = f.create_dataset(station, data=zne.T)
-                    source.attrs["dt"] = self.comm.project. \
-                        solver_settings["time_increment"]
-                    source.attrs["sampling_rate_in_hertz"] = 1 / \
-                        source.attrs["dt"]
+                    source.attrs["dt"] = self.comm.project.solver_settings[
+                        "time_increment"
+                    ]
+                    source.attrs["sampling_rate_in_hertz"] = (
+                        1 / source.attrs["dt"]
+                    )
                     # source.attrs['location'] = np.array(
                     #    [receivers[receiver]["s"]])
-                    source.attrs['spatial-type'] = np.string_("vector")
+                    source.attrs["spatial-type"] = np.string_("vector")
                     # Start time in nanoseconds
-                    source.attrs['start_time_in_seconds'] = self.comm.\
-                        project.solver_settings["start_time"]
+                    source.attrs[
+                        "start_time_in_seconds"
+                    ] = self.comm.project.solver_settings["start_time"]
 
                     # toml_string += f"[[source]]\n" \
                     #               f"name = \"{station}\"\n" \
@@ -384,8 +412,11 @@ class AdjointSourcesComponent(Component):
     def _validate_return_value(adsrc):
         if not isinstance(adsrc, dict):
             return False
-        elif sorted(adsrc.keys()) != ["adjoint_source", "details",
-                                      "misfit_value"]:
+        elif sorted(adsrc.keys()) != [
+            "adjoint_source",
+            "details",
+            "misfit_value",
+        ]:
             return False
         elif not isinstance(adsrc["adjoint_source"], np.ndarray):
             return False

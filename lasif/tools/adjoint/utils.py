@@ -10,8 +10,7 @@ EXAMPLE_DATA_PDIFF = (800, 900)
 EXAMPLE_DATA_SDIFF = (1500, 1600)
 
 
-def window_trace(trace, window, taper,
-                 taper_ratio, taper_type, **kwargs):
+def window_trace(trace, window, taper, taper_ratio, taper_type, **kwargs):
     """
     Helper function to taper a window within a data trace.
 
@@ -67,7 +66,8 @@ def get_example_data():
     """
     path = os.path.join(
         os.path.dirname(inspect.getfile(inspect.currentframe())),
-        "example_data")
+        "example_data",
+    )
     observed = obspy.read(os.path.join(path, "observed_processed.mseed"))
     observed.sort()
     synthetic = obspy.read(os.path.join(path, "synthetic_processed.mseed"))
@@ -76,8 +76,9 @@ def get_example_data():
     return observed, synthetic
 
 
-def generic_adjoint_source_plot(observed, synthetic, time, adjoint_source,
-                                misfit, adjoint_source_name):
+def generic_adjoint_source_plot(
+    observed, synthetic, time, adjoint_source, misfit, adjoint_source_name
+):
     """
     Generic plotting function for adjoint sources and data.
 
@@ -100,21 +101,22 @@ def generic_adjoint_source_plot(observed, synthetic, time, adjoint_source,
     """
 
     plt.subplot(211)
-    plt.plot(time, observed, color="0.2", label="Observed",
-             lw=2)
-    plt.plot(time, synthetic, color="#bb474f",
-             label="Synthetic", lw=2)
+    plt.plot(time, observed, color="0.2", label="Observed", lw=2)
+    plt.plot(time, synthetic, color="#bb474f", label="Synthetic", lw=2)
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     plt.subplot(212)
-    plt.plot(time, adjoint_source, color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    plt.plot(
+        time, adjoint_source, color="#2f8d5b", lw=2, label="Adjoint Source"
+    )
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.suptitle("%s Adjoint Source with a Misfit of %.3g" % (
-        adjoint_source_name, misfit))
+    plt.suptitle(
+        "%s Adjoint Source with a Misfit of %.3g"
+        % (adjoint_source_name, misfit)
+    )
 
 
 def matlab_range(start, stop, step):
@@ -126,16 +128,25 @@ def matlab_range(start, stop, step):
     to Python.
     """
     # Some tolerance
-    if (abs(stop - start) / step) % 1 < 1E-7:
-        return np.linspace(start, stop,
-                           int(round((stop - start) / step)) + 1,
-                           endpoint=True)
+    if (abs(stop - start) / step) % 1 < 1e-7:
+        return np.linspace(
+            start, stop, int(round((stop - start) / step)) + 1, endpoint=True
+        )
     return np.arange(start, stop, step)
 
 
-def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
-                            b=1, c=1, body_wave_factor=0.01,
-                            body_wave_freq_scale=0.5, dt=1.0):
+def get_dispersed_wavetrain(
+    dw=0.001,
+    distance=1500.0,
+    t_min=0,
+    t_max=900,
+    a=4,
+    b=1,
+    c=1,
+    body_wave_factor=0.01,
+    body_wave_freq_scale=0.5,
+    dt=1.0,
+):
     """
     :type dw: float, optional
     :param dw: Angular frequency spacing. Defaults to 1E-3.
@@ -178,8 +189,11 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
         u[_i] = np.sum(w * np.cos(w * t[_i] - w * distance / c) * dw)
 
     # Add body waves
-    u += body_wave_factor * np.sin(body_wave_freq_scale * t) * \
-        np.exp(-(t - 250) ** 2 / 500.0)
+    u += (
+        body_wave_factor
+        * np.sin(body_wave_freq_scale * t)
+        * np.exp(-((t - 250) ** 2) / 500.0)
+    )
 
     return t, u
 
@@ -198,8 +212,8 @@ def cross_correlation(f, g):
     N = len(cc)
     cc_new = np.zeros(N)
 
-    cc_new[0: (N + 1) // 2] = cc[(N + 1) // 2 - 1: N]
-    cc_new[(N + 1) // 2: N] = cc[0: (N + 1) // 2 - 1]
+    cc_new[0 : (N + 1) // 2] = cc[(N + 1) // 2 - 1 : N]
+    cc_new[(N + 1) // 2 : N] = cc[0 : (N + 1) // 2 - 1]
     return cc_new
 
 
@@ -212,5 +226,8 @@ def gaussian_window(y, width):
     :param width: float
     :param width: variance = (width ^ 2) / 2
     """
-    return 1.0 / (np.pi * width ** 2) ** (0.25) * \
-        np.exp(-0.5 * y ** 2 / width ** 2)
+    return (
+        1.0
+        / (np.pi * width ** 2) ** (0.25)
+        * np.exp(-0.5 * y ** 2 / width ** 2)
+    )

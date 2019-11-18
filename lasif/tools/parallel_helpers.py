@@ -23,15 +23,19 @@ import warnings
 from mpi4py import MPI
 
 
-class FunctionInfo(collections.namedtuple(
-    "FunctionInfo", ["func_args", "result", "warnings", "exception",
-                     "traceback"])):
+class FunctionInfo(
+    collections.namedtuple(
+        "FunctionInfo",
+        ["func_args", "result", "warnings", "exception", "traceback"],
+    )
+):
     """
     Namedtuple used to collect information about a function execution.
 
     It has the following fields: ``func_args``, ``result``, ``warnings``,
     ``exception``, and ``traceback``.
     """
+
     pass
 
 
@@ -77,6 +81,7 @@ def function_info(traceback_limit=10):
     >>> info.exception
     >>> info.traceback
     """
+
     def _function_info(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -95,8 +100,10 @@ def function_info(traceback_limit=10):
                     tb = traceback.extract_tb(exc_info[2])
                     full_tb = stack[:-1] + tb
                     exc_line = traceback.format_exception_only(*exc_info[:2])
-                    tb = "Traceback (%i levels - most recent call last):\n" % \
-                        traceback_limit
+                    tb = (
+                        "Traceback (%i levels - most recent call last):\n"
+                        % traceback_limit
+                    )
                     tb += "".join(traceback.format_list(full_tb))
                     tb += "\n"
                     tb += "".join(exc_line)
@@ -107,9 +114,11 @@ def function_info(traceback_limit=10):
                 result=result,
                 exception=exception,
                 warnings=w,
-                traceback=tb)
+                traceback=tb,
+            )
 
         return wrapper
+
     return _function_info
 
 
@@ -139,6 +148,7 @@ def distribute_across_ranks(function, items, get_name, logfile):
         produce better logfiles.
     :param logfile: The logfile to write.
     """
+
     def split(container, count):
         """
         Simple and elegant function splitting a container into count
@@ -170,9 +180,13 @@ def distribute_across_ranks(function, items, get_name, logfile):
         results.append(_execute_wrapped_function(function, item))
 
         if MPI.COMM_WORLD.rank == 0:
-            print("Approximately %i of %i items have been processed." % (
-                min((_i + 1) * MPI.COMM_WORLD.size, total_length),
-                total_length))
+            print(
+                "Approximately %i of %i items have been processed."
+                % (
+                    min((_i + 1) * MPI.COMM_WORLD.size, total_length),
+                    total_length,
+                )
+            )
 
     results = MPI.COMM_WORLD.gather(results, root=0)
 
@@ -210,17 +224,22 @@ def distribute_across_ranks(function, items, get_name, logfile):
             else:
                 successful_file_count += 1
 
-        print("\nFinished processing %i items. See the logfile for "
-              "details.\n" % total_file_count)
-        print("\t%s%i files failed being processed.%s" %
-              (colorama.Fore.RED, failed_file_count,
-               colorama.Fore.RESET))
-        print("\t%s%i files raised warnings while being processed.%s" %
-              (colorama.Fore.YELLOW, warning_file_count,
-               colorama.Fore.RESET))
-        print("\t%s%i files have been processed without errors or warnings%s" %
-              (colorama.Fore.GREEN, successful_file_count,
-               colorama.Fore.RESET))
+        print(
+            "\nFinished processing %i items. See the logfile for "
+            "details.\n" % total_file_count
+        )
+        print(
+            "\t%s%i files failed being processed.%s"
+            % (colorama.Fore.RED, failed_file_count, colorama.Fore.RESET)
+        )
+        print(
+            "\t%s%i files raised warnings while being processed.%s"
+            % (colorama.Fore.YELLOW, warning_file_count, colorama.Fore.RESET)
+        )
+        print(
+            "\t%s%i files have been processed without errors or warnings%s"
+            % (colorama.Fore.GREEN, successful_file_count, colorama.Fore.RESET)
+        )
 
         print("\nLogfile written to '%s'." % os.path.relpath(logfile))
 

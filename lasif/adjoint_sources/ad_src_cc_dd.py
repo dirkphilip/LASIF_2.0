@@ -100,8 +100,7 @@ def time_shift_trace(trace, dt, time_shift):
     return time_shifted_trace
 
 
-def shift_window(window, comm, station, event,
-                 station_loc, start_time):
+def shift_window(window, comm, station, event, station_loc, start_time):
     """
     In order to be able to properly compare the windows they need to be shifted
     in time for the compared station. The appropriate time shift is
@@ -123,11 +122,13 @@ def shift_window(window, comm, station, event,
     station = comm.query.get_coordinates_for_station(event, station)
     ev_lat = comm.events.get(event)["latitude"]
     ev_lon = comm.events.get(event)["longitude"]
-    ref = gps2dist_azimuth(ev_lat, ev_lon,
-                           station_loc["latitude"], station_loc["longitude"])
+    ref = gps2dist_azimuth(
+        ev_lat, ev_lon, station_loc["latitude"], station_loc["longitude"]
+    )
 
-    comp = gps2dist_azimuth(ev_lat, ev_lon,
-                            station["latitude"], station["longitude"])
+    comp = gps2dist_azimuth(
+        ev_lat, ev_lon, station["latitude"], station["longitude"]
+    )
 
     ratio = comp[0] / ref[0]
 
@@ -161,9 +162,12 @@ def window_seismogram(trace, window, original_stats):
 
     trace = Trace(trace, header=original_stats)
     windowed = trace.trim(starttime=window[0], endtime=window[1])
-    windowed_trace = windowed.trim(original_stats.starttime,
-                                   original_stats.endtime,
-                                   pad=True, fill_value=0.0).data
+    windowed_trace = windowed.trim(
+        original_stats.starttime,
+        original_stats.endtime,
+        pad=True,
+        fill_value=0.0,
+    ).data
 
     return windowed_trace
 
@@ -179,12 +183,15 @@ def cc_time_shift(reference, compared, dt, shift):
     """
     # See whether the lengths are the same:
     if not len(reference) == len(compared):
-        raise LASIFError("\n\n Data and Synthetics do not have equal number"
-                         " of points. Might be something wrong with your"
-                         " processing.")
+        raise LASIFError(
+            "\n\n Data and Synthetics do not have equal number"
+            " of points. Might be something wrong with your"
+            " processing."
+        )
 
-    cc = crosscorr.correlate(a=np.array(reference), b=np.array(compared),
-                             shift=shift)
+    cc = crosscorr.correlate(
+        a=np.array(reference), b=np.array(compared), shift=shift
+    )
 
     shift = np.argmax(cc) - shift + 1  # Correct shift in the cross_corr
     time_shift = dt * shift
@@ -264,8 +271,9 @@ def adsrc_cc_time_shift(dt, data, synthetics, min_period):
     return ad_src, misfit
 
 
-def adsrc_cc_dd(dt, data, synthetic, comp_data, comp_synthetics, min_period,
-                time):
+def adsrc_cc_dd(
+    dt, data, synthetic, comp_data, comp_synthetics, min_period, time
+):
     """
     Calculate adjoint source for a single station pair. Source is tapered.
     This adjoint source will later be superimposed on top of other adjoint
@@ -296,28 +304,28 @@ def adsrc_cc_dd(dt, data, synthetic, comp_data, comp_synthetics, min_period,
 
     shift = int(len(data) / 4.0 / dt)  # Again an arbitrary number
 
-    data_shift = cc_time_shift(reference=data, compared=comp_data, dt=dt,
-                               shift=shift)
-    synthetic_shift = cc_time_shift(reference=synthetic,
-                                    compared=comp_synthetics, dt=dt,
-                                    shift=shift)
+    data_shift = cc_time_shift(
+        reference=data, compared=comp_data, dt=dt, shift=shift
+    )
+    synthetic_shift = cc_time_shift(
+        reference=synthetic, compared=comp_synthetics, dt=dt, shift=shift
+    )
 
     dd_difference = synthetic_shift - data_shift
     misfit = np.square(dd_difference)
 
     # Not fully sure how to implement the normalization constant tbh
     # Still have to timeshift the synthetic at rec_j
-    synthetic_time_shift = time_shift_trace(comp_synthetics, dt,
-                                            time)
+    synthetic_time_shift = time_shift_trace(comp_synthetics, dt, time)
 
     acc_rec_i = np.gradient(np.gradient(synthetic_time_shift) / dt) / dt
     acc_rec_j = np.gradient(np.gradient(comp_synthetics) / dt) / dt
-    norm_constant = simps(acc_rec_i * comp_synthetics +
-                          synthetic_time_shift * acc_rec_j)
+    norm_constant = simps(
+        acc_rec_i * comp_synthetics + synthetic_time_shift * acc_rec_j
+    )
 
     vel_syn_rec_j = np.gradient(comp_synthetics) / dt
-    vel_syn_rec_j_time_shifted = time_shift_trace(vel_syn_rec_j, dt,
-                                                  time)
+    vel_syn_rec_j_time_shifted = time_shift_trace(vel_syn_rec_j, dt, time)
     ad_src = dd_difference / norm_constant * vel_syn_rec_j_time_shifted
 
     # Taper
@@ -353,9 +361,20 @@ def combine_adsrc(ad_src_orig, ad_src_comb):
     return ad_src
 
 
-def double_difference_adjoint(t, data, synthetic, window, min_period, event,
-                              station_name, original_stats, iteration, comm,
-                              window_set, plot=False):
+def double_difference_adjoint(
+    t,
+    data,
+    synthetic,
+    window,
+    min_period,
+    event,
+    station_name,
+    original_stats,
+    iteration,
+    comm,
+    window_set,
+    plot=False,
+):
     """
     A function to calculate the double difference adjoint sources.
     The input is the synthetics and the data along with window parameters.
@@ -390,9 +409,11 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
         ad_src = np.zeros(len(synthetic))
         messages = list()
         messages.append("Window too short")
-        ret_dict = {"adjoint_source": ad_src,
-                    "misfit_value": misfit,
-                    "details": {"messages": messages}}
+        ret_dict = {
+            "adjoint_source": ad_src,
+            "misfit_value": misfit,
+            "details": {"messages": messages},
+        }
         return ret_dict
 
     dt = t[1] - t[0]
@@ -418,14 +439,16 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
 
     for station in stations:
         waves = comm.query.get_matching_waveforms(
-            event=event, iteration=iteration, station_or_channel_id=station)
+            event=event, iteration=iteration, station_or_channel_id=station
+        )
         data = waves.data[0].data
         synthetic = waves.synthetics[0].data
 
-        time, window_sta = shift_window(window, comm, station, event,
-                                        station_loc, start_time)
+        time, window_sta = shift_window(
+            window, comm, station, event, station_loc, start_time
+        )
         if window_sta == [0, 0]:
-            print(f'Window shifting for station {station} does not work.')
+            print(f"Window shifting for station {station} does not work.")
             continue
 
         synthetic = window_seismogram(synthetic, window_sta, original_stats)
@@ -434,12 +457,15 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
         data = window_seismogram(data, window_sta, original_stats)
         data = taper(data, min_period, dt)
 
-        new_ad_src, dd_misfit = adsrc_cc_dd(dt, data=win_data,
-                                            synthetic=win_synth,
-                                            comp_data=data,
-                                            comp_synthetics=synthetic,
-                                            min_period=min_period,
-                                            time=time)
+        new_ad_src, dd_misfit = adsrc_cc_dd(
+            dt,
+            data=win_data,
+            synthetic=win_synth,
+            comp_data=data,
+            comp_synthetics=synthetic,
+            min_period=min_period,
+            time=time,
+        )
         ad_src = combine_adsrc(ad_src, new_ad_src)
         misfit += np.square(dd_misfit / 2.0)
 
@@ -447,12 +473,15 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
     messages = list()
     messages.append(f"{len(stations)} amount of stations used.")
 
-    ret_dict = {"adjoint_source": ad_src,
-                "misfit_value": misfit,
-                "details": {"messages": messages}}
+    ret_dict = {
+        "adjoint_source": ad_src,
+        "misfit_value": misfit,
+        "details": {"messages": messages},
+    }
     if plot:
-        adjoint_source_plot(t, win_data, win_synth,
-                            ad_src, misfit, len(stations))
+        adjoint_source_plot(
+            t, win_data, win_synth, ad_src, misfit, len(stations)
+        )
 
     return ret_dict
 
@@ -463,17 +492,19 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit, stations):
 
     plt.subplot(211)
     plt.plot(t, data, color="0.2", label="Data", lw=2)
-    plt.plot(t, synthetic, color="#bb474f",
-             label="Synthetic", lw=2)
+    plt.plot(t, synthetic, color="#bb474f", label="Synthetic", lw=2)
 
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     plt.subplot(212)
-    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    plt.plot(
+        t, adjoint_source[::-1], color="#2f8d5b", lw=2, label="Adjoint Source"
+    )
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.title(f"DD_Ad_src with a Misfit of {misfit}. "
-              f"Stations compared: {stations}")
+    plt.title(
+        f"DD_Ad_src with a Misfit of {misfit}. "
+        f"Stations compared: {stations}"
+    )

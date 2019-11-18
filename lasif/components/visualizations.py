@@ -86,8 +86,11 @@ class VisualizationsComponent(Component):
         else:
             # Plot the stations if it has some. This will also plot raypaths.
             visualization.plot_stations_for_event(
-                map_object=map_object, station_dict=stations,
-                event_info=event_info, weight_set=weight_set)
+                map_object=map_object,
+                station_dict=stations,
+                event_info=event_info,
+                weight_set=weight_set,
+            )
 
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
@@ -100,6 +103,7 @@ class VisualizationsComponent(Component):
         """
         if show_mesh:
             from ..domain import ExodusDomain  # NOQA
+
             if not isinstance(self.comm.project.domain, ExodusDomain):
                 msg = "show_mesh only works for exodus domains/models."
                 warnings.warn(msg, LASIFWarning)
@@ -108,8 +112,9 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(self, save_plot=True, plot_stations=False,
-                        iteration=None):
+    def plot_raydensity(
+        self, save_plot=True, plot_stations=False, iteration=None
+    ):
         """
         Plots the raydensity.
         """
@@ -121,35 +126,49 @@ class VisualizationsComponent(Component):
         map_object = self.plot_domain()
 
         event_stations = []
-        for event_name, event_info in \
-                self.comm.events.get_all_events(iteration).items():
+        for event_name, event_info in self.comm.events.get_all_events(
+            iteration
+        ).items():
 
             try:
-                stations = \
-                    self.comm.query.get_all_stations_for_event(event_name)
+                stations = self.comm.query.get_all_stations_for_event(
+                    event_name
+                )
             except LASIFError:
                 stations = {}
             event_stations.append((event_info, stations))
 
-        visualization.plot_raydensity(map_object=map_object,
-                                      station_events=event_stations,
-                                      domain=self.comm.project.domain)
+        visualization.plot_raydensity(
+            map_object=map_object,
+            station_events=event_stations,
+            domain=self.comm.project.domain,
+        )
 
         visualization.plot_events(
             self.comm.events.get_all_events(iteration).values(),
-            map_object=map_object)
+            map_object=map_object,
+        )
 
         if plot_stations:
-            stations = itertools.chain.from_iterable((
-                _i[1].values() for _i in event_stations if _i[1]))
+            stations = itertools.chain.from_iterable(
+                (_i[1].values() for _i in event_stations if _i[1])
+            )
             # Remove duplicates
             stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
             stations = set(stations)
-            x, y = map_object([_i[1] for _i in stations],
-                              [_i[0] for _i in stations])
-            map_object.scatter(x, y, s=14 ** 2, color="#333333",
-                               edgecolor="#111111", alpha=0.6, zorder=200,
-                               marker="v")
+            x, y = map_object(
+                [_i[1] for _i in stations], [_i[0] for _i in stations]
+            )
+            map_object.scatter(
+                x,
+                y,
+                s=14 ** 2,
+                color="#333333",
+                edgecolor="#111111",
+                alpha=0.6,
+                zorder=200,
+                marker="v",
+            )
 
         plt.tight_layout()
         if save_plot:
@@ -158,23 +177,26 @@ class VisualizationsComponent(Component):
                     self.comm.project.paths["output"],
                     "raydensity_plots",
                     f"ITERATION_{iteration}",
-                    "raydensity.png")
+                    "raydensity.png",
+                )
                 outfolder, _ = os.path.split(outfile)
                 if not os.path.exists(outfolder):
                     os.makedirs(outfolder)
             else:
                 outfile = os.path.join(
                     self.comm.project.get_output_folder(
-                        type="raydensity_plots", tag="raydensity"),
-                    "raydensity.png")
+                        type="raydensity_plots", tag="raydensity"
+                    ),
+                    "raydensity.png",
+                )
             if os.path.isfile(outfile):
                 os.remove(outfile)
-            plt.savefig(outfile, dpi=200,
-                        transparent=False, overwrite=True)
+            plt.savefig(outfile, dpi=200, transparent=False, overwrite=True)
             print("Saved picture at %s" % outfile)
 
-    def plot_windows(self, event, window_set_name, distance_bins=500,
-                     ax=None, show=True):
+    def plot_windows(
+        self, event, window_set_name, distance_bins=500, ax=None, show=True
+    ):
         """
         Plot all selected windows on a epicentral distance vs duration plot
         with the color encoding the selected channels. This gives a quick
@@ -192,27 +214,33 @@ class VisualizationsComponent(Component):
         from obspy.geodetics.base import locations2degrees
 
         event = self.comm.events.get(event)
-        window_manager = self.comm.windows.\
-            read_all_windows(event=event["event_name"],
-                             window_set_name=window_set_name)
+        window_manager = self.comm.windows.read_all_windows(
+            event=event["event_name"], window_set_name=window_set_name
+        )
         starttime = event["origin_time"]
-        duration = self.comm.project.\
-            solver_settings["end_time"] - \
-            self.comm.project.solver_settings["start_time"]
+        duration = (
+            self.comm.project.solver_settings["end_time"]
+            - self.comm.project.solver_settings["start_time"]
+        )
 
         # First step is to calculate all epicentral distances.
         stations = self.comm.query.get_all_stations_for_event(
-            event["event_name"])
+            event["event_name"]
+        )
 
         for s in stations.values():
             s["epicentral_distance"] = locations2degrees(
-                event["latitude"], event["longitude"], s["latitude"],
-                s["longitude"])
+                event["latitude"],
+                event["longitude"],
+                s["latitude"],
+                s["longitude"],
+            )
 
         # Plot from 0 to however far it goes.
         min_epicentral_distance = 0
-        max_epicentral_distance = math.ceil(max(
-            _i["epicentral_distance"] for _i in stations.values()))
+        max_epicentral_distance = math.ceil(
+            max(_i["epicentral_distance"] for _i in stations.values())
+        )
         epicentral_range = max_epicentral_distance - min_epicentral_distance
 
         if epicentral_range == 0:
@@ -235,15 +263,12 @@ class VisualizationsComponent(Component):
 
         def _space_index(value):
             frac = np.clip(
-                (value - min_epicentral_distance) / epicentral_range, 0, 1)
+                (value - min_epicentral_distance) / epicentral_range, 0, 1
+            )
             return int(round(frac * (len_dist - 1)))
 
         def _color_index(channel):
-            _map = {
-                "Z": 2,
-                "N": 1,
-                "E": 0
-            }
+            _map = {"Z": 2, "N": 1, "E": 0}
             channel = channel[-1].upper()
             if channel not in _map:
                 raise ValueError
@@ -252,10 +277,11 @@ class VisualizationsComponent(Component):
         for station in window_manager:
             for channel in window_manager[station]:
                 for win in window_manager[station][channel]:
-                    image[_space_index(
-                        stations[station]["epicentral_distance"]),
-                        _time_index(win[0]):_time_index(win[1]),
-                        _color_index(channel)] = 255
+                    image[
+                        _space_index(stations[station]["epicentral_distance"]),
+                        _time_index(win[0]) : _time_index(win[1]),
+                        _color_index(channel),
+                    ] = 255
 
         # From http://colorbrewer2.org/
         color_map = {
@@ -266,19 +292,21 @@ class VisualizationsComponent(Component):
             (0, 255, 255): (255, 127, 0),  # orange
             (255, 255, 0): (255, 255, 51),  # yellow
             (255, 255, 255): (250, 250, 250),  # white
-            (0, 0, 0): (50, 50, 50)  # More pleasent gray background
+            (0, 0, 0): (50, 50, 50),  # More pleasent gray background
         }
 
         # Replace colors...fairly complex. Not sure if there is another way...
         red, green, blue = image[:, :, 0], image[:, :, 1], image[:, :, 2]
         for color, replacement in color_map.items():
-            image[:, :, :][(red == color[0]) & (green == color[1]) &
-                           (blue == color[2])] = replacement
+            image[:, :, :][
+                (red == color[0]) & (green == color[1]) & (blue == color[2])
+            ] = replacement
 
         def _one(i):
             return [_i / 255.0 for _i in i]
 
         import matplotlib.pylab as plt
+
         plt.style.use("ggplot")
 
         artists = [
@@ -288,33 +316,35 @@ class VisualizationsComponent(Component):
             plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(0, 255, 255)])),
             plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(255, 0, 255)])),
             plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(255, 255, 0)])),
-            plt.Rectangle((0, 1), 1, 1,
-                          color=_one(color_map[(255, 255, 255)]))
+            plt.Rectangle(
+                (0, 1), 1, 1, color=_one(color_map[(255, 255, 255)])
+            ),
         ]
-        labels = [
-            "Z",
-            "N",
-            "E",
-            "Z + N",
-            "Z + E",
-            "N + E",
-            "Z + N + E"
-        ]
+        labels = ["Z", "N", "E", "Z + N", "Z + E", "N + E", "Z + N + E"]
 
         if ax is None:
             plt.figure(figsize=(16, 9))
             ax = plt.gca()
 
-        ax.imshow(image, aspect="auto", interpolation="nearest", vmin=0,
-                  vmax=255, origin="lower")
+        ax.imshow(
+            image,
+            aspect="auto",
+            interpolation="nearest",
+            vmin=0,
+            vmax=255,
+            origin="lower",
+        )
         ax.grid()
         event_name = event["event_name"]
-        ax.set_title(f"Selected windows for window set "
-                     f"{window_set_name} and event "
-                     f"{event_name}")
+        ax.set_title(
+            f"Selected windows for window set "
+            f"{window_set_name} and event "
+            f"{event_name}"
+        )
 
-        ax.legend(artists, labels, loc="lower right",
-                  title="Selected Components")
+        ax.legend(
+            artists, labels, loc="lower right", title="Selected Components"
+        )
 
         # Set the x-ticks.
         xticks = []
@@ -337,8 +367,10 @@ class VisualizationsComponent(Component):
             dist = min_epicentral_distance + (frac * epicentral_range)
             yticks.append("%.1f" % dist)
         ax.set_yticklabels(yticks)
-        ax.set_ylabel("Epicentral distance in degree [Binned in %i distances]"
-                      % distance_bins)
+        ax.set_ylabel(
+            "Epicentral distance in degree [Binned in %i distances]"
+            % distance_bins
+        )
 
         if show:
             plt.tight_layout()
@@ -347,8 +379,9 @@ class VisualizationsComponent(Component):
 
         return ax
 
-    def plot_window_statistics(self, window_set_name,
-                               events, ax=None, show=True):
+    def plot_window_statistics(
+        self, window_set_name, events, ax=None, show=True
+    ):
         """
         Plots the statistics of windows for one iteration.
 
@@ -396,23 +429,52 @@ class VisualizationsComponent(Component):
             if d["total_station_count"] == 0:
                 frac = int(0)
             else:
-                frac = int(round(100 * d["stations_with_windows"] /
-                                 float(d["total_station_count"])))
+                frac = int(
+                    round(
+                        100
+                        * d["stations_with_windows"]
+                        / float(d["total_station_count"])
+                    )
+                )
 
             color = cm(frac / 70.0)
 
-            ax.text(-10, _i, "%i%%" % frac,
-                    fontdict=dict(fontsize="x-small", ha='right', va='top'),
-                    bbox=dict(boxstyle="round", fc=color, alpha=0.8))
+            ax.text(
+                -10,
+                _i,
+                "%i%%" % frac,
+                fontdict=dict(fontsize="x-small", ha="right", va="top"),
+                bbox=dict(boxstyle="round", fc=color, alpha=0.8),
+            )
 
-        ax.barh(ind, count_z, width, color=pal[0],
-                label="Stations with Vertical Component Windows")
-        ax.barh(ind + 1 * width, count_n, width, color=pal[1],
-                label="Stations with North Component Windows")
-        ax.barh(ind + 2 * width, count_e, width, color=pal[2],
-                label="Stations with East Component Windows")
-        ax.barh(ind + 3 * width, total_count, width, color='0.4',
-                label="Total Stations")
+        ax.barh(
+            ind,
+            count_z,
+            width,
+            color=pal[0],
+            label="Stations with Vertical Component Windows",
+        )
+        ax.barh(
+            ind + 1 * width,
+            count_n,
+            width,
+            color=pal[1],
+            label="Stations with North Component Windows",
+        )
+        ax.barh(
+            ind + 2 * width,
+            count_e,
+            width,
+            color=pal[2],
+            label="Stations with East Component Windows",
+        )
+        ax.barh(
+            ind + 3 * width,
+            total_count,
+            width,
+            color="0.4",
+            label="Total Stations",
+        )
 
         ax.set_xlabel("Station Count")
 
@@ -433,8 +495,9 @@ class VisualizationsComponent(Component):
 
         return ax
 
-    def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
-                                 show=True):
+    def plot_data_and_synthetics(
+        self, event, iteration, channel_id, ax=None, show=True
+    ):
         """
         Plots the data and corresponding synthetics for a given event,
         iteration, and channel.
@@ -448,19 +511,27 @@ class VisualizationsComponent(Component):
         """
         import matplotlib.pylab as plt
 
-        data = self.comm.query.get_matching_waveforms(event, iteration,
-                                                      channel_id)
+        data = self.comm.query.get_matching_waveforms(
+            event, iteration, channel_id
+        )
         if ax is None:
             plt.figure(figsize=(15, 3))
             ax = plt.gca()
 
         iteration = self.comm.iterations.get(iteration)
 
-        ax.plot(data.data[0].times(), data.data[0].data, color="black",
-                label="observed")
-        ax.plot(data.synthetics[0].times(), data.synthetics[0].data,
-                color="red",
-                label="synthetic, iteration %s" % str(iteration.name))
+        ax.plot(
+            data.data[0].times(),
+            data.data[0].data,
+            color="black",
+            label="observed",
+        )
+        ax.plot(
+            data.synthetics[0].times(),
+            data.synthetics[0].data,
+            color="red",
+            label="synthetic, iteration %s" % str(iteration.name),
+        )
         ax.legend()
 
         ax.set_xlabel("Seconds since event")
@@ -469,9 +540,15 @@ class VisualizationsComponent(Component):
         ax.grid()
 
         if iteration.scale_data_to_synthetics:
-            ax.text(0.995, 0.005, "data scaled to synthetics",
-                    horizontalalignment="right", verticalalignment="bottom",
-                    transform=ax.transAxes, color="0.2")
+            ax.text(
+                0.995,
+                0.005,
+                "data scaled to synthetics",
+                horizontalalignment="right",
+                verticalalignment="bottom",
+                transform=ax.transAxes,
+                color="0.2",
+            )
 
         if show:
             plt.tight_layout()
@@ -480,8 +557,14 @@ class VisualizationsComponent(Component):
 
         return ax
 
-    def plot_section(self, event_name, data_type="processed", component="Z",
-                     num_bins=1, traces_per_bin=500):
+    def plot_section(
+        self,
+        event_name,
+        data_type="processed",
+        component="Z",
+        num_bins=1,
+        traces_per_bin=500,
+    ):
         """
         Create a section plot of an event and store the plot in Output. Useful
         for quickly inspecting if an event is good for usage.
@@ -500,9 +583,9 @@ class VisualizationsComponent(Component):
 
         event = self.comm.events.get(event_name)
         tag = self.comm.waveforms.preprocessing_tag
-        asdf_filename = self.comm.waveforms. \
-            get_asdf_filename(event_name=event_name, data_type=data_type,
-                              tag_or_iteration=tag)
+        asdf_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type=data_type, tag_or_iteration=tag
+        )
 
         asdf_file = Path(asdf_filename)
         if not asdf_file.is_file():
@@ -511,7 +594,7 @@ class VisualizationsComponent(Component):
         ds = pyasdf.ASDFDataSet(asdf_filename)
 
         # get event coords
-        ev_coord = [event['latitude'], event['longitude']]
+        ev_coord = [event["latitude"], event["longitude"]]
 
         section_st = obspy.core.stream.Stream()
         for station in ds.waveforms.list():
@@ -524,34 +607,43 @@ class VisualizationsComponent(Component):
 
             st = st.select(component=component)
             if len(st) > 0:
-                st[0].stats['coordinates'] = sta.coordinates
-                lat = sta.coordinates['latitude']
-                lon = sta.coordinates['longitude']
+                st[0].stats["coordinates"] = sta.coordinates
+                lat = sta.coordinates["latitude"]
+                lon = sta.coordinates["longitude"]
                 offset = np.sqrt(
-                    (ev_coord[0] - lat) ** 2 + (ev_coord[1] - lon) ** 2)
-                st[0].stats['offset'] = offset
+                    (ev_coord[0] - lat) ** 2 + (ev_coord[1] - lon) ** 2
+                )
+                st[0].stats["offset"] = offset
 
             section_st += st
 
         if num_bins > 1:
-            section_st = get_binned_stream(section_st, num_bins=num_bins,
-                                           num_bin_tr=traces_per_bin)
+            section_st = get_binned_stream(
+                section_st, num_bins=num_bins, num_bin_tr=traces_per_bin
+            )
         else:
             section_st = section_st[:traces_per_bin]
 
         outfile = os.path.join(
             self.comm.project.get_output_folder(
-                type="section_plots", tag=event_name, timestamp=False),
-            f"{tag}.png")
+                type="section_plots", tag=event_name, timestamp=False
+            ),
+            f"{tag}.png",
+        )
 
-        section_st.plot(type='section', dist_degree=True,
-                        ev_coord=ev_coord,
-                        scale=2.0, outfile=outfile)
+        section_st.plot(
+            type="section",
+            dist_degree=True,
+            ev_coord=ev_coord,
+            scale=2.0,
+            outfile=outfile,
+        )
         print("Saved picture at %s" % outfile)
 
 
 def get_binned_stream(section_st, num_bins, num_bin_tr):
     from obspy.core.stream import Stream
+
     # build array
     offsets = []
     idx = 0
@@ -566,20 +658,25 @@ def get_binned_stream(section_st, num_bins, num_bin_tr):
     bins = np.linspace(min_offset, max_offset, num_bins + 1)
 
     # first bin
-    extr_offsets = offsets[np.where(
-        np.logical_and(offsets[:, 0] >= bins[0],
-                       offsets[:, 0] <= bins[1]))][:num_bin_tr]
+    extr_offsets = offsets[
+        np.where(
+            np.logical_and(offsets[:, 0] >= bins[0], offsets[:, 0] <= bins[1])
+        )
+    ][:num_bin_tr]
 
     # rest of bins
     for i in range(num_bins)[1:]:
         bin_start = bins[i]
         bin_end = bins[i + 1]
 
-        offsets_bin = offsets[np.where(
-            np.logical_and(offsets[:, 0] > bin_start,
-                           offsets[:, 0] <= bin_end))][:num_bin_tr]
-        extr_offsets = np.concatenate((extr_offsets,
-                                       offsets_bin), axis=0)
+        offsets_bin = offsets[
+            np.where(
+                np.logical_and(
+                    offsets[:, 0] > bin_start, offsets[:, 0] <= bin_end
+                )
+            )
+        ][:num_bin_tr]
+        extr_offsets = np.concatenate((extr_offsets, offsets_bin), axis=0)
 
     # write selected traces to new stream object
     selected_st = Stream()

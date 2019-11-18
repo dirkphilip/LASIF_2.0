@@ -42,17 +42,21 @@ class WindowGroupManager(object):
         # filename = Path.home() / Path(".salvus-flow-job-tracker.sqlite")
         # This filename could be added as a class variable!
         filename = self.filename
-        conn = sqlite3.connect(str(filename),
-                               detect_types=sqlite3.PARSE_DECLTYPES)
+        conn = sqlite3.connect(
+            str(filename), detect_types=sqlite3.PARSE_DECLTYPES
+        )
         c = conn.cursor()
         c.execute("PRAGMA foreign_keys = 1")
-        c.execute("""
+        c.execute(
+            """
             CREATE TABLE IF NOT EXISTS events (
                 event_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 event_name TEXT NOT NULL UNIQUE
                 )
-        """)
-        c.execute("""
+        """
+        )
+        c.execute(
+            """
             CREATE TABLE IF NOT EXISTS traces (
                 trace_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 event_id INTEGER NOT NULL,
@@ -60,8 +64,10 @@ class WindowGroupManager(object):
                 FOREIGN KEY (event_id) REFERENCES events(event_id),
                 UNIQUE (event_id, channel_name)
                 )
-        """)
-        c.execute("""
+        """
+        )
+        c.execute(
+            """
             CREATE TABLE IF NOT EXISTS windows (
                 window_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 trace_id INTEGER NOT NULL,
@@ -70,7 +76,8 @@ class WindowGroupManager(object):
                 weight REAL NOT NULL,
                 FOREIGN KEY (trace_id) REFERENCES traces(trace_id)
                 )
-        """)
+        """
+        )
         yield c
         conn.commit()
         conn.close()
@@ -85,27 +92,35 @@ class WindowGroupManager(object):
     def event_in_db(self, event_name):
         """Check if event is available in the database"""
         with self.sqlite_cursor() as c:
-            c.execute("SELECT EXISTS(SELECT event_id FROM events "
-                      "WHERE event_name = ?)", (event_name,))
+            c.execute(
+                "SELECT EXISTS(SELECT event_id FROM events "
+                "WHERE event_name = ?)",
+                (event_name,),
+            )
             return bool(c.fetchone()[0])
 
     def get_event_id(self, event_name):
         """get event_id from database for a given event_name"""
         if self.event_in_db(event_name):
             with self.sqlite_cursor() as c:
-                c.execute("SELECT event_id FROM events "
-                          "WHERE event_name = ?", (event_name,))
+                c.execute(
+                    "SELECT event_id FROM events " "WHERE event_name = ?",
+                    (event_name,),
+                )
                 return c.fetchone()[0]
         else:
-            raise LASIFNotFoundError("Event: \"{}\" could not be"
-                                     " found in database.".format(event_name))
+            raise LASIFNotFoundError(
+                'Event: "{}" could not be'
+                " found in database.".format(event_name)
+            )
 
     def add_event(self, event_name):
         """Add event to databse if it does not exist"""
         if not self.event_in_db(event_name):
             with self.sqlite_cursor() as c:
-                c.execute("INSERT INTO events VALUES (NULL, ? )",
-                          (event_name,))
+                c.execute(
+                    "INSERT INTO events VALUES (NULL, ? )", (event_name,)
+                )
         else:
             raise ValueError(event_name, " already exists in db")
 
@@ -114,11 +129,14 @@ class WindowGroupManager(object):
         # for now just remove the event
         if self.event_in_db(event_name):
             with self.sqlite_cursor() as c:
-                c.execute("DELETE FROM events WHERE event_name=?",
-                          (event_name,))
+                c.execute(
+                    "DELETE FROM events WHERE event_name=?", (event_name,)
+                )
         else:
-            raise LASIFNotFoundError("Event: \"{}\" could not be "
-                                     "found in database.".format(event_name))
+            raise LASIFNotFoundError(
+                'Event: "{}" could not be '
+                "found in database.".format(event_name)
+            )
 
     def trace_in_db(self, event_name, channel_name):
         """Check if channel, event pair exists in db"""
@@ -128,7 +146,8 @@ class WindowGroupManager(object):
             c.execute(
                 "SELECT EXISTS(SELECT 1 FROM traces "
                 "WHERE channel_name=? AND event_id=? LIMIT 1)",
-                (channel_name, event_id))
+                (channel_name, event_id),
+            )
             # if new add to DB
             return bool(c.fetchone()[0])
 
@@ -139,8 +158,10 @@ class WindowGroupManager(object):
         event_id = self.get_event_id(event_name)
         if not self.trace_in_db(event_name, channel_name):
             with self.sqlite_cursor() as c:
-                c.execute(" INSERT INTO traces VALUES (NULL, ?, ?)",
-                          (event_id, channel_name))
+                c.execute(
+                    " INSERT INTO traces VALUES (NULL, ?, ?)",
+                    (event_id, channel_name),
+                )
         else:
             raise ValueError("Trace {} - {} ".format(event_name, channel_name))
 
@@ -149,9 +170,11 @@ class WindowGroupManager(object):
         event_id = self.get_event_id(event_name)
         if self.trace_in_db(event_name, channel_name):
             with self.sqlite_cursor() as c:
-                c.execute("SELECT trace_id FROM traces "
-                          "WHERE channel_name=? AND event_id=?",
-                          (channel_name, event_id))
+                c.execute(
+                    "SELECT trace_id FROM traces "
+                    "WHERE channel_name=? AND event_id=?",
+                    (channel_name, event_id),
+                )
                 return c.fetchone()[0]
 
     def remove_trace(self, event_name, channel_name):
@@ -159,13 +182,16 @@ class WindowGroupManager(object):
         event_id = self.get_event_id(event_name)
         if self.trace_in_db(event_name, channel_name):
             with self.sqlite_cursor() as c:
-                c.execute("DELETE FROM traces WHERE channel_name=? "
-                          "AND event_id", (event_name, event_id))
+                c.execute(
+                    "DELETE FROM traces WHERE channel_name=? " "AND event_id",
+                    (event_name, event_id),
+                )
                 return c.fetchone()[0]
         else:
-            raise LASIFNotFoundError("Trace {} - {} not found - could not be"
-                                     " removed"
-                                     .format(event_name, channel_name))
+            raise LASIFNotFoundError(
+                "Trace {} - {} not found - could not be"
+                " removed".format(event_name, channel_name)
+            )
 
     def add_window(self, trace_id, start_time, end_time, weight=1.0):
         """
@@ -177,22 +203,36 @@ class WindowGroupManager(object):
         assert end_time > start_time, "end_time must be larger than start_time"
         with self.sqlite_cursor() as c:
             # delete overlapping windows if they exist
-            c.execute("""
+            c.execute(
+                """
                 DELETE FROM windows WHERE trace_id=?
                 AND ((start_time BETWEEN ? AND ?)
                 OR (end_time BETWEEN ? AND ?)
                 OR (start_time >= ? AND end_time <= ?)
                 OR (start_time <= ? AND end_time >= ?))
                 """,
-                      ("{}".format(trace_id), start_time, end_time, start_time,
-                       end_time, start_time, end_time, start_time, end_time))
+                (
+                    "{}".format(trace_id),
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                ),
+            )
 
             # insert window
-            c.execute("""
+            c.execute(
+                """
                 INSERT INTO windows VALUES (
                     NULL, ?, ?, ?, ?
                 )
-            """, ("{}".format(trace_id), start_time, end_time, weight))
+            """,
+                ("{}".format(trace_id), start_time, end_time, weight),
+            )
 
     def delete_window(self, trace_id, start_time, end_time):
         """
@@ -205,14 +245,26 @@ class WindowGroupManager(object):
 
         with self.sqlite_cursor() as c:
             # delete overlapping windows if they exist
-            c.execute("""
+            c.execute(
+                """
                 DELETE FROM windows WHERE trace_id=?
                 AND ((start_time BETWEEN ? AND ?)
                 OR (end_time BETWEEN ? AND ?)
                 OR (start_time >= ? AND end_time <= ?)
                 OR (start_time <= ? AND end_time >= ?))
-                """, (trace_id, start_time, end_time, start_time,
-                      end_time, start_time, end_time, start_time, end_time))
+                """,
+                (
+                    trace_id,
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                    start_time,
+                    end_time,
+                ),
+            )
 
     def get_all_windows_for_trace(self, trace_id):
         """
@@ -222,20 +274,23 @@ class WindowGroupManager(object):
         with self.sqlite_cursor() as c:
             c.execute(
                 "SELECT start_time, end_time, weight FROM windows "
-                "WHERE trace_id=?", (trace_id,))
+                "WHERE trace_id=?",
+                (trace_id,),
+            )
             return c.fetchall()
 
     def delete_all_windows_for_trace(self, trace_id):
         with self.sqlite_cursor() as c:
-            c.execute(
-                "DELETE FROM windows WHERE trace_id=?", (trace_id,))
+            c.execute("DELETE FROM windows WHERE trace_id=?", (trace_id,))
 
     def get_all_windows_for_station(self, station):
         with self.sqlite_cursor() as c:
             # get all trace_ids
-            c.execute("""SELECT * FROM windows WHERE windows.trace_id IN
+            c.execute(
+                """SELECT * FROM windows WHERE windows.trace_id IN
                     (SELECT trace_id FROM traces WHERE channel_name LIKE ?)""",
-                      ('%' + station + '%',))
+                ("%" + station + "%",),
+            )
             return c.fetchall()
 
     def write_windows_bulk(self, event_name, results):
@@ -247,15 +302,21 @@ class WindowGroupManager(object):
         """
         with self.sqlite_cursor() as c:
             # check if event exists
-            c.execute("SELECT EXISTS(SELECT event_id FROM events "
-                      "WHERE event_name = ?)", (event_name,))
+            c.execute(
+                "SELECT EXISTS(SELECT event_id FROM events "
+                "WHERE event_name = ?)",
+                (event_name,),
+            )
 
             # if event does not exist, insert into db
             if not bool(c.fetchone()[0]):
-                c.execute("INSERT INTO events VALUES (NULL, ? )",
-                          (event_name,))
-            c.execute("SELECT event_id FROM events "
-                      "WHERE event_name = ?", (event_name,))
+                c.execute(
+                    "INSERT INTO events VALUES (NULL, ? )", (event_name,)
+                )
+            c.execute(
+                "SELECT event_id FROM events " "WHERE event_name = ?",
+                (event_name,),
+            )
             event_id = c.fetchone()[0]
 
             for station, channels in results.items():
@@ -265,43 +326,63 @@ class WindowGroupManager(object):
                         c.execute(
                             "SELECT EXISTS(SELECT 1 FROM traces "
                             "WHERE channel_name=? AND event_id=? LIMIT 1)",
-                            (channel, event_id))
+                            (channel, event_id),
+                        )
                         # if trace not there, insert into db
                         if not bool(c.fetchone()[0]):
                             c.execute(
                                 " INSERT INTO traces VALUES (NULL, ?, ?)",
-                                (event_id, channel))
-                        c.execute("SELECT trace_id FROM traces "
-                                  "WHERE channel_name=? AND event_id=?",
-                                  (channel, event_id))
+                                (event_id, channel),
+                            )
+                        c.execute(
+                            "SELECT trace_id FROM traces "
+                            "WHERE channel_name=? AND event_id=?",
+                            (channel, event_id),
+                        )
                         trace_id = c.fetchone()[0]
                         for window in windows:
                             start_time = window[0].datetime
                             end_time = window[1].datetime
                             weight = 1.0
-                            assert end_time > start_time, \
-                                "end_time must be larger than start_time"
+                            assert (
+                                end_time > start_time
+                            ), "end_time must be larger than start_time"
                             # delete overlapping windows if they exist
-                            c.execute("""
+                            c.execute(
+                                """
                                 DELETE FROM windows WHERE trace_id=?
                                 AND ((start_time BETWEEN ? AND ?)
                                 OR (end_time BETWEEN ? AND ?)
                                 OR (start_time >= ? AND end_time <= ?)
                                 OR (start_time <= ? AND end_time >= ?))
                                 """,
-                                      ("{}".format(trace_id), start_time,
-                                       end_time, start_time,
-                                       end_time, start_time, end_time,
-                                       start_time, end_time))
+                                (
+                                    "{}".format(trace_id),
+                                    start_time,
+                                    end_time,
+                                    start_time,
+                                    end_time,
+                                    start_time,
+                                    end_time,
+                                    start_time,
+                                    end_time,
+                                ),
+                            )
 
                             # insert window
-                            c.execute("""
+                            c.execute(
+                                """
                                 INSERT INTO windows VALUES (
                                     NULL, ?, ?, ?, ?
                                 )
-                            """, (
-                                "{}".format(trace_id), start_time, end_time,
-                                weight))
+                            """,
+                                (
+                                    "{}".format(trace_id),
+                                    start_time,
+                                    end_time,
+                                    weight,
+                                ),
+                            )
 
     def write_windows_old(self, event_name, results):
         if not self.event_in_db(event_name):
@@ -310,20 +391,26 @@ class WindowGroupManager(object):
         for station, channels in results.items():
             if channels is not None:
                 for channel, windows in channels.items():
-                    if not self.trace_in_db(event_name=event_name,
-                                            channel_name=channel):
-                        self.add_trace(event_name=event_name,
-                                       channel_name=channel)
-                    trace_id = self.get_trace_id(event_name=event_name,
-                                                 channel_name=channel)
+                    if not self.trace_in_db(
+                        event_name=event_name, channel_name=channel
+                    ):
+                        self.add_trace(
+                            event_name=event_name, channel_name=channel
+                        )
+                    trace_id = self.get_trace_id(
+                        event_name=event_name, channel_name=channel
+                    )
                     for window in windows:
                         if window[2]:
                             weight = 2.0
                         else:
                             weight = 1.0
-                        self.add_window(trace_id=trace_id,
-                                        start_time=window[0],
-                                        end_time=window[1], weight=weight)
+                        self.add_window(
+                            trace_id=trace_id,
+                            start_time=window[0],
+                            end_time=window[1],
+                            weight=weight,
+                        )
 
     def get_all_windows_for_event(self, event_name):
         """
@@ -337,12 +424,14 @@ class WindowGroupManager(object):
             event_id = self.get_event_id(event_name)
 
         with self.sqlite_cursor() as c:
-            c.execute("""SELECT event_traces.channel_name, windows.start_time,
+            c.execute(
+                """SELECT event_traces.channel_name, windows.start_time,
                         windows.end_time, windows.weight
                         FROM (SELECT * FROM traces
                         WHERE event_id=?) event_traces, windows
                         WHERE event_traces.trace_id = windows.trace_id""",
-                      (event_id,))
+                (event_id,),
+            )
             rows = c.fetchall()
 
         # Build a dictionary with stations-channels-list of windows
@@ -371,14 +460,16 @@ class WindowGroupManager(object):
          """
         event_id = self.get_event_id(event_name)
         with self.sqlite_cursor() as c:
-            c.execute("""SELECT * FROM
+            c.execute(
+                """SELECT * FROM
                         (SELECT event_traces.channel_name, windows.start_time,
                          windows.end_time, windows.weight
                         FROM (SELECT * FROM traces
                         WHERE event_id=?) event_traces, windows
                         WHERE event_traces.trace_id = windows.trace_id)
                         WHERE channel_name LIKE ?""",
-                      (event_id, '%' + station + '%'))
+                (event_id, "%" + station + "%"),
+            )
             rows = c.fetchall()
 
         results = {}
@@ -393,8 +484,9 @@ class WindowGroupManager(object):
             results[channel_name].append(start_end)
         return results
 
-    def add_window_to_event_channel(self, event_name, channel_name, start_time,
-                                    end_time, weight=1.0):
+    def add_window_to_event_channel(
+        self, event_name, channel_name, start_time, end_time, weight=1.0
+    ):
         if not self.event_in_db(event_name):
             self.add_event(event_name)
         if not self.trace_in_db(event_name, channel_name):
@@ -410,8 +502,9 @@ class WindowGroupManager(object):
         trace_id = self.get_trace_id(event_name, channel_name)
         self.delete_all_windows_for_trace(trace_id)
 
-    def del_window_from_event_channel(self, event_name, channel_name,
-                                      start_time, end_time):
+    def del_window_from_event_channel(
+        self, event_name, channel_name, start_time, end_time
+    ):
         if not self.event_in_db(event_name):
             self.add_event(event_name)
         if not self.trace_in_db(event_name, channel_name):

@@ -15,12 +15,15 @@ class DownloadsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def download_data(self, event, providers=None):
         """
         """
         event = self.comm.events.get(event)
-        from obspy.clients.fdsn.mass_downloader import MassDownloader, \
-            Restrictions
+        from obspy.clients.fdsn.mass_downloader import (
+            MassDownloader,
+            Restrictions,
+        )
 
         proj = self.comm.project
 
@@ -38,33 +41,43 @@ class DownloadsComponent(Component):
             station_starttime=starttime - 86400 * 1,
             # Advance 1 day.
             station_endtime=endtime + 86400 * 1,
-            network=None, station=None, location=None, channel=None,
+            network=None,
+            station=None,
+            location=None,
+            channel=None,
             minimum_interstation_distance_in_m=ds[
-                "interstation_distance_in_meters"],
+                "interstation_distance_in_meters"
+            ],
             reject_channels_with_gaps=True,
             minimum_length=0.95,
             location_priorities=ds["location_priorities"],
-            channel_priorities=ds["channel_priorities"])
+            channel_priorities=ds["channel_priorities"],
+        )
 
         filename = proj.paths["eq_data"] / (event["event_name"] + ".h5")
 
         import pyasdf
+
         asdf_ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
 
-        stationxml_storage_path = proj.paths["eq_data"] / \
-            f"tmp_station_xml_storage_{event_name}"
+        stationxml_storage_path = (
+            proj.paths["eq_data"] / f"tmp_station_xml_storage_{event_name}"
+        )
         stationxml_storage = self._get_stationxml_storage_fct(
-            asdf_ds, starttime, endtime, stationxml_storage_path)
-        mseed_storage_path = proj.paths["eq_data"] / \
-            f"tmp_mseed_storage_{event_name}"
-        mseed_storage = self._get_mseed_storage_fct(asdf_ds, starttime,
-                                                    endtime,
-                                                    mseed_storage_path)
+            asdf_ds, starttime, endtime, stationxml_storage_path
+        )
+        mseed_storage_path = (
+            proj.paths["eq_data"] / f"tmp_mseed_storage_{event_name}"
+        )
+        mseed_storage = self._get_mseed_storage_fct(
+            asdf_ds, starttime, endtime, mseed_storage_path
+        )
 
         # Also log to file for reasons of provenance and debugging.
         logger = logging.getLogger("obspy.clients.fdsn.mass_downloader")
         fh = logging.FileHandler(
-            self.comm.project.get_log_file("DOWNLOADS", event_name))
+            self.comm.project.get_log_file("DOWNLOADS", event_name)
+        )
         fh.setLevel(logging.INFO)
         FORMAT = "[%(asctime)s] - %(name)s - %(levelname)s: %(message)s"
         formatter = logging.Formatter(FORMAT)
@@ -72,22 +85,27 @@ class DownloadsComponent(Component):
         logger.addHandler(fh)
 
         dlh = MassDownloader(providers=providers)
-        dlh.download(domain=domain, restrictions=restrictions,
-                     mseed_storage=mseed_storage,
-                     stationxml_storage=stationxml_storage)
+        dlh.download(
+            domain=domain,
+            restrictions=restrictions,
+            mseed_storage=mseed_storage,
+            stationxml_storage=stationxml_storage,
+        )
 
         import glob
+
         files = glob.glob(str(mseed_storage_path / "*.mseed"))
         for _i, filename in enumerate(files):
             print("Adding raw_recording %i of %i ..." % (_i + 1, len(files)))
 
             try:
-                asdf_ds.add_waveforms(filename, tag="raw_recording",
-                                      event_id=asdf_ds.events[0])
+                asdf_ds.add_waveforms(
+                    filename, tag="raw_recording", event_id=asdf_ds.events[0]
+                )
             except Exception as e:
                 print(e)
 
-        files = glob.glob(str(stationxml_storage_path / '*.xml'))
+        files = glob.glob(str(stationxml_storage_path / "*.xml"))
 
         for _i, filename in enumerate(files):
             print("Adding stationxml %i of %i ..." % (_i + 1, len(files)))
@@ -99,11 +117,15 @@ class DownloadsComponent(Component):
         # remove stations with missing information
         for station in asdf_ds.waveforms.list():
             station_inventory = asdf_ds.waveforms[station].list()
-            if "StationXML" not in station_inventory or \
-                    len(station_inventory) < 2:
+            if (
+                "StationXML" not in station_inventory
+                or len(station_inventory) < 2
+            ):
                 del asdf_ds.waveforms[station]
-                msg = f"Removed station {station} due to missing " \
-                      f"StationXMl or waveform information."
+                msg = (
+                    f"Removed station {station} due to missing "
+                    f"StationXMl or waveform information."
+                )
                 print(msg)
                 continue
 
@@ -115,41 +137,53 @@ class DownloadsComponent(Component):
                     continue
                 else:
                     coords = set(
-                        (_i.latitude, _i.longitude, _i.depth) for _i in
-                        obspy_station.channels)
+                        (_i.latitude, _i.longitude, _i.depth)
+                        for _i in obspy_station.channels
+                    )
                     if len(coords) != 1:
                         del asdf_ds.waveforms[station]
-                        msg = f"Removed station {station} due to " \
-                              f"inconsistent channel coordinates."
+                        msg = (
+                            f"Removed station {station} due to "
+                            f"inconsistent channel coordinates."
+                        )
                         print(msg)
 
         # clean up temporary download directories
         import shutil
+
         if os.path.exists(stationxml_storage_path):
             shutil.rmtree(stationxml_storage_path)
         if os.path.exists(mseed_storage_path):
             shutil.rmtree(mseed_storage_path)
 
     def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
-
-        def get_mseed_storage(network, station, location, channel, starttime,
-                              endtime):
+        def get_mseed_storage(
+            network, station, location, channel, starttime, endtime
+        ):
             # Returning True means that neither the data nor the
             # StationXML file will be downloaded.
             net_sta = f"{network}.{station}"
-            if net_sta in ds.waveforms.list() and \
-                "raw_recording" in ds.waveforms[net_sta] and \
-                ds.waveforms[net_sta].raw_recording.select(
-                    network=network, station=station, location=location,
-                    channel=channel):
+            if (
+                net_sta in ds.waveforms.list()
+                and "raw_recording" in ds.waveforms[net_sta]
+                and ds.waveforms[net_sta].raw_recording.select(
+                    network=network,
+                    station=station,
+                    location=location,
+                    channel=channel,
+                )
+            ):
                 return True
-            return str(storage_path /
-                       f"{network}.{station}.{location}.{channel}.mseed")
+            return str(
+                storage_path
+                / f"{network}.{station}.{location}.{channel}.mseed"
+            )
 
         return get_mseed_storage
 
-    def _get_stationxml_storage_fct(self, ds, starttime, endtime,
-                                    storage_path):
+    def _get_stationxml_storage_fct(
+        self, ds, starttime, endtime, storage_path
+    ):
         if not os.path.isdir(storage_path):
             os.mkdir(storage_path)
 
@@ -159,19 +193,23 @@ class DownloadsComponent(Component):
             for loc_code, cha_code in channels:
                 net_sta = f"{network}.{station}"
 
-                if net_sta in ds.waveforms.list() and "StationXML" in \
-                    ds.waveforms[net_sta].list() and \
-                        ds.waveforms[net_sta].StationXML.select(
-                            network=network,
-                            station=station, channel=cha_code):
+                if (
+                    net_sta in ds.waveforms.list()
+                    and "StationXML" in ds.waveforms[net_sta].list()
+                    and ds.waveforms[net_sta].StationXML.select(
+                        network=network, station=station, channel=cha_code
+                    )
+                ):
                     available_channels.append((loc_code, cha_code))
                 else:
                     missing_channels.append((loc_code, cha_code))
 
             _i = 0
             while True:
-                path = os.path.join(storage_path, "%s.%s%s.xml" % (
-                    network, station, _i if _i >= 1 else ""))
+                path = os.path.join(
+                    storage_path,
+                    "%s.%s%s.xml" % (network, station, _i if _i >= 1 else ""),
+                )
                 if os.path.exists(path):
                     _i += 1
                     continue
@@ -180,7 +218,7 @@ class DownloadsComponent(Component):
             return {
                 "available_channels": available_channels,
                 "missing_channels": missing_channels,
-                "filename": path
+                "filename": path,
             }
 
         return stationxml_storage
@@ -189,12 +227,12 @@ class DownloadsComponent(Component):
         from obspy.clients.fdsn.mass_downloader import Domain
 
         class ExodusDomain(Domain):
-
             def get_query_parameters(self):
                 return {}
 
             def is_in_domain(self, latitude, longitude):
-                return domain.point_in_domain(latitude=latitude,
-                                              longitude=longitude)
+                return domain.point_in_domain(
+                    latitude=latitude, longitude=longitude
+                )
 
         return ExodusDomain()

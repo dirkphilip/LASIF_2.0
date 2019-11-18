@@ -6,8 +6,12 @@ Cross correlation traveltime misfit.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import numpy as np
 from obspy import Trace
@@ -87,11 +91,19 @@ def xcorr_shift(s, d, min_period):
     return time_shift
 
 
-def calculate_adjoint_source(observed, synthetic, window, min_period,
-                             max_period,
-                             adjoint_src, plot=False, taper=True,
-                             taper_ratio=0.15, taper_type="cosine",
-                             **kwargs):
+def calculate_adjoint_source(
+    observed,
+    synthetic,
+    window,
+    min_period,
+    max_period,
+    adjoint_src,
+    plot=False,
+    taper=True,
+    taper_ratio=0.15,
+    taper_type="cosine",
+    **kwargs,
+):
 
     ret_val = {}
     if len(window) == 2:
@@ -108,18 +120,22 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
     ret_val["misfit"] = 0.5 * time_shift ** 2 * weight
 
     if time_shift >= min_period / 2.0:
-        ret_val["adjoint_source"] = Trace(data=np.zeros_like(observed.data),
-                                          header=observed.stats)
-        station_name = station_name = observed.stats.network + '.' + \
-            observed.stats.station
-        warnings.warn(f"Window {window} at Station {station_name} has a "
-                      f"misfit "
-                      f"larger than half a period. This could result in a "
-                      f"nonphysical misfit measurement and adjoint source "
-                      f"will "
-                      f"not be computed. Misfit will be included though for "
-                      f"future comparisons but it's value might not be "
-                      f"trustworthy.")
+        ret_val["adjoint_source"] = Trace(
+            data=np.zeros_like(observed.data), header=observed.stats
+        )
+        station_name = station_name = (
+            observed.stats.network + "." + observed.stats.station
+        )
+        warnings.warn(
+            f"Window {window} at Station {station_name} has a "
+            f"misfit "
+            f"larger than half a period. This could result in a "
+            f"nonphysical misfit measurement and adjoint source "
+            f"will "
+            f"not be computed. Misfit will be included though for "
+            f"future comparisons but it's value might not be "
+            f"trustworthy."
+        )
         return ret_val
 
     if adjoint_src:
@@ -128,8 +144,12 @@ def calculate_adjoint_source(observed, synthetic, window, min_period,
 
         normalize = simps(y=np.square(s_vel.data), dx=observed.stats.delta)
         # Calculate actual adjoint source. Not time reversed
-        adj_src = Trace(data=weight * (time_shift / normalize * s_vel.data) *
-                        synthetic.stats.delta, header=observed.stats)
+        adj_src = Trace(
+            data=weight
+            * (time_shift / normalize * s_vel.data)
+            * synthetic.stats.delta,
+            header=observed.stats,
+        )
         ret_val["adjoint_source"] = adj_src
 
     return ret_val
