@@ -174,14 +174,28 @@ def lasif_plot_event(parser, args):
     )
     parser.add_argument("event_name", help="name of the event to plot")
 
-    parser.add_argument("--intersect", help="plot only stations that recorded"
-                                            " all events in the project",
-                                            action="store_true",)
+    parser.add_argument(
+        "--force_intersect",
+        help="Force to plot only stations that recorded durng all events "
+        "in the project, regardless of settings.",
+        action="store_true",
+    )
 
-    parser.add_argument("--weight_set_name", help="for stations to be "
-                                                  "color coded as a function "
-                                                  "of their respective "
-                                                  "weights", default=None)
+    parser.add_argument(
+        "--force_no_intersect",
+        help="Force to plot all stations that recorded during events, even "
+        "if they are not present for all events, regardless of settings.",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--weight_set_name",
+        help="for stations to be "
+        "color coded as a function "
+        "of their respective "
+        "weights",
+        default=None,
+    )
     parser.add_argument(
         "--show_mesh",
         action="store_true",
@@ -190,11 +204,24 @@ def lasif_plot_event(parser, args):
 
     args = parser.parse_args(args)
 
+    intersection_override = None
+    if args.force_intersect and args.force_no_intersect:
+        raise ValueError(
+            "Passed both --force_no_intersect and"
+            "--force_intersect; incompatible."
+        )
+    elif args.force_intersect:
+        intersection_override = True
+    elif args.force_no_intersect:
+        intersection_override = False
+
+    print(intersection_override)
+
     api.plot_event(
         lasif_root=".",
         event_name=args.event_name,
         weight_set_name=args.weight_set_name,
-        intersect=args.intersect,
+        intersection_override=intersection_override,
         save=args.save,
         show_mesh=args.show_mesh,
     )
@@ -1166,7 +1193,7 @@ def _get_functions():
     """
     # Get all functions in this script starting with "lasif_".
     fcts = {
-        fct_name[len(FCT_PREFIX):]: fct
+        fct_name[len(FCT_PREFIX) :]: fct
         for (fct_name, fct) in globals().items()
         if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")
     }

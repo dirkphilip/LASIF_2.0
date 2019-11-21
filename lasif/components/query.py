@@ -28,7 +28,7 @@ class QueryComponent(Component):
     """
 
     def get_all_stations_for_event(
-        self, event_name, list_only=False, event_names_intersection=None
+        self, event_name, list_only=False, intersection_override=None
     ):
         """
         Returns a dictionary of all stations for one event and their
@@ -39,18 +39,30 @@ class QueryComponent(Component):
         must be possible to derive coordinates for the station.
 
         :type event_name: str
+        :type intersection_override: bool
         :param event_name: Name of the event.
-        :param event_names_intersection: Name of events which need to
-        have the same stations recording, i.e. the intersection of receiver
-        sets. The intersection will consider two stations equal iff the
-        station codes and coordinates are equal.
+        :param intersection_override: boolean to require to have the same
+        stations recording all events, i.e. the intersection of receiver
+        sets. The intersection will consider two stations equal i.f.f. the
+        station codes AND coordinates (LAT, LON, Z) are equal.
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw"
         )
 
-        if event_names_intersection is None:
-            # If we don't care about the other events, just proceed
+        print("hi")
+
+        use_only_intersection = self.comm.project.stacking_settings[
+            "use_only_intersection"
+        ]
+        if intersection_override is not None:
+            use_only_intersection = intersection_override
+
+        print(use_only_intersection)
+
+        if not use_only_intersection:
+            # In this case return normal selection
+
             if list_only:
                 with pyasdf.ASDFDataSet(
                     waveform_file, mode="r", mpi=False
@@ -60,8 +72,10 @@ class QueryComponent(Component):
             with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
                 return ds.get_all_coordinates()
         else:
-            # Else, we care about having the same receivers for all events in
-            # the same place
+            # In this case only return intersecting stations
+
+            # Get names of all events
+            event_names_intersection = self.comm.events.list()
 
             # Remove 'original' event from the intersection list to prevent
             # extra work
@@ -178,13 +192,19 @@ class QueryComponent(Component):
         with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
             return ds.waveforms[station_id].coordinates
 
-    def get_stations_for_all_events(self, intersects=False):
+    def get_stations_for_all_events(self, intersection_override=None):
         """
         Returns a dictionary with a list of stations per event.
         """
         events = {}
 
-        if not intersects:
+        use_only_intersection = self.comm.project.stacking_settings[
+            "use_only_intersection"
+        ]
+        if intersection_override is not None:
+            use_only_intersection = intersection_override
+
+        if not use_only_intersection:
             for event in self.comm.events.list():
                 try:
                     data = self.get_all_stations_for_event(
@@ -199,11 +219,12 @@ class QueryComponent(Component):
             data = self.get_all_stations_for_event(
                 self.comm.events.list()[0],
                 list_only=True,
-                event_names_intersection=self.comm.events.list(),
+                intersection_override=use_only_intersection,
             )
             # And add them to every event equally
             for event in self.comm.events.list():
                 events[event] = data
+
         return events
 
     def get_matching_waveforms(self, event, iteration, station_or_channel_id):

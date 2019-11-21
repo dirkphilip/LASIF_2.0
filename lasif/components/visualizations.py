@@ -55,7 +55,7 @@ class VisualizationsComponent(Component):
             raise LASIFError(msg)
 
     def plot_event(self, event_name, weight_set=None, show_mesh=False,
-                   intersect=False):
+                   intersection_override=None):
         """
         Plots information about one event on the map.
 
@@ -81,17 +81,10 @@ class VisualizationsComponent(Component):
         # Get a dictionary containing all stations that have data for the
         # current event.
         try:
-            if intersect:
-                # Retrieving stations for all events incurs no extra cost
-                # since they're all the same.
-                stations = self.comm.query.get_all_stations_for_event(
-                    event_name,
-                    event_names_intersection=self.comm.events.list()
-                )
-            else:
-                stations = self.comm.query.get_all_stations_for_event(
-                    event_name
-                )
+            stations = self.comm.query.get_all_stations_for_event(
+                event_name,
+                intersection_override=intersection_override
+            )
         except LASIFNotFoundError:
             pass
         else:
@@ -124,7 +117,7 @@ class VisualizationsComponent(Component):
             return self.comm.project.domain.plot()
 
     def plot_raydensity(self, save_plot=True, plot_stations=False,
-                        iteration=None, intersect=True):
+                        iteration=None, intersection_override=None):
         """
         Plots the raydensity.
         """
@@ -137,23 +130,36 @@ class VisualizationsComponent(Component):
 
         event_stations = []
 
-        # Precompute the stations for all events, since they are equal if
-        # using intersect.
-        if intersect:
+        # We could just pass intersection_override to the 
+        # self.comm.query.get_all_stations_for_event call within the event loop 
+        # and get rid of the more complicated statement before it, however 
+        # precomputing stations when they're equal anyway saves a lot of time.
+
+        # Determine if we should intersect or not
+        use_only_intersection = self.comm.project.stacking_settings[
+            "use_only_intersection"
+        ]
+        if intersection_override is not None:
+            use_only_intersection = intersection_override
+
+        # If we should intersect, precompute the stations for all events,
+        # since the stations are equal for all events if using intersect.
+        if use_only_intersection:
             intersect_with = self.comm.events.list()
             stations = self.comm.query.get_all_stations_for_event(
                 intersect_with[0],
-                event_names_intersection=intersect_with
+                intersection_override=True
             )
 
         for event_name, event_info in \
                 self.comm.events.get_all_events(iteration).items():
 
-            # If we're not intersecting, re-query all stations per event
-            if not intersect:
+            # If we're not intersecting, re-query all stations per event, as
+            # the stations might change
+            if not use_only_intersection:
                 try:
                     stations = self.comm.query.get_all_stations_for_event(
-                        event_name, event_names_intersection=intersect_with
+                        event_name, intersection_override=use_only_intersection
                     )
                 except LASIFError:
                     stations = {}

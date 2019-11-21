@@ -165,6 +165,9 @@ class Project(Component):
             self.config["mesh_file"], self.config["num_buffer_elements"]
         )
 
+        # Source-stacking configuration
+        self.stacking_settings = config_dict["stacking"]
+
     def _validate_config_file(self):
         """
         Check to make sure the inputs into the project are compatible
