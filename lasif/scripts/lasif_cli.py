@@ -173,14 +173,15 @@ def lasif_plot_event(parser, args):
         "--save", help="Saves the plot in a file", action="store_true"
     )
     parser.add_argument("event_name", help="name of the event to plot")
-    parser.add_argument(
-        "--weight_set_name",
-        help="for stations to be "
-        "color coded as a function "
-        "of their respective "
-        "weights",
-        default=None,
-    )
+
+    parser.add_argument("--intersect", help="plot only stations that recorded"
+                                            " all events in the project",
+                                            action="store_true",)
+
+    parser.add_argument("--weight_set_name", help="for stations to be "
+                                                  "color coded as a function "
+                                                  "of their respective "
+                                                  "weights", default=None)
     parser.add_argument(
         "--show_mesh",
         action="store_true",
@@ -193,6 +194,7 @@ def lasif_plot_event(parser, args):
         lasif_root=".",
         event_name=args.event_name,
         weight_set_name=args.weight_set_name,
+        intersect=args.intersect,
         save=args.save,
         show_mesh=args.show_mesh,
     )
@@ -1164,7 +1166,7 @@ def _get_functions():
     """
     # Get all functions in this script starting with "lasif_".
     fcts = {
-        fct_name[len(FCT_PREFIX) :]: fct
+        fct_name[len(FCT_PREFIX):]: fct
         for (fct_name, fct) in globals().items()
         if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")
     }

@@ -16,7 +16,7 @@ from .component import Component
 class VisualizationsComponent(Component):
     """
     Component offering project visualization. Has to be initialized fairly
-    late at is requires a lot of data to be present.
+    late as it requires a lot of data to be present.
 
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
@@ -54,7 +54,8 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name, weight_set=None, show_mesh=False):
+    def plot_event(self, event_name, weight_set=None, show_mesh=False,
+                   intersect=False):
         """
         Plots information about one event on the map.
 
@@ -80,7 +81,17 @@ class VisualizationsComponent(Component):
         # Get a dictionary containing all stations that have data for the
         # current event.
         try:
-            stations = self.comm.query.get_all_stations_for_event(event_name)
+            if intersect:
+                # Retrieving stations for all events incurs no extra cost
+                # since they're all the same.
+                stations = self.comm.query.get_all_stations_for_event(
+                    event_name,
+                    event_names_intersection=self.comm.events.list()
+                )
+            else:
+                stations = self.comm.query.get_all_stations_for_event(
+                    event_name
+                )
         except LASIFNotFoundError:
             pass
         else:
@@ -112,9 +123,8 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(
-        self, save_plot=True, plot_stations=False, iteration=None
-    ):
+    def plot_raydensity(self, save_plot=True, plot_stations=False,
+                        iteration=None, intersect=True):
         """
         Plots the raydensity.
         """
@@ -126,16 +136,27 @@ class VisualizationsComponent(Component):
         map_object = self.plot_domain()
 
         event_stations = []
-        for event_name, event_info in self.comm.events.get_all_events(
-            iteration
-        ).items():
 
-            try:
-                stations = self.comm.query.get_all_stations_for_event(
-                    event_name
-                )
-            except LASIFError:
-                stations = {}
+        # Precompute the stations for all events, since they are equal if
+        # using intersect.
+        if intersect:
+            intersect_with = self.comm.events.list()
+            stations = self.comm.query.get_all_stations_for_event(
+                intersect_with[0],
+                event_names_intersection=intersect_with
+            )
+
+        for event_name, event_info in \
+                self.comm.events.get_all_events(iteration).items():
+
+            # If we're not intersecting, re-query all stations per event
+            if not intersect:
+                try:
+                    stations = self.comm.query.get_all_stations_for_event(
+                        event_name, event_names_intersection=intersect_with
+                    )
+                except LASIFError:
+                    stations = {}
             event_stations.append((event_info, stations))
 
         visualization.plot_raydensity(
@@ -279,7 +300,7 @@ class VisualizationsComponent(Component):
                 for win in window_manager[station][channel]:
                     image[
                         _space_index(stations[station]["epicentral_distance"]),
-                        _time_index(win[0]) : _time_index(win[1]),
+                        _time_index(win[0]): _time_index(win[1]),
                         _color_index(channel),
                     ] = 255
 

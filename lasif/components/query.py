@@ -27,7 +27,9 @@ class QueryComponent(Component):
     of other components via the communicator.
     """
 
-    def get_all_stations_for_event(self, event_name, list_only=False):
+    def get_all_stations_for_event(
+        self, event_name, list_only=False, event_names_intersection=None
+    ):
         """
         Returns a dictionary of all stations for one event and their
         coordinates.
@@ -38,17 +40,129 @@ class QueryComponent(Component):
 
         :type event_name: str
         :param event_name: Name of the event.
+        :param event_names_intersection: Name of events which need to
+        intersect receivers with. These will be selected based on equality of
+        station code and receiver coordinates.
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw"
         )
 
-        if list_only:
-            with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
-                return ds.waveforms.list()
+        if event_names_intersection is None:
+            # If we don't care about the other events, just proceed
+            if list_only:
+                with pyasdf.ASDFDataSet(
+                    waveform_file, mode="r", mpi=False
+                ) as ds:
+                    return ds.waveforms.list()
 
-        with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
-            return ds.get_all_coordinates()
+            with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
+                return ds.get_all_coordinates()
+        else:
+            # Else, we care about having the same receivers for all events in
+            # the same place
+            
+            # Remove 'original' event from the intersection list to prevent
+            # extra work
+            event_names_intersection.remove(event_name)
+
+            # Get stations with coordinates
+            with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
+                coordinate_dictionary_event = ds.get_all_coordinates()
+
+            station_codes_set = set(coordinate_dictionary_event.keys())
+
+            # Get filenames of all other events
+            intsec_waveform_filenames = [
+                self.comm.waveforms.get_asdf_filename(
+                    event_name=name, data_type="raw"
+                )
+                for name in event_names_intersection
+            ]
+
+            # Open the datasets of all other events, until we have everything
+            # we need ... [*]
+            intsec_datasets = [
+                pyasdf.ASDFDataSet(
+                    intsec_waveform_filename, mode="r", mpi=False
+                )
+                for intsec_waveform_filename in intsec_waveform_filenames
+            ]
+
+            # Extract stations and coordinates
+            intsec_coordinate_dictionaries = [
+                intsec_dataset.get_all_coordinates()
+                for intsec_dataset in intsec_datasets
+            ]
+
+            # [*] ... and close datasets
+            # [ds.close() for ds in intsec_datasets]
+
+            # Create sets of station codes (without information on the
+            # location)
+            intsec_station_sets = [
+                set(intsec_cor_dict.keys())
+                for intsec_cor_dict in intsec_coordinate_dictionaries
+            ]
+
+            # Interesect the set of the station codes for the current event
+            # with the rest
+            intersection_stations_codes = station_codes_set.intersection(
+                *intsec_station_sets
+            )
+
+            # Convert the intersection to a list
+            list_intsec_station_codes = sorted(intersection_stations_codes)
+
+            # Create a copy which we can edit to contain only those stations
+            # with the correct coordinates
+            updated_list_intsec_station_codes = list_intsec_station_codes
+
+            # Iterate over stations and check the equality of coordinates
+            # during all events (some stations might be moved around)
+            for station_code_in_intersection in list_intsec_station_codes:
+
+                # Get coordinates of the original event in a dictionary
+                coordinates_in_origi_event = coordinate_dictionary_event[
+                    station_code_in_intersection
+                ]
+
+                # Get coordinates of the other events in a list of dictionaries
+                coordinates_in_other_events = [
+                    oth_evt_dict[station_code_in_intersection]
+                    for oth_evt_dict in intsec_coordinate_dictionaries
+                ]
+
+                # Check if the dictionaries are all equal
+                if (
+                    len(coordinates_in_other_events)
+                    == coordinates_in_other_events.count(
+                        coordinates_in_other_events[0]
+                    )
+                    and coordinates_in_other_events[0]
+                    == coordinates_in_origi_event
+                ):
+                    # Coordinates are equivalent for the same station, nothing
+                    # to worry about
+                    pass
+                else:
+                    # Coordinates are not equivalent for the same station,
+                    # removing the station
+                    updated_list_intsec_station_codes.remove(
+                        station_code_in_intersection
+                    )
+
+            if list_only:
+                return updated_list_intsec_station_codes
+            else:
+                # Filter the existing coordiante dictionary with the
+                # intersection and equivalent coordinate stations.
+                filtered_coordinate_dictionary_event = {
+                    k: v
+                    for k, v in coordinate_dictionary_event.items()
+                    if k in updated_list_intsec_station_codes
+                }
+                return filtered_coordinate_dictionary_event
 
     def get_coordinates_for_station(self, event_name, station_id):
         """
@@ -63,17 +177,32 @@ class QueryComponent(Component):
         with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
             return ds.waveforms[station_id].coordinates
 
-    def get_stations_for_all_events(self):
+    def get_stations_for_all_events(self, intersects=False):
         """
         Returns a dictionary with a list of stations per event.
         """
         events = {}
-        for event in self.comm.events.list():
-            try:
-                data = self.get_all_stations_for_event(event, list_only=True)
-            except LASIFNotFoundError:
-                continue
-            events[event] = data
+
+        if not intersects:
+            for event in self.comm.events.list():
+                try:
+                    data = self.get_all_stations_for_event(
+                        event, list_only=True
+                    )
+                except LASIFNotFoundError:
+                    continue
+                events[event] = data
+        else:
+            # If we only want to get the stations that are the same for all
+            # events, we can just query the stations once.
+            data = self.get_all_stations_for_event(
+                self.comm.events.list()[0],
+                list_only=True,
+                event_names_intersection=self.comm.events.list(),
+            )
+            # And add them to every event equally
+            for event in self.comm.events.list():
+                events[event] = data
         return events
 
     def get_matching_waveforms(self, event, iteration, station_or_channel_id):
