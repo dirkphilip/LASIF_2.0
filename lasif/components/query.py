@@ -41,8 +41,9 @@ class QueryComponent(Component):
         :type event_name: str
         :param event_name: Name of the event.
         :param event_names_intersection: Name of events which need to
-        intersect receivers with. These will be selected based on equality of
-        station code and receiver coordinates.
+        have the same stations recording, i.e. the intersection of receiver
+        sets. The intersection will consider two stations equal iff the
+        station codes and coordinates are equal.
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw"
@@ -61,7 +62,7 @@ class QueryComponent(Component):
         else:
             # Else, we care about having the same receivers for all events in
             # the same place
-            
+
             # Remove 'original' event from the intersection list to prevent
             # extra work
             event_names_intersection.remove(event_name)

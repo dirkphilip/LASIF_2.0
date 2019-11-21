@@ -91,10 +91,8 @@ def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False,
     if save:
         plt.switch_backend("agg")
 
-    comm.visualizations.plot_event(event_name, weight_set_name,
-                                   show_mesh=show_mesh, intersect=intersect)
     comm.visualizations.plot_event(
-        event_name, weight_set_name, show_mesh=show_mesh
+        event_name, weight_set_name, show_mesh=show_mesh, intersect=intersect
     )
 
     if save:
