@@ -50,15 +50,11 @@ class QueryComponent(Component):
             event_name=event_name, data_type="raw"
         )
 
-        print("hi")
-
         use_only_intersection = self.comm.project.stacking_settings[
             "use_only_intersection"
         ]
         if intersection_override is not None:
             use_only_intersection = intersection_override
-
-        print(use_only_intersection)
 
         if not use_only_intersection:
             # In this case return normal selection

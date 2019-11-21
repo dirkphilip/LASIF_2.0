@@ -215,8 +215,6 @@ def lasif_plot_event(parser, args):
     elif args.force_no_intersect:
         intersection_override = False
 
-    print(intersection_override)
-
     api.plot_event(
         lasif_root=".",
         event_name=args.event_name,
