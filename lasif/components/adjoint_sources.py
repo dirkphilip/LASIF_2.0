@@ -254,8 +254,6 @@ class AdjointSourcesComponent(Component):
                 # Sum up both misfit, and adjoint source.
                 misfit = asrc.misfit
                 adj_source = asrc.adjoint_source.data
-                # Time reversal is currently needed in Salvus but that will
-                # change later and this can be removed
 
                 adjoint_sources[data_tr.id] = {
                     "misfit": misfit,
@@ -394,6 +392,7 @@ class AdjointSourcesComponent(Component):
                     source.attrs["sampling_rate_in_hertz"] = (
                         1 / source.attrs["dt"]
                     )
+
                     # source.attrs['location'] = np.array(
                     #    [receivers[receiver]["s"]])
                     source.attrs["spatial-type"] = np.string_("vector")

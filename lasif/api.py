@@ -640,8 +640,11 @@ def calculate_adjoint_sources(
         filename = comm.adj_sources.get_filename(
             event=event, iteration=iteration
         )
+
         # remove adjoint sources if they already exist
         if MPI.COMM_WORLD.rank == 0:
+            filename = comm.adj_sources.get_filename(event=event,
+                                                     iteration=iteration)
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -734,7 +737,7 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
         locations = np.zeros((2, len(stations.keys())), dtype=np.float64)
         for _i, station in enumerate(stations):
             locations[0, _i] = stations[station]["latitude"]
-            locations[1, _i] = stations[station]["latitude"]
+            locations[1, _i] = stations[station]["longitude"]
 
         sum_value = 0.0
 
