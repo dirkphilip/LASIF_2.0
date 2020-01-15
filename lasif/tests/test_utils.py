@@ -19,15 +19,24 @@ import shutil
 from lasif import utils
 from lasif.components.project import Project
 
-data_dir = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "data")
+data_dir = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "data",
+)
 
 
 @pytest.fixture()
 def comm(tmpdir):
-    proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "tests", "data",
-        "example_project")
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "tests",
+        "data",
+        "example_project",
+    )
     tmpdir = str(tmpdir)
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
@@ -43,15 +52,22 @@ def test_greatcircle_points_generator():
     """
     Tests the greatcircle discrete point generator.
     """
-    points = list(utils.greatcircle_points(
-        utils.Point(0, 0), utils.Point(0, 90), max_npts=90))
+    points = list(
+        utils.greatcircle_points(
+            utils.Point(0, 0), utils.Point(0, 90), max_npts=90
+        )
+    )
     assert len(points) == 90
     assert [_i.lat for _i in points] == 90 * [0.0]
-    np.testing.assert_array_almost_equal([_i.lng for _i in points],
-                                         np.linspace(0, 90, 90))
+    np.testing.assert_array_almost_equal(
+        [_i.lng for _i in points], np.linspace(0, 90, 90)
+    )
 
-    points = list(utils.greatcircle_points(
-        utils.Point(0, 0), utils.Point(0, 90), max_npts=110))
+    points = list(
+        utils.greatcircle_points(
+            utils.Point(0, 0), utils.Point(0, 90), max_npts=110
+        )
+    )
     assert len(points) == 110
 
     # from obspy import read_events

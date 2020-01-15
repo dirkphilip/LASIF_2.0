@@ -19,6 +19,7 @@ class ValidatorComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def __init__(self, *args, **kwargs):
         super(ValidatorComponent, self).__init__(*args, **kwargs)
         self._reports = []
@@ -30,9 +31,11 @@ class ValidatorComponent(Component):
         Prints a colored OK message when a certain test has been passed.
         """
         ok_string = " %s[%sOK%s]%s" % (
-            colorama.Style.BRIGHT, colorama.Style.NORMAL + colorama.Fore.GREEN,
+            colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.GREEN,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
-            colorama.Style.RESET_ALL)
+            colorama.Style.RESET_ALL,
+        )
         print(ok_string)
 
     def _print_fail_message(self):
@@ -40,9 +43,11 @@ class ValidatorComponent(Component):
         Prints a colored fail message when a certain test has been passed.
         """
         fail_string = " %s[%sFAIL%s]%s" % (
-            colorama.Style.BRIGHT, colorama.Style.NORMAL + colorama.Fore.RED,
+            colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.RED,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
-            colorama.Style.RESET_ALL)
+            colorama.Style.RESET_ALL,
+        )
         print(fail_string)
 
     def _flush_point(self):
@@ -59,8 +64,9 @@ class ValidatorComponent(Component):
         self._reports.append(message)
         self._total_error_count += error_count
 
-    def validate_data(self, data_and_station_file_availability=False,
-                      raypaths=False):
+    def validate_data(
+        self, data_and_station_file_availability=False, raypaths=False
+    ):
         """
         Validates all data of the current project.
 
@@ -87,48 +93,64 @@ class ValidatorComponent(Component):
         if data_and_station_file_availability:
             self._validate_station_and_waveform_availability()
         else:
-            print("%sSkipping data and station file availability check.%s" % (
-                colorama.Fore.YELLOW, colorama.Fore.RESET))
+            print(
+                "%sSkipping data and station file availability check.%s"
+                % (colorama.Fore.YELLOW, colorama.Fore.RESET)
+            )
 
         if raypaths:
             if self.comm.project.domain.is_global_domain():
-                print("%sSkipping raypath checks for global domain...%s" % (
-                    colorama.Fore.YELLOW, colorama.Fore.RESET))
+                print(
+                    "%sSkipping raypath checks for global domain...%s"
+                    % (colorama.Fore.YELLOW, colorama.Fore.RESET)
+                )
             else:
                 self.validate_raypaths_in_domain()
         else:
-            print("%sSkipping raypath checks.%s" % (
-                colorama.Fore.YELLOW, colorama.Fore.RESET))
+            print(
+                "%sSkipping raypath checks.%s"
+                % (colorama.Fore.YELLOW, colorama.Fore.RESET)
+            )
 
         # Depending on whether or not the tests passed, report it accordingly.
         if not self._reports:
-            print("\n%sALL CHECKS PASSED%s\n"
-                  "The data seems to be valid. If we missed something please "
-                  "contact the developers." % (colorama.Fore.GREEN,
-                                               colorama.Fore.RESET))
+            print(
+                "\n%sALL CHECKS PASSED%s\n"
+                "The data seems to be valid. If we missed something please "
+                "contact the developers."
+                % (colorama.Fore.GREEN, colorama.Fore.RESET)
+            )
         else:
-            folder = \
-                self.comm.project.get_output_folder(
-                    type="validation",
-                    tag="data_integrity_report")
+            folder = self.comm.project.get_output_folder(
+                type="validation", tag="data_integrity_report"
+            )
             filename = os.path.join(folder, "report.txt")
             seperator_string = "\n" + 80 * "=" + "\n" + 80 * "=" + "\n"
             with open(filename, "wt") as fh:
                 for report in self._reports:
                     fh.write(report.strip())
                     fh.write(seperator_string)
-            files_to_be_deleted_filename = \
-                os.path.join(folder, "files_to_be_deleted.toml")
+            files_to_be_deleted_filename = os.path.join(
+                folder, "files_to_be_deleted.toml"
+            )
             with open(files_to_be_deleted_filename, "w") as fh:
                 toml.dump(self.files_to_be_deleted, fh)
-            print("\n%sFAILED%s\nEncountered %i errors!\n"
-                  "A report has been created at '%s'.\n" %
-                  (colorama.Fore.RED, colorama.Fore.RESET,
-                   self._total_error_count, os.path.relpath(filename)))
-            print(f"A file that can be used to clean up the project has been"
-                  f"created at "
-                  f"{os.path.relpath(files_to_be_deleted_filename)}\n"
-                  f"It is advised to inspect the file before use.")
+            print(
+                "\n%sFAILED%s\nEncountered %i errors!\n"
+                "A report has been created at '%s'.\n"
+                % (
+                    colorama.Fore.RED,
+                    colorama.Fore.RESET,
+                    self._total_error_count,
+                    os.path.relpath(filename),
+                )
+            )
+            print(
+                f"A file that can be used to clean up the project has been"
+                f"created at "
+                f"{os.path.relpath(files_to_be_deleted_filename)}\n"
+                f"It is advised to inspect the file before use."
+            )
 
     def validate_raypaths_in_domain(self):
         """
@@ -142,15 +164,21 @@ class ValidatorComponent(Component):
 
         for event_name, event in self.comm.events.get_all_events().items():
             self._flush_point()
-            for station_id, value in \
-                    self.comm.query.get_all_stations_for_event(
-                        event_name).items():
+            for (
+                station_id,
+                value,
+            ) in self.comm.query.get_all_stations_for_event(
+                event_name
+            ).items():
 
                 # Check if the whole path of the event-station pair is within
                 # the domain boundaries.
                 if self.is_event_station_raypath_within_boundaries(
-                        event_name, value["latitude"], value["longitude"],
-                        raypath_steps=3):
+                    event_name,
+                    value["latitude"],
+                    value["longitude"],
+                    raypath_steps=3,
+                ):
                     continue
                 all_good = False
                 self.files_to_be_deleted[event_name].append(station_id)
@@ -160,7 +188,8 @@ class ValidatorComponent(Component):
                     f"station\n\t'{station_id}'\n "
                     f"does not fully lay within the domain. You might want"
                     f" to remove the file or change the domain "
-                    f"specifications.")
+                    f"specifications."
+                )
         if all_good:
             self._print_ok_message()
         else:
@@ -177,14 +206,17 @@ class ValidatorComponent(Component):
         num_of_deleted_files = 0
         for event_name, stations in clean_up_dict.items():
             filename = self.comm.waveforms.get_asdf_filename(
-                event_name, data_type="raw")
+                event_name, data_type="raw"
+            )
             with pyasdf.ASDFDataSet(filename) as ds:
                 for station in stations:
                     del ds.waveforms[station]
                     num_of_deleted_files += 1
 
-        print(f"Removed {num_of_deleted_files} stations "
-              f"from the LASIF project.")
+        print(
+            f"Removed {num_of_deleted_files} stations "
+            f"from the LASIF project."
+        )
 
     def _validate_station_and_waveform_availability(self):
         """
@@ -192,8 +224,11 @@ class ValidatorComponent(Component):
         and all stations have data.
         """
 
-        print("Confirming that station metainformation files exist for "
-              "all waveforms ", end="")
+        print(
+            "Confirming that station metainformation files exist for "
+            "all waveforms ",
+            end="",
+        )
 
         all_good = True
 
@@ -202,7 +237,8 @@ class ValidatorComponent(Component):
             self._flush_point()
 
             filename = self.comm.waveforms.get_asdf_filename(
-                event_name, data_type="raw")
+                event_name, data_type="raw"
+            )
             ds = pyasdf.ASDFDataSet(filename)
             station_names = ds.waveforms.list()
 
@@ -219,7 +255,8 @@ class ValidatorComponent(Component):
                         f"WARNING:"
                         f"No StationXML found for station "
                         f"{station_name} "
-                        f"in event {event_name} \n")
+                        f"in event {event_name} \n"
+                    )
                     all_good = False
                     self.files_to_be_deleted[event_name].append(station_name)
                     continue
@@ -227,7 +264,8 @@ class ValidatorComponent(Component):
                     self._add_report(
                         f"WARNING:"
                         f"No waveforms found for station {station} "
-                        f"in event {event_name} \n")
+                        f"in event {event_name} \n"
+                    )
                     all_good = False
                     self.files_to_be_deleted[event_name].append(station_name)
                     continue
@@ -259,10 +297,12 @@ class ValidatorComponent(Component):
         print("Validating %i event files ..." % self.comm.events.count())
 
         def print_warning(filename, message):
-            self._add_report("WARNING: File '{event_name}' "
-                             "contains {msg}.\n".format(
-                                 event_name=os.path.basename(filename),
-                                 msg=message))
+            self._add_report(
+                "WARNING: File '{event_name}' "
+                "contains {msg}.\n".format(
+                    event_name=os.path.basename(filename), msg=message
+                )
+            )
 
         # Performing simple sanity checks.
         print("\tPerforming some basic sanity checks ", end="")
@@ -276,8 +316,9 @@ class ValidatorComponent(Component):
             # Check that all files contain exactly one event!
             if len(cat) != 1:
                 all_good = False
-                print_warning(filename, "%i events instead of only one." %
-                              len(cat))
+                print_warning(
+                    filename, "%i events instead of only one." % len(cat)
+                )
             event = cat[0]
 
             # Sanity checks related to the origin.
@@ -286,19 +327,22 @@ class ValidatorComponent(Component):
                 print_warning(filename, "no origin")
                 continue
             origin = event.preferred_origin() or event.origins[0]
-            if (origin.depth % 100.0):
+            if origin.depth % 100.0:
                 all_good = False
                 print_warning(
-                    filename, "a depth of %.1f meters. This kind of accuracy "
-                              "seems unrealistic. The depth in the QuakeML "
-                              "file has to be specified in meters. Checking "
-                              "all other QuakeML files for the correct units "
-                              "might be a good idea"
-                    % origin.depth)
-            if (origin.depth > (800.0 * 1000.0)):
+                    filename,
+                    "a depth of %.1f meters. This kind of accuracy "
+                    "seems unrealistic. The depth in the QuakeML "
+                    "file has to be specified in meters. Checking "
+                    "all other QuakeML files for the correct units "
+                    "might be a good idea" % origin.depth,
+                )
+            if origin.depth > (800.0 * 1000.0):
                 all_good = False
-                print_warning(filename, "a depth of more than 800 km. This is"
-                                        " likely wrong.")
+                print_warning(
+                    filename,
+                    "a depth of more than 800 km. This is" " likely wrong.",
+                )
 
             # Sanity checks related to the magnitude.
             if not event.magnitudes:
@@ -312,17 +356,19 @@ class ValidatorComponent(Component):
                 print_warning(filename, "no focal mechanism")
                 continue
 
-            focmec = event.preferred_focal_mechanism() or \
-                event.focal_mechanisms[0]
-            if not hasattr(focmec, "moment_tensor") or \
-                    not focmec.moment_tensor:
+            focmec = (
+                event.preferred_focal_mechanism() or event.focal_mechanisms[0]
+            )
+            if (
+                not hasattr(focmec, "moment_tensor")
+                or not focmec.moment_tensor
+            ):
                 all_good = False
                 print_warning(filename, "no moment tensor")
                 continue
 
             mt = focmec.moment_tensor
-            if not hasattr(mt, "tensor") or \
-                    not mt.tensor:
+            if not hasattr(mt, "tensor") or not mt.tensor:
                 all_good = False
                 print_warning(filename, "no actual moment tensor")
                 continue
@@ -332,20 +378,30 @@ class ValidatorComponent(Component):
             # reasonable.
             mag_in_file = event.preferred_magnitude() or event.magnitudes[0]
             mag_in_file = mag_in_file.mag
-            M_0 = 1.0 / math.sqrt(2.0) * math.sqrt(
-                tensor.m_rr ** 2 + tensor.m_tt ** 2 + tensor.m_pp ** 2 +
-                2 * (tensor.m_rt ** 2) + 2 * (tensor.m_tp ** 2) +
-                2 * (tensor.m_rp ** 2))
+            M_0 = (
+                1.0
+                / math.sqrt(2.0)
+                * math.sqrt(
+                    tensor.m_rr ** 2
+                    + tensor.m_tt ** 2
+                    + tensor.m_pp ** 2
+                    + 2 * (tensor.m_rt ** 2)
+                    + 2 * (tensor.m_tp ** 2)
+                    + 2 * (tensor.m_rp ** 2)
+                )
+            )
             magnitude = 2.0 / 3.0 * math.log10(M_0) - 6.0
             # Use some buffer to account for different magnitudes.
             if not (mag_in_file - 0.3) < magnitude < (mag_in_file + 0.3):
                 all_good = False
                 print_warning(
-                    filename, "a moment tensor that would result in a moment "
-                              "magnitude of %.2f. The magnitude specified in "
-                              "the file is %.2f. Please check that all "
-                              "components of the tensor are in Newton * meter"
-                    % (magnitude, mag_in_file))
+                    filename,
+                    "a moment tensor that would result in a moment "
+                    "magnitude of %.2f. The magnitude specified in "
+                    "the file is %.2f. Please check that all "
+                    "components of the tensor are in Newton * meter"
+                    % (magnitude, mag_in_file),
+                )
 
         if all_good is True:
             self._print_ok_message()
@@ -356,8 +412,11 @@ class ValidatorComponent(Component):
         event_infos = self.comm.events.get_all_events().values()
 
         # Now check the time distribution of events.
-        print("\tChecking for duplicates and events too close in time %s" %
-              (self.comm.events.count() * "."), end="")
+        print(
+            "\tChecking for duplicates and events too close in time %s"
+            % (self.comm.events.count() * "."),
+            end="",
+        )
         all_good = True
         # Sort the events by time.
         event_infos = sorted(event_infos, key=lambda x: x["origin_time"])
@@ -378,34 +437,41 @@ class ValidatorComponent(Component):
                     "interfering waveforms.\n".format(
                         file_1=event_1["filename"],
                         file_2=event_2["filename"],
-                        diff=time_diff / 60.0))
+                        diff=time_diff / 60.0,
+                    )
+                )
         if all_good is True:
             self._print_ok_message()
         else:
             self._print_fail_message()
 
         # Check that all events fall within the chosen boundaries.
-        print("\tAssure all events are in chosen domain %s" %
-              (self.comm.events.count() * "."), end="")
+        print(
+            "\tAssure all events are in chosen domain %s"
+            % (self.comm.events.count() * "."),
+            end="",
+        )
         all_good = True
         domain = self.comm.project.domain
         for event in event_infos:
-            if domain.point_in_domain(latitude=event["latitude"],
-                                      longitude=event["longitude"]):
+            if domain.point_in_domain(
+                latitude=event["latitude"], longitude=event["longitude"]
+            ):
                 continue
             all_good = False
             self._add_report(
                 "\nWARNING: "
                 "Event '{filename}' is out of bounds of the chosen domain."
-                "\n".format(filename=event["filename"]))
+                "\n".format(filename=event["filename"])
+            )
         if all_good is True:
             self._print_ok_message()
         else:
             self._print_fail_message()
 
     def is_event_station_raypath_within_boundaries(
-            self, event_name, station_latitude, station_longitude,
-            raypath_steps=25):
+        self, event_name, station_latitude, station_longitude, raypath_steps=25
+    ):
         """
         Checks if the full station-event raypath is within the project's domain
         boundaries.
@@ -425,6 +491,7 @@ class ValidatorComponent(Component):
             that will be checked. Optional.
         """
         from lasif.utils import greatcircle_points, Point
+
         ev = self.comm.events.get(event_name)
 
         domain = self.comm.project.domain
@@ -434,11 +501,13 @@ class ValidatorComponent(Component):
             return True
 
         for point in greatcircle_points(
-                Point(station_latitude, station_longitude),
-                Point(ev["latitude"], ev["longitude"]),
-                max_npts=raypath_steps):
+            Point(station_latitude, station_longitude),
+            Point(ev["latitude"], ev["longitude"]),
+            max_npts=raypath_steps,
+        ):
 
-            if not domain.point_in_domain(latitude=point.lat,
-                                          longitude=point.lng):
+            if not domain.point_in_domain(
+                latitude=point.lat, longitude=point.lng
+            ):
                 return False
         return True

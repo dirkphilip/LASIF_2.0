@@ -17,9 +17,11 @@ from lasif.window_selection import select_windows
 from lasif.tests.testing_helpers import communicator, cli  # NOQA
 
 # Data path.
-DATA = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))),
-    "data", "window_selection_test_files")
+DATA = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "data",
+    "window_selection_test_files",
+)
 
 
 def test_select_windows(cli):
@@ -53,8 +55,12 @@ def test_select_windows(cli):
     stf_freqmax = 1.0 / minimum_period
 
     stf_fct = cli.comm.project.get_project_function("source_time_function")
-    stf_trace = stf_fct(npts=stf_npts, delta=stf_delta, freqmin=stf_freqmin,
-                        freqmax=stf_freqmax)
+    stf_trace = stf_fct(
+        npts=stf_npts,
+        delta=stf_delta,
+        freqmin=stf_freqmin,
+        freqmax=stf_freqmax,
+    )
 
     windows = select_windows(
         data_trace=data_trace,
@@ -75,13 +81,20 @@ def test_select_windows(cli):
         threshold_correlation=threshold_correlation,
         min_length_period=min_length_period,
         min_peaks_troughs=min_peaks_troughs,
-        max_energy_ratio=max_energy_ratio)
+        max_energy_ratio=max_energy_ratio,
+    )
 
-    expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000),
-                         1.0),
-                        (obspy.UTCDateTime(2000, 8, 21, 17, 20, 21, 200000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 21, 44, 900000),
-                         1.0)]
+    expected_windows = [
+        (
+            obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
+            obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000),
+            1.0,
+        ),
+        (
+            obspy.UTCDateTime(2000, 8, 21, 17, 20, 21, 200000),
+            obspy.UTCDateTime(2000, 8, 21, 17, 21, 44, 900000),
+            1.0,
+        ),
+    ]
 
     assert windows == expected_windows

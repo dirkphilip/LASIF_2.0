@@ -27,9 +27,11 @@ def cc_time_shift(data, synthetic, dt, shift):
     """
     # See whether the lengths are the same:
     if not len(data) == len(synthetic):
-        raise LASIFError("\n\n Data and Synthetics do not have equal number"
-                         " of points. Might be something wrong with your"
-                         " processing.")
+        raise LASIFError(
+            "\n\n Data and Synthetics do not have equal number"
+            " of points. Might be something wrong with your"
+            " processing."
+        )
 
     cc = crosscorr.correlate(a=synthetic, b=data, shift=shift)
 
@@ -39,8 +41,9 @@ def cc_time_shift(data, synthetic, dt, shift):
     return time_shift
 
 
-def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
-                        plot=False):
+def adsrc_cc_time_shift(
+    t, data, synthetic, min_period, max_period, plot=False
+):
     """
        :rtype: dictionary
        :returns: Return a dictionary with three keys:
@@ -62,15 +65,21 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     misfit = 1.0 / 2.0 * time_shift ** 2
     messages.append(f"Time shift was {time_shift} seconds")
     if np.abs(time_shift) > (min_period / 4):
-        messages.append(f"Time shift too big for adjoint source calculation, "
-                        f"we will only return misfit")
+        messages.append(
+            f"Time shift too big for adjoint source calculation, "
+            f"we will only return misfit"
+        )
         if plot:
-            print("Time shift too large to calculate an adjoint source. "
-                  "Misfit included though")
+            print(
+                "Time shift too large to calculate an adjoint source. "
+                "Misfit included though"
+            )
         ad_src = np.zeros(len(t))
-        ret_dict = {"adjoint_source": ad_src,
-                    "misfit_value": misfit,
-                    "details": {"messages": messages}}
+        ret_dict = {
+            "adjoint_source": ad_src,
+            "misfit_value": misfit,
+            "details": {"messages": messages},
+        }
         return ret_dict
 
     lag = int(abs(time_shift) / dt)
@@ -92,13 +101,17 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
 
     # return an empty adjoint source if window is too short to be meaningful
     if len_window < 2 * min_period:
-        warning = "Window length to short to compute a meaningful misfit" \
-                  "and adjoint source"
+        warning = (
+            "Window length to short to compute a meaningful misfit"
+            "and adjoint source"
+        )
         messages.append(warning)
         misfit = 0.0
-        ret_dict = {"adjoint_source": np.zeros_like(data),
-                    "misfit_value": misfit,
-                    "details": {"messages": messages}}
+        ret_dict = {
+            "adjoint_source": np.zeros_like(data),
+            "misfit_value": misfit,
+            "details": {"messages": messages},
+        }
         return ret_dict
 
     messages.append(f"Length of window is: {len_window} seconds")
@@ -115,9 +128,11 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     ad_src = np.concatenate([front_pad, ad_src, back_pad])
     ad_src = ad_src[::-1]  # Time reverse
 
-    ret_dict = {"adjoint_source": ad_src,
-                "misfit_value": misfit,
-                "details": {"messages": messages}}
+    ret_dict = {
+        "adjoint_source": ad_src,
+        "misfit_value": misfit,
+        "details": {"messages": messages},
+    }
 
     if plot:
         adjoint_source_plot(t, data, synthetic, ad_src, misfit, time_shift)
@@ -125,24 +140,27 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     return ret_dict
 
 
-def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit,
-                        time_shift):
+def adjoint_source_plot(
+    t, data, synthetic, adjoint_source, misfit, time_shift
+):
 
     import matplotlib.pyplot as plt
 
     plt.subplot(211)
     plt.plot(t, data, color="0.2", label="Data", lw=2)
-    plt.plot(t, synthetic, color="#bb474f",
-             label="Synthetic", lw=2)
+    plt.plot(t, synthetic, color="#bb474f", label="Synthetic", lw=2)
 
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     plt.subplot(212)
-    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    plt.plot(
+        t, adjoint_source[::-1], color="#2f8d5b", lw=2, label="Adjoint Source"
+    )
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}. "
-              f"Time shift {time_shift}")
+    plt.title(
+        f"CCTimeShift Adjoint Source with a Misfit of {misfit}. "
+        f"Time shift {time_shift}"
+    )

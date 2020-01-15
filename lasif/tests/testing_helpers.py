@@ -16,23 +16,29 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
+
 # import numpy as np
-import obspy
+# import obspy
 import os
 import pytest
 import shutil
 import sys
+
 # from unittest import mock
 
 from lasif.components.project import Project
 from lasif.scripts import lasif_cli
 
 # Folder where all the images for comparison are stored.
-IMAGES = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "baseline_images")
+IMAGES = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "baseline_images",
+)
 # Data path.
-DATA = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "data")
+DATA = os.path.join(
+    os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))),
+    "data",
+)
 
 
 @pytest.fixture
@@ -57,8 +63,8 @@ def communicator(tmpdir):
     """
     # A new project will be created many times. ObsPy complains if objects that
     # already exists are created again.
-    obspy.core.event.ResourceIdentifier\
-        ._ResourceIdentifier__resource_id_weak_dict.clear()
+    # obspy.core.event.ResourceIdentifier\
+    #     ._ResourceIdentifier__resource_id_weak_dict.clear()
 
     # Copy the example project
     example_project = os.path.join(DATA, "example_project")
@@ -144,12 +150,13 @@ def reset_matplotlib():
     mpl.rcdefaults()
     # These settings must be hardcoded for running the comparision tests and
     # are not necessarily the default values.
-    mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
-    mpl.rcParams['text.hinting'] = False
+    mpl.rcParams["font.family"] = "Bitstream Vera Sans"
+    mpl.rcParams["text.hinting"] = False
     # Not available for all matplotlib versions.
     try:
-        mpl.rcParams['text.hinting_factor'] = 8
+        mpl.rcParams["text.hinting_factor"] = 8
     except KeyError:
         pass
     import locale
-    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
+
+    locale.setlocale(locale.LC_ALL, str("en_US.UTF-8"))

@@ -10,8 +10,9 @@ import pyasdf
 
 from .component import Component
 
-DataTuple = collections.namedtuple("DataTuple", ["data", "synthetics",
-                                                 "coordinates"])
+DataTuple = collections.namedtuple(
+    "DataTuple", ["data", "synthetics", "coordinates"]
+)
 
 
 class QueryComponent(Component):
@@ -25,6 +26,7 @@ class QueryComponent(Component):
     It should thus be initialized fairly late as it needs access to a number
     of other components via the communicator.
     """
+
     def get_all_stations_for_event(self, event_name, list_only=False):
         """
         Returns a dictionary of all stations for one event and their
@@ -38,7 +40,8 @@ class QueryComponent(Component):
         :param event_name: Name of the event.
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
-            event_name=event_name, data_type="raw")
+            event_name=event_name, data_type="raw"
+        )
 
         if list_only:
             with pyasdf.ASDFDataSet(waveform_file, mode="r", mpi=False) as ds:
@@ -54,7 +57,8 @@ class QueryComponent(Component):
         Must be in sync with :meth:`~.get_all_stations_for_event`.
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
-            event_name=event_name, data_type="raw")
+            event_name=event_name, data_type="raw"
+        )
 
         with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
             return ds.waveforms[station_id].coordinates
@@ -81,34 +85,42 @@ class QueryComponent(Component):
             network, station, _, channel = seed_id
             station_id = ".".join((network, station))
         else:
-            raise ValueError("'station_or_channel_id' must either have "
-                             "2 or 4 parts.")
+            raise ValueError(
+                "'station_or_channel_id' must either have " "2 or 4 parts."
+            )
 
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
-            iteration)
+            iteration
+        )
         event = self.comm.events.get(event)
 
         # Get the metadata for the processed and synthetics for this
         # particular station.
         data = self.comm.waveforms.get_waveforms_processed(
-            event["event_name"], station_id,
-            tag=self.comm.waveforms.preprocessing_tag)
+            event["event_name"],
+            station_id,
+            tag=self.comm.waveforms.preprocessing_tag,
+        )
         # data_fly = self.comm.waveforms.get_waveforms_processed_on_the_fly(
         #     event["event_name"], station_id)
 
         synthetics = self.comm.waveforms.get_waveforms_synthetic(
-            event["event_name"], station_id,
-            long_iteration_name=iteration_long_name)
+            event["event_name"],
+            station_id,
+            long_iteration_name=iteration_long_name,
+        )
         coordinates = self.comm.query.get_coordinates_for_station(
-            event["event_name"], station_id)
+            event["event_name"], station_id
+        )
 
         # Clear data and synthetics!
         for _st, name in ((data, "observed"), (synthetics, "synthetic")):
             # Get all components and loop over all components.
             _comps = set(tr.stats.channel[-1].upper() for tr in _st)
             for _c in _comps:
-                traces = [_i for _i in _st
-                          if _i.stats.channel[-1].upper() == _c]
+                traces = [
+                    _i for _i in _st if _i.stats.channel[-1].upper() == _c
+                ]
                 if len(traces) == 1:
                     continue
                 elif len(traces) > 1:
@@ -117,11 +129,18 @@ class QueryComponent(Component):
                         "%s data for event '%s', iteration '%s', "
                         "station '%s', and component '%s' has %i traces: "
                         "%s. LASIF will select the first one, but please "
-                        "clean up your data." % (
-                            name.capitalize(), event["event_name"],
-                            iteration, station_id, _c,
-                            len(traces), ", ".join(tr.id for tr in traces)),
-                        LASIFWarning)
+                        "clean up your data."
+                        % (
+                            name.capitalize(),
+                            event["event_name"],
+                            iteration,
+                            station_id,
+                            _c,
+                            len(traces),
+                            ", ".join(tr.id for tr in traces),
+                        ),
+                        LASIFWarning,
+                    )
                     for tr in traces[1:]:
                         _st.remove(tr)
                 else:
@@ -135,30 +154,36 @@ class QueryComponent(Component):
         temp_data = []
         for data_tr in data:
             component = data_tr.stats.channel[-1].upper()
-            synthetic_tr = [tr for tr in synthetics
-                            if tr.stats.channel[-1].upper() == component]
+            synthetic_tr = [
+                tr
+                for tr in synthetics
+                if tr.stats.channel[-1].upper() == component
+            ]
             if not synthetic_tr:
                 warnings.warn(
                     "Station '%s' has observed data for component '%s' but no "
                     "matching synthetics." % (station_id, component),
-                    LASIFWarning)
+                    LASIFWarning,
+                )
                 continue
             temp_data.append(data_tr)
         data.traces = temp_data
 
         if len(data) == 0:
-            raise LASIFError("No data remaining for station '%s'." %
-                             station_id)
+            raise LASIFError(
+                "No data remaining for station '%s'." % station_id
+            )
 
         # Scale the data if required.
         if self.comm.project.processing_params["scale_data_to_synthetics"]:
             for data_tr in data:
                 synthetic_tr = [
-                    tr for tr in synthetics
-                    if tr.stats.channel[-1].lower() ==
-                    data_tr.stats.channel[-1].lower()][0]
-                scaling_factor = synthetic_tr.data.ptp() / \
-                    data_tr.data.ptp()
+                    tr
+                    for tr in synthetics
+                    if tr.stats.channel[-1].lower()
+                    == data_tr.stats.channel[-1].lower()
+                ][0]
+                scaling_factor = synthetic_tr.data.ptp() / data_tr.data.ptp()
                 # Store and apply the scaling.
                 data_tr.stats.scaling_factor = scaling_factor
                 data_tr.data *= scaling_factor
@@ -172,13 +197,20 @@ class QueryComponent(Component):
             # Different solvers have different conventions for the location
             # and channel codes.
             component = channel[-1].upper()
-            data.traces = [i for i in data.traces
-                           if i.stats.channel[-1].upper() == component]
-            synthetics.traces = [i for i in synthetics.traces
-                                 if i.stats.channel[-1].upper() == component]
+            data.traces = [
+                i
+                for i in data.traces
+                if i.stats.channel[-1].upper() == component
+            ]
+            synthetics.traces = [
+                i
+                for i in synthetics.traces
+                if i.stats.channel[-1].upper() == component
+            ]
 
-        return DataTuple(data=data, synthetics=synthetics,
-                         coordinates=coordinates)
+        return DataTuple(
+            data=data, synthetics=synthetics, coordinates=coordinates
+        )
 
     def point_in_domain(self, latitude, longitude, depth):
         """
@@ -189,5 +221,6 @@ class QueryComponent(Component):
         :param depth: The depth of the point
         """
         domain = self.comm.project.domain
-        return domain.point_in_domain(longitude=longitude, latitude=latitude,
-                                      depth=depth)
+        return domain.point_in_domain(
+            longitude=longitude, latitude=latitude, depth=depth
+        )

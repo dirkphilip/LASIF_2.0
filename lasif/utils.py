@@ -23,6 +23,7 @@ def is_mpi_env():
     Returns True if currently in an MPI environment.
     """
     from mpi4py import MPI
+
     if MPI.COMM_WORLD.size == 1 and MPI.COMM_WORLD.rank == 0:
         return False
     return True
@@ -43,8 +44,7 @@ def channel_in_parser(parser_object, channel_id, starttime, endtime):
             continue
         if starttime < chan["start_date"]:
             continue
-        if chan["end_date"] and \
-                (endtime > chan["end_date"]):
+        if chan["end_date"] and (endtime > chan["end_date"]):
             continue
         return True
     return False
@@ -81,8 +81,7 @@ def sizeof_fmt(num):
 Point = namedtuple("Point", ["lat", "lng"])
 
 
-def greatcircle_points(point_1, point_2, max_extension=None,
-                       max_npts=3000):
+def greatcircle_points(point_1, point_2, max_extension=None, max_npts=3000):
     """
     Generator yielding a number points along a greatcircle from point_1 to
     point_2. Max extension is the normalization factor. If the distance between
@@ -93,10 +92,11 @@ def greatcircle_points(point_1, point_2, max_extension=None,
     points.
     """
     point = geodesic.Geodesic.WGS84.Inverse(
-        lat1=point_1.lat, lon1=point_1.lng, lat2=point_2.lat,
-        lon2=point_2.lng)
+        lat1=point_1.lat, lon1=point_1.lng, lat2=point_2.lat, lon2=point_2.lng
+    )
     line = geodesic.Geodesic.WGS84.Line(
-        point_1.lat, point_1.lng, point["azi1"])
+        point_1.lat, point_1.lng, point["azi1"]
+    )
 
     if max_extension:
         npts = int((point["a12"] / float(max_extension)) * max_npts)
@@ -135,11 +135,14 @@ def select_component_from_stream(st, component):
     component = component.upper()
     component = [tr for tr in st if tr.stats.channel[-1].upper() == component]
     if not component:
-        raise LASIFNotFoundError("Component %s not found in Stream." %
-                                 component)
+        raise LASIFNotFoundError(
+            "Component %s not found in Stream." % component
+        )
     elif len(component) > 1:
-        raise LASIFNotFoundError("More than 1 Trace with component %s found "
-                                 "in Stream." % component)
+        raise LASIFNotFoundError(
+            "More than 1 Trace with component %s found "
+            "in Stream." % component
+        )
     return component[0]
 
 
@@ -167,13 +170,24 @@ def get_event_filename(event, prefix):
     # Replace commas, as some file systems cannot deal with them.
     region_name = region_name.replace(",", "")
 
-    return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.h5" % \
-        (prefix, region_name, mag.mag, org.time.year, org.time.month,
-         org.time.day, org.time.hour)
+    return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.h5" % (
+        prefix,
+        region_name,
+        mag.mag,
+        org.time.year,
+        org.time.month,
+        org.time.day,
+        org.time.hour,
+    )
 
 
-def generate_input_files(iteration_name, event_name, comm,
-                         simulation_type="forward", previous_iteration=None):
+def generate_input_files(
+    iteration_name,
+    event_name,
+    comm,
+    simulation_type="forward",
+    previous_iteration=None,
+):
     """
     Generate the input files for one event.
 
@@ -185,33 +199,43 @@ def generate_input_files(iteration_name, event_name, comm,
         from.
     """
     import shutil
+
     if comm.project.config["mesh_file"] == "multiple":
-        mesh_file = os.path.join(comm.project.paths["models"],
-                                 "EVENT_SPECIFIC", event_name, "mesh.e")
+        mesh_file = os.path.join(
+            comm.project.paths["models"],
+            "EVENT_SPECIFIC",
+            event_name,
+            "mesh.e",
+        )
     else:
         mesh_file = comm.project.config["mesh_file"]
 
-    input_files_dir = comm.project.paths['salvus_input']
+    input_files_dir = comm.project.paths["salvus_input"]
 
     # If previous iteration specified, copy files over and update mesh_file
     # This part could be extended such that other parameters can be
     # updated as well.
     if previous_iteration:
         long_prev_iter_name = comm.iterations.get_long_iteration_name(
-            previous_iteration)
-        prev_it_dir = os.path.join(input_files_dir, long_prev_iter_name,
-                                   event_name, simulation_type)
+            previous_iteration
+        )
+        prev_it_dir = os.path.join(
+            input_files_dir, long_prev_iter_name, event_name, simulation_type
+        )
     if previous_iteration and os.path.exists(prev_it_dir):
         long_iter_name = comm.iterations.get_long_iteration_name(
-            iteration_name)
-        output_dir = os.path.join(input_files_dir, long_iter_name,
-                                  event_name,
-                                  simulation_type)
+            iteration_name
+        )
+        output_dir = os.path.join(
+            input_files_dir, long_iter_name, event_name, simulation_type
+        )
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         if not prev_it_dir == output_dir:
-            shutil.copyfile(os.path.join(prev_it_dir, "run_salvus.sh"),
-                            os.path.join(output_dir, "run_salvus.sh"))
+            shutil.copyfile(
+                os.path.join(prev_it_dir, "run_salvus.sh"),
+                os.path.join(output_dir, "run_salvus.sh"),
+            )
         else:
             print("Previous iteration is identical to current iteration.")
         with open(os.path.join(output_dir, "run_salvus.sh"), "r") as fh:
@@ -224,16 +248,20 @@ def generate_input_files(iteration_name, event_name, comm,
             fh.write(cmd_string)
         return
     elif previous_iteration and not os.path.exists(prev_it_dir):
-        print(f"Could not find previous iteration directory for event: "
-              f"{event_name}, generating input files")
+        print(
+            f"Could not find previous iteration directory for event: "
+            f"{event_name}, generating input files"
+        )
 
     # =====================================================================
     # read weights toml file, get event and list of stations
     # =====================================================================
     asdf_file = comm.waveforms.get_asdf_filename(
-        event_name=event_name, data_type="raw")
+        event_name=event_name, data_type="raw"
+    )
 
     import pyasdf
+
     ds = pyasdf.ASDFDataSet(asdf_file)
     event = ds.events[0]
 
@@ -245,8 +273,7 @@ def generate_input_files(iteration_name, event_name, comm,
 
     import salvus_seismo
 
-    src_time_func = comm.project. \
-        solver_settings["source_time_function_type"]
+    src_time_func = comm.project.solver_settings["source_time_function_type"]
 
     if src_time_func == "bandpass_filtered_heaviside":
         salvus_seismo_src_time_func = "heaviside"
@@ -254,16 +281,15 @@ def generate_input_files(iteration_name, event_name, comm,
         salvus_seismo_src_time_func = src_time_func
 
     src = salvus_seismo.Source.parse(
-        event,
-        sliprate=salvus_seismo_src_time_func)
+        event, sliprate=salvus_seismo_src_time_func
+    )
     recs = salvus_seismo.Receiver.parse(inv)
 
     solver_settings = comm.project.solver_settings
     if solver_settings["number_of_absorbing_layers"] == 0:
         num_absorbing_layers = None
     else:
-        num_absorbing_layers = \
-            solver_settings["number_of_absorbing_layers"]
+        num_absorbing_layers = solver_settings["number_of_absorbing_layers"]
 
     # Generate the configuration object for salvus_seismo
     if simulation_type == "forward":
@@ -272,16 +298,15 @@ def generate_input_files(iteration_name, event_name, comm,
             start_time=solver_settings["start_time"],
             time_step=solver_settings["time_increment"],
             end_time=solver_settings["end_time"],
-            salvus_call=comm.project.
-            solver_settings["salvus_call"],
+            salvus_call=comm.project.solver_settings["salvus_call"],
             polynomial_order=solver_settings["polynomial_order"],
             verbose=True,
             dimensions=3,
             num_absorbing_layers=num_absorbing_layers,
-            with_anisotropy=comm.project.
-            solver_settings["with_anisotropy"],
+            with_anisotropy=comm.project.solver_settings["with_anisotropy"],
             wavefield_file_name="wavefield.h5",
-            wavefield_fields="adjoint")
+            wavefield_fields="adjoint",
+        )
 
     elif simulation_type == "step_length":
         config = salvus_seismo.Config(
@@ -289,50 +314,53 @@ def generate_input_files(iteration_name, event_name, comm,
             start_time=solver_settings["start_time"],
             time_step=solver_settings["time_increment"],
             end_time=solver_settings["end_time"],
-            salvus_call=comm.project.
-            solver_settings["salvus_call"],
+            salvus_call=comm.project.solver_settings["salvus_call"],
             polynomial_order=solver_settings["polynomial_order"],
             verbose=True,
             dimensions=3,
             num_absorbing_layers=num_absorbing_layers,
-            with_anisotropy=comm.project.
-            solver_settings["with_anisotropy"])
+            with_anisotropy=comm.project.solver_settings["with_anisotropy"],
+        )
 
     # =====================================================================
     # output
     # =====================================================================
-    long_iter_name = comm.iterations.get_long_iteration_name(
-        iteration_name)
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration_name)
 
-    output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
-                              simulation_type)
+    output_dir = os.path.join(
+        input_files_dir, long_iter_name, event_name, simulation_type
+    )
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     import shutil
+
     shutil.rmtree(output_dir)
 
     salvus_seismo.generate_cli_call(
-        source=src, receivers=recs, config=config,
+        source=src,
+        receivers=recs,
+        config=config,
         output_folder=output_dir,
-        exodus_file=mesh_file)
+        exodus_file=mesh_file,
+    )
 
     write_custom_stf(output_dir, comm)
 
     run_salvus = os.path.join(output_dir, "run_salvus.sh")
-    io_sampling_rate = comm.project. \
-        solver_settings["io_sampling_rate_volume"]
-    memory_per_rank = comm.project.\
-        solver_settings["io_memory_per_rank_in_MB"]
+    io_sampling_rate = comm.project.solver_settings["io_sampling_rate_volume"]
+    memory_per_rank = comm.project.solver_settings["io_memory_per_rank_in_MB"]
     if comm.project.solver_settings["with_attenuation"]:
         with open(run_salvus, "a") as fh:
             fh.write(f" --with-attenuation")
     if simulation_type == "forward":
         with open(run_salvus, "a") as fh:
-            fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
-                     f" --io-memory-per-rank-in-MB {memory_per_rank}"
-                     f" --io-file-format bin")
+            fh.write(
+                f" --io-sampling-rate-volume {io_sampling_rate}"
+                f" --io-memory-per-rank-in-MB {memory_per_rank}"
+                f" --io-file-format bin"
+            )
 
 
 def write_custom_stf(stf_path, comm):
@@ -351,17 +379,17 @@ def write_custom_stf(stf_path, comm):
     delta = comm.project.solver_settings["time_increment"]
     npts = comm.project.solver_settings["number_of_time_steps"]
 
-    stf_fct = comm.project.get_project_function(
-        "source_time_function")
+    stf_fct = comm.project.get_project_function("source_time_function")
     stf = comm.project.processing_params["stf"]
     if stf == "bandpass_filtered_heaviside":
-        stf = stf_fct(npts=npts, delta=delta,
-                      freqmin=freqmin, freqmax=freqmax)
+        stf = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
     elif stf == "heaviside":
         stf = stf_fct(npts=npts, delta=delta)
     else:
-        raise LASIFError(f"{stf} is not supported by lasif. Use either "
-                         f"bandpass_filtered_heaviside or heaviside.")
+        raise LASIFError(
+            f"{stf} is not supported by lasif. Use either "
+            f"bandpass_filtered_heaviside or heaviside."
+        )
 
     stf_mat = np.zeros((len(stf), 6))
     # for i, moment in enumerate(moment_tensor):
@@ -371,7 +399,7 @@ def write_custom_stf(stf_path, comm):
         stf_mat[:, i] = stf
 
     heaviside_file_name = os.path.join(stf_path)
-    f = h5py.File(heaviside_file_name, 'w')
+    f = h5py.File(heaviside_file_name, "w")
 
     source = f.create_dataset("source", data=stf_mat)
     source.attrs["dt"] = delta
@@ -402,10 +430,12 @@ def place_receivers(event, comm):
     """
 
     asdf_file = comm.waveforms.get_asdf_filename(
-        event_name=event, data_type="raw")
+        event_name=event, data_type="raw"
+    )
 
     import pyasdf
-    ds = pyasdf.ASDFDataSet(asdf_file)
+
+    ds = pyasdf.ASDFDataSet(asdf_file, mode="r")
     event = ds.events[0]
 
     # Build inventory of all stations present in ASDF file
@@ -418,14 +448,16 @@ def place_receivers(event, comm):
 
     recs = salvus_seismo.Receiver.parse(inv)
 
-    receivers = [{
-        "network-code": f"{rec.network}",
-        "station-code": f"{rec.station}",
-        "medium": "solid",
-        "latitude": rec.latitude,
-        "longitude": rec.longitude
-    }
-        for rec in recs]
+    receivers = [
+        {
+            "network-code": f"{rec.network}",
+            "station-code": f"{rec.station}",
+            "medium": "solid",
+            "latitude": rec.latitude,
+            "longitude": rec.longitude,
+        }
+        for rec in recs
+    ]
 
     print(f"Wrote {len(recs)} receivers into a list of dictionaries")
 
@@ -449,7 +481,8 @@ def prepare_source(comm, event, iteration):
     # Check if STF exists
     write_stf = True
     stf_path = os.path.join(
-        comm.project.paths["salvus_input"], iteration, "stf.h5")
+        comm.project.paths["salvus_input"], iteration, "stf.h5"
+    )
     if os.path.exists(path=stf_path):
         with h5py.File(stf_path) as f:
             if "source" in f:
@@ -460,30 +493,33 @@ def prepare_source(comm, event, iteration):
 
     event_info = comm.events.get(event)
 
-    source = [{
-        "latitude": event_info["latitude"],
-        "longitude": event_info["longitude"],
-        "depth_in_m": event_info["depth_in_km"] * 1000.0,
-        "mrr": event_info["m_rr"],
-        "mtt": event_info["m_tt"],
-        "mpp": event_info["m_pp"],
-        "mtp": event_info["m_tp"],
-        "mrp": event_info["m_rp"],
-        "mrt": event_info["m_rt"],
-        "stf": "Custom",
-        "stf_file": stf_path,
-        "dataset": "source"
-    }]
+    source = [
+        {
+            "latitude": event_info["latitude"],
+            "longitude": event_info["longitude"],
+            "depth_in_m": event_info["depth_in_km"] * 1000.0,
+            "mrr": event_info["m_rr"],
+            "mtt": event_info["m_tt"],
+            "mpp": event_info["m_pp"],
+            "mtp": event_info["m_tp"],
+            "mrp": event_info["m_rp"],
+            "mrt": event_info["m_rt"],
+            "stf": "Custom",
+            "stf_file": stf_path,
+            "dataset": "source",
+        }
+    ]
 
     return source
 
 
-def process_two_files_without_parallel_output(ds, other_ds,
-                                              process_function,
-                                              traceback_limit=3):
+def process_two_files_without_parallel_output(
+    ds, other_ds, process_function, traceback_limit=3
+):
     import traceback
     import sys
     from mpi4py import MPI
+
     """
     Process data in two data sets.
 
@@ -522,8 +558,7 @@ def process_two_files_without_parallel_output(ds, other_ds,
         other_stations = set(other_ds.waveforms.list())
 
         # Usable stations are those that are part of both.
-        usable_stations = list(
-            this_stations.intersection(other_stations))
+        usable_stations = list(this_stations.intersection(other_stations))
         total_job_count = len(usable_stations)
         jobs = split(usable_stations, MPI.COMM_WORLD.size)
     else:
@@ -538,39 +573,44 @@ def process_two_files_without_parallel_output(ds, other_ds,
     for _i, station in enumerate(jobs):
 
         if MPI.COMM_WORLD.rank == 0:
-            print(" -> Processing approximately task %i of %i ..." %
-                  ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
-                  flush=True)
+            print(
+                " -> Processing approximately task %i of %i ..."
+                % ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
+                flush=True,
+            )
         try:
             result = process_function(
                 getattr(ds.waveforms, station),
-                getattr(other_ds.waveforms, station))
+                getattr(other_ds.waveforms, station),
+            )
             # print("Working", flush=True)
         except Exception:
             # print("Not working", flush=True)
             # If an exception is raised print a good error message
             # and traceback to help diagnose the issue.
-            msg = ("\nError during the processing of station '%s' "
-                   "on rank %i:" % (station, MPI.COMM_WORLD.rank))
+            msg = (
+                "\nError during the processing of station '%s' "
+                "on rank %i:" % (station, MPI.COMM_WORLD.rank,)
+            )
 
             # Extract traceback from the exception.
             exc_info = sys.exc_info()
-            stack = traceback.extract_stack(
-                limit=traceback_limit)
+            stack = traceback.extract_stack(limit=traceback_limit)
             tb = traceback.extract_tb(exc_info[2])
             full_tb = stack[:-1] + tb
-            exc_line = traceback.format_exception_only(
-                *exc_info[:2])
-            tb = ("Traceback (At max %i levels - most recent call "
-                  "last):\n" % traceback_limit)
+            exc_line = traceback.format_exception_only(*exc_info[:2])
+            tb = (
+                "Traceback (At max %i levels - most recent call "
+                "last):\n" % traceback_limit
+            )
             tb += "".join(traceback.format_list(full_tb))
             tb += "\n"
             # A bit convoluted but compatible with Python 2 and
             # 3 and hopefully all encoding problems.
             tb += "".join(
-                _i.decode(errors="ignore")
-                if hasattr(_i, "decode") else _i
-                for _i in exc_line)
+                _i.decode(errors="ignore") if hasattr(_i, "decode") else _i
+                for _i in exc_line
+            )
 
             # These potentially keep references to the HDF5 file
             # which in some obscure way and likely due to

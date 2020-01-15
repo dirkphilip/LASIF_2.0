@@ -23,25 +23,33 @@ class DataSyntheticIterator(object):
 
         if self.event_name not in self.iteration.events:
             msg = "Event '%s' not part of iteration '%s'." % (
-                self.event_name, self.iteration.name)
+                self.event_name,
+                self.iteration.name,
+            )
             raise LASIFNotFoundError(msg)
 
         # Get all stations defined for the given iteration and event.
-        stations = set(self.iteration.events[self.event_name][
-                       "stations"].keys())
+        stations = set(
+            self.iteration.events[self.event_name]["stations"].keys()
+        )
 
         # Only use those stations that actually have processed and synthetic
         # data available! Especially synthetics might not always be available.
         processed = comm.waveforms.get_metadata_processed(
-            self.event_name, self.iteration.processing_tag)
+            self.event_name, self.iteration.processing_tag
+        )
         synthetics = comm.waveforms.get_metadata_synthetic(
-            self.event_name, self.iteration)
-        processed = set(["%s.%s" % (_i["network"], _i["station"]) for _i in
-                         processed])
-        synthetics = set(["%s.%s" % (_i["network"], _i["station"]) for _i in
-                         synthetics])
-        self.stations = tuple(sorted(stations.intersection(
-            processed).intersection(synthetics)))
+            self.event_name, self.iteration
+        )
+        processed = set(
+            ["%s.%s" % (_i["network"], _i["station"]) for _i in processed]
+        )
+        synthetics = set(
+            ["%s.%s" % (_i["network"], _i["station"]) for _i in synthetics]
+        )
+        self.stations = tuple(
+            sorted(stations.intersection(processed).intersection(synthetics))
+        )
 
         self._current_index = -1
 
@@ -59,7 +67,8 @@ class DataSyntheticIterator(object):
 
     def get(self, station_id):
         return self.comm.query.get_matching_waveforms(
-            self.event_name, self.iteration, station_id)
+            self.event_name, self.iteration, station_id
+        )
 
     def next(self):
         """

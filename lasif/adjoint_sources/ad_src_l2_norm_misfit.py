@@ -14,8 +14,9 @@ from obspy.signal.invsim import cosine_taper
 from scipy.integrate import simps
 
 
-def adsrc_l2_norm_misfit(t, data, synthetic, min_period, max_period,
-                         plot=False):
+def adsrc_l2_norm_misfit(
+    t, data, synthetic, min_period, max_period, plot=False
+):
     """
     Calculates the L2-norm misfit and adjoint source.
 
@@ -62,7 +63,8 @@ def adsrc_l2_norm_misfit(t, data, synthetic, min_period, max_period,
     ret_dict = {
         "adjoint_source": adjoint_source,
         "misfit_value": l2norm,
-        "details": {"messages": messages}}
+        "details": {"messages": messages},
+    }
 
     if plot:
         adjoint_source_plot(t, data, synthetic, adjoint_source, l2norm)
@@ -76,15 +78,15 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
 
     plt.subplot(211)
     plt.plot(t, data, color="0.2", label="Data", lw=2)
-    plt.plot(t, synthetic, color="#bb474f",
-             label="Synthetic", lw=2)
+    plt.plot(t, synthetic, color="#bb474f", label="Synthetic", lw=2)
 
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     plt.subplot(212)
-    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    plt.plot(
+        t, adjoint_source[::-1], color="#2f8d5b", lw=2, label="Adjoint Source"
+    )
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 

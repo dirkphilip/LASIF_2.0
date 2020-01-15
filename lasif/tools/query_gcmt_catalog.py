@@ -54,10 +54,8 @@ class SphericalNearestNeighbour(object):
         colat = 90 - lat
         cart_data = np.empty((lat.shape[0], 3))
 
-        cart_data[:, 0] = np.sin(np.deg2rad(colat)) * \
-            np.cos(np.deg2rad(lng))
-        cart_data[:, 1] = np.sin(np.deg2rad(colat)) * \
-            np.sin(np.deg2rad(lng))
+        cart_data[:, 0] = np.sin(np.deg2rad(colat)) * np.cos(np.deg2rad(lng))
+        cart_data[:, 1] = np.sin(np.deg2rad(colat)) * np.sin(np.deg2rad(lng))
         cart_data[:, 2] = np.cos(np.deg2rad(colat))
 
         return cart_data
@@ -82,24 +80,42 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
     else:
         max_year = int(max_year)
 
-    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "GCMT_Catalog")
+    data_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "GCMT_Catalog",
+    )
     available_years = [_i for _i in os.listdir(data_dir) if _i.isdigit()]
     available_years.sort()
-    print("LASIF currently contains GCMT data from %s to %s/%i." % (
-        available_years[0], available_years[-1],
-        len(glob.glob(os.path.join(data_dir, available_years[-1], "*.ndk*")))))
+    print(
+        "LASIF currently contains GCMT data from %s to %s/%i."
+        % (
+            available_years[0],
+            available_years[-1],
+            len(
+                glob.glob(
+                    os.path.join(data_dir, available_years[-1], "*.ndk*")
+                )
+            ),
+        )
+    )
 
-    available_years = [_i for _i in os.listdir(data_dir) if _i.isdigit() and
-                       (min_year <= int(_i) <= max_year)]
+    available_years = [
+        _i
+        for _i in os.listdir(data_dir)
+        if _i.isdigit() and (min_year <= int(_i) <= max_year)
+    ]
     available_years.sort()
 
     print("Parsing the GCMT catalog. This might take a while...")
     cat = Catalog()
     for year in available_years:
         print("\tReading year %s ..." % year)
-        for filename in glob.glob(os.path.join(data_dir, str(year),
-                                               "*.ndk*")):
+        for filename in glob.glob(os.path.join(data_dir, str(year), "*.ndk*")):
             cat += obspy.read_events(filename, format="ndk")
 
     return cat
@@ -109,15 +125,35 @@ def update_GCMT_catalog():
     """
     Helper function updating the GCMT data shipped with LASIF.
     """
-    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-        inspect.getfile(inspect.currentframe())))), "data", "GCMT_Catalog")
+    data_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "GCMT_Catalog",
+    )
 
     start_year = 2005
     end_year = datetime.datetime.now().year
-    years = np.arange(start_year,
-                      end_year + 1)  # begin and end year, does not include end
-    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
-              "oct", "nov", "dec"]
+    years = np.arange(
+        start_year, end_year + 1
+    )  # begin and end year, does not include end
+    months = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ]
 
     web_address = "https://www.ldeo.columbia.edu/"
     web_address += "~gcmt/projects/CMT/catalog/NEW_MONTHLY"
@@ -141,24 +177,40 @@ def update_GCMT_catalog():
         for month in months:
             month_name = month + year_str[-2:] + ".ndk"
             filename = web_address_year + month_name
-            if not os.path.exists(month_name + ".tar.bz2") and os.system(
-                    f"wget -q --spider {filename}") == 0:
-                if os.system(f"wget -q {filename}") == 0 and os.system(
-                        f"tar -cjf {month_name}.tar.bz2 {month_name}") == 0:
+            if (
+                not os.path.exists(month_name + ".tar.bz2")
+                and os.system(f"wget -q --spider {filename}") == 0
+            ):
+                if (
+                    os.system(f"wget -q {filename}") == 0
+                    and os.system(
+                        f"tar -cjf {month_name}.tar.bz2 {month_name}"
+                    )
+                    == 0
+                ):
                     os.remove(month_name)
                     print(f"Successfully retrieved: {month_name}")
 
 
-def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
-                   max_year=None, threshold_distance_in_km=50.0):
+def add_new_events(
+    comm,
+    count,
+    min_magnitude,
+    max_magnitude,
+    min_year=None,
+    max_year=None,
+    threshold_distance_in_km=50.0,
+):
     min_magnitude = float(min_magnitude)
     max_magnitude = float(max_magnitude)
 
     # Get the catalog.
     cat = _read_GCMT_catalog(min_year=min_year, max_year=max_year)
     # Filter with the magnitudes
-    cat = cat.filter("magnitude >= %.2f" % min_magnitude,
-                     "magnitude <= %.2f" % max_magnitude)
+    cat = cat.filter(
+        "magnitude >= %.2f" % min_magnitude,
+        "magnitude <= %.2f" % max_magnitude,
+    )
 
     # Filtering catalog to only contain events in the domain.
     print("Filtering to only include events inside domain...")
@@ -167,8 +219,9 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     coordinates = []
     for event in cat:
         org = event.preferred_origin() or event.origins[0]
-        if not comm.query.point_in_domain(org.latitude, org.longitude,
-                                          org.depth):
+        if not comm.query.point_in_domain(
+            org.latitude, org.longitude, org.depth
+        ):
             continue
         temp_cat.events.append(event)
         coordinates.append((org.latitude, org.longitude))
@@ -176,9 +229,11 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
 
     chosen_events = []
     if len(cat) == 0:
-        print("No valid events were found. Consider your query parameters "
-              "and domain size and try again. Events might be inside"
-              " your buffer elements as well.")
+        print(
+            "No valid events were found. Consider your query parameters "
+            "and domain size and try again. Events might be inside"
+            " your buffer elements as well."
+        )
         return
 
     print("%i valid events remain. Starting selection process..." % len(cat))
@@ -186,7 +241,8 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     existing_events = comm.events.get_all_events().values()
     # Get the coordinates of all existing events.
     existing_coordinates = [
-        (_i["latitude"], _i["longitude"]) for _i in existing_events]
+        (_i["latitude"], _i["longitude"]) for _i in existing_events
+    ]
     existing_origin_times = [_i["origin_time"] for _i in existing_events]
 
     # Special case handling in case there are no preexisting events.
@@ -222,9 +278,11 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
         distance = EARTH_RADIUS * distances[idx]
 
         if distance < threshold_distance_in_km:
-            print("\tNo events left with distance to the next closest event "
-                  "of more than %.1f km. Stopping here." %
-                  threshold_distance_in_km)
+            print(
+                "\tNo events left with distance to the next closest event "
+                "of more than %.1f km. Stopping here."
+                % threshold_distance_in_km
+            )
             break
 
         # Make sure it did not happen within one day of an existing event.
@@ -232,30 +290,38 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
         _t = event.preferred_origin() or event.origins[0]
         origin_time = _t.time
 
-        if min([abs(origin_time - _i) for _i in existing_origin_times]) < \
-                86400:
-            print("\tSelected event temporally to close to existing event. "
-                  "Will not be chosen. Skipping to next event.")
+        if (
+            min([abs(origin_time - _i) for _i in existing_origin_times])
+            < 86400
+        ):
+            print(
+                "\tSelected event temporally to close to existing event. "
+                "Will not be chosen. Skipping to next event."
+            )
             continue
 
-        print("\tSelected event with the next closest event being %.1f km "
-              "away." % distance)
+        print(
+            "\tSelected event with the next closest event being %.1f km "
+            "away." % distance
+        )
 
         chosen_events.append(event)
         existing_coordinates.append(coords)
         count -= 1
 
     print("Selected %i events." % len(chosen_events))
-    folder = os.path.join(comm.project.paths['root'], "tmp")
+    folder = os.path.join(comm.project.paths["root"], "tmp")
     os.mkdir(folder)
     data_dir = comm.project.paths["eq_data"]
     for event in chosen_events:
         filename = os.path.join(folder, get_event_filename(event, "GCMT"))
-        Catalog(events=[event]).write(filename, format="quakeml",
-                                      validate=True)
-        asdf_filename = os.path.join(data_dir,
-                                     get_event_filename(event, "GCMT")
-                                     .rsplit('.', 1)[0] + ".h5")
+        Catalog(events=[event]).write(
+            filename, format="quakeml", validate=True
+        )
+        asdf_filename = os.path.join(
+            data_dir,
+            get_event_filename(event, "GCMT").rsplit(".", 1)[0] + ".h5",
+        )
         ds = pyasdf.ASDFDataSet(asdf_filename, compression="gzip-3")
         ds.add_quakeml(filename)
         print("Written %s" % (os.path.relpath(asdf_filename)))
@@ -294,13 +360,16 @@ def get_subset_of_events(comm, count, events, existing_events=None):
     else:
         for event in events:
             if event in existing_events:
-                raise LASIFError(f"event: {event} was existing already,"
-                                 f"but still supplied to choose from.")
+                raise LASIFError(
+                    f"event: {event} was existing already,"
+                    f"but still supplied to choose from."
+                )
 
     cat = obspy.Catalog()
     for event in events:
-        event_file_name = \
-            comm.waveforms.get_asdf_filename(event, data_type="raw")
+        event_file_name = comm.waveforms.get_asdf_filename(
+            event, data_type="raw"
+        )
         with pyasdf.ASDFDataSet(event_file_name, mode="r") as ds:
             ev = ds.events[0]
             # append event_name to comments, such that it can later be

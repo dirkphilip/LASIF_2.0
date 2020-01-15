@@ -24,7 +24,7 @@ COLORS = [
     # Dark Yellow
     "#CCB974",
     # Turquoise
-    "#64B5CD"
+    "#64B5CD",
 ]
 
 

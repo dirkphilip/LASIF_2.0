@@ -41,26 +41,32 @@ class WeightSet(object):
         class instance.
         """
         import toml
+
         self.weight_info = toml.load(weights_toml_filename)
 
         # The weight_set name is dependent on the filename.
-        self.weight_set_name = re.sub(r"\.toml$", "", re.sub(
-            r"^WEIGHTS_", "", os.path.basename(weights_toml_filename)))
+        self.weight_set_name = re.sub(
+            r"\.toml$",
+            "",
+            re.sub(r"^WEIGHTS_", "", os.path.basename(weights_toml_filename)),
+        )
 
-        self.description = self.weight_info['weight_set']['description']
-        self.comments = self.weight_info['weight_set']['comment']
+        self.description = self.weight_info["weight_set"]["description"]
+        self.comments = self.weight_info["weight_set"]["comment"]
 
         self.events = OrderedDict()
-        for event in self.weight_info['event']:
-            event_name = event['name']
+        for event in self.weight_info["event"]:
+            event_name = event["name"]
             self.events[event_name] = {
-                "event_weight": float(event['weight']),
-                "stations": OrderedDict()}
-            if 'station' in event:
-                for station in event['station']:
-                    station_id = station['ID']
+                "event_weight": float(event["weight"]),
+                "stations": OrderedDict(),
+            }
+            if "station" in event:
+                for station in event["station"]:
+                    station_id = station["ID"]
                     self.events[event_name]["stations"][station_id] = {
-                        "station_weight": float(station['weight'])}
+                        "station_weight": float(station["weight"])
+                    }
 
     @property
     def long_name(self):
@@ -81,10 +87,12 @@ class WeightSet(object):
             "{comments}"
             "\t{event_count} events recorded at {station_count} "
             "unique stations\n"
-            "\t{pair_count} event-station pairs (\"rays\")")
+            '\t{pair_count} event-station pairs ("rays")'
+        )
 
-        comments = "\n".join("\tComment: %s" %
-                             comment for comment in self.comments)
+        comments = "\n".join(
+            "\tComment: %s" % comment for comment in self.comments
+        )
         if comments:
             comments += "\n"
 
@@ -93,28 +101,34 @@ class WeightSet(object):
             all_stations.extend(ev["stations"].keys())
 
         return ret_str.format(
-            self=self, comments=comments,
+            self=self,
+            comments=comments,
             event_count=len(self.events),
             pair_count=len(all_stations),
-            station_count=len(set(all_stations)))
+            station_count=len(set(all_stations)),
+        )
 
 
 def create_weight_set_toml_string(weight_set_name, events_dict):
     toml_string = "# This is the weights set file.\n\n"
-    weights_str = f"[weight_set]\n" \
-                  f"  name = \"{weight_set_name}\"\n" \
-                  f"  description = \"\"\n" \
-                  f"  comment = \"\"\n\n"
+    weights_str = (
+        f"[weight_set]\n"
+        f'  name = "{weight_set_name}"\n'
+        f'  description = ""\n'
+        f'  comment = ""\n\n'
+    )
 
     toml_string += weights_str
     for event_name, stations in events_dict.items():
-        event_string = f"[[event]]\n" \
-                       f"  name = \"{event_name}\"\n" \
-                       f"  weight = 1.0\n\n"
+        event_string = (
+            f"[[event]]\n" f'  name = "{event_name}"\n' f"  weight = 1.0\n\n"
+        )
         for station in stations:
-            event_string += f"  [[event.station]]\n" \
-                            f"    ID = \"{station}\"\n" \
-                            f"    weight = 1.0 \n\n"
+            event_string += (
+                f"  [[event.station]]\n"
+                f'    ID = "{station}"\n'
+                f"    weight = 1.0 \n\n"
+            )
         toml_string += event_string
 
     return toml_string
@@ -122,22 +136,27 @@ def create_weight_set_toml_string(weight_set_name, events_dict):
 
 def replace_weight_set_toml_string(weight_set_name, events_dict, w_set):
     toml_string = "# This is the weights set file.\n\n"
-    weights_str = f"[weight_set]\n" \
-                  f"  name = \"{weight_set_name}\"\n" \
-                  f"  description = \"\"\n" \
-                  f"  comment = \"\"\n\n"
+    weights_str = (
+        f"[weight_set]\n"
+        f'  name = "{weight_set_name}"\n'
+        f'  description = ""\n'
+        f'  comment = ""\n\n'
+    )
 
     toml_string += weights_str
     for event_name, stations in events_dict.items():
-        event_string = f"[[event]]\n" \
-                       f"  name = \"{event_name}\"\n" \
-                       f"  weight = 1.0\n\n"
+        event_string = (
+            f"[[event]]\n" f'  name = "{event_name}"\n' f"  weight = 1.0\n\n"
+        )
         for station in stations:
-            we = \
-                w_set.events[event_name]["stations"][station]["station_weight"]
-            event_string += f"  [[event.station]]\n" \
-                            f"    ID = \"{station}\"\n" \
-                            f"    weight = {we} \n\n"
+            we = w_set.events[event_name]["stations"][station][
+                "station_weight"
+            ]
+            event_string += (
+                f"  [[event.station]]\n"
+                f'    ID = "{station}"\n'
+                f"    weight = {we} \n\n"
+            )
         toml_string += event_string
 
     return toml_string

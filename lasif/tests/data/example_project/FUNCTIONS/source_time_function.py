@@ -47,13 +47,23 @@ def source_time_function(npts, delta, freqmin=None, freqmax=None):
         tr.detrend("linear")
         tr.detrend("demean")
         tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-                  zerophase=False)
+        tr.filter(
+            "bandpass",
+            freqmin=freqmin,
+            freqmax=freqmax,
+            corners=3,
+            zerophase=False,
+        )
         tr.detrend("linear")
         tr.detrend("demean")
         tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-                  zerophase=False)
+        tr.filter(
+            "bandpass",
+            freqmin=freqmin,
+            freqmax=freqmax,
+            corners=3,
+            zerophase=False,
+        )
 
     # Final cut. It's really important to make sure that the first sample in
     # the stf is actually zero!
