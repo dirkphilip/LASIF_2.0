@@ -23,10 +23,10 @@ from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 class HDF5Domain:
     def __init__(
-        self, mesh_file: typing.Union[str, pathlib.Path], num_buffer_elems: int
+        self, mesh_file: typing.Union[str, pathlib.Path], absorbing_boundary_length: float
     ):
         self.mesh_file = str(mesh_file)
-        self.num_buffer_elems = num_buffer_elems
+        self.absorbing_boundary_length = absorbing_boundary_length * 1000.0
         self.r_earth = 6371000
         self.m = None
         self.is_global_mesh = False
@@ -241,7 +241,7 @@ class HDF5Domain:
 
     def point_in_domain(self, longitude, latitude, depth=None):
         """
-        "Test whether a point lies inside the domain,
+        Test whether a point lies inside the domain,
 
         :param longitude: longitude in degrees
         :param latitude: latitude in degrees
@@ -278,13 +278,18 @@ class HDF5Domain:
         if depth:
             if depth > (
                 self.max_depth
-                - self.num_buffer_elems * self.approx_elem_width * 1.5
+                - self.absorbing_boundary_length * 1.5
             ):
                 return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
         # False if too close to edge of domain
-        if dist < (self.num_buffer_elems * self.max_elem_edge_length):
+        if dist < self.absorbing_boundary_length:
+            return False
+
+        if latitude >= self.max_lat or latitude <= self.min_lat:
+            return False
+        if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
 
         return True
@@ -304,6 +309,7 @@ class HDF5Domain:
             self._read()
 
         import matplotlib.pyplot as plt
+
         # from matplotlib.patches import Polygon
         from mpl_toolkits.basemap import Basemap
 
@@ -371,17 +377,16 @@ class HDF5Domain:
             )
 
         try:
-            # sorted_indices = self.get_sorted_edge_coords()
-            # x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
-            # lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
-            # lines = np.array([lats, lons]).T
-            # _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
-
+            sorted_indices = self.get_sorted_edge_coords()
+            x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
+            lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
+            lines = np.array([lats, lons]).T
+            _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
             if plot_inner_boundary:
                 # Get surface points
                 x, y, z = self.earth_surface_coords.T
                 latlonrad = np.array(xyz_to_lat_lon_radius(x[0], y[0], z[0]))
-
+                print(f"latlonrad: {latlonrad.shape}")
                 # This part is potentially slow when lots
                 # of points need to be checked
                 in_domain = []
@@ -409,6 +414,7 @@ class HDF5Domain:
                     )
 
         except LASIFError:
+            print("erfitt")
             # Back up plot if the other one fails, which happens for
             # very weird meshes sometimes.
             # This Scatter all edge nodes on the plotted domain
@@ -468,7 +474,7 @@ class HDF5Domain:
         _, indices_nearest = self.domain_edge_tree.query(
             self.domain_edge_coords, k=5
         )
-
+        indices_nearest = indices_nearest[:, 0, :]
         num_edge_points = len(self.domain_edge_coords)
         indices_sorted = np.zeros(num_edge_points, dtype=int)
 
@@ -522,7 +528,7 @@ class HDF5Domain:
         }
 
     def __str__(self):
-        return "Exodus Domain"
+        return "HDF5 Domain"
 
     def is_global_domain(self):
         if not self.is_read:

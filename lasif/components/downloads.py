@@ -27,7 +27,7 @@ class DownloadsComponent(Component):
 
         proj = self.comm.project
 
-        domain = self._get_exodus_domain(proj.domain)
+        domain = self._get_hdf5_domain(proj.domain)
         event_time = event["origin_time"]
         ds = proj.config["download_settings"]
         starttime = event_time - ds["seconds_before_event"]
@@ -223,10 +223,10 @@ class DownloadsComponent(Component):
 
         return stationxml_storage
 
-    def _get_exodus_domain(self, domain):
+    def _get_hdf5_domain(self, domain):
         from obspy.clients.fdsn.mass_downloader import Domain
 
-        class ExodusDomain(Domain):
+        class HDF5Domain(Domain):
             def get_query_parameters(self):
                 return {}
 
@@ -235,4 +235,4 @@ class DownloadsComponent(Component):
                     latitude=latitude, longitude=longitude
                 )
 
-        return ExodusDomain()
+        return HDF5Domain()
