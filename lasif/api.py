@@ -73,7 +73,8 @@ def plot_domain(lasif_root, save, show_mesh=False):
         plt.show()
 
 
-def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False):
+def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False,
+               intersection_override=None):
     """
     Plot a single event including stations on a map. Events can be
     color coded based on their weight
@@ -91,7 +92,8 @@ def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False):
         plt.switch_backend("agg")
 
     comm.visualizations.plot_event(
-        event_name, weight_set_name, show_mesh=show_mesh
+        event_name, weight_set_name, show_mesh=show_mesh, 
+        intersection_override=intersection_override
     )
 
     if save:

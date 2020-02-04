@@ -16,7 +16,7 @@ from .component import Component
 class VisualizationsComponent(Component):
     """
     Component offering project visualization. Has to be initialized fairly
-    late at is requires a lot of data to be present.
+    late as it requires a lot of data to be present.
 
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
@@ -54,7 +54,8 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name, weight_set=None, show_mesh=False):
+    def plot_event(self, event_name, weight_set=None, show_mesh=False,
+                   intersection_override=None):
         """
         Plots information about one event on the map.
 
@@ -80,7 +81,10 @@ class VisualizationsComponent(Component):
         # Get a dictionary containing all stations that have data for the
         # current event.
         try:
-            stations = self.comm.query.get_all_stations_for_event(event_name)
+            stations = self.comm.query.get_all_stations_for_event(
+                event_name,
+                intersection_override=intersection_override
+            )
         except LASIFNotFoundError:
             pass
         else:
@@ -112,9 +116,8 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(
-        self, save_plot=True, plot_stations=False, iteration=None
-    ):
+    def plot_raydensity(self, save_plot=True, plot_stations=False,
+                        iteration=None, intersection_override=None):
         """
         Plots the raydensity.
         """
@@ -126,16 +129,40 @@ class VisualizationsComponent(Component):
         map_object = self.plot_domain()
 
         event_stations = []
-        for event_name, event_info in self.comm.events.get_all_events(
-            iteration
-        ).items():
 
-            try:
-                stations = self.comm.query.get_all_stations_for_event(
-                    event_name
-                )
-            except LASIFError:
-                stations = {}
+        # We could just pass intersection_override to the 
+        # self.comm.query.get_all_stations_for_event call within the event loop 
+        # and get rid of the more complicated statement before it, however 
+        # precomputing stations when they're equal anyway saves a lot of time.
+
+        # Determine if we should intersect or not
+        use_only_intersection = self.comm.project.stacking_settings[
+            "use_only_intersection"
+        ]
+        if intersection_override is not None:
+            use_only_intersection = intersection_override
+
+        # If we should intersect, precompute the stations for all events,
+        # since the stations are equal for all events if using intersect.
+        if use_only_intersection:
+            intersect_with = self.comm.events.list()
+            stations = self.comm.query.get_all_stations_for_event(
+                intersect_with[0],
+                intersection_override=True
+            )
+
+        for event_name, event_info in \
+                self.comm.events.get_all_events(iteration).items():
+
+            # If we're not intersecting, re-query all stations per event, as
+            # the stations might change
+            if not use_only_intersection:
+                try:
+                    stations = self.comm.query.get_all_stations_for_event(
+                        event_name, intersection_override=use_only_intersection
+                    )
+                except LASIFError:
+                    stations = {}
             event_stations.append((event_info, stations))
 
         visualization.plot_raydensity(
@@ -279,7 +306,7 @@ class VisualizationsComponent(Component):
                 for win in window_manager[station][channel]:
                     image[
                         _space_index(stations[station]["epicentral_distance"]),
-                        _time_index(win[0]) : _time_index(win[1]),
+                        _time_index(win[0]): _time_index(win[1]),
                         _color_index(channel),
                     ] = 255
 
