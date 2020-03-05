@@ -367,7 +367,7 @@ class AdjointSourcesComponent(Component):
                     n_comp = adj_src[channel].data[()]
                 elif channel[-1] == "Z":
                     z_comp = adj_src[channel].data[()]
-                zne = np.array((z_comp, n_comp, e_comp))
+            zne = np.array((z_comp, n_comp, e_comp))
             for receiver in receivers.keys():
                 station = receiver.replace(".", "_")
                 # station = receiver["network"] + "_" + receiver["station"]

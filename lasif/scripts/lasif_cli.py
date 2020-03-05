@@ -173,6 +173,21 @@ def lasif_plot_event(parser, args):
         "--save", help="Saves the plot in a file", action="store_true"
     )
     parser.add_argument("event_name", help="name of the event to plot")
+
+    parser.add_argument(
+        "--force_intersect",
+        help="Force to plot only stations that recorded durng all events "
+        "in the project, regardless of settings.",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--force_no_intersect",
+        help="Force to plot all stations that recorded during events, even "
+        "if they are not present for all events, regardless of settings.",
+        action="store_true",
+    )
+
     parser.add_argument(
         "--weight_set_name",
         help="for stations to be "
@@ -189,10 +204,22 @@ def lasif_plot_event(parser, args):
 
     args = parser.parse_args(args)
 
+    intersection_override = None
+    if args.force_intersect and args.force_no_intersect:
+        raise ValueError(
+            "Passed both --force_no_intersect and"
+            "--force_intersect; incompatible."
+        )
+    elif args.force_intersect:
+        intersection_override = True
+    elif args.force_no_intersect:
+        intersection_override = False
+
     api.plot_event(
         lasif_root=".",
         event_name=args.event_name,
         weight_set_name=args.weight_set_name,
+        intersection_override=intersection_override,
         save=args.save,
         show_mesh=args.show_mesh,
     )

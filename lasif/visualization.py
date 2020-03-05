@@ -44,10 +44,13 @@ def plot_events(events, map_object, beachball_size=0.02):
             )
             * beachball_size
         )
-        b = beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
-        b.set_zorder(200000000)
-        map_object.ax.add_collection(b)
-        beachballs.append(b)
+        try:
+            b = beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
+            b.set_zorder(200000000)
+            map_object.ax.add_collection(b)
+            beachballs.append(b)
+        except:
+            pass
     return beachballs
 
 

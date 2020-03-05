@@ -259,7 +259,7 @@ def add_new_events(
 
         count -= 1
 
-    while count:
+    while count > 0:
         if not coordinates:
             print("\tNo events left to select from. Stopping here.")
             break
@@ -308,7 +308,6 @@ def add_new_events(
         chosen_events.append(event)
         existing_coordinates.append(coords)
         count -= 1
-
     print("Selected %i events." % len(chosen_events))
     folder = os.path.join(comm.project.paths["root"], "tmp")
     os.mkdir(folder)

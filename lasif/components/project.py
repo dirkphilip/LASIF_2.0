@@ -162,8 +162,11 @@ class Project(Component):
         ]
 
         self.domain = lasif.domain.HDF5Domain(
-            self.config["mesh_file"], self.config["num_buffer_elements"]
+            self.config["mesh_file"], self.config["absorbing_boundary_length"]
         )
+
+        # Source-stacking configuration
+        self.stacking_settings = config_dict["stacking"]
 
     def _validate_config_file(self):
         """
@@ -321,11 +324,9 @@ class Project(Component):
             f"simulation. Without a mesh file, LASIF"
             f" will not work.\n"
             f'  mesh_file = "{directory}/"\n\n'
-            f"  # Number of buffer elements at the domain"
-            f" edges, no events or receivers will be placed"
-            f" there.\n"
-            f"  # A minimum amount of 3 is advised.\n"
-            f"  num_buffer_elements = 8\n\n"
+            f"  # Length of absorbing boundaries in km"
+            f" \n"
+            f"  absorbing_boundary_length = 100.0\n\n"
             f"  # Type of misift, choose from:\n"
             f"  # [tf_phase_misfit, waveform_misfit, "
             f"cc_traveltime_misfit, "
