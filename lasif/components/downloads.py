@@ -90,6 +90,8 @@ class DownloadsComponent(Component):
             restrictions=restrictions,
             mseed_storage=mseed_storage,
             stationxml_storage=stationxml_storage,
+            threads_per_client=1,
+            download_chunk_size_in_mb=50.0,
         )
 
         import glob

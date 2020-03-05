@@ -484,7 +484,7 @@ def prepare_source(comm, event, iteration):
         comm.project.paths["salvus_input"], iteration, "stf.h5"
     )
     if os.path.exists(path=stf_path):
-        with h5py.File(stf_path) as f:
+        with h5py.File(stf_path, "r") as f:
             if "source" in f:
                 write_stf = False
 

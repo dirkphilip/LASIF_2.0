@@ -227,7 +227,8 @@ def download_data(lasif_root, event_name=[], providers=None):
     comm = find_project_comm(lasif_root)
     if len(event_name) == 0:
         event_name = comm.events.list()
-
+    if not isinstance(event_name, list):
+        event_name = [event_name]
     for event in event_name:
         comm.downloads.download_data(event, providers=providers)
 
@@ -243,7 +244,7 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
     comm = find_project_comm(lasif_root)
     if just_list:
         if output:
-            return sorted(comm.events.list(iteration=iteration))
+            return comm.events.list(iteration=iteration)
         else:
             for event in sorted(comm.events.list(iteration=iteration)):
                 print(event)
@@ -637,14 +638,15 @@ def calculate_adjoint_sources(
             )
 
         # Get adjoint sources_filename
-        filename = comm.adj_sources.get_filename(
-            event=event, iteration=iteration
-        )
+        # filename = comm.adj_sources.get_filename(
+        #     event=event, iteration=iteration
+        # )
 
         # remove adjoint sources if they already exist
         if MPI.COMM_WORLD.rank == 0:
-            filename = comm.adj_sources.get_filename(event=event,
-                                                     iteration=iteration)
+            filename = comm.adj_sources.get_filename(
+                event=event, iteration=iteration
+            )
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -719,11 +721,12 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
 
     if len(events) == 0:
         events = comm.events.list(iteration=iteration)
-
+    events_dict = {}
     if not comm.weights.has_weight_set(weight_set):
+        for event in events:
+            events_dict[event] = comm.query.get_all_stations_for_event(event)
         comm.weights.create_new_weight_set(
-            weight_set_name=weight_set,
-            events_dict=comm.query.get_stations_for_all_events(),
+            weight_set_name=weight_set, events_dict=events_dict,
         )
 
     w_set = comm.weights.get(weight_set)
@@ -734,6 +737,7 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
+        events_dict[event] = list(stations.keys())
         locations = np.zeros((2, len(stations.keys())), dtype=np.float64)
         for _i, station in enumerate(stations):
             locations[0, _i] = stations[station]["latitude"]
@@ -755,9 +759,7 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
             )
 
     comm.weights.change_weight_set(
-        weight_set_name=weight_set,
-        weight_set=w_set,
-        events_dict=comm.query.get_stations_for_all_events(),
+        weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
     )
 
 
