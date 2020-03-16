@@ -99,13 +99,15 @@ class WaveformsComponent(Component):
         this only has to be one tag.
         :return:
         """
-        highpass_period = self.comm.project.processing_params[
-            "highpass_period"
+        minimum_period = self.comm.project.simulation_settings[
+            "minimum_period_in_s"
         ]
-        lowpass_period = self.comm.project.processing_params["lowpass_period"]
+        maximum_period = self.comm.project.simulation_settings[
+            "maximum_period_in_s"
+        ]
         return "preprocessed_%is_to_%is" % (
-            int(highpass_period),
-            int(lowpass_period),
+            int(minimum_period),
+            int(maximum_period),
         )
 
     def delete_station_from_raw(self, event_name, station_id):
@@ -198,20 +200,22 @@ class WaveformsComponent(Component):
         if os.path.exists(info_file):
             with open(info_file, "r") as fh:
                 iter_info = toml.load(fh)
-            processing_params = iter_info["parameters"]
-            processing_params["end_time"] = self.comm.project.solver_settings[
-                "end_time"
-            ]
+            simulation_settings = iter_info["simulation_settings"]
+            simulation_settings[
+                "end_time_in_s"
+            ] = self.comm.project.simulation_settings["end_time_in_s"]
         else:
-            processing_params = self.comm.project.processing_params
-            processing_params[
-                "salvus_start_time"
-            ] = self.comm.project.solver_settings["start_time"]
-            processing_params["end_time"] = self.comm.project.solver_settings[
-                "end_time"
-            ]
+            simulation_settings = self.comm.project.simulation_settings
+            simulation_settings[
+                "start_time_in_s"
+            ] = self.comm.project.simulation_settings["start_time_in_s"]
+            simulation_settings[
+                "end_time_in_s"
+            ] = self.comm.project.simulation_settings["end_time_in_s"]
+            simulation_settings["minimum_period"] = self.comm.project.simulation_settings["minimum_period_in_s"]
+            simulation_settings["maximum_period"] = self.comm.project.simulation_settings["maximum_period_in_s"]
         return fct(
-            st, processing_params, event=self.comm.events.get(event_name)
+            st, simulation_settings, event=self.comm.events.get(event_name)
         )
 
     def process_data_on_the_fly(self, st, inv, event_name):
@@ -219,18 +223,18 @@ class WaveformsComponent(Component):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("processing_function")
 
-        processing_parmams = self.comm.project.processing_params
+        processing_parmams = self.comm.project.simulation_settings
         processing_parmams[
-            "salvus_start_time"
-        ] = self.comm.project.solver_settings["start_time"]
-        processing_parmams["dt"] = self.comm.project.solver_settings[
-            "time_increment"
+            "start_time_in_s"
+        ] = self.comm.project.simulation_settings["start_time_in_s"]
+        processing_parmams["dt"] = self.comm.project.simulation_settings[
+            "time_step_in_s"
         ]
-        processing_parmams["npts"] = self.comm.project.solver_settings[
+        processing_parmams["npts"] = self.comm.project.simulation_settings[
             "number_of_time_steps"
         ]
-        processing_parmams["end_time"] = self.comm.project.solver_settings[
-            "end_time"
+        processing_parmams["end_time"] = self.comm.project.simulation_settings[
+            "end_time_in_s"
         ]
 
         return fct(
@@ -248,11 +252,11 @@ class WaveformsComponent(Component):
         """
         from mpi4py import MPI
 
-        process_params = self.comm.project.processing_params
-        solver_settings = self.comm.project.solver_settings
-        npts = solver_settings["number_of_time_steps"]
-        dt = solver_settings["time_increment"]
-        salvus_start_time = solver_settings["start_time"]
+        process_params = self.comm.project.simulation_settings
+        simulation_settings = self.comm.project.simulation_settings
+        npts = simulation_settings["number_of_time_steps"]
+        dt = simulation_settings["time_step_in_s"]
+        start_time = simulation_settings["start_time_in_s"]
 
         def processing_data_generator():
             """
@@ -275,8 +279,8 @@ class WaveformsComponent(Component):
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
-                lowpass_period = process_params["lowpass_period"]
-                highpass_period = process_params["highpass_period"]
+                minimum_period = process_params["minimum_period_in_s"]
+                maximum_period = process_params["maximum_period_in_s"]
 
                 # remove asdf file if it already exists
                 if MPI.COMM_WORLD.rank == 0:
@@ -290,9 +294,9 @@ class WaveformsComponent(Component):
                     "preprocessing_tag": preprocessing_tag,
                     "dt": dt,
                     "npts": npts,
-                    "salvus_start_time": salvus_start_time,
-                    "lowpass_period": lowpass_period,
-                    "highpass_period": highpass_period,
+                    "start_time_in_s": start_time,
+                    "maximum_period": maximum_period,
+                    "minimum_period": minimum_period,
                 }
                 yield ret_dict
 

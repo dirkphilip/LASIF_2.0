@@ -54,8 +54,13 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name, weight_set=None, show_mesh=False,
-                   intersection_override=None):
+    def plot_event(
+        self,
+        event_name,
+        weight_set=None,
+        show_mesh=False,
+        intersection_override=None,
+    ):
         """
         Plots information about one event on the map.
 
@@ -82,8 +87,7 @@ class VisualizationsComponent(Component):
         # current event.
         try:
             stations = self.comm.query.get_all_stations_for_event(
-                event_name,
-                intersection_override=intersection_override
+                event_name, intersection_override=intersection_override
             )
         except LASIFNotFoundError:
             pass
@@ -116,8 +120,13 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(self, save_plot=True, plot_stations=False,
-                        iteration=None, intersection_override=None):
+    def plot_raydensity(
+        self,
+        save_plot=True,
+        plot_stations=False,
+        iteration=None,
+        intersection_override=None,
+    ):
         """
         Plots the raydensity.
         """
@@ -130,9 +139,9 @@ class VisualizationsComponent(Component):
 
         event_stations = []
 
-        # We could just pass intersection_override to the 
-        # self.comm.query.get_all_stations_for_event call within the event loop 
-        # and get rid of the more complicated statement before it, however 
+        # We could just pass intersection_override to the
+        # self.comm.query.get_all_stations_for_event call within the event loop
+        # and get rid of the more complicated statement before it, however
         # precomputing stations when they're equal anyway saves a lot of time.
 
         # Determine if we should intersect or not
@@ -147,12 +156,12 @@ class VisualizationsComponent(Component):
         if use_only_intersection:
             intersect_with = self.comm.events.list()
             stations = self.comm.query.get_all_stations_for_event(
-                intersect_with[0],
-                intersection_override=True
+                intersect_with[0], intersection_override=True
             )
 
-        for event_name, event_info in \
-                self.comm.events.get_all_events(iteration).items():
+        for event_name, event_info in self.comm.events.get_all_events(
+            iteration
+        ).items():
 
             # If we're not intersecting, re-query all stations per event, as
             # the stations might change
@@ -246,8 +255,8 @@ class VisualizationsComponent(Component):
         )
         starttime = event["origin_time"]
         duration = (
-            self.comm.project.solver_settings["end_time"]
-            - self.comm.project.solver_settings["start_time"]
+            self.comm.project.simulation_settings["end_time_in_s"]
+            - self.comm.project.simulation_settings["start_time_in_s"]
         )
 
         # First step is to calculate all epicentral distances.
@@ -306,7 +315,7 @@ class VisualizationsComponent(Component):
                 for win in window_manager[station][channel]:
                     image[
                         _space_index(stations[station]["epicentral_distance"]),
-                        _time_index(win[0]): _time_index(win[1]),
+                        _time_index(win[0]) : _time_index(win[1]),
                         _color_index(channel),
                     ] = 255
 

@@ -97,15 +97,15 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
             self.event_name, self.iteration, self.channel_name
         )
 
-        process_params = self.comm.project.processing_params
-        adj_src = self.comm.project.config["misfit_type"]
+        process_params = self.comm.project.simulation_settings
+        adj_src = self.comm.project.optimization_settings["misfit_type"]
         window = [(self.start, self.end)]
         calculate_adjoint_source(
             observed=data.data[0],
             synthetic=data.synthetics[0],
             window=window,
-            min_period=process_params["highpass_period"],
-            max_period=process_params["lowpass_period"],
+            min_period=process_params["minimum_period_in_s"],
+            max_period=process_params["maximum_period_in_s"],
             adj_src_type=adj_src,
             window_set=window_set,
             taper_ratio=0.15,

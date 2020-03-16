@@ -19,6 +19,7 @@ import importlib.machinery
 import os
 import pathlib
 import warnings
+import toml
 
 import lasif.domain
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
@@ -140,40 +141,35 @@ class Project(Component):
         with open(self.paths["config_file"], "r") as fh:
             config_dict = toml.load(fh)
 
-        self.config = config_dict["lasif_project"]
-        self.solver_settings = config_dict["solver_settings"]
-        self.solver_settings["start_time"] = -self.solver_settings[
-            "time_increment"
-        ]
-        self.solver_settings["number_of_time_steps"] = int(
+        self.lasif_config = config_dict["lasif_project"]
+        self.optimization_settings = config_dict["optimization_settings"]
+        self.simulation_settings = config_dict["simulation_settings"]
+        self.simulation_settings["number_of_time_steps"] = int(
             round(
                 (
-                    self.solver_settings["end_time"]
-                    - self.solver_settings["start_time"]
+                    self.simulation_settings["end_time_in_s"]
+                    - self.simulation_settings["start_time_in_s"]
                 )
-                / self.solver_settings["time_increment"]
+                / self.simulation_settings["time_step_in_s"]
             )
             + 1
         )
 
-        self.processing_params = config_dict["data_processing"]
-        self.processing_params["stf"] = self.solver_settings[
-            "source_time_function_type"
-        ]
-
         self.domain = lasif.domain.HDF5Domain(
-            self.config["mesh_file"], self.config["absorbing_boundary_length"]
+            self.lasif_config["domain_settings"]["domain_file"],
+            self.lasif_config["domain_settings"]["boundary_in_km"],
         )
 
         # Source-stacking configuration
         self.stacking_settings = config_dict["stacking"]
+        self.salvus_settings = config_dict["salvus_settings"]
 
     def _validate_config_file(self):
         """
         Check to make sure the inputs into the project are compatible
         """
-        stf = self.processing_params["stf"]
-        misfit = self.config["misfit_type"]
+        stf = self.simulation_settings["source_time_function"]
+        misfit = self.optimization_settings["misfit_type"]
         if stf not in ("heaviside", "bandpass_filtered_heaviside"):
             raise LASIFError(
                 f" \n\nSource time function {stf} is not "
@@ -285,7 +281,7 @@ class Project(Component):
         self.paths["adjoint_sources"] = root_path / "ADJOINT_SOURCES"
         self.paths["output"] = root_path / "OUTPUT"
         self.paths["logs"] = root_path / "OUTPUT" / "LOGS"
-        self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
+        self.paths["salvus_files"] = root_path / "SALVUS_FILES"
         self.paths["models"] = root_path / "MODELS"
         self.paths["gradients"] = root_path / "GRADIENTS"
         self.paths["iterations"] = root_path / "ITERATIONS"
@@ -312,80 +308,100 @@ class Project(Component):
         """
         if not project_name:
             project_name = "LASIFProject"
-        directory = self.paths["root"]
 
-        lasif_config_str = (
-            f"# Please fill in this config file before "
-            f"proceeding with using LASIF. \n \n"
-            f"[lasif_project]\n"
-            f'  project_name = "{project_name}"\n'
-            f'  description = ""\n\n'
-            f"  # Name of the exodus file used for the "
-            f"simulation. Without a mesh file, LASIF"
-            f" will not work.\n"
-            f'  mesh_file = "{directory}/"\n\n'
-            f"  # Length of absorbing boundaries in km"
-            f" \n"
-            f"  absorbing_boundary_length = 100.0\n\n"
-            f"  # Type of misift, choose from:\n"
-            f"  # [tf_phase_misfit, waveform_misfit, "
-            f"cc_traveltime_misfit, "
-            f"cc_traveltime_misfit_Korta2018 \n"
-            f'  misfit_type = "tf_phase_misfit"\n\n'
-            f"  [lasif_project.download_settings]\n"
-            f"    seconds_before_event = 300.0\n"
-            f"    seconds_after_event = 3600.0\n"
-            f"    interstation_distance_in_meters = 1000.0\n"
-            f'    channel_priorities = [ "BH[Z,N,E]", '
-            f'"LH[Z,N,E]", '
-            f'"HH[Z,N,E]", "EH[Z,N,E]", '
-            f'"MH[Z,N,E]",]\n'
-            f"    location_priorities = "
-            f'[ "", "00", "10", "20",'
-            f' "01", "02",]\n'
-            f"\n"
-        )
+        directory = self.paths["models"]
+        domain_file = os.path.join(str(directory), "mesh.h5")
+        domain = {
+            "comment": (
+                "Here you specify your domain with an hdf5 mesh and "
+                "how thick of a boundary you need regarding data downloading "
+                "(i.e. What is the minimum distance from the boundary which "
+                "data can be downloded)"
+            ),
+            "domain_file": domain_file,
+            "boundary_in_km": 100.0,
+        }
+        download = {
+            "comment": (
+                "Time period to download, minimum interstation distance "
+                "and channel priorities. If networks is 'None', all networks "
+                "will be downloaded."
+            ),
+            "seconds_before_event": 300.0,
+            "seconds_after_event": 3600.0,
+            "interstation_distance_in_m": 1000.0,
+            "channel_priorities": [
+                "BH?",
+                "LH[Z,N,E]",
+                "HH[Z,N,E]",
+                "EH[Z,N,E]",
+                "MH[Z,N,E]",
+            ],
+            "location_priorities": ["", "00", "10", "20", "01", "02"],
+            "networks": "None",
+        }
+        lasif_project = {
+            "project_name": project_name,
+            "description": "",
+            "domain_settings": domain,
+            "download_settings": download,
+        }
 
-        data_preproc_str = (
-            "# Data processing settings,  "
-            "high- and lowpass period are given in seconds.\n"
-            "[data_processing]\n"
-            "  highpass_period = 30.0 # Periods longer than"
-            " the highpass_period can pass.\n"
-            "  lowpass_period = 50.0 # Periods longer than"
-            " the lowpass_period will be blocked.\n"
-            "  # Only worry about this if you will reduce"
-            " the size of the raw data set: \n"
-            "  downsample_period = 1.0 # Minimum period "
-            "of the period range you will have in your "
-            "(raw) recordings. \n\n"
-            "  # You most likely want to keep this"
-            " setting at true.\n"
-            "  scale_data_to_synthetics = true\n\n"
-        )
-        solver_par_str = (
-            "[solver_settings]\n"
-            "    number_of_absorbing_layers = 7\n"
-            "    end_time = 2700.0\n"
-            "    time_increment = 0.1\n"
-            "    polynomial_order = 4\n\n"
-            '    salvus_bin = "salvus_wave/build/salvus"\n'
-            "    number_of_processors = 4\n"
-            "    io_sampling_rate_volume = 20\n"
-            "    io_memory_per_rank_in_MB = 5000\n"
-            '    salvus_call = "mpirun -n 4"\n\n'
-            "    with_anisotropy = true\n"
-            "    with_attenuation = false\n\n"
-            "    # Source time function type, "
-            'currently only "bandpass_filtered_heaviside"'
-            ' and "heaviside" is supported \n'
-            "    source_time_function_type = "
-            '"bandpass_filtered_heaviside"\n'
-        )
-        lasif_config_str += data_preproc_str + solver_par_str
+        stacking = {
+            "comment": "This is only used if you plan to do source stacking",
+            "use_stacking": False,
+            "use_only_intersection": False,
+        }
+
+        simulation_settings = {
+            "comment": (
+                "This section controls both the way your data are processed "
+                "and the input files to your numerical solver "
+                "(i.e. how the source time function is processed). "
+                "We currently only support bandpass_filtered_heaviside as "
+                "a source time function."
+            ),
+            "minimum_period_in_s": 50.0,
+            "maximum_period_in_s": 100.0,
+            "time_step_in_s": 0.1,
+            "end_time_in_s": 1000.0,
+            "start_time_in_s": -0.1,
+            "source_time_function": "bandpass_filtered_heaviside",
+            "scale_data_to_synthetics": True,
+        }
+
+        salvus_settings = {
+            "comment": (
+                "You only need this if you plan to use Salvus as a "
+                "numerical solver. LASIF should be general enough to "
+                "work with other solvers too. "
+                "Parameterization is only works for tti and rho-vp-vs."
+            ),
+            "attenuation": False,
+            "gradient_parameterization": "tti",
+            "absorbing_boundaries_in_km": 100.0,
+            "site_name": "daint",
+            "ranks": 120,
+            "wall_time_in_s": 3600,
+        }
+        optimization_settings = {
+            "comment": (
+                "Supported misfits are: tf_phase_misfit, "
+                "cc_traveltime_misfit, "
+                "waveform_misfit"
+            ),
+            "misfit_type": "tf_phase_misfit",
+        }
+        cfg = {
+            "lasif_project": lasif_project,
+            "stacking": stacking,
+            "simulation_settings": simulation_settings,
+            "salvus_settings": salvus_settings,
+            "optimization_settings": optimization_settings,
+        }
 
         with open(self.paths["config_file"], "w") as fh:
-            fh.write(lasif_config_str)
+            toml.dump(cfg, fh)
 
     def get_project_function(self, fct_type):
         """

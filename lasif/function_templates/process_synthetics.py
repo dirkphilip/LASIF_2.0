@@ -12,7 +12,7 @@ Project specific function for modifying synthetics on the fly.
 import copy
 
 
-def process_synthetics(st, processing_params, event):  # NOQA
+def process_synthetics(st, simulation_settings, event):  # NOQA
     """
     This function is called after a synthetic file has been read.
 
@@ -31,8 +31,8 @@ def process_synthetics(st, processing_params, event):  # NOQA
     if/else on the iteration objects.
     """
 
-    min_period = processing_params["highpass_period"]
-    max_period = processing_params["lowpass_period"]
+    min_period = simulation_settings["minimum_period"]
+    max_period = simulation_settings["maximum_period"]
     st = copy.deepcopy(st)  # We do not want to modify actual synthetics
     # Currently a no-op.
     # This function will modify each waveform stream. It must
@@ -45,10 +45,10 @@ def process_synthetics(st, processing_params, event):  # NOQA
     # Assuming displacement seismograms
     for tr in st:
         tr.stats.starttime = (
-            event["origin_time"] + processing_params["salvus_start_time"]
+            event["origin_time"] + simulation_settings["start_time_in_s"]
         )
 
-    if processing_params["stf"] == "heaviside":
+    if simulation_settings["source_time_function"] == "heaviside":
 
         # Bandpass filtering
         st.detrend("linear")

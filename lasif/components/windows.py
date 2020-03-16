@@ -199,17 +199,21 @@ class WindowsComponent(Component):
         stf_fct = self.comm.project.get_project_function(
             "source_time_function"
         )
-        delta = self.comm.project.solver_settings["time_increment"]
-        npts = self.comm.project.solver_settings["number_of_time_steps"]
-        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
-        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        delta = self.comm.project.simulation_settings["time_step_in_s"]
+        npts = self.comm.project.simulation_settings["number_of_time_steps"]
+        freqmax = (
+            1.0 / self.comm.project.simulation_settings["minimum_period_in_s"]
+        )
+        freqmin = (
+            1.0 / self.comm.project.simulation_settings["maximum_period_in_s"]
+        )
         stf_trace = stf_fct(
             npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
         )
 
-        process_params = self.comm.project.processing_params
-        minimum_period = process_params["highpass_period"]
-        maximum_period = process_params["lowpass_period"]
+        process_params = self.comm.project.simulation_settings
+        minimum_period = process_params["minimum_period_in_s"]
+        maximum_period = process_params["maximum_period_in_s"]
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -249,8 +253,8 @@ class WindowsComponent(Component):
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
 
-                    if self.comm.project.processing_params[
-                        "scale_data_" "to_synthetics"
+                    if self.comm.project.simulation_settings[
+                        "scale_data_to_synthetics"
                     ]:
                         scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()
@@ -341,17 +345,17 @@ class WindowsComponent(Component):
         stf_fct = self.comm.project.get_project_function(
             "source_time_function"
         )
-        delta = self.comm.project.solver_settings["time_increment"]
-        npts = self.comm.project.solver_settings["number_of_time_steps"]
-        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
-        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        delta = self.comm.project.simulation_settings["time_step_in_s"]
+        npts = self.comm.project.simulation_settings["number_of_time_steps"]
+        freqmax = 1.0 / self.comm.project.simulation_settings["minimum_period_in_s"]
+        freqmin = 1.0 / self.comm.project.simulation_settings["maximum_period_in_s"]
         stf_trace = stf_fct(
             npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
         )
 
-        process_params = self.comm.project.processing_params
-        minimum_period = process_params["highpass_period"]
-        maximum_period = process_params["lowpass_period"]
+        process_params = self.comm.project.simulation_settings
+        minimum_period = process_params["minimum_period_in_s"]
+        maximum_period = process_params["maximum_period_in_s"]
 
         window_group_manager = self.comm.windows.get(window_set_name)
 

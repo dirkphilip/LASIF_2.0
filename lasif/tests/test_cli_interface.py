@@ -381,10 +381,14 @@ def test_plot_stf(cli):
 
     data, delta = patch.call_args[0]
     stf_fct = cli.comm.project.get_project_function("source_time_function")
-    stf_delta = cli.comm.project.solver_settings["time_increment"]
-    stf_npts = cli.comm.project.solver_settings["number_of_time_steps"]
-    stf_freqmin = 1.0 / cli.comm.project.processing_params["lowpass_period"]
-    stf_freqmax = 1.0 / cli.comm.project.processing_params["highpass_period"]
+    stf_delta = cli.comm.project.simulation_settings["time_step_in_s"]
+    stf_npts = cli.comm.project.simulation_settings["number_of_time_steps"]
+    stf_freqmin = (
+        1.0 / cli.comm.project.simulation_settings["maximum_period_in_s"]
+    )
+    stf_freqmax = (
+        1.0 / cli.comm.project.simulation_settings["minimum_period_in_s"]
+    )
 
     stf_data = stf_fct(
         npts=stf_npts,

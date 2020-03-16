@@ -99,7 +99,7 @@ will not be changed.
       # You most likely want to keep this setting at true.
       scale_data_to_synthetics = true
 
-    [solver_settings]
+    [simulation_settings]
         number_of_absorbing_layers = 7
         end_time = 600.0
         time_increment = 0.02

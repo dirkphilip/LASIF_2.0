@@ -162,7 +162,7 @@ class AdjointSourcesComponent(Component):
             all_windows = {}
         all_windows = MPI.COMM_WORLD.bcast(all_windows, root=0)
 
-        process_params = self.comm.project.processing_params
+        process_params = self.comm.project.simulation_settings
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -193,7 +193,9 @@ class AdjointSourcesComponent(Component):
             )
 
             adjoint_sources = {}
-            ad_src_type = self.comm.project.config["misfit_type"]
+            ad_src_type = self.comm.project.optimization_settings[
+                "misfit_type"
+            ]
             if ad_src_type == "weighted_waveform_misfit":
                 env_scaling = True
                 ad_src_type = "waveform_misfit"
@@ -207,11 +209,13 @@ class AdjointSourcesComponent(Component):
                 except LASIFNotFoundError:
                     continue
 
-                if self.comm.project.processing_params[
-                    "scale_data_" "to_synthetics"
+                if self.comm.project.simulation_settings[
+                    "scale_data_to_synthetics"
                 ]:
                     if (
-                        not self.comm.project.config["misfit_type"]
+                        not self.comm.project.optimization_settings[
+                            "misfit_type"
+                        ]
                         == "L2NormWeighted"
                     ):
                         scaling_factor = (
@@ -236,8 +240,8 @@ class AdjointSourcesComponent(Component):
                         observed=data_tr,
                         synthetic=synth_tr,
                         window=windows,
-                        min_period=process_params["highpass_period"],
-                        max_period=process_params["lowpass_period"],
+                        min_period=process_params["minimum_period_in_s"],
+                        max_period=process_params["maximum_period_in_s"],
                         adj_src_type=ad_src_type,
                         window_set=window_set_name,
                         taper_ratio=0.15,
@@ -386,8 +390,8 @@ class AdjointSourcesComponent(Component):
                         zne *= weight
 
                     source = f.create_dataset(station, data=zne.T)
-                    source.attrs["dt"] = self.comm.project.solver_settings[
-                        "time_increment"
+                    source.attrs["dt"] = self.comm.project.simulation_settings[
+                        "time_step_in_s"
                     ]
                     source.attrs["sampling_rate_in_hertz"] = (
                         1 / source.attrs["dt"]
@@ -399,7 +403,7 @@ class AdjointSourcesComponent(Component):
                     # Start time in nanoseconds
                     source.attrs[
                         "start_time_in_seconds"
-                    ] = self.comm.project.solver_settings["start_time"]
+                    ] = self.comm.project.simulation_settings["start_time_in_s"]
 
                     # toml_string += f"[[source]]\n" \
                     #               f"name = \"{station}\"\n" \

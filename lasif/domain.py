@@ -23,7 +23,9 @@ from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 class HDF5Domain:
     def __init__(
-        self, mesh_file: typing.Union[str, pathlib.Path], absorbing_boundary_length: float
+        self,
+        mesh_file: typing.Union[str, pathlib.Path],
+        absorbing_boundary_length: float,
     ):
         self.mesh_file = str(mesh_file)
         self.absorbing_boundary_length = absorbing_boundary_length * 1000.0
@@ -143,7 +145,6 @@ class HDF5Domain:
             + (max(z) - min(z)) ** 2
         )
         self.approx_elem_width = r
-        print(r)
         # self.approx_elem_width = np.sort(r)[2]
 
         # get max element edge length
@@ -276,10 +277,7 @@ class HDF5Domain:
         # print(f"Max depth: {self.max_depth}")
         # print(f"Approx el with: {self.approx_elem_width}")
         if depth:
-            if depth > (
-                self.max_depth
-                - self.absorbing_boundary_length * 1.5
-            ):
+            if depth > (self.max_depth - self.absorbing_boundary_length * 1.5):
                 return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
