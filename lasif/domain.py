@@ -12,6 +12,8 @@ Matplotlib is imported lazily to avoid heavy startup costs.
 """
 import pathlib
 import typing
+import cartopy as cp
+
 
 import numpy as np
 import h5py
@@ -35,7 +37,6 @@ class HDF5Domain:
         self.domain_edge_tree = None
         self.earth_surface_tree = None
         self.approx_elem_width = None
-        self.max_elem_edge_length = None
         self.domain_edge_coords = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
@@ -132,9 +133,7 @@ class HDF5Domain:
         self.bottom_edge_coords = coords[bottom_boundaries]
 
         # Get approximation of element width, take second smallest value
-        # first_node = self.domain_edge_coords[0, :]
-        # distances_to_node = self.domain_edge_coords - first_node
-        # r = np.sqrt(np.sum(distances_to_node ** 2, axis=1))
+
         # For now we will just take a random point on the surface and
         # take the maximum distance between gll points and use that
         # as the element with. It should be an overestimation
@@ -145,47 +144,6 @@ class HDF5Domain:
             + (max(z) - min(z)) ** 2
         )
         self.approx_elem_width = r
-        # self.approx_elem_width = np.sort(r)[2]
-
-        # get max element edge length
-
-        # TODO: This is not a completely stable way of assessing maximum edge
-        # length of a mesh, which in turn is used to determine whether or not
-        # a source lies in the domain. Should be looked in to.
-        # try:
-        #     # See if the mesh contains the hmin field
-        #     edge_aspect_ratio = self.e.get_element_variable_values(
-        #       1, "edge_aspect_ratio", 1)
-        #     hmin = self.e.get_element_variable_values(1, "hmin", 1)
-        #     self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
-        # except ValueError:
-        # Otherwise use the CFL criterion to determine max dx /
-        # edge length:
-        #
-        #    max(v) * min(dt)
-        #    ----------------  =< 1 --> dx ~= max_v * min_dt
-        #           ?dx
-
-        # Get minimal timestep from the mesh
-        # min_dt = self.e.get_global_variable_values("dt")
-        min_dt = 0.2  # TODO: Fix this
-        # try:
-        #     # First try to access separate VPV/VPH fields ...
-        #     max_v = np.max([self.e.get_node_variable_values("VPV", 1),
-        #                     self.e.get_node_variable_values("VPH", 1)])
-        # except Exception as e:
-        #     # ... but some meshes only have VP ...
-        #     print(e)
-        # max_v = np.max(self.e.get_node_variable_values("VP", 1))
-        # except Exception as e:
-        #     # ... finally, if it has neither, we've run out of ideas
-        #     print(e)
-        #     raise ValueError("Was not able to estimate edge length.")
-        max_v = 7000.0
-        self.max_elem_edge_length = max_v * min_dt
-
-        # self.max_elem_edge_length = np.max(hmin*edge_aspect_ratio)
-        # self.max_elem_edge_length = 20.0 # todo remember to remove
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
@@ -263,8 +221,6 @@ class HDF5Domain:
         )
 
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
-        # print(f"Dist: {dist}")
-        # print(f"Approx elem with: {self.approx_elem_width}")
 
         # False if not close enough to domain surface, this might go wrong
         # for meshes with significant topography/ellipticity in
@@ -274,8 +230,6 @@ class HDF5Domain:
 
         # Check whether domain is deep enough to include the point.
         # Multiply element width with 1.5 since they are larger at the bottom
-        # print(f"Max depth: {self.max_depth}")
-        # print(f"Approx el with: {self.approx_elem_width}")
         if depth:
             if depth > (self.max_depth - self.absorbing_boundary_length * 1.5):
                 return False
@@ -308,18 +262,16 @@ class HDF5Domain:
 
         import matplotlib.pyplot as plt
 
-        # from matplotlib.patches import Polygon
-        from mpl_toolkits.basemap import Basemap
-
-        if ax is None:
-            ax = plt.gca()
-        plt.subplots_adjust(left=0.05, right=0.95)
+        fig = plt.figure()
 
         # if global mesh return moll
+        transform = cp.crs.Geodetic()
         if self.is_global_mesh:
-            m = Basemap(projection="moll", lon_0=0, resolution="c", ax=ax)
-            _plot_features(m, stepsize=45.0)
-            return m
+            projection = cp.crs.Mollweide()
+            m = plt.axes(projection=projection)
+            # m = Basemap(projection="moll", lon_0=0, resolution="c", ax=ax)
+            _plot_features(m, projection=projection)
+            return m, projection
 
         lat_extent = self.max_lat - self.min_lat
         lon_extent = self.max_lon - self.min_lon
@@ -327,51 +279,29 @@ class HDF5Domain:
 
         # Use a global plot for very large domains.
         if lat_extent >= 120.0 and lon_extent >= 120.0:
-            m = Basemap(
-                projection="moll",
-                lon_0=self.center_lon,
-                lat_0=self.center_lat,
-                resolution="c",
-                ax=ax,
-            )
-            stepsize = 45.0
+            projection = cp.crs.Mollweide(central_longitude=self.center_lon)
+            m = plt.axes(projection=projection,)
 
         elif max_extent >= 75.0:
-            m = Basemap(
-                projection="ortho",
-                lon_0=self.center_lon,
-                lat_0=self.center_lat,
-                resolution="c",
-                ax=ax,
+            projection = cp.crs.Orthographic(
+                central_longitude=self.center_lon,
+                central_latitude=self.center_lat,
             )
-            stepsize = 10.0
+            m = plt.axes(projection=projection)
+            m.set_extent(
+                [self.min_lon, self.max_lon, self.min_lat, self.max_lat],
+                projection=projection,
+            )
         else:
-            resolution = "l"
-
-            # Calculate approximate width and height in meters.
-            width = lon_extent
-            height = lat_extent
-
-            if width > 50.0:
-                stepsize = 10.0
-            elif 20.0 < width <= 50.0:
-                stepsize = 5.0
-            elif 5.0 < width <= 20.0:
-                stepsize = 2.0
-            else:
-                stepsize = 1.0
-
-            width *= 110000 * 1.1
-            height *= 110000 * 1.3
-
-            m = Basemap(
-                projection="lcc",
-                resolution=resolution,
-                width=width,
-                height=height,
-                lat_0=self.center_lat,
-                lon_0=self.center_lon,
-                ax=ax,
+            projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
+            m = plt.axes(projection=projection)
+            m.set_extent(
+                [
+                    self.min_lon - 1.0,
+                    self.max_lon + 1.0,
+                    self.min_lat - 1.0,
+                    self.max_lat + 1.0,
+                ]
             )
 
         try:
@@ -379,12 +309,18 @@ class HDF5Domain:
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
             lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
             lines = np.array([lats, lons]).T
-            _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
+            _plot_lines(
+                m,
+                lines,
+                transform=transform,
+                color="black",
+                lw=2,
+                label="Domain Edge",
+            )
             if plot_inner_boundary:
                 # Get surface points
                 x, y, z = self.earth_surface_coords.T
                 latlonrad = np.array(xyz_to_lat_lon_radius(x[0], y[0], z[0]))
-                print(f"latlonrad: {latlonrad.shape}")
                 # This part is potentially slow when lots
                 # of points need to be checked
                 in_domain = []
@@ -398,8 +334,7 @@ class HDF5Domain:
                 # Get the complex hull from projected (to 2D) points
                 from scipy.spatial import ConvexHull
 
-                x, y = m(lons, lats)
-                points = np.array((x, y)).T
+                points = np.array((lons, lats)).T
                 hull = ConvexHull(points)
 
                 # Plot the hull simplices
@@ -407,54 +342,29 @@ class HDF5Domain:
                     m.plot(
                         points[simplex, 0],
                         points[simplex, 1],
-                        color="0.5",
-                        zorder=6,
+                        c="black",
+                        transform=transform,
                     )
 
         except LASIFError:
-            print("erfitt")
             # Back up plot if the other one fails, which happens for
             # very weird meshes sometimes.
             # This Scatter all edge nodes on the plotted domain
             x, y, z = self.domain_edge_coords.T
             lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
-            x, y = m(lons, lats)
-            m.scatter(x, y, color="k", label="Edge nodes", zorder=3000)
+            plt.scatter(
+                lons,
+                lats,
+                color="k",
+                label="Edge nodes",
+                zorder=3000,
+                transform=transform,
+            )
 
-        # if show_mesh:
-        #     with exodus(self.exodus_file, mode='r') as e:
-        #         if "r1" not in e.get_side_set_names():
-        #             msg = "Mesh not plotted as side set `r1` not part of
-        #                   mesh"
-        #             warnings.warn(msg, LASIFWarning)
-        #         else:
-        #             num_nodes, node_ids = e.get_side_set_node_list(
-        #                 e.get_side_set_ids()[
-        #                     e.get_side_set_names().index("r1")])
-        #             # SHould not really happen - maybe with tet meshes?
-        #             if not np.array_equal(np.unique(num_nodes), [4]):  # NOQA
-        #                 raise NotImplementedError
-        #             # A bit ugly here that we read all points but probably
-        #             # still faster than doing it directly on HDF5 with all
-        #             # kinds or reordering tricks.
-        #             points = np.array(e.get_coords()).T[node_ids - 1]
-        #             lats, lons, _ = xyz_to_lat_lon_radius(
-        #                 points[:, 0], points[:, 1], points[:, 2])
-        #             x, y = m(lons, lats)
-        #             x = x.reshape((len(x) // 4, 4))
-        #             y = y.reshape((len(y) // 4, 4))
-        #             polygons = [
-        #                 Polygon(np.array([_x, _y]).T,
-        #                         facecolor=(0.90, 0.55, 0.28, 0.5),
-        #                         edgecolor=(0.1, 0.1, 0.1, 0.5),
-        #                         zorder=5, linewidth=0.5)
-        #                 for _x, _y in zip(x, y)]
-        #             for p in polygons:
-        #                 m.ax.add_patch(p)
+        _plot_features(m, projection=projection)
+        m.legend(framealpha=0.5, loc="lower right")
 
-        _plot_features(m, stepsize=stepsize)
-        ax.legend(framealpha=0.5, loc="lower right")
-        return m
+        return m, projection
 
     def get_sorted_edge_coords(self):
         """
@@ -537,87 +447,46 @@ class HDF5Domain:
         return False
 
 
-def _plot_features(map_object, stepsize):
+def _plot_features(m, projection):
     """
     Helper function aiding in consistent plot styling.
     """
     import matplotlib.pyplot as plt
-
-    map_object.drawmapboundary(fill_color="#bbbbbb")
-    map_object.fillcontinents(color="white", lake_color="#cccccc", zorder=1)
-    plt.gcf().patch.set_alpha(0.0)
-
-    # Style for parallels and meridians.
-    LINESTYLE = {"linewidth": 0.5, "dashes": [], "color": "#999999"}
-
-    # Parallels.
-    if map_object.projection in ["moll", "laea"]:
-        label = True
-    else:
-        label = False
-    parallels = np.arange(-90.0, 90.0, stepsize)
-    map_object.drawparallels(
-        parallels, labels=[False, label, False, False], zorder=200, **LINESTYLE
-    )
-    # Meridians.
-    if map_object.projection in ["laea"]:
-        label = True
-    else:
-        label = False
-    meridians = np.arange(0.0, 360.0, stepsize)
-    map_object.drawmeridians(
-        meridians, labels=[False, False, False, label], zorder=200, **LINESTYLE
+    from cartopy.mpl.gridliner import (
+        LONGITUDE_FORMATTER,
+        LATITUDE_FORMATTER,
     )
 
-    map_object.drawcoastlines(color="#444444", linewidth=0.7)
-    map_object.drawcountries(linewidth=0.2, color="#999999")
+    m.add_feature(cp.feature.LAND)
+    m.add_feature(cp.feature.OCEAN)
+    m.add_feature(cp.feature.COASTLINE, zorder=13)
+    m.add_feature(cp.feature.BORDERS, linestyle=":", zorder=13)
+    m.add_feature(cp.feature.LAKES, alpha=0.5)
+    # m.add_feature(cp.feature.RIVERS)
+    # m.stock_img()
+    if projection.proj4_params["proj"] == "eqc":
+        grid_lines = m.gridlines(draw_labels=True)
+        grid_lines.xformatter = LONGITUDE_FORMATTER
+        grid_lines.yformatter = LATITUDE_FORMATTER
+        grid_lines.xlabels_top = False
+    else:
+        m.stock_img()
 
 
 def _plot_lines(
-    map_object, lines, color, lw, alpha=1.0, label=None, effects=False
+    map_object,
+    lines,
+    color,
+    lw,
+    transform,
+    alpha=1.0,
+    label=None,
+    effects=False,
 ):
     import matplotlib.patheffects as PathEffects
 
     lines = np.array(lines)
     lats = lines[:, 0]
     lngs = lines[:, 1]
-    lngs, lats = map_object(lngs, lats)
+    map_object.plot(lngs, lats, transform=transform, color="red", label=label)
 
-    # Fix to avoid deal with basemaps inability to plot lines across map
-    # boundaries.
-    # XXX: No local area stitching so far!
-    if map_object.projection == "ortho":
-        lats = np.ma.masked_greater(lats, 1e15)
-        lngs = np.ma.masked_greater(lngs, 1e15)
-    elif map_object.projection == "moll":
-        x = np.diff(lngs)
-        y = np.diff(lats)
-        lats = np.ma.array(lats, mask=False)
-        lngs = np.ma.array(lngs, mask=False)
-        max_jump = 0.3 * min(
-            map_object.xmax - map_object.xmin,
-            map_object.ymax - map_object.ymin,
-        )
-        idx_1 = np.where(np.abs(x) > max_jump)
-        idx_2 = np.where(np.abs(y) > max_jump)
-        if idx_1:
-            lats.mask[idx_1] = True
-        if idx_2:
-            lats.mask[idx_2] = True
-        lngs.mask = lats.mask
-
-    path_effects = (
-        [PathEffects.withStroke(linewidth=5, foreground="white")]
-        if effects
-        else None
-    )
-
-    map_object.plot(
-        lngs,
-        lats,
-        color=color,
-        lw=lw,
-        alpha=alpha,
-        label=label,
-        path_effects=path_effects,
-    )

@@ -259,7 +259,7 @@ def lasif_plot_events(parser, args):
 
     api.plot_events(
         lasif_root=".",
-        type=args.type,
+        type_of_plot=args.type,
         iteration=args.iteration,
         save=args.save,
         show_mesh=args.show_mesh,
@@ -631,18 +631,27 @@ def lasif_calculate_adjoint_sources(parser, args):
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("window_set_name", help="name of the window_set")
-    parser.add_argument("events", help="One or more events. If none given,"
-                        "all will be done.", nargs="*")
-    parser.add_argument("--weight_set", default=None, type=str,
-                        help="name of station weight set")
+    parser.add_argument(
+        "events",
+        help="One or more events. If none given," "all will be done.",
+        nargs="*",
+    )
+    parser.add_argument(
+        "--weight_set",
+        default=None,
+        type=str,
+        help="name of station weight set",
+    )
 
     args = parser.parse_args(args)
 
-    api.calculate_adjoint_sources(lasif_root=".",
-                                  iteration=args.iteration_name,
-                                  window_set=args.window_set_name,
-                                  events=args.events if args.events else [],
-                                  weight_set=args.weight_set if args.weight_set else None)
+    api.calculate_adjoint_sources(
+        lasif_root=".",
+        iteration=args.iteration_name,
+        window_set=args.window_set_name,
+        events=args.events if args.events else [],
+        weight_set=args.weight_set if args.weight_set else None,
+    )
 
 
 @mpi_enabled
@@ -1189,7 +1198,7 @@ def _get_functions():
     """
     # Get all functions in this script starting with "lasif_".
     fcts = {
-        fct_name[len(FCT_PREFIX):]: fct
+        fct_name[len(FCT_PREFIX) :]: fct
         for (fct_name, fct) in globals().items()
         if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")
     }

@@ -77,8 +77,8 @@ def plot_domain(lasif_root, save, show_mesh=False):
 def plot_event(
     lasif_root,
     event_name,
-    weight_set_name,
-    save,
+    weight_set_name=None,
+    save=False,
     show_mesh=False,
     intersection_override=None,
 ):
@@ -156,21 +156,62 @@ def plot_events(
         plt.show()
 
 
-# @TODO: Add an option of plotting for a specific iteration
-# @TODO: Make sure coastlines are plotted
-def plot_raydensity(lasif_root, plot_stations, iteration=None):
+def plot_raydensity(
+    lasif_root,
+    plot_stations,
+    iteration=None,
+    save=True,
+    intersection_override=None,
+):
     """
     Plot a distribution of earthquakes and stations with great circle rays
     plotted underneath.
     :param lasif_root: Lasif root directory
     :param plot_stations: boolean argument whether stations should be plotted
     :param iteration: If you only want events from a certain iteration
+    :param save: Whether you want to save the figure, if False, it gets
+        plotted and not saved, defaults to True
+    :type save: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_raydensity(
-        plot_stations=plot_stations, iteration=iteration
+        plot_stations=plot_stations,
+        iteration=iteration,
+        save_plot=save,
+        intersection_override=intersection_override,
+    )
+
+
+def plot_all_rays(
+    lasif_root,
+    plot_stations: bool,
+    iteration=None,
+    save=True,
+    intersection_override=None,
+):
+    """
+    Plot all the rays that are in the project or in a specific iteration.
+    This is typically slower than the plot_raydensity function
+    
+    :param lasif_root: Lasif root directory
+    :type lasif_root: path, str or Lasif communicator object
+    :param plot_stations: True/False whether stations should be plotted
+    :type plot_stations: bool
+    :param iteration: If you want to plot events from iteration, defaults to None
+    :type iteration: str, optional
+    :param save: Whether you want to save the figure, if False, it gets
+        plotted and not saved, defaults to True
+    :type save: bool, optional
+    """
+    comm = find_project_comm(lasif_root)
+
+    comm.visualizations.plot_all_rays(
+        plot_stations=plot_stations,
+        iteration=iteration,
+        save_plot=save,
+        intersection_override=None,
     )
 
 
@@ -776,7 +817,9 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
     )
 
 
-def set_up_iteration(lasif_root, iteration, events=[], event_specific=False, remove_dirs=False):
+def set_up_iteration(
+    lasif_root, iteration, events=[], event_specific=False, remove_dirs=False
+):
     """
     Creates or removes directory structure for an iteration
     :param lasif_root: path to lasif root directory
@@ -798,7 +841,10 @@ def set_up_iteration(lasif_root, iteration, events=[], event_specific=False, rem
                 print(f"{iteration} already exists")
                 return
     comm.iterations.setup_directories_for_iteration(
-        iteration_name=iteration, remove_dirs=remove_dirs, events=events, event_specific=event_specific,
+        iteration_name=iteration,
+        remove_dirs=remove_dirs,
+        events=events,
+        event_specific=event_specific,
     )
     iteration = comm.iterations.get_long_iteration_name(iteration)
 

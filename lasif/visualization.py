@@ -13,48 +13,142 @@ Visualization scripts.
 from itertools import chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
+import cartopy as cp
 import numpy as np
 from obspy.imaging.beachball import beach
 from obspy.signal.tf_misfit import plot_tfr
+from lasif import LASIFError
 
 
-def plot_events(events, map_object, beachball_size=0.02):
+def project_points(projection, lon, lat):
     """
+    Define the correct projection function depending on name of projection
+    
+    :param projection: Cartopy projection object
     """
-    beachballs = []
+    import pyproj
+
+    proj_dict = projection.proj4_params
+    projection = pyproj.crs.CRS.from_dict(proj_dict)
+    event_loc = pyproj.Proj(projection, preserve_units=True)
+    x, y = event_loc(lon, lat)
+    if isinstance(x, list):
+        x = np.array(x)
+        y = np.array(y)
+    return x, y
+
+
+def xy_to_lonlat(x: float, y: float, projection):
+    """
+    Change x and y to latitude and longitude, based on Earth radius
+    
+    :param x: X coordinate in the correct projection, but in meters
+    :type x: float
+    :param y: Y coordinate in the correct projection, but in meters
+    :type y: float
+    :param projection: Cartopy projection object
+    """
+    # if projection.proj4_params["proj"] == "moll":
+    # return x, y
+    earth_radius = 6371000.0
+    radians_to_degrees = 180.0 / np.pi
+    lat = (y / earth_radius) * radians_to_degrees
+    if "lat_0" in projection.proj4_params.keys():
+        center_lat = projection.proj4_params["lat_0"]
+    else:
+        center_lat = 0.0
+    r = earth_radius * np.cos((lat - center_lat) / radians_to_degrees)
+    lon = (x / r) * radians_to_degrees
+    return lon, lat
+
+
+def plot_events(
+    events: list, map_object, projection, domain, beachball_size=0.02
+):
+    """
+    Plot event stars on a map
+    
+    :param events: Event information
+    :type events: list
+    :param map_object: The already made map object from the domain component
+    :type map_object: cartopy plot object
+    :param projection: Projection object used by cartopy
+    :type projection: Cartopy projection object
+    :param beachball_size: Size of beachball, defaults to 0.02
+    :type beachball_size: float, optional
+    """
+
+    # beachballs = []
     for event in events:
-        # Add beachball plot.
-        x, y = map_object(event["longitude"], event["latitude"])
+        # As the beachballs were annoying to plot with the projection
+        # I decided to remove them for the time being at least.
+        # They were anyway not rotated properly and I don't really see the
+        # gain from having them in this plot.
 
-        focmec = [
-            event["m_rr"],
-            event["m_tt"],
-            event["m_pp"],
-            event["m_rt"],
-            event["m_rp"],
-            event["m_tp"],
-        ]
+        # x, y = project_points(
+        #     projection=projection,
+        #     lon=event["longitude"],
+        #     lat=event["latitude"],
+        # )
+        # print(x, y)
+        # Get eg mogulega med preserve units, einhvernvegin spad fyrir um nidurstodur?
+        # og mogulega ekki notad xy_to_lonlat
+        # lon, lat = xy_to_lonlat(x, y, projection)
+        # print(f"{event['event_name']}, lon: {lon}, lat: {lat}")
+
+        # focmec = [
+        #     event["m_rr"],
+        #     event["m_tt"],
+        #     event["m_pp"],
+        #     event["m_rt"],
+        #     event["m_rp"],
+        #     event["m_tp"],
+        # ]
         # Attempt to calculate the best beachball size.
-        width = (
-            max(
-                (
-                    map_object.xmax - map_object.xmin,
-                    map_object.ymax - map_object.ymin,
-                )
-            )
-            * beachball_size
+        # if projection.proj4_params["proj"] == "moll":
+        #     width = beachball_size * 360
+        # else:
+        # Nota domain maxlat og minlat og thad
+        # x_1, y_1 = project_points(projection, domain.min_lon, domain.min_lat)
+        # x_2, y_2 = project_points(projection, domain.max_lon, domain.max_lat)
+        # dist = np.sqrt((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2)
+        # width = dist * beachball_size / 2000.0
+        # print(f"Width: {width}")
+
+        # width = (
+        #     max(
+        #         (
+        #             map_object.get_xlim()[-1] - map_object.get_xlim()[0],
+        #             map_object.get_ylim()[-1] - map_object.get_ylim()[0],
+        #         )
+        #     )
+        #     * beachball_size
+        # )
+        # print(f"Data interval: {map_object.xaxis.get_data_interval()}")
+        # print(f"width: {width}")
+        # try:
+        # b = beach(
+        #     focmec, xy=(x, y), width=width, linewidth=1, facecolor="red",
+        # )
+        # b.set_zorder(20)
+        # map_object.add_collection(b)
+        # beachballs.append(b)
+        map_object.scatter(
+            x=event["longitude"],
+            y=event["latitude"],
+            zorder=22,
+            marker="*",
+            c="yellow",
+            transform=cp.crs.Geodetic(),
+            s=180,
+            edgecolors="black",
         )
-        try:
-            b = beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
-            b.set_zorder(200000000)
-            map_object.ax.add_collection(b)
-            beachballs.append(b)
-        except:
-            pass
-    return beachballs
+        # except:
+        #     pass
+    # return beachballs
 
 
-def plot_raydensity(map_object, station_events, domain):
+def plot_raydensity(map_object, station_events, domain, projection):
     """
     Create a ray-density plot for all events and all stations.
 
@@ -72,9 +166,10 @@ def plot_raydensity(map_object, station_events, domain):
     # list is then distributed among all processors.
     station_event_list = []
     for event, stations in station_events:
+
         e_point = Point(event["latitude"], event["longitude"])
         for station in stations.values():
-            # Rotate point to the non-rotated domain if necessary.
+
             p = Point(station["latitude"], station["longitude"])
             station_event_list.append((e_point, p))
 
@@ -140,7 +235,7 @@ def plot_raydensity(map_object, station_events, domain):
         out = []
         last = 0.0
         while last < len(seq):
-            out.append(seq[int(last): int(last + avg)])
+            out.append(seq[int(last) : int(last + avg)])
             last += avg
         return out
 
@@ -187,7 +282,7 @@ def plot_raydensity(map_object, station_events, domain):
     for process in processes:
         process.join()
 
-    # pbar.finish()
+    pbar.finish()
 
     stations = chain.from_iterable(
         (_i[1].values() for _i in station_events if _i[1])
@@ -216,25 +311,45 @@ def plot_raydensity(map_object, station_events, domain):
     cmap._init()
     cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
 
-    # Slightly change the appearance of the map so it suits the rays.
-    map_object.fillcontinents(color="#dddddd", lake_color="#dddddd", zorder=1)
-
     lngs, lats = collected_bins.coordinates
-    # Rotate back if necessary!
-    ln, la = map_object(lngs, lats)
+    ln, la = project_points(projection, lngs, lats)
+
     map_object.pcolormesh(
         ln, la, data, cmap=cmap, vmin=0, vmax=max_val, zorder=10
     )
     # Draw the coastlines so they appear over the rays. Otherwise things are
     # sometimes hard to see.
-    map_object.drawcoastlines(zorder=13)
-    map_object.drawcountries(linewidth=0.2, zorder=13)
+    map_object.add_feature(cp.feature.COASTLINE, zorder=13)
+    map_object.add_feature(cp.feature.BORDERS, linestyle=":", zorder=13)
+
+
+def plot_all_rays(map_object, station_events, domain, projection):
+    from tqdm import tqdm
+
+    # Maybe not make color completely random, I might need to use a colormap
+    c = np.random.rand(len(station_events), 3)
+    # print(station_events)
+    i = 0
+    for event, stations in station_events:
+        for station in tqdm(stations.values()):
+            map_object.plot(
+                [event["longitude"], station["longitude"]],
+                [event["latitude"], station["latitude"]],
+                c=c[i],
+                transform=cp.crs.Geodetic(),
+                alpha=0.8,
+                linewidth=0.4,
+                zorder=19,
+            )
+        i += 1
+        print(f"{i} done from {len(station_events)}\n")
 
 
 def plot_stations_for_event(
     map_object,
     station_dict,
     event_info,
+    projection,
     color="green",
     alpha=1.0,
     raypaths=True,
@@ -257,7 +372,6 @@ def plot_stations_for_event(
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)
-    x, y = map_object(lngs, lats)
 
     event = event_info["event_name"]
     if weight_set:
@@ -269,13 +383,28 @@ def plot_stations_for_event(
             )
         cmap = cm.get_cmap("seismic")
         stations = map_object.scatter(
-            x, y, c=weights, cmap=cmap, s=35, marker="v", alpha=alpha, zorder=5
+            lngs,
+            lats,
+            c=weights,
+            cmap=cmap,
+            s=35,
+            marker="v",
+            alpha=alpha,
+            zorder=5,
+            transform=cp.crs.Geodetic(),
         )
         plt.colorbar(stations)
 
     else:
         stations = map_object.scatter(
-            x, y, color=color, s=35, marker="v", alpha=alpha, zorder=5
+            lngs,
+            lats,
+            color=color,
+            s=35,
+            marker="v",
+            alpha=alpha,
+            zorder=5,
+            transform=cp.crs.Geodetic(),
         )
         # Setting the picker overwrites the edgecolor attribute on certain
         # matplotlib and basemap versions. Fix it here.
@@ -285,14 +414,21 @@ def plot_stations_for_event(
     # Plot the ray paths.
     if raypaths:
         for sta_lng, sta_lat in zip(lngs, lats):
-            map_object.drawgreatcircle(
-                event_info["longitude"],
-                event_info["latitude"],
-                sta_lng,
-                sta_lat,
+            map_object.plot(
+                [event_info["longitude"], sta_lng],
+                [event_info["latitude"], sta_lat],
                 lw=2,
                 alpha=0.3,
+                transform=cp.crs.Geodetic(),
             )
+            # map_object.drawgreatcircle(
+            #     event_info["longitude"],
+            #     event_info["latitude"],
+            #     sta_lng,
+            #     sta_lat,
+            #     lw=2,
+            #     alpha=0.3,
+            # )
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"],
@@ -300,8 +436,39 @@ def plot_stations_for_event(
         event_info["magnitude"],
         len(station_dict),
     )
-    map_object.ax.set_title(title, size="large")
+    map_object.set_title(title, size="large")
     return stations
+
+
+def plot_all_stations(map_object, event_stations: list):
+    """
+    Add all stations to a map object
+    
+    :param map_object: A cartopy map object
+    :type map_object: object
+    :param event_stations: a list of dictionary tuples with events and stations
+    :type event_stations: list
+    """
+    stations = chain.from_iterable(
+        (_i[1].values() for _i in event_stations if _i[1])
+    )
+    # Remove duplicates
+    stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
+    stations = set(stations)
+    x, y = [_i[1] for _i in stations], [_i[0] for _i in stations]
+
+    map_object.scatter(
+        x,
+        y,
+        s=10,
+        color="#333333",
+        edgecolor="#111111",
+        alpha=0.6,
+        zorder=12,
+        marker="v",
+        transform=cp.crs.Geodetic(),
+    )
+    plt.tight_layout()
 
 
 def plot_tf(data, delta, freqmin=None, freqmax=None):

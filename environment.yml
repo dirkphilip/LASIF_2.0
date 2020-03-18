@@ -5,7 +5,8 @@ dependencies:
     - scipy
     - obspy
       #- nomkl
-    - basemap
+    - cartopy
+    - pyproj
     - progressbar2
     - colorama
     - joblib
