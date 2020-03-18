@@ -158,6 +158,7 @@ class Project(Component):
         self.domain = lasif.domain.HDF5Domain(
             self.lasif_config["domain_settings"]["domain_file"],
             self.lasif_config["domain_settings"]["boundary_in_km"],
+            self.simulation_settings["absorbing_boundaries_in_km"],
         )
 
         # Source-stacking configuration
@@ -319,7 +320,7 @@ class Project(Component):
                 "data can be downloded)"
             ),
             "domain_file": domain_file,
-            "boundary_in_km": 100.0,
+            "boundary_in_km": 200.0,
         }
         download = {
             "comment": (
@@ -368,6 +369,7 @@ class Project(Component):
             "start_time_in_s": -0.1,
             "source_time_function": "bandpass_filtered_heaviside",
             "scale_data_to_synthetics": True,
+            "absorbing_boundaries_in_km": 100.0,
         }
 
         salvus_settings = {
@@ -379,7 +381,6 @@ class Project(Component):
             ),
             "attenuation": False,
             "gradient_parameterization": "tti",
-            "absorbing_boundaries_in_km": 100.0,
             "site_name": "daint",
             "ranks": 120,
             "wall_time_in_s": 3600,

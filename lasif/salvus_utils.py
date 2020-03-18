@@ -100,11 +100,13 @@ def create_salvus_forward_simulation(
     import lasif.domain
 
     domain = lasif.domain.HDF5Domain(
-        mesh, comm.project.salvus_settings["absorbing_boundaries_in_km"]
+        mesh,
+        comm.project.lasif_config["domain_settings"]["boundary_in_km"],
+        comm.project.simulation_settings["absorbing_boundaries_in_km"],
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
-            width_in_meters=comm.project.salvus_settings[
+            width_in_meters=comm.project.simulation_settings[
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,

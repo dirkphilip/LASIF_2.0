@@ -28,9 +28,11 @@ class HDF5Domain:
         self,
         mesh_file: typing.Union[str, pathlib.Path],
         absorbing_boundary_length: float,
+        simulation_boundary_length: float,
     ):
         self.mesh_file = str(mesh_file)
         self.absorbing_boundary_length = absorbing_boundary_length * 1000.0
+        self.simulation_boundary_length = simulation_boundary_length * 1000.0
         self.r_earth = 6371000
         self.m = None
         self.is_global_mesh = False
@@ -52,7 +54,7 @@ class HDF5Domain:
 
     def _read(self):
         """
-        Reads the exodus file and gathers basic information such as the
+        Reads the hdf5 file and gathers basic information such as the
         coordinates of the edge nodes. In the case of domain that spans
          the entire earth, all points will lie inside the domain, therefore
         further processing is not necessary.
@@ -198,13 +200,16 @@ class HDF5Domain:
             self._read()
         return self.side_set_names
 
-    def point_in_domain(self, longitude, latitude, depth=None):
+    def point_in_domain(
+        self, longitude, latitude, depth=None, simulation=False
+    ):
         """
         Test whether a point lies inside the domain,
 
         :param longitude: longitude in degrees
         :param latitude: latitude in degrees
         :param depth: depth of event
+        :param simulation: If you want to use simulation boundaries
         """
         if not self.is_read:
             self._read()
@@ -227,16 +232,19 @@ class HDF5Domain:
         # combination with a small element size.
         if dist > 1.5 * self.approx_elem_width:
             return False
-
+        if simulation:
+            boundary_length = self.simulation_boundary_length
+        else:
+            boundary_length = self.absorbing_boundary_length
         # Check whether domain is deep enough to include the point.
         # Multiply element width with 1.5 since they are larger at the bottom
         if depth:
-            if depth > (self.max_depth - self.absorbing_boundary_length * 1.5):
+            if depth > (self.max_depth - boundary_length):
                 return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
         # False if too close to edge of domain
-        if dist < self.absorbing_boundary_length:
+        if dist < boundary_length:
             return False
 
         if latitude >= self.max_lat or latitude <= self.min_lat:
@@ -326,7 +334,9 @@ class HDF5Domain:
                 in_domain = []
                 idx = 0
                 for lat, lon, _ in latlonrad.T:
-                    if self.point_in_domain(latitude=lat, longitude=lon):
+                    if self.point_in_domain(
+                        latitude=lat, longitude=lon, simulation=True
+                    ):
                         in_domain.append(idx)
                     idx += 1
                 lats, lons, rad = np.array(latlonrad[:, in_domain])
