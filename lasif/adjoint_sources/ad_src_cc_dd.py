@@ -140,7 +140,7 @@ def shift_window(window, comm, station, event, station_loc, start_time):
     window_start = start_time + time
     window_end = window_start + (window[1] - window[0])
     new_window = [window_start, window_end]
-    end_time = comm.project.solver_settings["end_time"]
+    end_time = comm.project.simulation_settings["end_time_in_s"]
     end_time = start_time + end_time
 
     if new_window[0] <= start_time or new_window[1] >= end_time:

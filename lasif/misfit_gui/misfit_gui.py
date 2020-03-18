@@ -185,7 +185,7 @@ class Window(QtGui.QMainWindow):
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
         self.ui.event_selection_comboBox.addItems(events)
-        if self.comm.project.processing_params["scale_data_to_synthetics"]:
+        if self.comm.project.simulation_settings["scale_data_to_synthetics"]:
             self.ui.status_label.setText(
                 "Data scaled to synthetics for " "this iteration"
             )
@@ -244,15 +244,14 @@ class Window(QtGui.QMainWindow):
         )
 
         # Plot the stations. This will also plot raypaths.
-        self.current_station_scatter = lasif.visualization.\
-            plot_stations_for_event(
-                map_object=self.basemap,
-                color="0.2",
-                alpha=0.4,
-                station_dict=stations,
-                event_info=event,
-                raypaths=False,
-                )
+        self.current_station_scatter = lasif.visualization.plot_stations_for_event(
+            map_object=self.basemap,
+            color="0.2",
+            alpha=0.4,
+            station_dict=stations,
+            event_info=event,
+            raypaths=False,
+        )
         self.map_ax.set_title(
             "No matter the projection,\n North for the "
             "moment tensors is always up."
@@ -335,10 +334,9 @@ class Window(QtGui.QMainWindow):
                 try:
                     if self.ui.process_on_fly_CheckBox.isChecked():
                         print("Processing...")
-                        data = self.comm.waveforms.\
-                            get_waveforms_processed_on_the_fly(
-                                self.current_event, self.current_station
-                            )
+                        data = self.comm.waveforms.get_waveforms_processed_on_the_fly(
+                            self.current_event, self.current_station
+                        )
                     else:
                         data = self.comm.waveforms.get_waveforms_processed(
                             self.current_event, self.current_station, tag
@@ -359,10 +357,10 @@ class Window(QtGui.QMainWindow):
                 ]
                 if data_tr:
                     tr = data_tr[0]
-                    highpass_period = self.comm.project.processing_params[
-                        "highpass_period"
+                    minimum_period = self.comm.project.simulation_settings[
+                        "minimum_period"
                     ]
-                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    max_sampling_rate = 10.0 * (1.0 / minimum_period)
                     if tr.stats.sampling_rate > max_sampling_rate:
                         tr.interpolate(max_sampling_rate)
                     plot_widget.data_id = tr.id
@@ -389,7 +387,7 @@ class Window(QtGui.QMainWindow):
                 )
 
                 # Scale the synthetics if required.
-                if self.comm.project.processing_params[
+                if self.comm.project.simulation_settings[
                     "scale_data_to_synthetics"
                 ]:
                     for original_syn in wave.synthetics:
@@ -431,10 +429,9 @@ class Window(QtGui.QMainWindow):
         # Try to obtain windows for a station,
         # if it fails continue plotting the data
         try:
-            windows_for_station = self.current_window_manager.\
-                get_all_windows_for_event_station(
-                    self.current_event, self.current_station
-                )
+            windows_for_station = self.current_window_manager.get_all_windows_for_event_station(
+                self.current_event, self.current_station
+            )
         except:
             pass
 
@@ -447,10 +444,10 @@ class Window(QtGui.QMainWindow):
             ]
             if data_tr:
                 tr = data_tr[0]
-                highpass_period = self.comm.project.processing_params[
-                    "highpass_period"
+                minimum_period = self.comm.project.simulation_settings[
+                    "minimum_period"
                 ]
-                max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                max_sampling_rate = 10.0 * (1.0 / minimum_period)
                 if tr.stats.sampling_rate > max_sampling_rate:
                     tr.interpolate(max_sampling_rate)
                 if tr.stats.sampling_rate > max_sampling_rate:
@@ -467,10 +464,10 @@ class Window(QtGui.QMainWindow):
             ]
             if synth_tr:
                 tr = synth_tr[0]
-                highpass_period = self.comm.project.processing_params[
-                    "highpass_period"
+                minimum_period = self.comm.project.simulation_settings[
+                    "minimum_period"
                 ]
-                max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                max_sampling_rate = 10.0 * (1.0 / minimum_period)
                 if tr.stats.sampling_rate > max_sampling_rate:
                     tr.interpolate(max_sampling_rate)
                 times = tr.times()
@@ -487,10 +484,10 @@ class Window(QtGui.QMainWindow):
 
                 if compare_synth_tr:
                     tr = compare_synth_tr[0]
-                    highpass_period = self.comm.project.processing_params[
-                        "highpass_period"
+                    minimum_period = self.comm.project.simulation_settings[
+                        "minimum_period"
                     ]
-                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    max_sampling_rate = 10.0 * (1.0 / minimum_period)
                     if tr.stats.sampling_rate > max_sampling_rate:
                         tr.interpolate(max_sampling_rate)
                     times = tr.times()
@@ -606,10 +603,9 @@ class Window(QtGui.QMainWindow):
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):
-        windows_for_event = self.current_window_manager.\
-            get_all_windows_for_event(
-                self.current_event
-            )
+        windows_for_event = self.current_window_manager.get_all_windows_for_event(
+            self.current_event
+        )
         if self.current_station in windows_for_event:
             windows_for_station = windows_for_event[self.current_station]
         else:

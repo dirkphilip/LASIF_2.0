@@ -17,6 +17,7 @@ import pathlib
 import colorama
 import toml
 import numpy as np
+from typing import Union, List
 
 from lasif import LASIFError
 from lasif.components.communicator import Communicator
@@ -73,8 +74,14 @@ def plot_domain(lasif_root, save, show_mesh=False):
         plt.show()
 
 
-def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False,
-               intersection_override=None):
+def plot_event(
+    lasif_root,
+    event_name,
+    weight_set_name=None,
+    save=False,
+    show_mesh=False,
+    intersection_override=None,
+):
     """
     Plot a single event including stations on a map. Events can be
     color coded based on their weight
@@ -92,8 +99,10 @@ def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False,
         plt.switch_backend("agg")
 
     comm.visualizations.plot_event(
-        event_name, weight_set_name, show_mesh=show_mesh, 
-        intersection_override=intersection_override
+        event_name,
+        weight_set_name,
+        show_mesh=show_mesh,
+        intersection_override=intersection_override,
     )
 
     if save:
@@ -109,21 +118,23 @@ def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False,
         plt.show()
 
 
-def plot_events(lasif_root, type, iteration, save, show_mesh=False):
+def plot_events(
+    lasif_root, type_of_plot="map", iteration=None, save=False, show_mesh=False
+):
     """
     Plot a all events on the domain
     :param lasif_root: path to lasif root directory
-    :param type: type of plot
-    :param iteration: plot all events of an iteration
-    :param save: if figure should be saved
-    :param show_mesh: Plot the mesh for exodus domains/meshes.
+    :param type_of_plot: type of plot, defaults to 'map'
+    :param iteration: plot all events of an iteration, defaults to None
+    :param save: if figure should be saved, defaults to False
+    :param show_mesh: Plot the mesh for exodus domains/meshes, defaults to False
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_events(
-        type, iteration=iteration, show_mesh=show_mesh
+        type_of_plot, iteration=iteration, show_mesh=show_mesh
     )
 
     if save:
@@ -145,21 +156,62 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
         plt.show()
 
 
-# @TODO: Add an option of plotting for a specific iteration
-# @TODO: Make sure coastlines are plotted
-def plot_raydensity(lasif_root, plot_stations, iteration=None):
+def plot_raydensity(
+    lasif_root,
+    plot_stations,
+    iteration=None,
+    save=True,
+    intersection_override=None,
+):
     """
     Plot a distribution of earthquakes and stations with great circle rays
     plotted underneath.
     :param lasif_root: Lasif root directory
     :param plot_stations: boolean argument whether stations should be plotted
     :param iteration: If you only want events from a certain iteration
+    :param save: Whether you want to save the figure, if False, it gets
+        plotted and not saved, defaults to True
+    :type save: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_raydensity(
-        plot_stations=plot_stations, iteration=iteration
+        plot_stations=plot_stations,
+        iteration=iteration,
+        save_plot=save,
+        intersection_override=intersection_override,
+    )
+
+
+def plot_all_rays(
+    lasif_root,
+    plot_stations: bool,
+    iteration=None,
+    save=True,
+    intersection_override=None,
+):
+    """
+    Plot all the rays that are in the project or in a specific iteration.
+    This is typically slower than the plot_raydensity function
+    
+    :param lasif_root: Lasif root directory
+    :type lasif_root: path, str or Lasif communicator object
+    :param plot_stations: True/False whether stations should be plotted
+    :type plot_stations: bool
+    :param iteration: If you want to plot events from iteration, defaults to None
+    :type iteration: str, optional
+    :param save: Whether you want to save the figure, if False, it gets
+        plotted and not saved, defaults to True
+    :type save: bool, optional
+    """
+    comm = find_project_comm(lasif_root)
+
+    comm.visualizations.plot_all_rays(
+        plot_stations=plot_stations,
+        iteration=iteration,
+        save_plot=save,
+        intersection_override=None,
     )
 
 
@@ -229,7 +281,8 @@ def download_data(lasif_root, event_name=[], providers=None):
     comm = find_project_comm(lasif_root)
     if len(event_name) == 0:
         event_name = comm.events.list()
-
+    if not isinstance(event_name, list):
+        event_name = [event_name]
     for event in event_name:
         comm.downloads.download_data(event, providers=providers)
 
@@ -245,7 +298,7 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
     comm = find_project_comm(lasif_root)
     if just_list:
         if output:
-            return sorted(comm.events.list(iteration=iteration))
+            return comm.events.list(iteration=iteration)
         else:
             for event in sorted(comm.events.list(iteration=iteration)):
                 print(event)
@@ -310,7 +363,7 @@ def submit_job(
         events = comm.events.list(iteration=iteration)
 
     long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-    input_files_dir = comm.project.paths["salvus_input"]
+    input_files_dir = comm.project.paths["salvus_files"]
 
     for event in events:
         file = os.path.join(
@@ -455,14 +508,14 @@ def plot_stf(lasif_root):
 
     comm = find_project_comm(lasif_root)
 
-    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
-    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
+    freqmax = 1.0 / comm.project.simulation_settings["minimum_period_in_s"]
+    freqmin = 1.0 / comm.project.simulation_settings["maximum_period_in_s"]
 
     stf_fct = comm.project.get_project_function("source_time_function")
 
-    delta = comm.project.solver_settings["time_increment"]
-    npts = comm.project.solver_settings["number_of_time_steps"]
-    stf_type = comm.project.solver_settings["source_time_function_type"]
+    delta = comm.project.simulation_settings["time_step_in_s"]
+    npts = comm.project.simulation_settings["number_of_time_steps"]
+    stf_type = comm.project.simulation_settings["source_time_function"]
 
     stf = {"delta": delta}
     if stf_type == "heaviside":
@@ -639,11 +692,15 @@ def calculate_adjoint_sources(
             )
 
         # Get adjoint sources_filename
-        filename = comm.adj_sources.get_filename(
-            event=event, iteration=iteration
-        )
+        # filename = comm.adj_sources.get_filename(
+        #     event=event, iteration=iteration
+        # )
+
         # remove adjoint sources if they already exist
         if MPI.COMM_WORLD.rank == 0:
+            filename = comm.adj_sources.get_filename(
+                event=event, iteration=iteration
+            )
             if os.path.exists(filename):
                 os.remove(filename)
 
@@ -718,11 +775,12 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
 
     if len(events) == 0:
         events = comm.events.list(iteration=iteration)
-
+    events_dict = {}
     if not comm.weights.has_weight_set(weight_set):
+        for event in events:
+            events_dict[event] = comm.query.get_all_stations_for_event(event)
         comm.weights.create_new_weight_set(
-            weight_set_name=weight_set,
-            events_dict=comm.query.get_stations_for_all_events(),
+            weight_set_name=weight_set, events_dict=events_dict,
         )
 
     w_set = comm.weights.get(weight_set)
@@ -733,10 +791,11 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
+        events_dict[event] = list(stations.keys())
         locations = np.zeros((2, len(stations.keys())), dtype=np.float64)
         for _i, station in enumerate(stations):
             locations[0, _i] = stations[station]["latitude"]
-            locations[1, _i] = stations[station]["latitude"]
+            locations[1, _i] = stations[station]["longitude"]
 
         sum_value = 0.0
 
@@ -754,18 +813,19 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
             )
 
     comm.weights.change_weight_set(
-        weight_set_name=weight_set,
-        weight_set=w_set,
-        events_dict=comm.query.get_stations_for_all_events(),
+        weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
     )
 
 
-def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
+def set_up_iteration(
+    lasif_root, iteration, events=[], event_specific=False, remove_dirs=False
+):
     """
     Creates or removes directory structure for an iteration
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param events: events to include in iteration [optional]
+    :param event_specific: If the inversion needs a specific model for each event
     :param remove_dirs: boolean value to remove dirs [default=False]
     """
 
@@ -781,8 +841,12 @@ def set_up_iteration(lasif_root, iteration, events=[], remove_dirs=False):
                 print(f"{iteration} already exists")
                 return
     comm.iterations.setup_directories_for_iteration(
-        iteration_name=iteration, remove_dirs=remove_dirs
+        iteration_name=iteration,
+        remove_dirs=remove_dirs,
+        events=events,
+        event_specific=event_specific,
     )
+    iteration = comm.iterations.get_long_iteration_name(iteration)
 
     if not remove_dirs:
         comm.iterations.setup_iteration_toml(iteration_name=iteration)
@@ -1228,6 +1292,72 @@ def get_subset(lasif_root, events, count, existing_events=None):
     else:
         comm = find_project_comm(lasif_root)
     return get_subset_of_events(comm, count, events, existing_events)
+
+
+def create_salvus_simulation(
+    lasif_root: Union[str, object],
+    event: str,
+    iteration: str,
+    mesh=None,
+    side_set=None,
+):
+    """
+    Create a Salvus simulation object based on simulation and salvus
+    specific parameters specified in config file.
+    
+    :param lasif_root: path to lasif root folder or the lasif communicator
+        object
+    :type lasif_root: Union[str, Communicator]
+    :param event: Name of event
+    :type event: str
+    :param iteration: Name of iteration
+    :type iteration: str
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+        the domain file from config file, defaults to None
+    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh], 
+        optional
+    :param side_set: Name of side set on mesh to place receivers,
+        defaults to None.
+    :type side_set: str, optional
+    """
+    from lasif.salvus_utils import create_salvus_simulation as css
+
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    return css(
+        comm=comm,
+        event=event,
+        iteration=iteration,
+        mesh=mesh,
+        side_set=side_set,
+    )
+
+
+def submit_salvus_simulation(
+    lasif_root: Union[str, object], simulations: Union[List[object], object]
+) -> object:
+    """
+    Submit a Salvus simulation to the machine defined in config file
+    with details specified in config file
+    
+    :param lasif_root: The Lasif communicator object or root file
+    :type lasif_root: Union[str, object]
+    :param simulations: Simulation object
+    :type simulations: Union[List[object], object]
+    :return: SalvusJob object or array of them
+    :rtype: object
+    """
+    from lasif.salvus_utils import submit_salvus_simulation as sss
+
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    return sss(comm=comm, simulations=simulations)
 
 
 def validate_data(

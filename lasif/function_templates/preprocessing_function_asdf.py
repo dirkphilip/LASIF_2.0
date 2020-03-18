@@ -59,11 +59,11 @@ def preprocessing_function_asdf(processing_info):
     # Get processing_info
     npts = processing_info["npts"]
     sampling_rate = 1.0 / processing_info["dt"]
-    min_period = processing_info["highpass_period"]
-    max_period = processing_info["lowpass_period"]
+    min_period = processing_info["minimum_period"]
+    max_period = processing_info["maximum_period"]
 
     origin = event.preferred_origin() or event.origins[0]
-    starttime = origin.time + processing_info["salvus_start_time"]
+    starttime = origin.time + processing_info["start_time_in_s"]
     endtime = starttime + processing_info["dt"] * (npts - 1)
     duration = endtime - starttime
 
@@ -108,20 +108,38 @@ def preprocessing_function_asdf(processing_info):
         except Exception as e:
             net = inv.get_contents()["channels"][0].split(".", 2)[0]
             sta = inv.get_contents()["channels"][0].split(".", 2)[1]
+            inf = processing_info["asdf_input_filename"]
 
             msg = (
-                (
-                    "Station: %s.%s could not be corrected with the help of"
-                    " asdf file: '%s'. Due to: '%s'  Will be skipped."
-                )
-                % (
-                    net,
-                    sta,
-                    processing_info["asdf_input_filename"],
-                    e.__repr__(),
-                ),
+                f"Station: {net}.{sta} could not be corrected with the help of"
+                f" asdf file: '{inf}'. Due to: '{e.__repr__()}'  "
+                f"Will be skipped."
             )
             raise LASIFError(msg)
+
+        # Rotate potential BHZ,BH1,BH2 data to BHZ,BHN,BHE
+        if len(st) == 3:
+            for tr in st:
+                if tr.stats.channel in ["BH1", "BH2"]:
+                    try:
+                        st._rotate_to_zne(inv)
+                        break
+                    except Exception as e:
+                        net = inv.get_contents()["channels"][0].split(".", 2)[
+                            0
+                        ]
+                        sta = inv.get_contents()["channels"][0].split(".", 2)[
+                            1
+                        ]
+                        inf = processing_info["asdf_input_filename"]
+
+                        msg = (
+                            f"Station: {net}.{sta} could not be rotated with"
+                            f" the help of"
+                            f" asdf file: '{inf}'. Due to: '{e.__repr__()}'  "
+                            f"Will be skipped."
+                        )
+                        raise LASIFError(msg)
 
         # Bandpass filtering
         st.detrend("linear")

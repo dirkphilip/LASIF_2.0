@@ -14,7 +14,7 @@ from scipy import signal
 from lasif import LASIFError
 
 
-def processing_function(st, inv, processing_params, event):  # NOQA
+def processing_function(st, inv, simulation_settings, event):  # NOQA
     """
     Function to perform the actual preprocessing for one individual seismogram.
     This is part of the project so it can change depending on the project.
@@ -119,14 +119,14 @@ def processing_function(st, inv, processing_params, event):  # NOQA
     # =========================================================================
     # Gather basic information.
     # =========================================================================
-    npts = processing_params["npts"]
-    dt = processing_params["dt"]
-    min_period = processing_params["highpass_period"]
-    max_period = processing_params["lowpass_period"]
+    npts = simulation_settings["npts"]
+    dt = simulation_settings["dt"]
+    min_period = simulation_settings["highpass_period"]
+    max_period = simulation_settings["lowpass_period"]
 
-    starttime = event["origin_time"] + processing_params["salvus_start_time"]
-    endtime = starttime + processing_params["dt"] * (
-        processing_params["npts"] - 1
+    starttime = event["origin_time"] + simulation_settings["salvus_start_time"]
+    endtime = starttime + simulation_settings["dt"] * (
+        simulation_settings["npts"] - 1
     )
     duration = endtime - starttime
 

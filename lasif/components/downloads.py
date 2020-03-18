@@ -29,10 +29,12 @@ class DownloadsComponent(Component):
 
         domain = self._get_hdf5_domain(proj.domain)
         event_time = event["origin_time"]
-        ds = proj.config["download_settings"]
+        ds = proj.lasif_config["download_settings"]
         starttime = event_time - ds["seconds_before_event"]
         endtime = event_time + ds["seconds_after_event"]
         event_name = event["event_name"]
+        if ds["networks"] == "None":
+            ds["networks"] = None
 
         restrictions = Restrictions(
             starttime=starttime,
@@ -41,12 +43,12 @@ class DownloadsComponent(Component):
             station_starttime=starttime - 86400 * 1,
             # Advance 1 day.
             station_endtime=endtime + 86400 * 1,
-            network=None,
+            network=ds["networks"],
             station=None,
             location=None,
             channel=None,
             minimum_interstation_distance_in_m=ds[
-                "interstation_distance_in_meters"
+                "interstation_distance_in_m"
             ],
             reject_channels_with_gaps=True,
             minimum_length=0.95,
@@ -90,6 +92,8 @@ class DownloadsComponent(Component):
             restrictions=restrictions,
             mseed_storage=mseed_storage,
             stationxml_storage=stationxml_storage,
+            threads_per_client=1,
+            download_chunk_size_in_mb=50.0,
         )
 
         import glob

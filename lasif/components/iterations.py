@@ -41,61 +41,39 @@ class IterationsComponent(Component):
         :param iteration_name: The iteration for which to write into toml
         :param simulation_type: The type of simulation.
         """
-        settings = self.comm.project.solver_settings
-        project_info = self.comm.project.config
-        data_proc = self.comm.project.processing_params
+        import toml
+
         info_path = os.path.join(
             self.comm.project.paths["synthetics"],
             "INFORMATION",
             self.get_long_iteration_name(iteration_name),
         )
-
-        toml_string = (
-            f"# Information to store how things were in "
-            f"this iteration.\n \n"
-            f"[parameters]\n"
-            f"    number_of_absorbing_layers = "
-            f"{settings['number_of_absorbing_layers']} \n"
-            f"    salvus_start_time = "
-            f"{- settings['time_increment']} \n"
-            f"    end_time = {settings['end_time']} \n"
-            f"    time_increment = "
-            f"{settings['time_increment']}\n"
-            f"    polynomial_order = "
-            f"{settings['polynomial_order']}\n"
-            f"    with_anisotropy = "
-            f"\"{settings['with_anisotropy']}\"\n"
-            f"    with_attenuation = "
-            f"\"{settings['with_attenuation']}\"\n"
-            f"    stf = "
-            f"\"{settings['source_time_function_type']}\" "
-            f"# source time function type\n"
-            f"    mesh_file = "
-            f"\"{project_info['mesh_file']}\"\n"
-            f"    highpass_period = "
-            f"{data_proc['highpass_period']}\n"
-            f"    lowpass_period = "
-            f"{data_proc['lowpass_period']}\n"
-        )
+        toml_dic = {
+            "simulation_settings": self.comm.project.simulation_settings,
+            "salvus_settings": self.comm.project.salvus_settings,
+        }
 
         if simulation_type == "adjoint":
-            toml_string += (
-                f"    misfit_type = " f"\"{project_info['misfit_type']}\"\n"
-            )
+            toml_dic["misfit_type"] = self.comm.project.optimization_settings[
+                "misfit_type"
+            ]
 
         info_file = os.path.join(info_path, f"{simulation_type}.toml")
 
         with open(info_file, "w") as fh:
-            fh.write(toml_string)
+            toml.dump(toml_dic, fh)
         print(f"Information about input files stored in {info_file}")
 
     def setup_directories_for_iteration(
-        self, iteration_name, remove_dirs=False
+        self, iteration_name, events, remove_dirs=False, event_specific=False
     ):
         """
         Sets up the directory structure required for the iteration
         :param iteration_name: The iteration for which to create the folders.
+        :param events: which events are in the iteration
         :param remove_dirs: Boolean if set to True the iteration is removed
+        :param event_specific: Will create specific folder for each model if
+            inversion uses event specific meshes
         """
         long_iter_name = self.get_long_iteration_name(iteration_name)
         self._create_synthetics_folder_for_iteration(
@@ -107,7 +85,8 @@ class IterationsComponent(Component):
         self._create_adjoint_sources_and_windows_folder_for_iteration(
             long_iter_name, remove_dirs
         )
-        self._create_model_folder_for_iteration(long_iter_name, remove_dirs)
+        self._create_model_folder_for_iteration(
+                long_iter_name, events, event_specific, remove_dirs)
         self._create_iteration_folder_for_iteration(
             long_iter_name, remove_dirs
         )
@@ -235,7 +214,7 @@ class IterationsComponent(Component):
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["salvus_input"]
+        path = self.comm.project.paths["salvus_files"]
 
         folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
@@ -259,7 +238,7 @@ class IterationsComponent(Component):
             shutil.rmtree(folder)
 
     def _create_model_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name, events, event_specific=False, remove_dirs=False
     ):
         """
         Create the model folder if it does not yet exist.
@@ -268,12 +247,12 @@ class IterationsComponent(Component):
         path = self.comm.project.paths["models"]
 
         folder = os.path.join(path, long_iteration_name)
-        events = self.comm.events.list(iteration=long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
-            for event in events:
-                event_mesh_folder = os.path.join(folder, event)
-                os.makedirs(event_mesh_folder)
+            if event_specific:
+                for event in events:
+                    event_mesh_folder = os.path.join(folder, event)
+                    os.makedirs(event_mesh_folder)
         if remove_dirs:
             shutil.rmtree(folder)
 

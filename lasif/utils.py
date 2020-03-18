@@ -14,6 +14,7 @@ from geographiclib import geodesic
 from fnmatch import fnmatch
 import os
 import numpy as np
+from tqdm import tqdm
 
 from lasif import LASIFError, LASIFNotFoundError
 
@@ -181,188 +182,6 @@ def get_event_filename(event, prefix):
     )
 
 
-def generate_input_files(
-    iteration_name,
-    event_name,
-    comm,
-    simulation_type="forward",
-    previous_iteration=None,
-):
-    """
-    Generate the input files for one event.
-
-    :param iteration_name: The name of the iteration.
-    :param event_name: The name of the event for which to generate the
-        input files.
-    :param simulation_type: forward, adjoint, step_length
-    :param previous_iteration: name of the iteration to copy input files
-        from.
-    """
-    import shutil
-
-    if comm.project.config["mesh_file"] == "multiple":
-        mesh_file = os.path.join(
-            comm.project.paths["models"],
-            "EVENT_SPECIFIC",
-            event_name,
-            "mesh.e",
-        )
-    else:
-        mesh_file = comm.project.config["mesh_file"]
-
-    input_files_dir = comm.project.paths["salvus_input"]
-
-    # If previous iteration specified, copy files over and update mesh_file
-    # This part could be extended such that other parameters can be
-    # updated as well.
-    if previous_iteration:
-        long_prev_iter_name = comm.iterations.get_long_iteration_name(
-            previous_iteration
-        )
-        prev_it_dir = os.path.join(
-            input_files_dir, long_prev_iter_name, event_name, simulation_type
-        )
-    if previous_iteration and os.path.exists(prev_it_dir):
-        long_iter_name = comm.iterations.get_long_iteration_name(
-            iteration_name
-        )
-        output_dir = os.path.join(
-            input_files_dir, long_iter_name, event_name, simulation_type
-        )
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        if not prev_it_dir == output_dir:
-            shutil.copyfile(
-                os.path.join(prev_it_dir, "run_salvus.sh"),
-                os.path.join(output_dir, "run_salvus.sh"),
-            )
-        else:
-            print("Previous iteration is identical to current iteration.")
-        with open(os.path.join(output_dir, "run_salvus.sh"), "r") as fh:
-            cmd_string = fh.read()
-        l = cmd_string.split(" ")
-        l[l.index("--model-file") + 1] = mesh_file
-        l[l.index("--mesh-file") + 1] = mesh_file
-        cmd_string = " ".join(l)
-        with open(os.path.join(output_dir, "run_salvus.sh"), "w") as fh:
-            fh.write(cmd_string)
-        return
-    elif previous_iteration and not os.path.exists(prev_it_dir):
-        print(
-            f"Could not find previous iteration directory for event: "
-            f"{event_name}, generating input files"
-        )
-
-    # =====================================================================
-    # read weights toml file, get event and list of stations
-    # =====================================================================
-    asdf_file = comm.waveforms.get_asdf_filename(
-        event_name=event_name, data_type="raw"
-    )
-
-    import pyasdf
-
-    ds = pyasdf.ASDFDataSet(asdf_file)
-    event = ds.events[0]
-
-    # Build inventory of all stations present in ASDF file
-    stations = ds.waveforms.list()
-    inv = ds.waveforms[stations[0]].StationXML
-    for station in stations[1:]:
-        inv += ds.waveforms[station].StationXML
-
-    import salvus_seismo
-
-    src_time_func = comm.project.solver_settings["source_time_function_type"]
-
-    if src_time_func == "bandpass_filtered_heaviside":
-        salvus_seismo_src_time_func = "heaviside"
-    else:
-        salvus_seismo_src_time_func = src_time_func
-
-    src = salvus_seismo.Source.parse(
-        event, sliprate=salvus_seismo_src_time_func
-    )
-    recs = salvus_seismo.Receiver.parse(inv)
-
-    solver_settings = comm.project.solver_settings
-    if solver_settings["number_of_absorbing_layers"] == 0:
-        num_absorbing_layers = None
-    else:
-        num_absorbing_layers = solver_settings["number_of_absorbing_layers"]
-
-    # Generate the configuration object for salvus_seismo
-    if simulation_type == "forward":
-        config = salvus_seismo.Config(
-            mesh_file=mesh_file,
-            start_time=solver_settings["start_time"],
-            time_step=solver_settings["time_increment"],
-            end_time=solver_settings["end_time"],
-            salvus_call=comm.project.solver_settings["salvus_call"],
-            polynomial_order=solver_settings["polynomial_order"],
-            verbose=True,
-            dimensions=3,
-            num_absorbing_layers=num_absorbing_layers,
-            with_anisotropy=comm.project.solver_settings["with_anisotropy"],
-            wavefield_file_name="wavefield.h5",
-            wavefield_fields="adjoint",
-        )
-
-    elif simulation_type == "step_length":
-        config = salvus_seismo.Config(
-            mesh_file=mesh_file,
-            start_time=solver_settings["start_time"],
-            time_step=solver_settings["time_increment"],
-            end_time=solver_settings["end_time"],
-            salvus_call=comm.project.solver_settings["salvus_call"],
-            polynomial_order=solver_settings["polynomial_order"],
-            verbose=True,
-            dimensions=3,
-            num_absorbing_layers=num_absorbing_layers,
-            with_anisotropy=comm.project.solver_settings["with_anisotropy"],
-        )
-
-    # =====================================================================
-    # output
-    # =====================================================================
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration_name)
-
-    output_dir = os.path.join(
-        input_files_dir, long_iter_name, event_name, simulation_type
-    )
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    import shutil
-
-    shutil.rmtree(output_dir)
-
-    salvus_seismo.generate_cli_call(
-        source=src,
-        receivers=recs,
-        config=config,
-        output_folder=output_dir,
-        exodus_file=mesh_file,
-    )
-
-    write_custom_stf(output_dir, comm)
-
-    run_salvus = os.path.join(output_dir, "run_salvus.sh")
-    io_sampling_rate = comm.project.solver_settings["io_sampling_rate_volume"]
-    memory_per_rank = comm.project.solver_settings["io_memory_per_rank_in_MB"]
-    if comm.project.solver_settings["with_attenuation"]:
-        with open(run_salvus, "a") as fh:
-            fh.write(f" --with-attenuation")
-    if simulation_type == "forward":
-        with open(run_salvus, "a") as fh:
-            fh.write(
-                f" --io-sampling-rate-volume {io_sampling_rate}"
-                f" --io-memory-per-rank-in-MB {memory_per_rank}"
-                f" --io-file-format bin"
-            )
-
-
 def write_custom_stf(stf_path, comm):
     import h5py
 
@@ -373,14 +192,14 @@ def write_custom_stf(stf_path, comm):
     # location = source_dict['location']
     # moment_tensor = source_dict['scale']
 
-    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
-    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
+    freqmax = 1.0 / comm.project.simulation_settings["minimum_period_in_s"]
+    freqmin = 1.0 / comm.project.simulation_settings["maximum_period_in_s"]
 
-    delta = comm.project.solver_settings["time_increment"]
-    npts = comm.project.solver_settings["number_of_time_steps"]
+    delta = comm.project.simulation_settings["time_step_in_s"]
+    npts = comm.project.simulation_settings["number_of_time_steps"]
 
     stf_fct = comm.project.get_project_function("source_time_function")
-    stf = comm.project.processing_params["stf"]
+    stf = comm.project.simulation_settings["source_time_function"]
     if stf == "bandpass_filtered_heaviside":
         stf = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
     elif stf == "heaviside":
@@ -447,7 +266,7 @@ def place_receivers(event, comm):
     import salvus_seismo
 
     recs = salvus_seismo.Receiver.parse(inv)
-
+    print("Writing receivers into a list of dictionaries")
     receivers = [
         {
             "network-code": f"{rec.network}",
@@ -456,7 +275,7 @@ def place_receivers(event, comm):
             "latitude": rec.latitude,
             "longitude": rec.longitude,
         }
-        for rec in recs
+        for rec in tqdm(recs)
     ]
 
     print(f"Wrote {len(recs)} receivers into a list of dictionaries")
@@ -481,10 +300,10 @@ def prepare_source(comm, event, iteration):
     # Check if STF exists
     write_stf = True
     stf_path = os.path.join(
-        comm.project.paths["salvus_input"], iteration, "stf.h5"
+        comm.project.paths["salvus_files"], iteration, "stf.h5"
     )
     if os.path.exists(path=stf_path):
-        with h5py.File(stf_path) as f:
+        with h5py.File(stf_path, "r") as f:
             if "source" in f:
                 write_stf = False
 

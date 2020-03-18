@@ -182,14 +182,10 @@ class EventsComponent(Component):
         Test for existence of an event.
         :type event_name: str
         :param event_name: The name of the event.
-        >>> comm = getfixture('events_comm')
-        >>> comm.events.has_event('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
-        True
-        >>> comm.events.has_event('random')
-        False
         """
         # Make sure  it also works with existing event dictionaries. This
         # has the potential to simplify lots of code.
+        self.fill_all_events()
         try:
             event_name = event_name["event_name"]
         except (KeyError, TypeError):
@@ -201,12 +197,6 @@ class EventsComponent(Component):
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
         :meth:`~lasif.components.events.EventsComponent.get` method.
-
-        >>> comm = getfixture('events_comm')
-        >>> comm.events.get_all_events() \
-        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11': {...},
-         'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15': {...}}
         """
         # make sure cache is filled
         self._update_cache()
@@ -228,33 +218,6 @@ class EventsComponent(Component):
         :type event_name: str
         :param event_name: The name of the event.
         :rtype: dict
-        >>> comm = getfixture('events_comm')
-        >>> comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15') \
-        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {'filename': '/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5',
-         'event_name': 'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
-         'latitude': 39.15, 'longitude': 29.1, 'depth_in_km': 7.0,
-         'origin_time': UTCDateTime(2011, 5, 19, 20, 15, 22, 900000),
-         'm_rr': -8.07e+17, 'm_pp': -8.5e+16, 'm_tt': 8.92e+17,
-         'm_rp': -5.3e+16, 'm_rt': 2.8e+16, 'm_tp': -2.17e+17,
-         'magnitude': 5.9, 'magnitude_type': 'Mwc', 'region': 'TURKEY'}
-
-        The moment tensor components are in ``Nm``. The dictionary will
-        contain the following keys:
-
-        >>> sorted(comm.events.get(
-        ...     'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15').keys()) \
-        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-         ['depth_in_km', 'event_name', 'filename', 'latitude', 'longitude',
-          'm_pp', 'm_rp', 'm_rr', 'm_rt', 'm_tp', 'm_tt', 'magnitude',
-          'magnitude_type', 'origin_time', 'region']
-
-        It also works with an existing event dictionary. This eases calling
-        the function under certain circumstances.
-
-        >>> ev = comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
-        >>> ev == comm.events.get(ev)
-        True
         """
         try:
             event_name = event_name["event_name"]

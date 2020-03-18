@@ -222,10 +222,10 @@ def get_iteration_detail(iteration_name):
         comments=iteration.comments,
         data_preprocessing=iteration.data_preprocessing,
         events=iteration.events.keys(),
-        processing_params=iteration.get_process_params(),
+        simulation_settings=iteration.get_process_params(),
         processing_tag=iteration.processing_tag,
-        solver=iteration.solver_settings["solver"],
-        solver_settings=iteration.solver_settings["solver_settings"],
+        solver=iteration.simulation_settings["solver"],
+        simulation_settings=iteration.simulation_settings["simulation_settings"],
         source_time_function=stf,
     )
 

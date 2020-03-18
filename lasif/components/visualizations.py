@@ -7,6 +7,7 @@ import math
 import numpy as np
 import os
 import warnings
+import cartopy as cp
 
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 
@@ -44,8 +45,18 @@ class VisualizationsComponent(Component):
             events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
-            m = self.plot_domain(show_mesh=show_mesh)
-            visualization.plot_events(events, map_object=m)
+            m, projection = self.plot_domain(show_mesh=show_mesh)
+            visualization.plot_events(
+                events,
+                map_object=m,
+                projection=projection,
+                domain=self.comm.project.domain,
+            )
+            if iteration:
+                title = f"Event distribution for iteration: {iteration}"
+            else:
+                title = "Event distribution"
+            m.set_title(title)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
         elif plot_type == "time":
@@ -54,8 +65,13 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name, weight_set=None, show_mesh=False,
-                   intersection_override=None):
+    def plot_event(
+        self,
+        event_name,
+        weight_set=None,
+        show_mesh=False,
+        intersection_override=None,
+    ):
         """
         Plots information about one event on the map.
 
@@ -71,7 +87,7 @@ class VisualizationsComponent(Component):
                 raise ValueError(msg)
             weight_set = self.comm.weights.get(weight_set)
 
-        map_object = self.plot_domain(show_mesh=show_mesh)
+        map_object, projection = self.plot_domain(show_mesh=show_mesh)
 
         from lasif import visualization
 
@@ -82,8 +98,7 @@ class VisualizationsComponent(Component):
         # current event.
         try:
             stations = self.comm.query.get_all_stations_for_event(
-                event_name,
-                intersection_override=intersection_override
+                event_name, intersection_override=intersection_override
             )
         except LASIFNotFoundError:
             pass
@@ -93,11 +108,17 @@ class VisualizationsComponent(Component):
                 map_object=map_object,
                 station_dict=stations,
                 event_info=event_info,
+                projection=projection,
                 weight_set=weight_set,
             )
 
         # Plot the beachball for one event.
-        visualization.plot_events(events=[event_info], map_object=map_object)
+        visualization.plot_events(
+            events=[event_info],
+            map_object=map_object,
+            projection=projection,
+            domain=self.comm.project.domain,
+        )
 
     def plot_domain(self, show_mesh=False):
         """
@@ -116,8 +137,13 @@ class VisualizationsComponent(Component):
         else:
             return self.comm.project.domain.plot()
 
-    def plot_raydensity(self, save_plot=True, plot_stations=False,
-                        iteration=None, intersection_override=None):
+    def plot_raydensity(
+        self,
+        save_plot=True,
+        plot_stations=False,
+        iteration=None,
+        intersection_override=None,
+    ):
         """
         Plots the raydensity.
         """
@@ -126,13 +152,13 @@ class VisualizationsComponent(Component):
 
         plt.figure(figsize=(20, 12))
 
-        map_object = self.plot_domain()
+        map_object, projection = self.plot_domain()
 
         event_stations = []
 
-        # We could just pass intersection_override to the 
-        # self.comm.query.get_all_stations_for_event call within the event loop 
-        # and get rid of the more complicated statement before it, however 
+        # We could just pass intersection_override to the
+        # self.comm.query.get_all_stations_for_event call within the event loop
+        # and get rid of the more complicated statement before it, however
         # precomputing stations when they're equal anyway saves a lot of time.
 
         # Determine if we should intersect or not
@@ -147,12 +173,12 @@ class VisualizationsComponent(Component):
         if use_only_intersection:
             intersect_with = self.comm.events.list()
             stations = self.comm.query.get_all_stations_for_event(
-                intersect_with[0],
-                intersection_override=True
+                intersect_with[0], intersection_override=True
             )
 
-        for event_name, event_info in \
-                self.comm.events.get_all_events(iteration).items():
+        for event_name, event_info in self.comm.events.get_all_events(
+            iteration
+        ).items():
 
             # If we're not intersecting, re-query all stations per event, as
             # the stations might change
@@ -169,35 +195,21 @@ class VisualizationsComponent(Component):
             map_object=map_object,
             station_events=event_stations,
             domain=self.comm.project.domain,
+            projection=projection,
         )
 
         visualization.plot_events(
             self.comm.events.get_all_events(iteration).values(),
             map_object=map_object,
+            projection=projection,
+            domain=self.comm.project.domain,
         )
 
         if plot_stations:
-            stations = itertools.chain.from_iterable(
-                (_i[1].values() for _i in event_stations if _i[1])
-            )
-            # Remove duplicates
-            stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
-            stations = set(stations)
-            x, y = map_object(
-                [_i[1] for _i in stations], [_i[0] for _i in stations]
-            )
-            map_object.scatter(
-                x,
-                y,
-                s=14 ** 2,
-                color="#333333",
-                edgecolor="#111111",
-                alpha=0.6,
-                zorder=200,
-                marker="v",
+            visualization.plot_all_stations(
+                map_object=map_object, event_stations=event_stations,
             )
 
-        plt.tight_layout()
         if save_plot:
             if iteration:
                 outfile = os.path.join(
@@ -220,6 +232,105 @@ class VisualizationsComponent(Component):
                 os.remove(outfile)
             plt.savefig(outfile, dpi=200, transparent=False, overwrite=True)
             print("Saved picture at %s" % outfile)
+        else:
+            plt.show()
+
+    def plot_all_rays(
+        self,
+        save_plot=True,
+        iteration=None,
+        plot_stations=True,
+        intersection_override=None,
+    ):
+        """
+        Plot all the rays that are in the project or in a specific iteration.
+        This is typically slower than the plot_raydensity function as this one
+        is non-parallel
+        
+        :param save_plot: Should plot be saved, defaults to True
+        :type save_plot: bool, optional
+        :param iteration: Only events from an iteration, defaults to None
+        :type iteration: str, optional
+        :param plot_stations: Whether stations are plotted on top, defaults to True
+        :type plot_stations: bool, optional
+        """
+        from lasif import visualization
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(20, 12))
+
+        map_object, projection = self.plot_domain()
+
+        event_stations = []
+        use_only_intersection = self.comm.project.stacking_settings[
+            "use_only_intersection"
+        ]
+        if intersection_override is not None:
+            use_only_intersection = intersection_override
+
+        # If we should intersect, precompute the stations for all events,
+        # since the stations are equal for all events if using intersect.
+        if use_only_intersection:
+            intersect_with = self.comm.events.list()
+            stations = self.comm.query.get_all_stations_for_event(
+                intersect_with[0], intersection_override=True
+            )
+
+        for event_name, event_info in self.comm.events.get_all_events(
+            iteration
+        ).items():
+
+            # If we're not intersecting, re-query all stations per event, as
+            # the stations might change
+            if not use_only_intersection:
+                try:
+                    stations = self.comm.query.get_all_stations_for_event(
+                        event_name, intersection_override=use_only_intersection
+                    )
+                except LASIFError:
+                    stations = {}
+            event_stations.append((event_info, stations))
+
+        visualization.plot_all_rays(
+            map_object=map_object,
+            station_events=event_stations,
+            domain=self.comm.project.domain,
+            projection=projection,
+        )
+        visualization.plot_events(
+            events=self.comm.events.get_all_events(iteration).values(),
+            map_object=map_object,
+            projection=projection,
+            domain=self.comm.project.domain,
+        )
+        if plot_stations:
+            visualization.plot_all_stations(
+                map_object=map_object, event_stations=event_stations,
+            )
+        if save_plot:
+            if iteration:
+                outfile = os.path.join(
+                    self.comm.project.paths["output"],
+                    "ray_plots",
+                    f"ITERATION_{iteration}",
+                    "all_rays.png",
+                )
+                outfolder, _ = os.path.split(outfile)
+                if not os.path.exists(outfolder):
+                    os.makedirs(outfolder)
+            else:
+                outfile = os.path.join(
+                    self.comm.project.get_output_folder(
+                        type="ray_plots", tag="all_rays"
+                    ),
+                    "all_rays.png",
+                )
+            if os.path.isfile(outfile):
+                os.remove(outfile)
+            plt.savefig(outfile, dpi=200, transparent=False, overwrite=True)
+            print("Saved picture at %s" % outfile)
+        else:
+            plt.show()
 
     def plot_windows(
         self, event, window_set_name, distance_bins=500, ax=None, show=True
@@ -246,8 +357,8 @@ class VisualizationsComponent(Component):
         )
         starttime = event["origin_time"]
         duration = (
-            self.comm.project.solver_settings["end_time"]
-            - self.comm.project.solver_settings["start_time"]
+            self.comm.project.simulation_settings["end_time_in_s"]
+            - self.comm.project.simulation_settings["start_time_in_s"]
         )
 
         # First step is to calculate all epicentral distances.
@@ -306,7 +417,7 @@ class VisualizationsComponent(Component):
                 for win in window_manager[station][channel]:
                     image[
                         _space_index(stations[station]["epicentral_distance"]),
-                        _time_index(win[0]): _time_index(win[1]),
+                        _time_index(win[0]) : _time_index(win[1]),
                         _color_index(channel),
                     ] = 255
 

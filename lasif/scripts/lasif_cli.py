@@ -259,7 +259,7 @@ def lasif_plot_events(parser, args):
 
     api.plot_events(
         lasif_root=".",
-        type=args.type,
+        type_of_plot=args.type,
         iteration=args.iteration,
         save=args.save,
         show_mesh=args.show_mesh,
@@ -633,8 +633,14 @@ def lasif_calculate_adjoint_sources(parser, args):
     parser.add_argument("window_set_name", help="name of the window_set")
     parser.add_argument(
         "events",
-        help="One or more events. If none given, all will be done.",
+        help="One or more events. If none given," "all will be done.",
         nargs="*",
+    )
+    parser.add_argument(
+        "--weight_set",
+        default=None,
+        type=str,
+        help="name of station weight set",
     )
 
     args = parser.parse_args(args)
@@ -644,6 +650,7 @@ def lasif_calculate_adjoint_sources(parser, args):
         iteration=args.iteration_name,
         window_set=args.window_set_name,
         events=args.events if args.events else [],
+        weight_set=args.weight_set if args.weight_set else None,
     )
 
 

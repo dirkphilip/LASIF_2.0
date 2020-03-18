@@ -322,7 +322,7 @@ class QueryComponent(Component):
             )
 
         # Scale the data if required.
-        if self.comm.project.processing_params["scale_data_to_synthetics"]:
+        if self.comm.project.simulation_settings["scale_data_to_synthetics"]:
             for data_tr in data:
                 synthetic_tr = [
                     tr
