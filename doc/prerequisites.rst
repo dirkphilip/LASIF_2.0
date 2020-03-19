@@ -39,11 +39,6 @@ installed almost everywhere.
     # Activate the lasif environment. This will always be needed when LASIF is started.
     $ source activate lasif
     # Install extra dependencies
-    # Pick a directory where you want to store pyexodus and move into it
-    $ git clone https://github.com/SalvusHub/pyexodus.git
-    $ cd pyexodus
-    $ pip install -e .
-    # Make sure you do not have an active installation of mpi4py from conda
     # Install pyasdf. Move into the directory you want to keep it
     $ git clone https://github.com/SeismicData/pyasdf.git
     $ cd pyasdf
@@ -51,7 +46,8 @@ installed almost everywhere.
 
 which should print something like the following lines:
 
-We now need a component of `Salvus <https://www.mondaic.com>`_ salvus seismo.
+We now need an open source component of `Salvus <https://www.mondaic.com>`
+_ salvus seismo.
 
 .. code-block:: bash
 
