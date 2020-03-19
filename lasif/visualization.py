@@ -29,8 +29,9 @@ def project_points(projection, lon, lat):
     import pyproj
 
     proj_dict = projection.proj4_params
-    projection = pyproj.crs.CRS.from_dict(proj_dict)
-    event_loc = pyproj.Proj(projection, preserve_units=True)
+
+    # projection = pyproj.crs.CRS.from_dict(proj_dict)
+    event_loc = pyproj.Proj(proj_dict, preserve_units=True)
     x, y = event_loc(lon, lat)
     if isinstance(x, list):
         x = np.array(x)
