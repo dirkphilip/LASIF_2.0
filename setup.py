@@ -86,7 +86,6 @@ setup_config = dict(
         "toml",
         "geographiclib",
         "colorama",
-        "mpi4py",
         "numpy",
         "numexpr",
         "pytest",

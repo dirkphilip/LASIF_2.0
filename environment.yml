@@ -1,13 +1,15 @@
 name: lasif
+channels:
+    - conda-forge
+    - defaults
 dependencies:
     - python=3.7
-    - numpy
+    - numpy=1.16
     - scipy
+    - pyproj=1.9
     - obspy
-      #- nomkl
     - cartopy
-    - pyproj
-    - progressbar2
+    - progressbar
     - colorama
     - joblib
     - pytest
@@ -21,12 +23,18 @@ dependencies:
     - ipython
     - dill
     - prov
-    - seaborn
     - pandas
     - h5py
     - mpi4py
     - pyqtgraph
     - ipykernel
+    - pathlib
+    - typing
+    - jupyter
+    - jupyter_contrib_nbextensions
+    - jupytext
+    - ipywidgets
+    - pythreejs
     - pip:
         - geographiclib
         - flask-cache

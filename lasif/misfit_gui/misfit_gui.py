@@ -17,6 +17,7 @@ from glob import iglob
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
+import cartopy as cp
 
 # Default to antialiased drawing.
 pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
@@ -72,7 +73,7 @@ class Window(QtGui.QMainWindow):
         self.map_figure = self.ui.mapView.fig
         self.map_ax = self.map_figure.add_axes([0.0, 0.0, 1.0, 1.0])
 
-        self.basemap = self.comm.project.domain.plot(ax=self.map_ax)
+        self.basemap, self.projection = self.comm.project.domain.plot()
         self._draw()
         self.ui.data_only_CheckBox.stateChanged.connect(
             self.on_data_only_CheckboxChanged
@@ -211,16 +212,15 @@ class Window(QtGui.QMainWindow):
                 _i.remove()
 
         event_info = self.comm.events.get(self.current_event)
-        self._current_raypath = self.basemap.drawgreatcircle(
-            event_info["longitude"],
-            event_info["latitude"],
-            coordinates["longitude"],
-            coordinates["latitude"],
+        self._current_raypath = self.basemap.plot(
+            [event_info["longitude"], coordinates["longitude"]],
+            [event_info["latitude"], coordinates["latitude"]],
             color=COLORS[random.randint(0, len(COLORS) - 1)],
             lw=2,
             alpha=0.8,
             zorder=10,
             path_effects=path_effects,
+            transform=cp.crs.Geodetic(),
         )
         self._draw()
 
@@ -251,6 +251,7 @@ class Window(QtGui.QMainWindow):
             station_dict=stations,
             event_info=event,
             raypaths=False,
+            projection=self.projection,
         )
         self.map_ax.set_title(
             "No matter the projection,\n North for the "

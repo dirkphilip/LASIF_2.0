@@ -13,6 +13,7 @@ Matplotlib is imported lazily to avoid heavy startup costs.
 import pathlib
 import typing
 import cartopy as cp
+import matplotlib
 
 
 import numpy as np
@@ -151,6 +152,7 @@ class HDF5Domain:
         x = x[0]
         y = y[0]
         z = z[0]
+        edge_lat, edge_lon, _ = xyz_to_lat_lon_radius(x, y, z)
 
         # get center lat/lon
         x_cen, y_cen, z_cen = np.median(x), np.median(y), np.median(z)
@@ -160,7 +162,8 @@ class HDF5Domain:
 
         # get extent
         lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
-
+        boundary = np.array((lons, lats))
+        self.edge_polygon = matplotlib.path.Path(boundary.T)
         self.min_lat = min(lats)
         self.max_lat = max(lats)
         self.min_lon = min(lons)
@@ -198,7 +201,9 @@ class HDF5Domain:
             self._read()
         return self.side_set_names
 
-    def point_in_domain(self, longitude, latitude, depth=None):
+    def point_in_domain(
+        self, longitude, latitude, depth=None, simulation=False
+    ):
         """
         Test whether a point lies inside the domain,
 
@@ -243,6 +248,9 @@ class HDF5Domain:
             return False
         if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
+        if not simulation:
+            if not self.edge_polygon.contains_point((longitude, latitude)):
+                return False
 
         return True
 
@@ -262,6 +270,9 @@ class HDF5Domain:
 
         import matplotlib.pyplot as plt
 
+        if ax is None:
+            ax = plt.gca()
+
         fig = plt.figure()
 
         # if global mesh return moll
@@ -280,7 +291,7 @@ class HDF5Domain:
         # Use a global plot for very large domains.
         if lat_extent >= 120.0 and lon_extent >= 120.0:
             projection = cp.crs.Mollweide(central_longitude=self.center_lon)
-            m = plt.axes(projection=projection,)
+            m = plt.axes(projection=projection)
 
         elif max_extent >= 75.0:
             projection = cp.crs.Orthographic(
@@ -326,7 +337,9 @@ class HDF5Domain:
                 in_domain = []
                 idx = 0
                 for lat, lon, _ in latlonrad.T:
-                    if self.point_in_domain(latitude=lat, longitude=lon):
+                    if self.point_in_domain(
+                        latitude=lat, longitude=lon, simulation=True
+                    ):
                         in_domain.append(idx)
                     idx += 1
                 lats, lons, rad = np.array(latlonrad[:, in_domain])
