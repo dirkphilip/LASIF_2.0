@@ -270,9 +270,6 @@ class HDF5Domain:
 
         import matplotlib.pyplot as plt
 
-        if ax is None:
-            ax = plt.gca()
-
         fig = plt.figure()
 
         # if global mesh return moll
@@ -291,21 +288,30 @@ class HDF5Domain:
         # Use a global plot for very large domains.
         if lat_extent >= 120.0 and lon_extent >= 120.0:
             projection = cp.crs.Mollweide(central_longitude=self.center_lon)
-            m = plt.axes(projection=projection)
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
 
         elif max_extent >= 75.0:
             projection = cp.crs.Orthographic(
                 central_longitude=self.center_lon,
                 central_latitude=self.center_lat,
             )
-            m = plt.axes(projection=projection)
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
             m.set_extent(
                 [self.min_lon, self.max_lon, self.min_lat, self.max_lat],
                 projection=projection,
             )
         else:
             projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
-            m = plt.axes(projection=projection)
+            if ax is None:
+                m = plt.axes(projection=projection,)
+            else:
+                m = ax
             m.set_extent(
                 [
                     self.min_lon - 1.0,
@@ -502,4 +508,3 @@ def _plot_lines(
     lats = lines[:, 0]
     lngs = lines[:, 1]
     map_object.plot(lngs, lats, transform=transform, color="red", label=label)
-
