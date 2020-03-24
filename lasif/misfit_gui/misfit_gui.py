@@ -71,9 +71,12 @@ class Window(QtGui.QMainWindow):
 
         # Set up the map.
         self.map_figure = self.ui.mapView.fig
-        self.map_ax = self.map_figure.add_axes([0.0, 0.0, 1.0, 1.0])
 
-        self.basemap, self.projection = self.comm.project.domain.plot()
+        _, self.projection = self.comm.project.domain.plot()
+        self.map_ax = self.map_figure.add_axes(
+            [0.0, 0.0, 1.0, 1.0], projection=self.projection
+        )
+        self.basemap, _ = self.comm.project.domain.plot(ax=self.map_ax)
         self._draw()
         self.ui.data_only_CheckBox.stateChanged.connect(
             self.on_data_only_CheckboxChanged
@@ -145,6 +148,16 @@ class Window(QtGui.QMainWindow):
 
     def _draw(self):
         self.map_figure.canvas.draw()
+
+    def _reset_map_plot(self):
+        self.basemap.clear()
+        self.map_figure = self.ui.mapView.fig
+
+        self.map_ax = self.map_figure.add_axes(
+            [0.0, 0.0, 1.0, 1.0], projection=self.projection
+        )
+        self.basemap, _ = self.comm.project.domain.plot(ax=self.map_ax)
+        self._draw()
 
     def _reset_all_plots(self):
         for component in ["z", "n", "e"]:
@@ -225,13 +238,25 @@ class Window(QtGui.QMainWindow):
         self._draw()
 
     def _update_event_map(self):
-        for i in self.current_mt_patches:
-            i.remove()
+        # for i in self.current_mt_patches:
+        #     i.remove()
+        # print(f"mt patch: {self.current_mt_patches}")
+        # if self.current_mt_patches is not None:
+        #     self.current_mt_patches.remove()
+
+        # if hasattr(self, "current_mt_patches") and self.current_mt_patches:
+        #     for _i in self.current_mt_patches:
+        #         _i.remove()
+        self._reset_map_plot()
 
         event = self.comm.events.get(self.current_event)
 
         self.current_mt_patches = lasif.visualization.plot_events(
-            events=[event], map_object=self.basemap, beachball_size=0.04
+            events=[event],
+            map_object=self.basemap,
+            projection=self.projection,
+            beachball_size=0.04,
+            domain=self.comm.project.domain,
         )
 
         try:
@@ -243,7 +268,7 @@ class Window(QtGui.QMainWindow):
             self.current_event
         )
 
-        # Plot the stations. This will also plot raypaths.
+        # Plot the stations. This will not plot raypaths.
         self.current_station_scatter = lasif.visualization.plot_stations_for_event(
             map_object=self.basemap,
             color="0.2",
@@ -252,10 +277,7 @@ class Window(QtGui.QMainWindow):
             event_info=event,
             raypaths=False,
             projection=self.projection,
-        )
-        self.map_ax.set_title(
-            "No matter the projection,\n North for the "
-            "moment tensors is always up."
+            print_title=False,
         )
 
         if hasattr(self, "_current_raypath") and self._current_raypath:

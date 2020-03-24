@@ -79,62 +79,9 @@ def plot_events(
     :type beachball_size: float, optional
     """
 
-    # beachballs = []
     for event in events:
-        # As the beachballs were annoying to plot with the projection
-        # I decided to remove them for the time being at least.
-        # They were anyway not rotated properly and I don't really see the
-        # gain from having them in this plot.
 
-        # x, y = project_points(
-        #     projection=projection,
-        #     lon=event["longitude"],
-        #     lat=event["latitude"],
-        # )
-        # print(x, y)
-        # Get eg mogulega med preserve units, einhvernvegin spad fyrir um nidurstodur?
-        # og mogulega ekki notad xy_to_lonlat
-        # lon, lat = xy_to_lonlat(x, y, projection)
-        # print(f"{event['event_name']}, lon: {lon}, lat: {lat}")
-
-        # focmec = [
-        #     event["m_rr"],
-        #     event["m_tt"],
-        #     event["m_pp"],
-        #     event["m_rt"],
-        #     event["m_rp"],
-        #     event["m_tp"],
-        # ]
-        # Attempt to calculate the best beachball size.
-        # if projection.proj4_params["proj"] == "moll":
-        #     width = beachball_size * 360
-        # else:
-        # Nota domain maxlat og minlat og thad
-        # x_1, y_1 = project_points(projection, domain.min_lon, domain.min_lat)
-        # x_2, y_2 = project_points(projection, domain.max_lon, domain.max_lat)
-        # dist = np.sqrt((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2)
-        # width = dist * beachball_size / 2000.0
-        # print(f"Width: {width}")
-
-        # width = (
-        #     max(
-        #         (
-        #             map_object.get_xlim()[-1] - map_object.get_xlim()[0],
-        #             map_object.get_ylim()[-1] - map_object.get_ylim()[0],
-        #         )
-        #     )
-        #     * beachball_size
-        # )
-        # print(f"Data interval: {map_object.xaxis.get_data_interval()}")
-        # print(f"width: {width}")
-        # try:
-        # b = beach(
-        #     focmec, xy=(x, y), width=width, linewidth=1, facecolor="red",
-        # )
-        # b.set_zorder(20)
-        # map_object.add_collection(b)
-        # beachballs.append(b)
-        map_object.scatter(
+        plotted_events = map_object.scatter(
             x=event["longitude"],
             y=event["latitude"],
             zorder=22,
@@ -144,9 +91,8 @@ def plot_events(
             s=180,
             edgecolors="black",
         )
-        # except:
-        #     pass
-    # return beachballs
+
+    return plotted_events
 
 
 def plot_raydensity(map_object, station_events, domain, projection):
@@ -355,6 +301,7 @@ def plot_stations_for_event(
     alpha=1.0,
     raypaths=True,
     weight_set=None,
+    print_title=True,
 ):
     """
     Plots all stations for one event.
@@ -437,7 +384,8 @@ def plot_stations_for_event(
         event_info["magnitude"],
         len(station_dict),
     )
-    map_object.set_title(title, size="large")
+    if print_title:
+        map_object.set_title(title, size="large")
     return stations
 
 
