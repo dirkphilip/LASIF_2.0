@@ -643,7 +643,7 @@ class Window(QtGui.QMainWindow):
             )
             return
 
-        self.comm.actions.select_windows_for_station(
+        self.comm.windows.select_windows_for_station(
             self.current_event,
             self.current_iteration,
             self.current_station,

@@ -405,7 +405,7 @@ def check_job_status(
             job = salvus.flow.api.get_job(
                 job_name=job_name, site_name=site_name
             )
-            job_updated = jobs.update_status(force_update=True)
+            job_updated = job.update_status(force_update=True)
             statuses[event] = job_updated.status
 
     return statuses
@@ -507,4 +507,3 @@ def retrieve_salvus_simulations(
                 f"Job status for event {event} is: {status[event].name}. "
                 "Can not download output."
             )
-
