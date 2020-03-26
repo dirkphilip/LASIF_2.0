@@ -394,6 +394,16 @@ def check_job_status(
         for event in events:
             job_name = job_dict[event]
             if job_name not in job_names:
+                print(
+                    f"{job_name} not in array {job_dict['array_name']}. "
+                    f"Will check to see if job was posted individually"
+                )
+                job = salvus.flow.api.get_job(
+                    job_name=job_name, site_name=site_name,
+                )
+                job_updated = job.update_status(force_update=True)
+                statuses[event] = job_updated
+                continue
                 raise LASIFError(f"{job_name} not in List of job names")
             event_job_index = job_names.index(job_name)
             event_status = jobs.jobs[event_job_index].get_status_from_db()
@@ -406,7 +416,7 @@ def check_job_status(
                 job_name=job_name, site_name=site_name
             )
             job_updated = job.update_status(force_update=True)
-            statuses[event] = job_updated.status
+            statuses[event] = job_updated
 
     return statuses
 
@@ -450,7 +460,15 @@ def download_output(comm: object, event: str, iteration: str, sim_type: str):
         )
         job_names = [j.job_name for j in job_array.jobs]
         if job_name not in job_names:
-            raise LASIFError(f"{job_name} not in JobArray")
+            job = salvus.flow.api.get_job(
+                job_name=job_dict[event], site_name=site_name
+            )
+            job.copy_output(
+                destination=destination_folder,
+                get_all=False,
+                allow_existing_destination_folder=True,
+            )
+            return
         event_job_index = job_names.index(job_name)
         job_array.jobs[event_job_index].copy_output(
             destination=destination_folder,
@@ -499,6 +517,7 @@ def retrieve_salvus_simulations(
 
     for event in events:
         if status[event].name == "finished":
+            print(f"Retrieving simulation for event {event}")
             download_output(
                 comm=comm, event=event, iteration=iteration, sim_type=sim_type,
             )
