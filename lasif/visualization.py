@@ -301,6 +301,7 @@ def plot_stations_for_event(
     alpha=1.0,
     raypaths=True,
     weight_set=None,
+    plot_misfits=False,
     print_title=True,
 ):
     """
@@ -310,6 +311,10 @@ def plot_stations_for_event(
         and longitude keys.
     """
     import re
+
+    # Check inputs:
+    if weight_set and plot_misfit:
+        raise LASIFError("Can't plot both weight set and misfit")
 
     # Loop as dicts are unordered.
     lngs = []
@@ -334,6 +339,22 @@ def plot_stations_for_event(
             lngs,
             lats,
             c=weights,
+            cmap=cmap,
+            s=35,
+            marker="v",
+            alpha=alpha,
+            zorder=5,
+            transform=cp.crs.Geodetic(),
+        )
+        plt.colorbar(stations)
+
+    elif plot_misfits:
+        misfits = [station_dict[x]["misfit"] for x in station_dict.keys()]
+        cmap = cm.get_cmap("seismic")
+        stations = map_object.scatter(
+            lngs,
+            lats,
+            c=misfits,
             cmap=cmap,
             s=35,
             marker="v",

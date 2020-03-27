@@ -8,6 +8,7 @@ import numpy as np
 import os
 import warnings
 import cartopy as cp
+import toml
 
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 
@@ -136,6 +137,60 @@ class VisualizationsComponent(Component):
             return self.comm.project.domain.plot(show_mesh=show_mesh)
         else:
             return self.comm.project.domain.plot()
+
+    def plot_station_misfits(
+        self,
+        event_name: str,
+        iteration: str,
+        save: bool = False,
+        intersection_override=None,
+    ):
+        """
+        Plot a map of the stations where misfit was computed for a specific
+        event. The stations are colour coded by misfit.
+        
+        :param event_name: Name of event
+        :type event_name: str
+        :param iteration: Name of iteration 
+        :type iteration: str
+        :param save: Save plot to file? defaults to False
+        :type save: bool, optional
+        """
+        from lasif import visualization
+
+        map_object, projection = self.plot_domain()
+        event_info = self.comm.events.get(event_name)
+        stations = self.comm.query.get_all_stations_for_event(
+            event_name, intersection_override=intersection_override
+        )
+        long_iter = self.comm.iterations.get_long_iteration_name(iteration)
+        misfit_toml = (
+            self.comm.project.paths["iterations"] / long_iter / "misfits.toml"
+        )
+        iteration_misfits = toml.load(misfit_toml)
+        station_misfits = iteration_misfits[event_info["event_name"]][
+            "stations"
+        ]
+        misfitted_stations = {k: stations[k] for k in station_misfits.keys()}
+        for k in misfitted_stations.keys():
+            misfitted_stations[k]["misfit"] = station_misfits[k]
+
+        visualization.plot_stations_for_event(
+            map_object=map_object,
+            station_dict=misfitted_stations,
+            event_info=event_info,
+            projection=projection,
+            plot_misfits=True,
+            raypaths=False,
+            print_title=False,
+        )
+
+        visualization.plot_events(
+            events=[event_info],
+            map_object=map_object,
+            projection=projection,
+            domain=self.comm.project.domain,
+        )
 
     def plot_raydensity(
         self,
