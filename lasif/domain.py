@@ -488,6 +488,7 @@ def _plot_features(m, projection):
         grid_lines.xformatter = LONGITUDE_FORMATTER
         grid_lines.yformatter = LATITUDE_FORMATTER
         grid_lines.xlabels_top = False
+        grid_lines.ylabels_right = False
     else:
         m.stock_img()
 

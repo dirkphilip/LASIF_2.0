@@ -111,6 +111,7 @@ class VisualizationsComponent(Component):
                 event_info=event_info,
                 projection=projection,
                 weight_set=weight_set,
+                print_title=True,
             )
 
         # Plot the beachball for one event.
@@ -182,7 +183,7 @@ class VisualizationsComponent(Component):
             projection=projection,
             plot_misfits=True,
             raypaths=False,
-            print_title=False,
+            print_title=True,
         )
 
         visualization.plot_events(
