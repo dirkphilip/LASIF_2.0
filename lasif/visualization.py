@@ -18,6 +18,7 @@ import numpy as np
 from obspy.imaging.beachball import beach
 from obspy.signal.tf_misfit import plot_tfr
 from lasif import LASIFError
+import cmasher as cmr
 
 
 def project_points(projection, lon, lat):
@@ -301,6 +302,7 @@ def plot_stations_for_event(
     alpha=1.0,
     raypaths=True,
     weight_set=None,
+    plot_misfits=False,
     print_title=True,
 ):
     """
@@ -310,6 +312,10 @@ def plot_stations_for_event(
         and longitude keys.
     """
     import re
+
+    # Check inputs:
+    if weight_set and plot_misfits:
+        raise LASIFError("Can't plot both weight set and misfit")
 
     # Loop as dicts are unordered.
     lngs = []
@@ -329,7 +335,7 @@ def plot_stations_for_event(
             weights.append(
                 weight_set.events[event]["stations"][id]["station_weight"]
             )
-        cmap = cm.get_cmap("seismic")
+        cmap = cmr.heat
         stations = map_object.scatter(
             lngs,
             lats,
@@ -341,7 +347,32 @@ def plot_stations_for_event(
             zorder=5,
             transform=cp.crs.Geodetic(),
         )
-        plt.colorbar(stations)
+        cbar = plt.colorbar(stations)
+        cbar.ax.set_ylabel("Station Weights", rotation=-90)
+
+    elif plot_misfits:
+        misfits = [station_dict[x]["misfit"] for x in station_dict.keys()]
+        cmap = cmr.heat
+        # cmap = cm.get_cmap("seismic")
+        stations = map_object.scatter(
+            lngs,
+            lats,
+            c=misfits,
+            cmap=cmap,
+            s=35,
+            marker="v",
+            alpha=alpha,
+            zorder=5,
+            transform=cp.crs.Geodetic(),
+        )
+        # from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+        # divider = make_axes_locatable(map_object)
+        # cax = divider.append_axes("right", "5%", pad="3%")
+        # im_ratio = map_object.shape[0] / map_object.shape[1]
+        cbar = plt.colorbar(stations)
+        cbar.ax.set_ylabel("Station misfits", rotation=-90)
+        # plt.tight_layout()
 
     else:
         stations = map_object.scatter(
@@ -377,15 +408,24 @@ def plot_stations_for_event(
             #     lw=2,
             #     alpha=0.3,
             # )
-
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"],
         re.sub(r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
         event_info["magnitude"],
         len(station_dict),
     )
+    misfit_title = f"Event in {event_info['region']}. Total misfit: '%.2f'" % (
+        np.sum(misfits)
+    )
+    weights_title = f"Event in {event_info['region']}. Station Weights"
     if print_title:
-        map_object.set_title(title, size="large")
+        if not weight_set is None:
+            map_object.set_title(weights_title, size="large")
+        elif plot_misfits:
+            map_object.set_title(misfit_title, size="large")
+        else:
+            map_object.set_title(title, size="large")
+
     return stations
 
 
