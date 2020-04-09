@@ -414,14 +414,16 @@ def plot_stations_for_event(
         event_info["magnitude"],
         len(station_dict),
     )
-    
+
     weights_title = f"Event in {event_info['region']}. Station Weights"
     if print_title:
         if not weight_set is None:
             map_object.set_title(weights_title, size="large")
         elif plot_misfits:
-            misfit_title = f"Event in {event_info['region']}. "
-                           f"Total misfit: '%.2f'" % (np.sum(misfits))
+            misfit_title = (
+                f"Event in {event_info['region']}. "
+                f"Total misfit: '%.2f'" % (np.sum(misfits))
+            )
             map_object.set_title(misfit_title, size="large")
         else:
             map_object.set_title(title, size="large")
