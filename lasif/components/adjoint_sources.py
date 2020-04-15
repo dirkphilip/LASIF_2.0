@@ -8,7 +8,7 @@ import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
 
 from lasif.exceptions import LASIFNotFoundError
-from lasif.component import Component
+from .component import Component
 from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 
 # Map the adjoint source type names to functions implementing them.
@@ -403,7 +403,9 @@ class AdjointSourcesComponent(Component):
                     # Start time in nanoseconds
                     source.attrs[
                         "start_time_in_seconds"
-                    ] = self.comm.project.simulation_settings["start_time_in_s"]
+                    ] = self.comm.project.simulation_settings[
+                        "start_time_in_s"
+                    ]
 
                     # toml_string += f"[[source]]\n" \
                     #               f"name = \"{station}\"\n" \
