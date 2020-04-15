@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from obspy import UTCDateTime
 
 # Register adapter and converter for obspy utc datetime objects
-from lasif import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError
 
 
 def obspy_adapter(utcdt):

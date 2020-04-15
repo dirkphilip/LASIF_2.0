@@ -9,7 +9,7 @@ import os
 import warnings
 import cartopy as cp
 
-from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFNotFoundError, LASIFWarning
 
 from .component import Component
 

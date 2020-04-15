@@ -10,7 +10,7 @@ Two way data synthetics iterator.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from lasif import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError
 
 
 class DataSyntheticIterator(object):

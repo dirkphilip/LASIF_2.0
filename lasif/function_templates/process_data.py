@@ -11,7 +11,7 @@ Project specific function processing observed data.
 """
 import numpy as np
 from scipy import signal
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 
 
 def processing_function(st, inv, simulation_settings, event):  # NOQA

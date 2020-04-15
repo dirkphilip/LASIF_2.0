@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import glob
 import os
 
-from lasif import LASIFNotFoundError, LASIFError
+from lasif.exceptions import LASIFNotFoundError, LASIFError
 from .component import Component
 
 
@@ -163,9 +163,10 @@ class WeightsComponent(Component):
 
         distance = np.zeros_like(locations[1, :])
 
-        distance = 1.0 / (1.0 + locations2degrees(lat_1, lon_1,
-                                                  locations[0, :],
-                                                  locations[1, :]))
+        distance = 1.0 / (
+            1.0
+            + locations2degrees(lat_1, lon_1, locations[0, :], locations[1, :])
+        )
         factor = np.sum(distance) - 1.0
         weight = 1.0 / factor
 

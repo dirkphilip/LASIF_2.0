@@ -11,7 +11,7 @@ import obspy.signal.filter
 from lasif.tools.adjoint.utils import window_trace, generic_adjoint_source_plot
 
 
-from lasif import LASIFError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFWarning
 
 
 class AdjointSource(object):

@@ -10,7 +10,7 @@ Project specific function processing observed data.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 from scipy import signal
 from pyasdf import ASDFDataSet
 

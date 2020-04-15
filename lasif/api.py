@@ -19,14 +19,14 @@ import toml
 import numpy as np
 from typing import Union, List
 
-from lasif import LASIFError
 from lasif.components.communicator import Communicator
 from lasif.components.project import Project
-from lasif import LASIFNotFoundError
 
-
-class LASIFCommandLineException(Exception):
-    pass
+from lasif.exceptions import (
+    LASIFError,
+    LASIFAdjointSourceCalculationError,
+    LASIFCommandLineException,
+)
 
 
 def find_project_comm(folder):

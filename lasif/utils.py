@@ -16,7 +16,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 
-from lasif import LASIFError, LASIFNotFoundError
+from lasif.exceptions import LASIFError, LASIFNotFoundError
 
 
 def is_mpi_env():

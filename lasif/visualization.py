@@ -17,7 +17,7 @@ import cartopy as cp
 import numpy as np
 from obspy.imaging.beachball import beach
 from obspy.signal.tf_misfit import plot_tfr
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 
 
 def project_points(projection, lon, lat):
