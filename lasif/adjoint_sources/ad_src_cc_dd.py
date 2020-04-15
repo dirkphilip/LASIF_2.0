@@ -15,7 +15,7 @@ from scipy.integrate import simps
 from obspy.signal.invsim import cosine_taper
 import obspy.signal.cross_correlation as crosscorr
 from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 from obspy.core import Trace
 
 

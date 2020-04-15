@@ -11,7 +11,7 @@ import glob
 import obspy
 
 from .component import Component
-from lasif import LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFNotFoundError, LASIFWarning
 from obspy.geodetics import FlinnEngdahl
 import pyasdf
 

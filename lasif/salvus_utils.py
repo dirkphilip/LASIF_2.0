@@ -1,7 +1,7 @@
 from lasif.utils import place_receivers, prepare_source
 from typing import Union, List, Dict
 import os
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 import toml
 from pathlib import Path
 

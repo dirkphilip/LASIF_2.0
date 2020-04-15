@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import collections
 import warnings
 
-from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFNotFoundError, LASIFWarning
 import pyasdf
 
 from .component import Component

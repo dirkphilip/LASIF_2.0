@@ -16,7 +16,7 @@ import obspy
 from obspy.signal.interpolation import lanczos_interpolation
 from lasif.tools.adjoint import utils
 from lasif.adjoint_sources import time_frequency
-from lasif import LASIFAdjointSourceCalculationError
+from lasif.exceptions import LASIFAdjointSourceCalculationError
 
 eps = np.spacing(1)
 VERBOSE_NAME = "Time Frequency Phase Misfit"

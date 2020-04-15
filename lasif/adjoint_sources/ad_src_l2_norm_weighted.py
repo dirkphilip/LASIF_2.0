@@ -12,7 +12,7 @@ Simple L2-norm misfit.
 import numpy as np
 from obspy.signal.invsim import cosine_taper
 from scipy.integrate import simps
-from lasif import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError
 
 
 def find_envelope(station, asdf_file):
