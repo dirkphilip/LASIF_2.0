@@ -156,6 +156,47 @@ def plot_events(
         plt.show()
 
 
+def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
+    """
+    Plot a map of a specific event where all the stations are colour coded by
+    their respective misfit value. You need to compute adjoint sources for
+    the respective iteration prior to making this plot.
+    Keep in mind that station with no windows will not get plotted, these
+    stations might be the ones with the largest misfits in reality
+    
+    :param lasif_root: Lasif root directory or communicator object
+    :type lasif_root: str, pathlib.Path, object
+    :param event: Name of event
+    :type event: str
+    :param iteration: Name of iteration
+    :type iteration: str
+    :param save: You want to save the plot?, defaults to False
+    :type save: bool, optional
+    """
+    import matplotlib.pyplot as plt
+
+    comm = find_project_comm(lasif_root)
+
+    comm.visualizations.plot_station_misfits(
+        event_name=event, iteration=iteration, save=save,
+    )
+
+    if save:
+        file = f"misfit_{event}_{iteration}.png"
+        timestamp = False
+
+        outfile = os.path.join(
+            comm.project.get_output_folder(
+                type="event_plots", tag="events", timestamp=timestamp
+            ),
+            file,
+        )
+        plt.savefig(outfile, dpi=200, transparent=True)
+        print("Saved picture at %s" % outfile)
+    else:
+        plt.show()
+
+
 def plot_raydensity(
     lasif_root,
     plot_stations,
@@ -856,7 +897,12 @@ def set_up_iteration(
 
 
 def write_misfit(
-    lasif_root, iteration, weight_set=None, window_set=None, events=None
+    lasif_root,
+    iteration,
+    weight_set=None,
+    window_set=None,
+    events=None,
+    include_stations=False,
 ):
     """
     Write misfit for iteration
@@ -865,6 +911,7 @@ def write_misfit(
     :param weight_set: name of weight set [optional]
     :param window_set: name of window set [optional]
     :param events: list of events [optional]
+    :param include_stations: Write down station misfits? [optional]
     """
 
     comm = find_project_comm(lasif_root)

@@ -238,19 +238,22 @@ class HDF5Domain:
         if depth:
             if depth > (self.max_depth - self.absorbing_boundary_length * 1.5):
                 return False
-
-        dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
-        # False if too close to edge of domain
-        if dist < self.absorbing_boundary_length:
-            return False
-
         if latitude >= self.max_lat or latitude <= self.min_lat:
             return False
         if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
+
         if not simulation:
             if not self.edge_polygon.contains_point((longitude, latitude)):
                 return False
+
+        dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
+
+        # False if too close to edge of domain
+        if dist < self.absorbing_boundary_length * 1.2:
+            return False
+
+        # if not simulation:
 
         return True
 
@@ -276,7 +279,11 @@ class HDF5Domain:
         transform = cp.crs.Geodetic()
         if self.is_global_mesh:
             projection = cp.crs.Mollweide()
-            m = plt.axes(projection=projection)
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
+            # m = plt.axes(projection=projection)
             # m = Basemap(projection="moll", lon_0=0, resolution="c", ax=ax)
             _plot_features(m, projection=projection)
             return m, projection
@@ -286,8 +293,9 @@ class HDF5Domain:
         max_extent = max(lat_extent, lon_extent)
 
         # Use a global plot for very large domains.
-        if lat_extent >= 120.0 and lon_extent >= 120.0:
-            projection = cp.crs.Mollweide(central_longitude=self.center_lon)
+        if lat_extent >= 90.0 and lon_extent >= 90.0:
+            # projection = cp.crs.Mollweide(central_longitude=self.center_lon)
+            projection = cp.crs.Mollweide()
             if ax is None:
                 m = plt.axes(projection=projection)
             else:
@@ -302,10 +310,7 @@ class HDF5Domain:
                 m = plt.axes(projection=projection)
             else:
                 m = ax
-            m.set_extent(
-                [self.min_lon, self.max_lon, self.min_lat, self.max_lat],
-                projection=projection,
-            )
+
         else:
             projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
             if ax is None:
@@ -488,6 +493,7 @@ def _plot_features(m, projection):
         grid_lines.xformatter = LONGITUDE_FORMATTER
         grid_lines.yformatter = LATITUDE_FORMATTER
         grid_lines.xlabels_top = False
+        grid_lines.ylabels_right = False
     else:
         m.stock_img()
 

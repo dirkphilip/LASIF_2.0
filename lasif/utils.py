@@ -222,11 +222,13 @@ def write_custom_stf(stf_path, comm):
 
     source = f.create_dataset("source", data=stf_mat)
     source.attrs["dt"] = delta
-    source.attrs["sampling_rate"] = 1 / delta
+    source.attrs["sampling_rate_in_hertz"] = 1 / delta
     # source.attrs["location"] = location
     source.attrs["spatial-type"] = np.string_("moment_tensor")
     # Start time in nanoseconds
-    source.attrs["starttime"] = -delta * 1.0e9
+    source.attrs["start_time_in_seconds"] = comm.project.simulation_settings[
+        "start_time_in_s"
+    ]
 
     f.close()
 
