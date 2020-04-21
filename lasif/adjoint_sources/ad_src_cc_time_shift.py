@@ -13,7 +13,7 @@ import numpy as np
 from scipy.integrate import simps
 from obspy.signal.invsim import cosine_taper
 import obspy.signal.cross_correlation as crosscorr
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 
 
 def cc_time_shift(data, synthetic, dt, shift):

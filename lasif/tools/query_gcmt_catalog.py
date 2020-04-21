@@ -20,7 +20,7 @@ import datetime
 import shutil
 from scipy.spatial import cKDTree
 
-from lasif import LASIFNotFoundError, LASIFError
+from lasif.exceptions import LASIFNotFoundError, LASIFError
 
 EARTH_RADIUS = 6371.00
 

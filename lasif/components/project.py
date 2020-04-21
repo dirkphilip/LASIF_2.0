@@ -22,7 +22,7 @@ import warnings
 import toml
 
 import lasif.domain
-from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFNotFoundError, LASIFWarning
 from .adjoint_sources import AdjointSourcesComponent
 from .communicator import Communicator
 from .component import Component

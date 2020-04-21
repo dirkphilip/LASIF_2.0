@@ -8,7 +8,7 @@ import os
 import warnings
 import pyasdf
 
-from lasif import LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFNotFoundError, LASIFWarning
 from .component import Component
 
 
@@ -212,8 +212,12 @@ class WaveformsComponent(Component):
             simulation_settings[
                 "end_time_in_s"
             ] = self.comm.project.simulation_settings["end_time_in_s"]
-            simulation_settings["minimum_period"] = self.comm.project.simulation_settings["minimum_period_in_s"]
-            simulation_settings["maximum_period"] = self.comm.project.simulation_settings["maximum_period_in_s"]
+            simulation_settings[
+                "minimum_period"
+            ] = self.comm.project.simulation_settings["minimum_period_in_s"]
+            simulation_settings[
+                "maximum_period"
+            ] = self.comm.project.simulation_settings["maximum_period_in_s"]
         return fct(
             st, simulation_settings, event=self.comm.events.get(event_name)
         )

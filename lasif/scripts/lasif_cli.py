@@ -43,7 +43,7 @@ should scale fairly well and makes it trivial to add new methods.
 import os
 import lasif
 from lasif import api
-from lasif.api import LASIFCommandLineException
+from lasif.exceptions import LASIFCommandLineException
 import argparse
 import colorama
 import difflib

@@ -9,7 +9,7 @@ from lasif.utils import process_two_files_without_parallel_output
 import toml
 from pathlib import Path
 
-from lasif import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError
 from .component import Component
 from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 

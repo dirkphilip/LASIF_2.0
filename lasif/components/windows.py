@@ -9,7 +9,7 @@ from .component import Component
 
 from ..window_manager_sql import WindowGroupManager
 from lasif.utils import process_two_files_without_parallel_output
-from lasif import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError
 
 
 class WindowsComponent(Component):
@@ -347,8 +347,12 @@ class WindowsComponent(Component):
         )
         delta = self.comm.project.simulation_settings["time_step_in_s"]
         npts = self.comm.project.simulation_settings["number_of_time_steps"]
-        freqmax = 1.0 / self.comm.project.simulation_settings["minimum_period_in_s"]
-        freqmin = 1.0 / self.comm.project.simulation_settings["maximum_period_in_s"]
+        freqmax = (
+            1.0 / self.comm.project.simulation_settings["minimum_period_in_s"]
+        )
+        freqmin = (
+            1.0 / self.comm.project.simulation_settings["maximum_period_in_s"]
+        )
         stf_trace = stf_fct(
             npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
         )

@@ -20,7 +20,7 @@ import numpy as np
 import h5py
 from scipy.spatial import cKDTree
 
-from lasif import LASIFNotFoundError, LASIFError
+from lasif.exceptions import LASIFNotFoundError, LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
