@@ -305,6 +305,15 @@ class AdjointSourcesComponent(Component):
 
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
+        if MPI.COMM_WORLD.rank == 0:
+            if os.path.exists(toml_filename):
+                iteration_misfits = toml.load(toml_filename)
+                if event["event_name"] in iteration_misfits.keys():
+                    iteration_misfits[event["event_name"]][
+                        "event_misfit"
+                    ] = 0.0
+                with open(toml_filename, "w") as fh:
+                    toml.dump(iteration_misfits, fh)
         MPI.COMM_WORLD.Barrier()
         for thread in range(size):
             rank = MPI.COMM_WORLD.rank

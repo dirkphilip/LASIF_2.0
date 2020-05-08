@@ -852,6 +852,10 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
             w_set.events[event]["stations"][station]["station_weight"] *= (
                 len(stations) / sum_value
             )
+        if len(stations.keys()) == 1:
+            w_set.events[event]["stations"][stations[station]][
+                "station_weight"
+            ] = 1.0
 
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,

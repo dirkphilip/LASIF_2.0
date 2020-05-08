@@ -265,7 +265,7 @@ def calculate_adjoint_source(
             "adjoint_source": obspy.Trace(
                 data=np.zeros_like(observed.data), header=observed.stats
             ),
-            "misfit": phase_misfit,
+            "misfit": phase_misfit * 2.0,
             "details": {"messages": messages},
         }
 

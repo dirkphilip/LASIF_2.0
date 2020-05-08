@@ -72,48 +72,49 @@ class EventsComponent(Component):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        ds = pyasdf.ASDFDataSet(filename, mode="r", mpi=False)
-        event = ds.events[0]
+        with pyasdf.ASDFDataSet(filename, mode="r", mpi=False) as ds:
+            event = ds.events[0]
 
-        # Extract information.
-        mag = event.preferred_magnitude() or event.magnitudes[0]
-        org = event.preferred_origin() or event.origins[0]
-        if org.depth is None:
-            warnings.warn(
-                "Origin contains no depth. Will be assumed to be 0",
-                LASIFWarning,
-            )
-            org.depth = 0.0
-        if mag.magnitude_type is None:
-            warnings.warn(
-                "Magnitude has no specified type. Will be assumed " "to be Mw",
-                LASIFWarning,
-            )
-            mag.magnitude_type = "Mw"
+            # Extract information.
+            mag = event.preferred_magnitude() or event.magnitudes[0]
+            org = event.preferred_origin() or event.origins[0]
+            if org.depth is None:
+                warnings.warn(
+                    "Origin contains no depth. Will be assumed to be 0",
+                    LASIFWarning,
+                )
+                org.depth = 0.0
+            if mag.magnitude_type is None:
+                warnings.warn(
+                    "Magnitude has no specified type. Will be assumed "
+                    "to be Mw",
+                    LASIFWarning,
+                )
+                mag.magnitude_type = "Mw"
 
-        # Get the moment tensor.
-        fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
-        mt = fm.moment_tensor.tensor
+            # Get the moment tensor.
+            fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
+            mt = fm.moment_tensor.tensor
 
-        event_name = os.path.splitext(os.path.basename(filename))[0]
+            event_name = os.path.splitext(os.path.basename(filename))[0]
 
-        return [
-            str(filename),
-            str(event_name),
-            float(org.latitude),
-            float(org.longitude),
-            float(org.depth / 1000.0),
-            float(org.time.timestamp),
-            float(mt.m_rr),
-            float(mt.m_pp),
-            float(mt.m_tt),
-            float(mt.m_rp),
-            float(mt.m_rt),
-            float(mt.m_tp),
-            float(mag.mag),
-            str(mag.magnitude_type),
-            str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
-        ]
+            return [
+                str(filename),
+                str(event_name),
+                float(org.latitude),
+                float(org.longitude),
+                float(org.depth / 1000.0),
+                float(org.time.timestamp),
+                float(mt.m_rr),
+                float(mt.m_pp),
+                float(mt.m_tt),
+                float(mt.m_rp),
+                float(mt.m_rt),
+                float(mt.m_tp),
+                float(mag.mag),
+                str(mag.magnitude_type),
+                str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
+            ]
 
     def list(self, iteration=None):
         """

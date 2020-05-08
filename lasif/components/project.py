@@ -383,6 +383,7 @@ class Project(Component):
             "site_name": "daint",
             "ranks": 120,
             "wall_time_in_s": 3600,
+            "ocean_loading": False,
         }
         optimization_settings = {
             "comment": (

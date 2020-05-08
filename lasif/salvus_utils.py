@@ -113,7 +113,7 @@ def create_salvus_forward_simulation(
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
         w.physics.wave_equation.boundaries = [absorbing]
-
+    w.output.memory_per_rank_in_MB = 5000.0
     w.output.volume_data.format = "hdf5"
     w.output.volume_data.filename = "output.h5"
     w.output.volume_data.fields = ["adjoint-checkpoint"]

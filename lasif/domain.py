@@ -103,6 +103,10 @@ class HDF5Domain:
                 earth_surface_elements = self.m["SIDE_SETS"][side_set][
                     "elements"
                 ][()]
+            elif side_set == "r1_ol":
+                earth_surface_elements = self.m["SIDE_SETS"][side_set][
+                    "elements"
+                ][()]
 
             else:
                 side_elements.append(
