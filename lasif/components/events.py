@@ -132,7 +132,7 @@ class EventsComponent(Component):
             path = os.path.join(
                 self.comm.project.paths["iterations"],
                 iter_name,
-                "central_info.toml",
+                "events_used.toml",
             )
             if not os.path.exists(path):
                 print(
@@ -140,9 +140,7 @@ class EventsComponent(Component):
                     "Will give all events"
                 )
                 return sorted(self.__event_info_cache.keys())
-            iter_info = toml.load(path)
-            event_toml = iter_info["events"]["events_used"]
-            iter_events = toml.load(event_toml)
+            iter_events = toml.load(path)
             return sorted(iter_events["events"]["events_used"])
         else:
             return sorted(self.__event_info_cache.keys())
@@ -163,7 +161,7 @@ class EventsComponent(Component):
             path = os.path.join(
                 self.comm.project.paths["iterations"],
                 iter_name,
-                "central_info.toml",
+                "events_used.toml",
             )
             if not os.path.exists(path):
                 print(
@@ -171,9 +169,7 @@ class EventsComponent(Component):
                     "Will give all events"
                 )
                 return len(self.all_events)
-            iter_info = toml.load(path)
-            event_toml = iter_info["events"]["events_used"]
-            iter_events = toml.load(event_toml)
+            iter_events = toml.load(path)
             return len(iter_events["events"]["events_used"])
         else:
             return len(self.all_events)
