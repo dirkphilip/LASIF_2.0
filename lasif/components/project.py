@@ -99,8 +99,8 @@ class Project(Component):
         Pretty string representation.
         """
         # Count all files and sizes.
-        ret_str = 'LASIF project "%s"\n' % self.config["project_name"]
-        ret_str += "\tDescription: %s\n" % self.config["description"]
+        ret_str = 'LASIF project "%s"\n' % self.lasif_config["project_name"]
+        ret_str += "\tDescription: %s\n" % self.lasif_config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % self.comm.events.count()
@@ -142,8 +142,8 @@ class Project(Component):
             config_dict = toml.load(fh)
 
         self.lasif_config = config_dict["lasif_project"]
-        self.optimization_settings = config_dict["optimization_settings"]
         self.simulation_settings = config_dict["simulation_settings"]
+
         self.simulation_settings["number_of_time_steps"] = int(
             round(
                 (
@@ -159,6 +159,7 @@ class Project(Component):
             self.lasif_config["domain_settings"]["domain_file"],
             self.lasif_config["domain_settings"]["boundary_in_km"],
         )
+        self.optimization_settings = config_dict["optimization_settings"]
 
         # Source-stacking configuration
         self.stacking_settings = config_dict["stacking"]

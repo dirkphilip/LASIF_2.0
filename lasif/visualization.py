@@ -15,7 +15,6 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import cartopy as cp
 import numpy as np
-from obspy.imaging.beachball import beach
 from obspy.signal.tf_misfit import plot_tfr
 from lasif.exceptions import LASIFError
 import cmasher as cmr
@@ -24,7 +23,7 @@ import cmasher as cmr
 def project_points(projection, lon, lat):
     """
     Define the correct projection function depending on name of projection
-    
+
     :param projection: Cartopy projection object
     """
     import pyproj
@@ -43,7 +42,7 @@ def project_points(projection, lon, lat):
 def xy_to_lonlat(x: float, y: float, projection):
     """
     Change x and y to latitude and longitude, based on Earth radius
-    
+
     :param x: X coordinate in the correct projection, but in meters
     :type x: float
     :param y: Y coordinate in the correct projection, but in meters
@@ -69,7 +68,7 @@ def plot_events(
 ):
     """
     Plot event stars on a map
-    
+
     :param events: Event information
     :type events: list
     :param map_object: The already made map object from the domain component
@@ -417,7 +416,7 @@ def plot_stations_for_event(
 
     weights_title = f"Event in {event_info['region']}. Station Weights"
     if print_title:
-        if not weight_set is None:
+        if weight_set is not None:
             map_object.set_title(weights_title, size="large")
         elif plot_misfits:
             misfit_title = (
@@ -434,7 +433,7 @@ def plot_stations_for_event(
 def plot_all_stations(map_object, event_stations: list):
     """
     Add all stations to a map object
-    
+
     :param map_object: A cartopy map object
     :type map_object: object
     :param event_stations: a list of dictionary tuples with events and stations

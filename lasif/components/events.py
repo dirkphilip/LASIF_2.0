@@ -125,7 +125,7 @@ class EventsComponent(Component):
          'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
         """
         self._update_cache()
-        if iteration:
+        if iteration is not None:
             import toml
 
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)
@@ -156,7 +156,7 @@ class EventsComponent(Component):
         >>> comm.events.count()
         2
         """
-        if iteration:
+        if iteration is not None:
             import toml
 
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)

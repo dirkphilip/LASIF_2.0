@@ -138,15 +138,10 @@ def lasif_plot_domain(parser, args):
     parser.add_argument(
         "--save", help="Save the plot in a file", action="store_true"
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
     args = parser.parse_args(args)
     save = args.save
 
-    api.plot_domain(lasif_root=".", save=save, show_mesh=args.show_mesh)
+    api.plot_domain(lasif_root=".", save=save)
 
 
 @command_group("Misc")
@@ -196,11 +191,6 @@ def lasif_plot_event(parser, args):
         "weights",
         default=None,
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
 
     args = parser.parse_args(args)
 
@@ -221,7 +211,6 @@ def lasif_plot_event(parser, args):
         weight_set_name=args.weight_set_name,
         intersection_override=intersection_override,
         save=args.save,
-        show_mesh=args.show_mesh,
     )
 
 
@@ -250,11 +239,7 @@ def lasif_plot_events(parser, args):
     parser.add_argument(
         "--save", help="Saves the plot in a file", action="store_true"
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
+
     args = parser.parse_args(args)
 
     api.plot_events(
@@ -262,7 +247,6 @@ def lasif_plot_events(parser, args):
         type_of_plot=args.type,
         iteration=args.iteration,
         save=args.save,
-        show_mesh=args.show_mesh,
     )
 
 

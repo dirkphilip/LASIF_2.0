@@ -60,9 +60,23 @@ def test_flake8():
     # public API - this has to be changed at some point.
     from flake8.api import legacy as flake8
 
+    # We ignore E501 because sometimes it interferes with Black style
+    # formatting and it gets really annoying. Black takes care of nice
+    # formatting anyway.
     style_guide = flake8.get_style_guide(
-        extend_ignore=("F811", "E402", "E722", "E741", "E503", "W503",
-                       "W605", "E203")
+        extend_ignore=(
+            "F811",
+            "F401",
+            "E402",
+            "E722",
+            "E741",
+            "E503",
+            "W503",
+            "W605",
+            "E203",
+            "E501",
+            "E231",
+        )
     )
     report = style_guide.check_files(files)
 

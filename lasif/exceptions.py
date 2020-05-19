@@ -35,5 +35,5 @@ class LASIFCommandLineException(LASIFError):
     """
     Command line exception.
     """
-    
+
     pass

@@ -3,7 +3,6 @@ from typing import Union, List, Dict
 import os
 from lasif.exceptions import LASIFError
 import toml
-from pathlib import Path
 
 
 def create_salvus_forward_simulation(
@@ -12,16 +11,16 @@ def create_salvus_forward_simulation(
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh), 
+    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh),
         optional
     :param side_set: Name of side set on mesh to place receivers,
         defaults to None.
@@ -83,24 +82,17 @@ def create_salvus_forward_simulation(
     ]
 
     w = sc.simulation.Waveform(mesh=mesh, sources=sources, receivers=recs,)
-
-    w.physics.wave_equation.end_time_in_seconds = comm.project.simulation_settings[
-        "end_time_in_s"
-    ]
-    w.physics.wave_equation.time_step_in_seconds = comm.project.simulation_settings[
-        "time_step_in_s"
-    ]
-    w.physics.wave_equation.start_time_in_seconds = comm.project.simulation_settings[
-        "start_time_in_s"
-    ]
-    w.physics.wave_equation.attenuation = comm.project.salvus_settings[
-        "attenuation"
-    ]
+    sim_set = comm.project.simulation_settings
+    sal_set = comm.project.salvus_settings
+    w.physics.wave_equation.end_time_in_seconds = sim_set["end_time_in_s"]
+    w.physics.wave_equation.time_step_in_seconds = sim_set["time_step_in_s"]
+    w.physics.wave_equation.start_time_in_seconds = sim_set["start_time_in_s"]
+    w.physics.wave_equation.attenuation = sal_set["attenuation"]
 
     import lasif.domain
 
     domain = lasif.domain.HDF5Domain(
-        mesh, comm.project.simulation_settings["absorbing_boundaries_in_km"]
+        mesh, sim_set["absorbing_boundaries_in_km"]
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
@@ -108,7 +100,7 @@ def create_salvus_forward_simulation(
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
-            side_sets=["r0", "t0", "t1", "p0", "p1",],
+            side_sets=["r0", "t0", "t1", "p0", "p1"],
             taper_amplitude=1.0
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
@@ -130,7 +122,7 @@ def get_adjoint_source(
 ) -> List[object]:
     """
     Get a list of adjoint source objects
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
@@ -138,7 +130,7 @@ def get_adjoint_source(
     :param iteration: Name of iteration
     :type iteration: str
     :return: Adjoint source objects
-    :type return: List[object]    
+    :type return: List[object]
     """
     from salvus.flow.simple_config import source, stf
     import h5py
@@ -183,16 +175,16 @@ def create_salvus_adjoint_simulation(
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh), 
+    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh),
         optional
     """
     import salvus.flow.api
@@ -208,7 +200,7 @@ def create_salvus_adjoint_simulation(
         )
         fwd_job_names = [j.job_name for j in fwd_job_array.jobs]
         fwd_job_name = forward_job_dict[event]
-        if not fwd_job_name in fwd_job_names:
+        if fwd_job_name not in fwd_job_names:
             raise LASIFError(f"{fwd_job_name} not in job_array names")
         fwd_job_array_index = fwd_job_names.index(fwd_job_name)
         fwd_job_path = fwd_job_array.jobs[fwd_job_array_index].output_path
@@ -247,7 +239,7 @@ def submit_salvus_simulation(
     """
     Submit a Salvus simulation to the machine defined in config file
     with details specified in config file
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param simulations: Simulation object
@@ -256,8 +248,8 @@ def submit_salvus_simulation(
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -266,7 +258,7 @@ def submit_salvus_simulation(
     """
     from salvus.flow.api import run_async, run_many_async
 
-    if not sim_type in ["forward", "adjoint"]:
+    if sim_type not in ["forward", "adjoint"]:
         raise LASIFError("sim_type needs to be forward or adjoint")
 
     array = False
@@ -275,7 +267,8 @@ def submit_salvus_simulation(
         if not isinstance(events, list):
             raise LASIFError(
                 "If simulations are a list, events need to be "
-                "a list aswell, with the corresponding events in the same order"
+                "a list aswell, with the corresponding events in the same "
+                "order"
             )
     else:
         if isinstance(events, list):
@@ -337,7 +330,7 @@ def _get_job_dict(comm: object, iteration: str, sim_type: str) -> dict:
     """
     Get dictionary with the job names
     """
-    if not sim_type in ["forward", "adjoint"]:
+    if sim_type not in ["forward", "adjoint"]:
         raise LASIFError("sim_type can only be forward or adjoint")
     iteration = comm.iterations.get_long_iteration_name(iteration)
     toml_file = (
@@ -359,15 +352,15 @@ def check_job_status(
 ) -> Dict[str, str]:
     """
     Check on the statuses of jobs which have been submitted before.
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param events: We need names of events for the corresponding simulations
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -388,7 +381,7 @@ def check_job_status(
         jobs = salvus.flow.api.get_job_array(
             job_array_name=job_dict["array_name"], site_name=site_name
         )
-        jobs_updated = jobs.update_status(force_update=True)
+        jobs.update_status(force_update=True)
         job_names = [j.job_name for j in jobs.jobs]
 
         for event in events:
@@ -424,13 +417,13 @@ def check_job_status(
 def download_output(comm: object, event: str, iteration: str, sim_type: str):
     """
     Download output
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param event: Name of event to download output from
     :type event: str
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -491,15 +484,15 @@ def retrieve_salvus_simulations(
 ):
     """
     Retrieve Salvus simulations based on job names currently in job_toml file
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param events: We need names of events for the corresponding simulations
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str

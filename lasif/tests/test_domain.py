@@ -21,6 +21,7 @@ import shutil
 # from lasif.domain import HDF5Domain
 from lasif.scripts import lasif_cli
 from lasif.tests.testing_helpers import reset_matplotlib
+
 # images_are_identical
 
 import pytest
@@ -107,6 +108,7 @@ def test_point_in_domain(comm):
             latitude=event_dir["latitude"],
             depth=event_dir["depth_in_km"] * 1000.0,
         )
+        # assert event_dir["depth_in_km"] == 12.0
         assert in_domain
 
     # Make conditions to let the test fail due to depth.
@@ -117,16 +119,21 @@ def test_point_in_domain(comm):
     assert not in_domain
 
     # Fail by longitude
-    long = 90.0
+    long = 60.0
     depth = event_dir["depth_in_km"] * 1000
     in_domain = comm.project.domain.point_in_domain(long, lat, depth)
     assert not in_domain
 
     # Fail by latitude
-
     long = event_dir["longitude"]
-    lat = 82.0
+    lat = 62.0
     in_domain = comm.project.domain.point_in_domain(long, lat, depth)
+    assert not in_domain
+
+    lon = 32.155
+    lat = 43.24
+    depth = 300.0
+    in_domain = comm.project.domain.point_in_domain(lon, lat, depth)
     assert not in_domain
 
 

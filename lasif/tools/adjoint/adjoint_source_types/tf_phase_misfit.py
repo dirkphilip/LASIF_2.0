@@ -15,7 +15,7 @@ import numpy as np
 import obspy
 from obspy.signal.interpolation import lanczos_interpolation
 from lasif.tools.adjoint import utils
-from lasif.adjoint_sources import time_frequency
+from lasif.tools.adjoint import time_frequency
 from lasif.exceptions import LASIFAdjointSourceCalculationError
 
 eps = np.spacing(1)

@@ -24,7 +24,7 @@ from lasif.components.project import Project
 
 from lasif.exceptions import (
     LASIFError,
-    LASIFAdjointSourceCalculationError,
+    LASIFNotFoundError,
     LASIFCommandLineException,
 )
 
@@ -48,18 +48,19 @@ def find_project_comm(folder):
     raise LASIFCommandLineException(msg)
 
 
-def plot_domain(lasif_root, save, show_mesh=False):
+def plot_domain(lasif_root, save=False, inner_boundary=False):
     """
     Plot the studied domain specified in config file
     :param lasif_root: path to lasif root directory.
     :param save: save file
-    :param show_mesh: Plot the mesh for exodus domains/meshes.
+    :param inner_boundary: binary weather the inner boundary should be drawn
+        Only works well for non-complex domains
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_domain(show_mesh=show_mesh)
+    comm.visualizations.plot_domain(inner_boundary)
 
     if save:
         outfile = os.path.join(
@@ -79,8 +80,8 @@ def plot_event(
     event_name,
     weight_set_name=None,
     save=False,
-    show_mesh=False,
     intersection_override=None,
+    inner_boundary=False,
 ):
     """
     Plot a single event including stations on a map. Events can be
@@ -89,7 +90,8 @@ def plot_event(
     :param event_name: name of event to plot
     :param weight_set_name: name of station weight set
     :param save: if figure should be saved
-    :param show_mesh: Plot the mesh for exodus domains/meshes.
+    :param inner_boundary: binary weather the inner boundary should be drawn
+        Only works well for non-complex domains
     """
     import matplotlib.pyplot as plt
 
@@ -101,8 +103,8 @@ def plot_event(
     comm.visualizations.plot_event(
         event_name,
         weight_set_name,
-        show_mesh=show_mesh,
         intersection_override=intersection_override,
+        inner_boundary=inner_boundary,
     )
 
     if save:
@@ -119,7 +121,11 @@ def plot_event(
 
 
 def plot_events(
-    lasif_root, type_of_plot="map", iteration=None, save=False, show_mesh=False
+    lasif_root,
+    type_of_plot="map",
+    iteration=None,
+    save=False,
+    inner_boundary=False,
 ):
     """
     Plot a all events on the domain
@@ -127,14 +133,15 @@ def plot_events(
     :param type_of_plot: type of plot, defaults to 'map'
     :param iteration: plot all events of an iteration, defaults to None
     :param save: if figure should be saved, defaults to False
-    :param show_mesh: Plot the mesh for exodus domains/meshes, defaults to False
+    :param inner_boundary: binary weather the inner boundary should be drawn
+        Only works well for non-complex domains
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_events(
-        type_of_plot, iteration=iteration, show_mesh=show_mesh
+        type_of_plot, iteration=iteration, inner_boundary=inner_boundary
     )
 
     if save:
@@ -163,7 +170,7 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
     the respective iteration prior to making this plot.
     Keep in mind that station with no windows will not get plotted, these
     stations might be the ones with the largest misfits in reality
-    
+
     :param lasif_root: Lasif root directory or communicator object
     :type lasif_root: str, pathlib.Path, object
     :param event: Name of event
@@ -178,7 +185,7 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_station_misfits(
-        event_name=event, iteration=iteration, save=save,
+        event_name=event, iteration=iteration
     )
 
     if save:
@@ -235,12 +242,13 @@ def plot_all_rays(
     """
     Plot all the rays that are in the project or in a specific iteration.
     This is typically slower than the plot_raydensity function
-    
+
     :param lasif_root: Lasif root directory
     :type lasif_root: path, str or Lasif communicator object
     :param plot_stations: True/False whether stations should be plotted
     :type plot_stations: bool
-    :param iteration: If you want to plot events from iteration, defaults to None
+    :param iteration: If you want to plot events from iteration, defaults to
+        None
     :type iteration: str, optional
     :param save: Whether you want to save the figure, if False, it gets
         plotted and not saved, defaults to True
@@ -870,7 +878,8 @@ def set_up_iteration(
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param events: events to include in iteration [optional]
-    :param event_specific: If the inversion needs a specific model for each event
+    :param event_specific: If the inversion needs a specific model for each
+        event
     :param remove_dirs: boolean value to remove dirs [default=False]
     """
 
@@ -1355,7 +1364,7 @@ def create_salvus_simulation(
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param lasif_root: path to lasif root folder or the lasif communicator
         object
     :type lasif_root: Union[str, Communicator]
@@ -1363,9 +1372,9 @@ def create_salvus_simulation(
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh], 
+    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh],
         optional
     :param side_set: Name of side set on mesh to place receivers,
         defaults to None.
@@ -1393,7 +1402,7 @@ def submit_salvus_simulation(
     """
     Submit a Salvus simulation to the machine defined in config file
     with details specified in config file
-    
+
     :param lasif_root: The Lasif communicator object or root file
     :type lasif_root: Union[str, object]
     :param simulations: Simulation object

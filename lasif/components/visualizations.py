@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import itertools
 import math
 import numpy as np
 import os
-import warnings
-import cartopy as cp
 import toml
 
-from lasif.exceptions import LASIFError, LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFNotFoundError
 
 from .component import Component
 
@@ -24,7 +21,9 @@ class VisualizationsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def plot_events(self, plot_type="map", iteration=None, show_mesh=False):
+    def plot_events(
+        self, plot_type="map", iteration=None, inner_boundary=False
+    ):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -32,7 +31,6 @@ class VisualizationsComponent(Component):
             * ``map`` (default) - a map view of the events
             * ``depth`` - a depth distribution histogram
             * ``time`` - a time distribution histogram
-        :param show_mesh: Plot the mesh for exodus domains/meshes on map plots.
         """
         from lasif import visualization
 
@@ -46,7 +44,7 @@ class VisualizationsComponent(Component):
             events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
-            m, projection = self.plot_domain(show_mesh=show_mesh)
+            m, projection = self.plot_domain(inner_boundary=inner_boundary)
             visualization.plot_events(
                 events,
                 map_object=m,
@@ -70,13 +68,12 @@ class VisualizationsComponent(Component):
         self,
         event_name,
         weight_set=None,
-        show_mesh=False,
         intersection_override=None,
+        inner_boundary=False,
     ):
         """
         Plots information about one event on the map.
 
-        :param show_mesh: Plot the mesh for exodus domains/meshes.
         """
         if not self.comm.events.has_event(event_name):
             msg = "Event '%s' not found in project." % event_name
@@ -88,7 +85,9 @@ class VisualizationsComponent(Component):
                 raise ValueError(msg)
             weight_set = self.comm.weights.get(weight_set)
 
-        map_object, projection = self.plot_domain(show_mesh=show_mesh)
+        map_object, projection = self.plot_domain(
+            inner_boundary=inner_boundary
+        )
 
         from lasif import visualization
 
@@ -122,40 +121,25 @@ class VisualizationsComponent(Component):
             domain=self.comm.project.domain,
         )
 
-    def plot_domain(self, show_mesh=False):
+    def plot_domain(self, inner_boundary=False):
         """
         Plots the simulation domain and the actual physical domain.
-
-        :param show_mesh: Plot the mesh for exodus domains/meshes.
         """
-        if show_mesh:
-            from ..domain import ExodusDomain  # NOQA
-
-            if not isinstance(self.comm.project.domain, ExodusDomain):
-                msg = "show_mesh only works for exodus domains/models."
-                warnings.warn(msg, LASIFWarning)
-                show_mesh = False
-            return self.comm.project.domain.plot(show_mesh=show_mesh)
-        else:
-            return self.comm.project.domain.plot()
+        return self.comm.project.domain.plot(
+            plot_inner_boundary=inner_boundary
+        )
 
     def plot_station_misfits(
-        self,
-        event_name: str,
-        iteration: str,
-        save: bool = False,
-        intersection_override=None,
+        self, event_name: str, iteration: str, intersection_override=None,
     ):
         """
         Plot a map of the stations where misfit was computed for a specific
         event. The stations are colour coded by misfit.
-        
+
         :param event_name: Name of event
         :type event_name: str
-        :param iteration: Name of iteration 
+        :param iteration: Name of iteration
         :type iteration: str
-        :param save: Save plot to file? defaults to False
-        :type save: bool, optional
         """
         from lasif import visualization
 
@@ -302,12 +286,13 @@ class VisualizationsComponent(Component):
         Plot all the rays that are in the project or in a specific iteration.
         This is typically slower than the plot_raydensity function as this one
         is non-parallel
-        
+
         :param save_plot: Should plot be saved, defaults to True
         :type save_plot: bool, optional
         :param iteration: Only events from an iteration, defaults to None
         :type iteration: str, optional
-        :param plot_stations: Whether stations are plotted on top, defaults to True
+        :param plot_stations: Whether stations are plotted on top, defaults to
+            True
         :type plot_stations: bool, optional
         """
         from lasif import visualization

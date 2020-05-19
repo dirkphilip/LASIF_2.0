@@ -7,7 +7,6 @@ import os
 import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
 import toml
-from pathlib import Path
 
 from lasif.exceptions import LASIFNotFoundError
 from .component import Component

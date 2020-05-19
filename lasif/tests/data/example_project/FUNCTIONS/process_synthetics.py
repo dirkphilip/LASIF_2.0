@@ -31,8 +31,8 @@ def process_synthetics(st, simulation_settings, event):  # NOQA
     if/else on the iteration objects.
     """
 
-    min_period = simulation_settings["highpass_period"]
-    max_period = simulation_settings["lowpass_period"]
+    min_period = simulation_settings["minimum_period"]
+    max_period = simulation_settings["maximum_period"]
     st = copy.deepcopy(st)  # We do not want to modify actual synthetics
     # Currently a no-op.
     # This function will modify each waveform stream. It must
@@ -45,10 +45,10 @@ def process_synthetics(st, simulation_settings, event):  # NOQA
     # Assuming displacement seismograms
     for tr in st:
         tr.stats.starttime = (
-            event["origin_time"] + simulation_settings["salvus_start_time"]
+            event["origin_time"] + simulation_settings["start_time_in_s"]
         )
 
-    if simulation_settings["stf"] == "heaviside":
+    if simulation_settings["source_time_function"] == "heaviside":
 
         # Bandpass filtering
         st.detrend("linear")

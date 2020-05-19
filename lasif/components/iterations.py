@@ -86,7 +86,8 @@ class IterationsComponent(Component):
             long_iter_name, remove_dirs
         )
         self._create_model_folder_for_iteration(
-                long_iter_name, events, event_specific, remove_dirs)
+            long_iter_name, events, event_specific, remove_dirs
+        )
         self._create_iteration_folder_for_iteration(
             long_iter_name, remove_dirs
         )
@@ -238,7 +239,11 @@ class IterationsComponent(Component):
             shutil.rmtree(folder)
 
     def _create_model_folder_for_iteration(
-        self, long_iteration_name, events, event_specific=False, remove_dirs=False
+        self,
+        long_iteration_name,
+        events,
+        event_specific=False,
+        remove_dirs=False,
     ):
         """
         Create the model folder if it does not yet exist.
@@ -250,6 +255,8 @@ class IterationsComponent(Component):
         if not os.path.exists(folder):
             os.makedirs(folder)
             if event_specific:
+                if isinstance(events, str):
+                    events = [events]
                 for event in events:
                     event_mesh_folder = os.path.join(folder, event)
                     os.makedirs(event_mesh_folder)

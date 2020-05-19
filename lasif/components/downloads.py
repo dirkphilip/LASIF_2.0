@@ -36,24 +36,8 @@ class DownloadsComponent(Component):
         if ds["networks"] == "None":
             ds["networks"] = None
 
-        restrictions = Restrictions(
-            starttime=starttime,
-            endtime=endtime,
-            # Go back 1 day.
-            station_starttime=starttime - 86400 * 1,
-            # Advance 1 day.
-            station_endtime=endtime + 86400 * 1,
-            network=ds["networks"],
-            station=None,
-            location=None,
-            channel=None,
-            minimum_interstation_distance_in_m=ds[
-                "interstation_distance_in_m"
-            ],
-            reject_channels_with_gaps=True,
-            minimum_length=0.95,
-            location_priorities=ds["location_priorities"],
-            channel_priorities=ds["channel_priorities"],
+        restrictions = self.generate_restrictions(
+            starttime=starttime, endtime=endtime, ds=ds
         )
 
         filename = proj.paths["eq_data"] / (event["event_name"] + ".h5")
@@ -159,6 +143,29 @@ class DownloadsComponent(Component):
             shutil.rmtree(stationxml_storage_path)
         if os.path.exists(mseed_storage_path):
             shutil.rmtree(mseed_storage_path)
+
+    def generate_restrictions(self, starttime: int, endtime: int, ds: dict):
+        from obspy.clients.fdsn.mass_downloader import Restrictions
+
+        return Restrictions(
+            starttime=starttime,
+            endtime=endtime,
+            # Go back 1 day.
+            station_starttime=starttime - 86400 * 1,
+            # Advance 1 day.
+            station_endtime=endtime + 86400 * 1,
+            network=ds["networks"],
+            station=None,
+            location=None,
+            channel=None,
+            minimum_interstation_distance_in_m=ds[
+                "interstation_distance_in_m"
+            ],
+            reject_channels_with_gaps=True,
+            minimum_length=0.95,
+            location_priorities=ds["location_priorities"],
+            channel_priorities=ds["channel_priorities"],
+        )
 
     def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
         def get_mseed_storage(

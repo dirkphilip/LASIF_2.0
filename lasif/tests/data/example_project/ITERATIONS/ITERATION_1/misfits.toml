@@ -1,0 +1,11 @@
+["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
+event_misfit = 1.301670132868937
+
+["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"]
+event_misfit = 5.537936479961759
+
+["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11".stations]
+"HT.ALN" = 1.301670132868937
+
+["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15".stations]
+"YD.4F14" = 5.537936479961759

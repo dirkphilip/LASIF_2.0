@@ -1,0 +1,27 @@
+# This is the weights set file.
+
+[weight_set]
+  name = "jonathan"
+  description = ""
+  comment = ""
+
+[[event]]
+  name = "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+  weight = 1.0
+
+  [[event.station]]
+    ID = "GE.TIRR"
+    weight = 0.6752027078342712 
+
+  [[event.station]]
+    ID = "II.KIV"
+    weight = 1.3870174094097534 
+
+  [[event.station]]
+    ID = "MN.IDI"
+    weight = 1.2337253102802304 
+
+  [[event.station]]
+    ID = "YD.4F14"
+    weight = 0.7040545724757455 
+
