@@ -96,7 +96,7 @@ def create_salvus_forward_simulation(
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
-            width_in_meters=comm.project.salvus_settings[
+            width_in_meters=comm.project.simulation_settings[
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
