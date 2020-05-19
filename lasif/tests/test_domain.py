@@ -130,6 +130,7 @@ def test_point_in_domain(comm):
     in_domain = comm.project.domain.point_in_domain(long, lat, depth)
     assert not in_domain
 
+    # Fail by point inside minmax latlon but not in complex domain
     lon = 32.155
     lat = 43.24
     depth = 300.0

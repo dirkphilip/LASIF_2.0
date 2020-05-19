@@ -15,7 +15,7 @@ import copy
 import inspect
 import matplotlib as mpl
 
-# import matplotlib.pylab as plt
+import matplotlib.pylab as plt
 
 # from matplotlib.testing.compare import compare_images as mpl_compare_images
 
@@ -126,7 +126,7 @@ def cli(communicator, request, capsys):
 #     """
 #     Partially copied from ObsPy
 #     """
-#     image_name += os.path.extsep + "png"
+#     image_name += ".png"
 #     expected = os.path.join(IMAGES, image_name)
 #     actual = os.path.join(str(temp_dir), image_name)
 
