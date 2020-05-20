@@ -260,8 +260,8 @@ class ExodusDomain:
 
         # Use a global plot for very large domains.
         if lat_extent >= 120.0 and lon_extent >= 120.0:
-            m = Basemap(projection='moll', lon_0=self.center_lon,
-                        lat_0=self.center_lat, resolution="c", ax=ax)
+            m = Basemap(projection='ortho', lon_0=20.,
+                        lat_0=3.6, resolution="c", ax=ax)
             stepsize = 45.0
 
         elif max_extent >= 75.0:
@@ -296,9 +296,9 @@ class ExodusDomain:
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
             lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
             lines = np.array([lats, lons]).T
-            _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
+            #_plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
 
-            if plot_inner_boundary:
+            if False:# plot_inner_boundary:
                 # Get surface points
                 x, y, z = self.earth_surface_coords.T
                 latlonrad = np.array(xyz_to_lat_lon_radius(x, y, z))

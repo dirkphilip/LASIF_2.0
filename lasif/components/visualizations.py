@@ -154,7 +154,7 @@ class VisualizationsComponent(Component):
                 outfile = os.path.join(
                     self.comm.project.get_output_folder(
                         type="raydensity_plots", tag=f"raydensity_{iteration}"),
-                    "raydensity.png")
+                    "raydensity.pdf")
             else:
                 outfile = os.path.join(
                     self.comm.project.get_output_folder(
