@@ -37,12 +37,14 @@ class AdjointSourcesComponent(Component):
             communicator, component_name
         )
 
-    def get_filename(self, event, iteration):
+    def get_filename(self, event: str, iteration: str):
         """
         Gets the filename for the adjoint source.
 
         :param event: The event.
-        :param iteration: The iteration.
+        :type event: str
+        :param iteration: The iteration name.
+        :type iteration: str
         """
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
             iteration
@@ -75,21 +77,23 @@ class AdjointSourcesComponent(Component):
 
     def get_misfit_for_event(
         self,
-        event,
-        iteration,
-        weight_set_name=None,
-        include_station_misfit=False,
+        event: str,
+        iteration: str,
+        weight_set_name: str = None,
+        include_station_misfit: bool = False,
     ):
         """
         This function returns the total misfit for an event.
+
         :param event: name of the event
+        :type event: str
         :param iteration: iteration for which to get the misfit
-        :return: t
+        :type iteration: str
         :param weight_set_name: Name of station weights, defaults to None
-        :type weight_set_name: str
+        :type weight_set_name: str, optional
         :param include_station_misfit: Whether individual station misfits
             should be written down or not, defaults to False
-        :type include_station_misfit: bool
+        :type include_station_misfit: bool, optional
         """
         misfit_file = self.get_misfit_file(iteration)
         misfits = toml.load(misfit_file)
@@ -105,8 +109,28 @@ class AdjointSourcesComponent(Component):
             return event_misfit
 
     def calculate_adjoint_sources(
-        self, event, iteration, window_set_name, plot=False, **kwargs
+        self,
+        event: str,
+        iteration: str,
+        window_set_name: str,
+        plot: bool = False,
+        **kwargs,
     ):
+        """
+        Calculate adjoint sources based on the type of misfit defined in
+        the lasif config file.
+        The computed misfit for each station is also written down into
+        a misfit toml file. 
+
+        :param event: Name of event
+        :type event: str
+        :param iteration: Name of iteration
+        :type iteration: str
+        :param window_set_name: Name of window set
+        :type window_set_name: str
+        :param plot: Should the adjoint source be plotted?, defaults to False
+        :type plot: bool, optional
+        """
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
@@ -341,10 +365,21 @@ class AdjointSourcesComponent(Component):
             print(f"{length} Adjoint sources are in your file.")
 
     def finalize_adjoint_sources(
-        self, iteration_name, event_name, weight_set_name=None
+        self, iteration_name: str, event_name: str, weight_set_name: str = None
     ):
         """
-        Finalizes the adjoint sources.
+        Work with adjoint source in a way that it is written down properly
+        into an hdf5 file and prepared for being used as a source time
+        function.
+        The misfit values and adjoint sources are multiplied by the
+        weight of the event and the station.
+
+        :param iteration_name: Name of iteration
+        :type iteration_name: str
+        :param event_name: Name of event
+        :type event_name: str
+        :param weight_set_name: Name of station weights, defaults to None
+        :type weight_set_name: str, optional
         """
         import pyasdf
         import h5py
