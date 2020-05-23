@@ -33,7 +33,7 @@ misfit_type = "tf_phase_misfit"
 
 [lasif_project.domain_settings]
 comment = "Here you specify your domain with an hdf5 mesh and how thick of a boundary you need regarding data downloading (i.e. What is the minimum distance from the boundary which data can be downloded)"
-domain_file = "/home/solvi/Software/LASIF_2.0/lasif/tests/data/example_project/MODELS/Turkey.h5"
+domain_file = "./MODELS/Turkey.h5"
 boundary_in_km = 50.0
 
 [lasif_project.download_settings]

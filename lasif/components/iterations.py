@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import glob
 import os
+from typing import List
 
 from .component import Component
 import shutil
@@ -11,7 +12,8 @@ import shutil
 
 class IterationsComponent(Component):
     """
-    Component dealing with the iteration xml files.
+    Component dealing with the iterations of the project. Mostly an
+    organizational component.
 
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
@@ -21,25 +23,31 @@ class IterationsComponent(Component):
         self.__cached_iterations = {}
         super(IterationsComponent, self).__init__(communicator, component_name)
 
-    def get_long_iteration_name(self, iteration_name):
+    def get_long_iteration_name(self, iteration_name: str):
         """
         Returns the long form of an iteration from its short or long name.
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.iterations.get_long_iteration_name("1")
         'ITERATION_1'
+
+        :param iteration_name: Name of iteration
+        :type iteration_name: str
         """
         if iteration_name[:10] == "ITERATION_":
             iteration_name = iteration_name[10:]
         return "ITERATION_%s" % iteration_name
 
-    def write_info_toml(self, iteration_name, simulation_type):
+    def write_info_toml(self, iteration_name: str, simulation_type: str):
         """
         Write a toml file to store information related to how the important
         config settings were when input files were generated. This will
         create a new file when forward input files are generated.
+
         :param iteration_name: The iteration for which to write into toml
+        :type iteration_name: str
         :param simulation_type: The type of simulation.
+        :type simulation_type: str
         """
         import toml
 
@@ -65,15 +73,25 @@ class IterationsComponent(Component):
         print(f"Information about input files stored in {info_file}")
 
     def setup_directories_for_iteration(
-        self, iteration_name, events, remove_dirs=False, event_specific=False
+        self,
+        iteration_name: str,
+        events: List[str],
+        remove_dirs: bool = False,
+        event_specific: bool = False,
     ):
         """
         Sets up the directory structure required for the iteration
+
         :param iteration_name: The iteration for which to create the folders.
+        :type iteration_name: str
         :param events: which events are in the iteration
-        :param remove_dirs: Boolean if set to True the iteration is removed
+        :type events: List[str]
+        :param remove_dirs: Boolean if set to True the iteration is removed,
+            defaults to False
+        :type remove_dirs: bool, optional
         :param event_specific: Will create specific folder for each model if
-            inversion uses event specific meshes
+            inversion uses event specific meshes, defaults to False
+        :type event_specific: bool, optional
         """
         long_iter_name = self.get_long_iteration_name(iteration_name)
         self._create_synthetics_folder_for_iteration(
@@ -95,13 +113,14 @@ class IterationsComponent(Component):
             long_iter_name, remove_dirs
         )
 
-    def setup_iteration_toml(self, iteration_name):
+    def setup_iteration_toml(self, iteration_name: str):
         """
         Sets up a toml file which can be used to keep track of needed
         information related to the iteration. It can be used to specify which
         events to use and it can remember which input parameters were used.
+
         :param iteration_name: The iteration for which to create the folders.
-        :param remove_dirs: Boolean if set to True the iteration is removed
+        :type iteration_name: str
         """
 
         long_iter_name = self.get_long_iteration_name(iteration_name)
@@ -140,11 +159,16 @@ class IterationsComponent(Component):
             fh.write(toml_string)
         print(f"Information about iteration stored in {file}")
 
-    def setup_events_toml(self, iteration_name, events):
+    def setup_events_toml(self, iteration_name: str, events: List[str]):
         """
         Writes all events into a toml file. User can modify this if he wishes
         to use less events for this specific iteration. Lasif should be smart
         enough to know which events were used in which iteration.
+
+        :param iteration_name: Name of iteration
+        :type iteration_name: str
+        :param events: List of events to include
+        :type events: List[str]
         """
         long_iter_name = self.get_long_iteration_name(iteration_name)
         path = self.comm.project.paths["iterations"]
@@ -174,10 +198,15 @@ class IterationsComponent(Component):
             fh.write(toml_string)
 
     def _create_iteration_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name: str, remove_dirs: bool = False
     ):
         """
         Create folder for this iteration in the iteration information directory
+
+        :param long_iteration_name: ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param remove_dirs: Should we delete the iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
 
         path = self.comm.project.paths["iterations"]
@@ -189,11 +218,16 @@ class IterationsComponent(Component):
             shutil.rmtree(folder)
 
     def _create_synthetics_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name: str, remove_dirs: bool = False
     ):
         """
         Create the synthetics folder if it does not yet exist.
-        :param iteration_name: The iteration for which to create the folders.
+
+        :param long_iteration_name: The iteration for which to create the 
+            folders. ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param remove_dirs: Should we delete the iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
 
         path = self.comm.project.paths["synthetics"]
@@ -209,11 +243,16 @@ class IterationsComponent(Component):
             shutil.rmtree(folder_info)
 
     def _create_input_files_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name: str, remove_dirs: bool = False
     ):
         """
         Create the synthetics folder if it does not yet exist.
-        :param iteration_name: The iteration for which to create the folders.
+
+        :param long_iteration_name: The iteration for which to create the
+            folders. ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param remove_dirs: Should we delete iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
         path = self.comm.project.paths["salvus_files"]
 
@@ -224,11 +263,16 @@ class IterationsComponent(Component):
             shutil.rmtree(folder)
 
     def _create_adjoint_sources_and_windows_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name: str, remove_dirs: bool = False
     ):
         """
         Create the adjoint_sources_and_windows folder if it does not yet exist.
-        :param iteration_name: The iteration for which to create the folders.
+
+        :param long_iteration_name: The iteration for which to create the 
+            folders. ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param remove_dirs: Should we delete the iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
         path = self.comm.project.paths["adjoint_sources"]
 
@@ -240,14 +284,23 @@ class IterationsComponent(Component):
 
     def _create_model_folder_for_iteration(
         self,
-        long_iteration_name,
-        events,
-        event_specific=False,
-        remove_dirs=False,
+        long_iteration_name: str,
+        events: Union[str, List[str]],
+        event_specific: bool = False,
+        remove_dirs: bool = False,
     ):
         """
         Create the model folder if it does not yet exist.
-        :param iteration_name: The iteration for which to create the folders.
+
+        :param long_iteration_name: The iteration for which to create the 
+            folders. ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param events: Events to include in iteration
+        :type events: Union[str, List[str]]
+        :param event_specific: Specific meshes per events, defaults to False
+        :type event_specific: bool, optional
+        :param remove_dirs: Should we delete the iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
         path = self.comm.project.paths["models"]
 
@@ -264,11 +317,16 @@ class IterationsComponent(Component):
             shutil.rmtree(folder)
 
     def _create_gradients_folder_for_iteration(
-        self, long_iteration_name, remove_dirs=False
+        self, long_iteration_name: str, remove_dirs: bool = False
     ):
         """
         Create the kernel folder if it does not yet exist.
-        :param iteration_name: The iteration for which to create the folders.
+
+        :param long_iteration_name: The iteration for which to create the 
+            folders. ITERATION_<name of iteration>
+        :type long_iteration_name: str
+        :param remove_dirs: Should we delete the iteration?, defaults to False
+        :type remove_dirs: bool, optional
         """
         path = self.comm.project.paths["gradients"]
 
@@ -286,16 +344,19 @@ class IterationsComponent(Component):
             os.path.abspath(_i)
             for _i in glob.iglob(
                 os.path.join(
-                    self.comm.project.paths["eq_synthetics"], "ITERATION_*"
+                    self.comm.project.paths["iterations"], "ITERATION_*"
                 )
             )
         ]
         iterations = [os.path.basename(_i)[10:] for _i in files]
         return sorted(iterations)
 
-    def has_iteration(self, iteration_name):
+    def has_iteration(self, iteration_name: str):
         """
         Checks for existance of an iteration
+
+        :param iteration_name: Name of iteration
+        :type iteration_name: str
         """
         if iteration_name[:10] == "ITERATION_":
             iteration_name = iteration_name[10:]
