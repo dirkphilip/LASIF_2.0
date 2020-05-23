@@ -116,13 +116,16 @@ class EventsComponent(Component):
                 str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
             ]
 
-    def list(self, iteration=None):
+    def list(self, iteration: str = None):
         """
         List of all events.
         >>> comm = getfixture('events_comm')
         >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
         ['GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
          'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
         """
         self._update_cache()
         if iteration is not None:
@@ -145,7 +148,7 @@ class EventsComponent(Component):
         else:
             return sorted(self.__event_info_cache.keys())
 
-    def count(self, iteration=None):
+    def count(self, iteration: str = None):
         """
         Get the number of events managed by this component.
         If iteration given, return number of events in iteration
@@ -153,6 +156,9 @@ class EventsComponent(Component):
         >>> comm = getfixture('events_comm')
         >>> comm.events.count()
         2
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
         """
         if iteration is not None:
             import toml
@@ -174,11 +180,12 @@ class EventsComponent(Component):
         else:
             return len(self.all_events)
 
-    def has_event(self, event_name):
+    def has_event(self, event_name: str):
         """
         Test for existence of an event.
-        :type event_name: str
+
         :param event_name: The name of the event.
+        :type event_name: str
         """
         # Make sure  it also works with existing event dictionaries. This
         # has the potential to simplify lots of code.
@@ -189,11 +196,16 @@ class EventsComponent(Component):
             pass
         return event_name in self.all_events
 
-    def get_all_events(self, iteration=None):
+    def get_all_events(self, iteration: str = None) -> dict:
         """
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
         :meth:`~lasif.components.events.EventsComponent.get` method.
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
+        :return: Dictonary with keys as event names and information as values
+        :rtype: dict
         """
         # make sure cache is filled
         self._update_cache()
@@ -207,13 +219,13 @@ class EventsComponent(Component):
         else:
             return copy.deepcopy(self.__event_info_cache)
 
-    def get(self, event_name):
+    def get(self, event_name: str) -> dict:
         """
         Get information about one event.
         This function uses multiple cache layers and is thus very cheap to
         call.
-        :type event_name: str
         :param event_name: The name of the event.
+        :type event_name: str
         :rtype: dict
         """
         try:
