@@ -1,7 +1,9 @@
 """
 Classes handling the domain definition and associated functionality for LASIF.
+It can handle complex domains defined by HDF5 Salvus meshes. Otherwise it
+uses more simple domains which are just defined as min/max lat/lon
+coordinates.
 
-Matplotlib is imported lazily to avoid heavy startup costs.
 
 :copyright:
     Solvi Thrastarson, (soelvi.thrastarson@erdw.ethz.ch) 2019
@@ -25,6 +27,10 @@ from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
 class HDF5Domain:
+    """
+    A class which handles domains based on HDF5 Salvus meshes
+    """
+
     def __init__(
         self,
         mesh_file: typing.Union[str, pathlib.Path],
@@ -54,9 +60,9 @@ class HDF5Domain:
 
     def _read(self):
         """
-        Reads the exodus file and gathers basic information such as the
+        Reads the HDF5 file and gathers basic information such as the
         coordinates of the edge nodes. In the case of domain that spans
-         the entire earth, all points will lie inside the domain, therefore
+        the entire earth, all points will lie inside the domain, therefore
         further processing is not necessary.
         """
         try:
@@ -166,15 +172,6 @@ class HDF5Domain:
             x_cen, y_cen, z_cen
         )
 
-        # get extent
-        # lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
-        # boundary = np.array((lats, lons))
-
-        # In order to create the self.edge_polygon we need to make sure that
-        # the points on the boundary are arranged in a way that a proper
-        # polygon will be drawn.
-        # boundary = self._resort_boundary(boundary)
-        # self.boundary = boundary.T
         lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
         self.min_lat = np.min(lats)
         self.max_lat = np.max(lats)
@@ -192,6 +189,9 @@ class HDF5Domain:
 
         self.is_read = True
 
+        # In order to create the self.edge_polygon we need to make sure that
+        # the points on the boundary are arranged in a way that a proper
+        # polygon will be drawn.
         sorted_indices = self.get_sorted_edge_coords()
         x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
         lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
@@ -201,6 +201,9 @@ class HDF5Domain:
         self.m.close()
 
     def _initialize_kd_trees(self):
+        """
+        KDTrees are used to quickly access closest points.
+        """
         if not self.is_read:
             self._read()
 
@@ -218,13 +221,27 @@ class HDF5Domain:
             self._read()
         return self.side_set_names
 
-    def point_in_domain(self, longitude, latitude, depth=None):
+    def point_in_domain(
+        self, longitude: float, latitude: float, depth: float = None
+    ):
         """
-        Test whether a point lies inside the domain,
+        Test whether a point lies inside the domain. It is done in a step
+        by step process of elimination:
+            * First one checks depth and sees whether the point is too deep 
+              and falls into the absorbing boundaries at depth. 
+            * Second is a box check seeing whether point falls outside
+              of minimum and maximum latitude.
+            * Third one uses the edge polygon to see whether point is inside
+              it or not.
+            * Last one checks whether the point is too close to the edge
+              meaning that it would fall into the absorbing boundaries.
 
         :param longitude: longitude in degrees
+        :type longitude: float
         :param latitude: latitude in degrees
-        :param depth: depth of event
+        :type latitude: float
+        :param depth: depth of event in meters
+        :type depth: float
         """
         if not self.is_read:
             self._read()
@@ -242,35 +259,44 @@ class HDF5Domain:
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=2)
 
-        # False if not close enough to domain surface, this might go wrong
-        # for meshes with significant topography/ellipticity in
-        # combination with a small element size.
-
+        # First elimination:
         # Check whether domain is deep enough to include the point.
         # Multiply element width with 1.5 since they are larger at the bottom
         if depth:
-            if depth > (self.max_depth - self.absorbing_boundary_length * 1.5):
+            if depth > (self.max_depth - self.absorbing_boundary_length * 1.2):
                 return False
+
+        # Second elimination:
         if latitude >= self.max_lat or latitude <= self.min_lat:
             return False
         if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
 
+        # Third elimination:
         if not self.edge_polygon.contains_point((latitude, longitude)):
             return False
+
+        # Fourth elimination
         if np.min(dist) < self.absorbing_boundary_length * 1.2:
             return False
 
         return True
 
-    def plot(self, ax=None, plot_inner_boundary=False):
+    def plot(
+        self,
+        ax: matplotlib.axes.Axes = None,
+        plot_inner_boundary: bool = False,
+    ):
         """
         Plots the domain
         Global domain is plotted using an equal area Mollweide projection.
+        Smaller domains have eihter Orthographic projections or PlateCarree.
 
-        :param ax: matplotlib axes
+        :param ax: matplotlib axes, defaults to None
+        :type ax: matplotlib.axes.Axes, optional
         :param plot_inner_boundary: plot the convex hull of the mesh
-        surface nodes that lie inside the domain.
+        surface nodes that lie inside the domain. Defaults to False
+        :type plot_inner_boundary: bool, optional
         :return: The created GeoAxes instance.
         """
         if not self.is_read:
@@ -286,8 +312,6 @@ class HDF5Domain:
                 m = plt.axes(projection=projection)
             else:
                 m = ax
-            # m = plt.axes(projection=projection)
-            # m = Basemap(projection="moll", lon_0=0, resolution="c", ax=ax)
             _plot_features(m, projection=projection)
             return m, projection
 
@@ -297,7 +321,6 @@ class HDF5Domain:
 
         # Use a global plot for very large domains.
         if lat_extent >= 90.0 and lon_extent >= 90.0:
-            # projection = cp.crs.Mollweide(central_longitude=self.center_lon)
             projection = cp.crs.Mollweide()
             if ax is None:
                 m = plt.axes(projection=projection)
@@ -330,18 +353,6 @@ class HDF5Domain:
             )
 
         try:
-            # sorted_indices = self.get_sorted_edge_coords()
-            # x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
-            # lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
-            # lines = np.array([lats, lons]).T
-            # _plot_lines(
-            #     m,
-            #     lines,
-            #     transform=transform,
-            #     color="red",
-            #     lw=2,
-            #     label="Domain Edge",
-            # )
             _plot_lines(
                 m,
                 self.boundary,
@@ -350,35 +361,7 @@ class HDF5Domain:
                 lw=2,
                 label="Domain Edge",
             )
-            # Get surface points
-            # x, y, z = self.earth_surface_coords.T
-            # latlonrad = np.array(xyz_to_lat_lon_radius(x[0], y[0], z[0]))
-            # # This part is potentially slow when lots
-            # # of points need to be checked
-            # in_domain = []
-            # idx = 0
-            # for lat, lon, _ in latlonrad.T:
-            #     if self.point_in_domain(
-            #         latitude=lat, longitude=lon, no_abs=True
-            #     ):
-            #         in_domain.append(idx)
-            #     idx += 1
-            # lats, lons, rad = np.array(latlonrad[:, in_domain])
 
-            # # Get the complex hull from projected (to 2D) points
-            # from scipy.spatial import ConvexHull
-
-            # points = np.array((lons, lats)).T
-            # hull = ConvexHull(points)
-
-            # # Plot the hull simplices
-            # for simplex in hull.simplices:
-            #     m.plot(
-            #         points[simplex, 0],
-            #         points[simplex, 1],
-            #         c="blue",
-            #         transform=transform,
-            #     )
             if plot_inner_boundary:
                 # Get surface points
                 x, y, z = self.earth_surface_coords.T
@@ -475,34 +458,6 @@ class HDF5Domain:
                 )
         return indices_sorted
 
-    def get_max_extent(self):
-        """
-        Returns the maximum extends of the domain.
-
-        Returns a dictionary with the following keys:
-            * minimum_latitude
-            * maximum_latitude
-            * minimum_longitude
-            * maximum_longitude
-        """
-        if not self.is_read:
-            self._read()
-
-        if self.is_global_mesh:
-            return {
-                "minimum_latitude": -90.0,
-                "maximum_latitude": 90.0,
-                "minimum_longitude": -180.0,
-                "maximum_longitude": 180.0,
-            }
-
-        return {
-            "minimum_latitude": self.min_lat,
-            "maximum_latitude": self.max_lat,
-            "minimum_longitude": self.min_lon,
-            "maximum_longitude": self.max_lon,
-        }
-
     def __str__(self):
         return "HDF5 Domain"
 
@@ -513,37 +468,6 @@ class HDF5Domain:
         if self.is_global_mesh:
             return True
         return False
-
-    def _resort_boundary(self, boundaries: np.array):
-        """
-        Arange points from one point to always find the closest point.
-        Meant to able the polygon creating by matplotlib
-
-        :param boundaries: An array of 2D points
-        :type boundaries: np.array 2xN
-        :return: Same points arranged to always have the closest point next
-        :rtype: np.array 2xN
-        """
-        mask = np.ones_like(boundaries[0, :], dtype=bool)
-        mask[0] = False
-        boundaries_sorted = np.zeros_like(boundaries)
-        point = boundaries[:, 0]
-        boundaries_sorted[:, 0] = point
-        indices = np.arange(boundaries.shape[1])
-        for i in range(1, boundaries.shape[1]):
-            ind = np.argmin(
-                np.sqrt(
-                    np.square(point[0] - boundaries[[0], mask])
-                    + np.square(point[1] - boundaries[[1], mask])
-                )
-            )
-            boundaries_sorted[:, i] = np.delete(
-                boundaries, indices[~mask], axis=1
-            )[:, ind]
-            point = boundaries_sorted[:, i]
-            p_2_delete = indices[mask][ind]
-            mask[p_2_delete] = False
-        return boundaries_sorted
 
 
 def _plot_features(m, projection):

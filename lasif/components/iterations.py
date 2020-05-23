@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import glob
 import os
-from typing import List
+from typing import Union, List
 
 from .component import Component
 import shutil
