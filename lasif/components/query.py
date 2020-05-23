@@ -21,14 +21,19 @@ class QueryComponent(Component):
     components and integrating them in a meaningful way.
 
     :param communicator: The communicator instance.
+    :type communicatior: object
     :param component_name: The name of this component for the communicator.
+    :type str
 
     It should thus be initialized fairly late as it needs access to a number
     of other components via the communicator.
     """
 
     def get_all_stations_for_event(
-        self, event_name, list_only=False, intersection_override=None
+        self,
+        event_name: str,
+        list_only: bool = False,
+        intersection_override: bool = None,
     ):
         """
         Returns a dictionary of all stations for one event and their
@@ -37,14 +42,17 @@ class QueryComponent(Component):
         A station is considered to be available for an event if at least one
         channel has raw data and an associated station file. Furthermore it
         must be possible to derive coordinates for the station.
-
-        :type event_name: str
-        :type intersection_override: bool
+        
         :param event_name: Name of the event.
+        :type event_name: str
+        :param list_only: Whether you only want names of stations, defaults
+            to False.
+        :type list_only: bool, optional
         :param intersection_override: boolean to require to have the same
-        stations recording all events, i.e. the intersection of receiver
-        sets. The intersection will consider two stations equal i.f.f. the
-        station codes AND coordinates (LAT, LON, Z) are equal.
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal.
+        :type intersection_override: bool, optional
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw"
@@ -175,11 +183,16 @@ class QueryComponent(Component):
                 }
                 return filtered_coordinate_dictionary_event
 
-    def get_coordinates_for_station(self, event_name, station_id):
+    def get_coordinates_for_station(self, event_name: str, station_id: str):
         """
         Get the coordinates for one station.
 
         Must be in sync with :meth:`~.get_all_stations_for_event`.
+
+        :param event_name: Name of event
+        :type event_name: str
+        :param station_id: The unique id of the station in the waveform file
+        :type station_id: str
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw"
@@ -188,9 +201,15 @@ class QueryComponent(Component):
         with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
             return ds.waveforms[station_id].coordinates
 
-    def get_stations_for_all_events(self, intersection_override=None):
+    def get_stations_for_all_events(self, intersection_override: bool = None):
         """
         Returns a dictionary with a list of stations per event.
+
+        :param intersection_override: boolean to require to have the same
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal.
+        :type intersection_override: bool, optional
         """
         events = {}
 
@@ -223,7 +242,23 @@ class QueryComponent(Component):
 
         return events
 
-    def get_matching_waveforms(self, event, iteration, station_or_channel_id):
+    def get_matching_waveforms(
+        self, event: str, iteration: str, station_or_channel_id: str
+    ) -> collections.namedtuple:
+        """
+        Get synthetic and processed waveforms for the same station and same
+        event.
+
+        :param event: Name of event
+        :type event: str
+        :param iteration: Name of iteration
+        :type iteration: str
+        :param station_or_channel_id: The id for the station of the channel
+        :type station_or_channel_id: str
+        :return: A named tuple with processed waveforms, synthetic waveforms
+            and coordinates of station
+        :rtype: collections.namedtuple
+        """
         seed_id = station_or_channel_id.split(".")
         if len(seed_id) == 2:
             channel = None
@@ -359,13 +394,16 @@ class QueryComponent(Component):
             data=data, synthetics=synthetics, coordinates=coordinates
         )
 
-    def point_in_domain(self, latitude, longitude, depth):
+    def point_in_domain(self, latitude: float, longitude: float, depth: float):
         """
         Tests if the point is in the domain. Returns True/False
 
         :param latitude: The latitude of the point.
+        :type latitude: float
         :param longitude: The longitude of the point.
+        :type longitude: float
         :param depth: The depth of the point
+        :type depth: float
         """
         domain = self.comm.project.domain
         return domain.point_in_domain(
