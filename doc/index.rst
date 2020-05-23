@@ -55,14 +55,12 @@ tomographic images.
     :hidden:
     :maxdepth: 2
 
-    prerequisites
+    installation 
 
     introduction
     tutorial
 
-    cli
-    meshing
-    webinterface
     api_doc
+    cli
     faq
 

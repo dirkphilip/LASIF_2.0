@@ -240,7 +240,7 @@ class HDF5Domain:
             latitude, longitude, self.r_earth
         )
 
-        dist, _ = self.earth_surface_tree.query(point_on_surface, k=2)
+        dist, _ = self.domain_edge_tree.query(point_on_surface, k=2)
 
         # False if not close enough to domain surface, this might go wrong
         # for meshes with significant topography/ellipticity in
