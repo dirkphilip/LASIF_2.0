@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import logging
 import os
+from typing import List
+import obspy
 
 from .component import Component
 
@@ -16,8 +18,14 @@ class DownloadsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def download_data(self, event, providers=None):
+    def download_data(self, event: str, providers: List[str] = None):
         """
+        Download data using the obspy mass downloader
+
+        :param event: Name of event
+        :type event: str
+        :param providers: List of providers, defaults to None
+        :type providers: List[str], optional
         """
         event = self.comm.events.get(event)
         from obspy.clients.fdsn.mass_downloader import (
@@ -144,7 +152,24 @@ class DownloadsComponent(Component):
         if os.path.exists(mseed_storage_path):
             shutil.rmtree(mseed_storage_path)
 
-    def generate_restrictions(self, starttime: int, endtime: int, ds: dict):
+    def generate_restrictions(
+        self,
+        starttime: obspy.core.utcdatetime.UTCDateTime,
+        endtime: obspy.core.utcdatetime.UTCDateTime,
+        ds: dict,
+    ) -> obspy.clients.fdsn.mass_downloader.Restrictions:
+        """
+        Create a restriction criterion for the mass downloader
+
+        :param starttime: Start time of data request
+        :type starttime: obspy.core.utcdatetime.UTCDateTime
+        :param endtime: End time of data request
+        :type endtime: obspy.core.utcdatetime.UTCDateTime
+        :param ds: Dictionary of information
+        :type ds: dict
+        :return: Restrictions to download request
+        :rtype: obspy.clients.fdsn.mass_downloader.Restrictions
+        """
         from obspy.clients.fdsn.mass_downloader import Restrictions
 
         return Restrictions(
