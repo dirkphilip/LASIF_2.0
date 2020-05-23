@@ -51,10 +51,12 @@ class Project(Component):
         Upon intialization, set the paths and read the config file.
 
         :param project_root_path: The root path of the project.
+        :type project_root_path: pathlib.Path
         :param init_project: Determines whether or not to initialize a new
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
+        :type init_project: bool, optional
         """
         # Setup the paths.
         self.__setup_paths(project_root_path.absolute())
@@ -107,7 +109,7 @@ class Project(Component):
 
         return ret_str
 
-    def __copy_fct_templates(self, init_project):
+    def __copy_fct_templates(self, init_project: bool):
         """
         Copies the function templates to the project folder if they do not
         yet exist.
@@ -116,6 +118,7 @@ class Project(Component):
             initialization or not. If not called during project initialization
             this function will raise a warning to make users aware of the
             changes in LASIF.
+        :type init_project: bool
         """
         directory = pathlib.Path(__file__).parent.parent / "function_templates"
         for filename in directory.glob("*.py"):
@@ -134,7 +137,8 @@ class Project(Component):
 
     def _read_config_file(self):
         """
-        Parse the config file.
+        Parse the config file. The config file is a toml file in the root
+        directory which reads directly into a dictionary.
         """
         import toml
 
@@ -250,6 +254,9 @@ class Project(Component):
     def __setup_paths(self, root_path: pathlib.Path):
         """
         Central place to define all paths.
+
+        :param root_path: The path to the projects root directory
+        :type root_path: pathlib.Path
         """
         # Every key containing the string "file" denotes a file, all others
         # should denote directories.
@@ -301,11 +308,14 @@ class Project(Component):
                 continue
             os.makedirs(path)
 
-    def __init_new_project(self, project_name):
+    def __init_new_project(self, project_name: str):
         """
         Initializes a new project. This currently just means that it creates a
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
+
+        :param project_name: Name of the project
+        :type project_name: str
         """
         if not project_name:
             project_name = "LASIFProject"
@@ -405,11 +415,12 @@ class Project(Component):
         with open(self.paths["config_file"], "w") as fh:
             toml.dump(cfg, fh)
 
-    def get_project_function(self, fct_type):
+    def get_project_function(self, fct_type: str):
         """
         Helper importing the project specific function.
 
         :param fct_type: The desired function.
+        :type fct_type: str
         """
         # Cache to avoid repeated imports.
         if fct_type in self.__project_function_cache:
@@ -467,7 +478,7 @@ class Project(Component):
         :param type: The type of data. Will be a subfolder.
         :param tag: The tag of the folder. Will be postfix of the final folder.
         :param timestamp: Add timestamp to folder name to ensure
-        uniqueness.
+            uniqueness. Defaults to True
         """
         from obspy import UTCDateTime
 

@@ -57,7 +57,7 @@ class ValidatorComponent(Component):
         sys.stdout.write(".")
         sys.stdout.flush()
 
-    def _add_report(self, message, error_count=1):
+    def _add_report(self, message: str, error_count: int = 1):
         """
         Helper method adding a new error message.
         """
@@ -65,7 +65,9 @@ class ValidatorComponent(Component):
         self._total_error_count += error_count
 
     def validate_data(
-        self, data_and_station_file_availability=False, raypaths=False
+        self,
+        data_and_station_file_availability: bool = False,
+        raypaths: bool = False,
     ):
         """
         Validates all data of the current project.
@@ -82,6 +84,13 @@ class ValidatorComponent(Component):
             * Some simply sanity checks so that the event depth is reasonable
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
+        
+        :param data_and_station_file_availability: Assert whether all waveform
+            files have a corresponding station file, defaults to False
+        :type data_and_station_file_availability: bool, optional
+        :param raypaths: Assert that raypaths are fully inside domain,
+            defaults to False
+        :type raypaths: bool, optional
         """
         # Reset error and report counts.
         self._reports = []
@@ -195,11 +204,12 @@ class ValidatorComponent(Component):
         else:
             self._print_fail_message()
 
-    def clean_up_project(self, clean_up_file):
+    def clean_up_project(self, clean_up_file: str):
         """
 
         :param clean_up_file: A toml describing the events that can be
         deleted.
+        :type clean_up_file: str
         """
 
         clean_up_dict = toml.load(clean_up_file)
@@ -470,7 +480,11 @@ class ValidatorComponent(Component):
             self._print_fail_message()
 
     def is_event_station_raypath_within_boundaries(
-        self, event_name, station_latitude, station_longitude, raypath_steps=25
+        self,
+        event_name: str,
+        station_latitude: float,
+        station_longitude: float,
+        raypath_steps: int = 25,
     ):
         """
         Checks if the full station-event raypath is within the project's domain
@@ -478,17 +492,15 @@ class ValidatorComponent(Component):
 
         Returns True if this is the case, False if not.
 
-        :type event_latitude: float
-        :param event_latitude: The event latitude.
-        :type event_longitude: float
-        :param event_longitude: The event longitude.
-        :type station_latitude: float
+        :param event_name: Name of the event
+        :type event_name: str
         :param station_latitude: The station latitude.
-        :type station_longitude: float
+        :type station_latitude: float
         :param station_longitude: The station longitude.
-        :type raypath_steps: int
+        :type station_longitude: float
         :param raypath_steps: The number of discrete points along the raypath
-            that will be checked. Optional.
+            that will be checked, defaults to 25
+        :type raypath_steps: int, optional
         """
         from lasif.utils import greatcircle_points, Point
 
