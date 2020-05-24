@@ -18,13 +18,25 @@ import numpy as np
 from obspy.signal.tf_misfit import plot_tfr
 from lasif.exceptions import LASIFError
 import cmasher as cmr
+from typing import Union, List, Dict, Tuple
 
 
-def project_points(projection, lon, lat):
+def project_points(
+    projection: cp.crs.Projection,
+    lon: Union[np.ndarray, float],
+    lat: Union[np.ndarray, float],
+):
     """
     Define the correct projection function depending on name of projection
 
-    :param projection: Cartopy projection object
+    :param projection: Projection to be used
+    :type projection: cp.crs.Projection
+    :param lon: Longitude coordinate
+    :type lon: Union[np.ndarray, float]
+    :param lat: Latitude coordinate
+    :type lat: Union[np.ndarray, float]
+    :return: projected lon, lat points
+    :rtype: np.ndarray, np.ndarray
     """
     import pyproj
 
@@ -39,15 +51,20 @@ def project_points(projection, lon, lat):
     return x, y
 
 
-def xy_to_lonlat(x: float, y: float, projection):
+def xy_to_lonlat(
+    x: Union[float, np.ndarray],
+    y: Union[float, np.ndarray],
+    projection: cp.crs.Projection,
+):
     """
     Change x and y to latitude and longitude, based on Earth radius
 
     :param x: X coordinate in the correct projection, but in meters
-    :type x: float
+    :type x: Union[float, np.ndarray]t
     :param y: Y coordinate in the correct projection, but in meters
-    :type y: float
+    :type y: Union[float, np.ndarray]t
     :param projection: Cartopy projection object
+    :type projection: cp.crs.Projection
     """
     # if projection.proj4_params["proj"] == "moll":
     # return x, y
@@ -64,19 +81,15 @@ def xy_to_lonlat(x: float, y: float, projection):
 
 
 def plot_events(
-    events: list, map_object, projection, domain, beachball_size=0.02
+    events: List[object], map_object: cp.mpl.geoaxes.GeoAxes,
 ):
     """
     Plot event stars on a map
 
     :param events: Event information
-    :type events: list
+    :type events: List[object]
     :param map_object: The already made map object from the domain component
-    :type map_object: cartopy plot object
-    :param projection: Projection object used by cartopy
-    :type projection: Cartopy projection object
-    :param beachball_size: Size of beachball, defaults to 0.02
-    :type beachball_size: float, optional
+    :type map_object: cartopy.mpl.geoaxes.GeoAxes
     """
 
     for event in events:
@@ -95,12 +108,26 @@ def plot_events(
     return plotted_events
 
 
-def plot_raydensity(map_object, station_events, domain, projection):
+def plot_raydensity(
+    map_object: cp.mpl.geoaxes.GeoAxes,
+    station_events: List[Tuple[dict, dict]],
+    domain: object,
+    projection: cp.crs.Projection,
+):
     """
     Create a ray-density plot for all events and all stations.
 
     This function is potentially expensive and will use all CPUs available.
     Does require geographiclib to be installed.
+
+    :param map_object: The cartopy domain plot object
+    :type map_object: cp.mpl.geoaxes.GeoAxes
+    :param station_events: A list of tuples with two dictionaries
+    :type station_events: List[Tuple[dict, dict]]
+    :param domain: An object with the domain plot
+    :type domain: object
+    :param projection: cartopy projection object
+    :type projection: cp.crs.Projection
     """
     import ctypes as C
     from lasif.tools.great_circle_binner import GreatCircleBinner
@@ -270,7 +297,19 @@ def plot_raydensity(map_object, station_events, domain, projection):
     map_object.add_feature(cp.feature.BORDERS, linestyle=":", zorder=13)
 
 
-def plot_all_rays(map_object, station_events, domain, projection):
+def plot_all_rays(
+    map_object: cp.mpl.geoaxes.GeoAxes, station_events: List[Tuple[dict, dict]]
+):
+    """
+    Plot all the rays in the project on a plot. Each event has a different
+    color of rays.
+
+    :param map_object: Cartopy plot object
+    :type map_object: cp.mpl.geoaxes.GeoAxes
+    :param station_events: List of tuples with two dictionaries with
+        event and station information
+    :type station_events: List[Tuple[dict, dict]]
+    """
     from tqdm import tqdm
 
     # Maybe not make color completely random, I might need to use a colormap
@@ -293,22 +332,38 @@ def plot_all_rays(map_object, station_events, domain, projection):
 
 
 def plot_stations_for_event(
-    map_object,
-    station_dict,
-    event_info,
-    projection,
-    color="green",
-    alpha=1.0,
-    raypaths=True,
-    weight_set=None,
-    plot_misfits=False,
-    print_title=True,
+    map_object: cp.mpl.geoaxes.GeoAxes,
+    station_dict: Dict[str, Union[str, float]],
+    event_info: Dict[str, Union[str, float]],
+    color: str = "green",
+    alpha: float = 1.0,
+    raypaths: bool = True,
+    weight_set: str = None,
+    plot_misfits: bool = False,
+    print_title: bool = True,
 ):
     """
-    Plots all stations for one event.
+    Plot all stations for one event
 
-    :param station_dict: A dictionary whose values at least contain latitude
-        and longitude keys.
+    :param map_object: Cartopy plotting object
+    :type map_object: cp.mpl.geoaxes.GeoAxes
+    :param station_dict: Dictionary with station information
+    :type station_dict: Dict[str, Union[str, float]]
+    :param event_info: Dictionary with event information
+    :type event_info: Dict[str, Union[str, float]]
+    :param color: Color to plot stations with, defaults to "green"
+    :type color: str, optional
+    :param alpha: How transparent the stations are, defaults to 1.0
+    :type alpha: float, optional
+    :param raypaths: Should raypaths be plotted?, defaults to True
+    :type raypaths: bool, optional
+    :param weight_set: Do we colorcode stations with their respective 
+        weights, defaults to None
+    :type weight_set: str, optional
+    :param plot_misfits: Color code stations with their respective 
+        misfits, defaults to False
+    :type plot_misfits: bool, optional
+    :param print_title: Have a title on the figure, defaults to True
     """
     import re
 
@@ -399,14 +454,6 @@ def plot_stations_for_event(
                 alpha=0.3,
                 transform=cp.crs.Geodetic(),
             )
-            # map_object.drawgreatcircle(
-            #     event_info["longitude"],
-            #     event_info["latitude"],
-            #     sta_lng,
-            #     sta_lat,
-            #     lw=2,
-            #     alpha=0.3,
-            # )
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"],
         re.sub(r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
@@ -430,14 +477,16 @@ def plot_stations_for_event(
     return stations
 
 
-def plot_all_stations(map_object, event_stations: list):
+def plot_all_stations(
+    map_object: cp.mpl.geoaxes.GeoAxes, event_stations: List[Tuple[dict, dict]]
+):
     """
     Add all stations to a map object
 
     :param map_object: A cartopy map object
-    :type map_object: object
+    :type map_object: cp.mpl.geoaxes.GeoAxes
     :param event_stations: a list of dictionary tuples with events and stations
-    :type event_stations: list
+    :type event_stations: List[Tuple[dict, dict]]
     """
     stations = chain.from_iterable(
         (_i[1].values() for _i in event_stations if _i[1])
@@ -461,10 +510,24 @@ def plot_all_stations(map_object, event_stations: list):
     plt.tight_layout()
 
 
-def plot_tf(data, delta, freqmin=None, freqmax=None):
+def plot_tf(
+    data: np.ndarray,
+    delta: float,
+    freqmin: float = None,
+    freqmax: float = None,
+):
     """
     Plots a time frequency representation of any time series. Right now it is
     basically limited to plotting source time functions.
+
+    :param data: Signal represented in a numpy array
+    :type data: np.ndarray
+    :param delta: Time discretization in seconds
+    :type delta: float
+    :param freqmin: minimum frequency of signal, defaults to None
+    :type freqmin: float, optional
+    :param freqmax: maximum frequency of signal, defaults to None
+    :type freqmax: float, optional
     """
     npts = len(data)
 
@@ -546,10 +609,15 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     plt.show()
 
 
-def plot_heaviside(data, delta):
+def plot_heaviside(data: np.ndarray, delta: float):
     """
     Make a simple plot to show how the source time function looks when it
     is unfiltered.
+
+    :param data: Signal represented in a numpy array
+    :type data: np.ndarray
+    :param delta: Time discretization in seconds
+    :type delta: float
     """
     # For visualization we append a few zeros at the beginning of the stf.
     data = np.insert(data, 0, np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
@@ -564,7 +632,17 @@ def plot_heaviside(data, delta):
     plt.show()
 
 
-def plot_event_histogram(events, plot_type):
+def plot_event_histogram(
+    events: List[Dict[str, Union[str, float]]], plot_type: str
+):
+    """
+    Plot a histogram of the distribution of events in either time or depth
+
+    :param events: A list of event informations
+    :type events: List[Dict[str, Union[str, float]]]
+    :param plot_type: time or depth
+    :type plot_type: str
+    """
     from matplotlib.dates import date2num, num2date
     from matplotlib import ticker
 

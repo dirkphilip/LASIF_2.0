@@ -6,7 +6,7 @@ import toml
 
 
 def create_salvus_forward_simulation(
-    comm: object, event: str, iteration: str, mesh=None, side_set=None,
+    comm: object, event: str, iteration: str, mesh=None, side_set: str = None,
 ):
     """
     Create a Salvus simulation object based on simulation and salvus
@@ -20,7 +20,7 @@ def create_salvus_forward_simulation(
     :type iteration: str
     :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh),
+    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh],
         optional
     :param side_set: Name of side set on mesh to place receivers,
         defaults to None.

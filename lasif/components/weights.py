@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import glob
 import os
+import numpy as np
+
 
 from lasif.exceptions import LASIFNotFoundError, LASIFError
 from .component import Component
@@ -176,7 +178,7 @@ class WeightsComponent(Component):
         os.rename(temp, self.get_filename_for_weight_set(weight_set_name))
 
     def calculate_station_weight(
-        self, lat_1: float, lon_1: float, locations: numpy.array
+        self, lat_1: float, lon_1: float, locations: np.ndarray
     ):
         """
         Calculates the weight set for a set of stations for one event
@@ -186,11 +188,10 @@ class WeightsComponent(Component):
         :param lon_1: longitude of station
         :type lon_1: float
         :param locations: array of latitudes and longitudes of other stations
-        :type locations: numpy.array
+        :type locations: np.ndarray
         :return: weight. weight for this specific station
         :rtype: float
         """
-        import numpy as np
         from obspy.geodetics import locations2degrees
 
         distance = np.zeros_like(locations[1, :])

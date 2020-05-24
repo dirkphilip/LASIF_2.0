@@ -82,7 +82,12 @@ def sizeof_fmt(num):
 Point = namedtuple("Point", ["lat", "lng"])
 
 
-def greatcircle_points(point_1, point_2, max_extension=None, max_npts=3000):
+def greatcircle_points(
+    point_1: float,
+    point_2: float,
+    max_extension: float = None,
+    max_npts: int = 3000,
+):
     """
     Generator yielding a number points along a greatcircle from point_1 to
     point_2. Max extension is the normalization factor. If the distance between
@@ -91,6 +96,15 @@ def greatcircle_points(point_1, point_2, max_extension=None, max_npts=3000):
 
     If max_extension is not given, the generator will yield exactly max_npts
     points.
+
+    :param point_1: Point 1 to draw the greatcircle between
+    :type point_1: float
+    :param point_2: Point 2 to draw the greatcircle between
+    :type point_2: float
+    :param max_extension: Fraction of max_npts to return, defaults to None
+    :type max_extension: float, optional
+    :param max_npts: Maximum number of points to return, defaults to 3000
+    :type max_npts: int, optional
     """
     point = geodesic.Geodesic.WGS84.Inverse(
         lat1=point_1.lat, lon1=point_1.lng, lat2=point_2.lat, lon2=point_2.lng
@@ -110,12 +124,13 @@ def greatcircle_points(point_1, point_2, max_extension=None, max_npts=3000):
         yield Point(line_point["lat2"], line_point["lon2"])
 
 
-def channel2station(value):
+def channel2station(value: str):
     """
     Helper function converting a channel id to a station id. Will not change
     a passed station id.
 
     :param value: The channel id as a string.
+    :type value: str
 
     >>> channel2station("BW.FURT.00.BHZ")
     'BW.FURT'
@@ -125,13 +140,18 @@ def channel2station(value):
     return ".".join(value.split(".")[:2])
 
 
-def select_component_from_stream(st, component):
+def select_component_from_stream(st: obspy.core.Stream, component: str):
     """
     Helper function selecting a component from a Stream an raising the proper
     error if not found.
 
     This is a bit more flexible then stream.select() as it works with single
     letter channels and lowercase channels.
+
+    :param st: Obspy stream
+    :type st: obspy.core.Stream
+    :param component: Name of component of stream
+    :type component: str
     """
     component = component.upper()
     component = [tr for tr in st if tr.stats.channel[-1].upper() == component]
@@ -147,12 +167,14 @@ def select_component_from_stream(st, component):
     return component[0]
 
 
-def get_event_filename(event, prefix):
+def get_event_filename(event: object, prefix: str):
     """
     Helper function generating a descriptive event filename.
 
     :param event: The event object.
+    :type event: object
     :param prefix: A prefix for the file, denoting e.g. the event catalog.
+    :type prefix: str
 
     >>> from obspy import read_events
     >>> event = read_events()[0]
@@ -182,15 +204,17 @@ def get_event_filename(event, prefix):
     )
 
 
-def write_custom_stf(stf_path, comm):
+def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
+    """
+    Write the custom source-time-function specified in lasif config into
+    the correct file
+
+    :param stf_path: File path of the STF function
+    :type stf_path: Union[pathlib.Path, str]
+    :param comm: Lasif communicator
+    :type comm: object
+    """
     import h5py
-
-    # source_toml = os.path.join(output_dir, "source.toml")
-    # with open(source_toml, "r") as fh:
-    #     source_dict = toml.load(fh)['source'][0]
-
-    # location = source_dict['location']
-    # moment_tensor = source_dict['scale']
 
     freqmax = 1.0 / comm.project.simulation_settings["minimum_period_in_s"]
     freqmin = 1.0 / comm.project.simulation_settings["maximum_period_in_s"]
@@ -232,22 +256,16 @@ def write_custom_stf(stf_path, comm):
 
     f.close()
 
-    # remove source toml and write new one
-    # os.remove(source_toml)
-    # source_str = f"source_input_file = \"{heaviside_file_name}\"\n\n" \
-    #              f"[[source]]\n" \
-    #              f"name = \"source\"\n" \
-    #              f"dataset_name = \"/source\""
 
-    # with open(source_toml, "w") as fh:
-    #     fh.write(source_str)
-
-
-def place_receivers(event, comm):
+def place_receivers(event: str, comm: object):
     """
     Place receivers on mesh.
+
     :param event: The name of the event for which to generate the
         input files.
+    :type event: str
+    :param comm: LASIF communicator object
+    :type comm: object
     """
 
     asdf_file = comm.waveforms.get_asdf_filename(
@@ -285,15 +303,16 @@ def place_receivers(event, comm):
     return receivers
 
 
-def prepare_source(comm, event, iteration):
-    """Gather important information on the source
+def prepare_source(comm: object, event: str, iteration: str):
+    """
+    Gather important information on the source
 
     :param comm: Project communicator
-    :type comm: Communicator
+    :type comm: object
     :param event: Name of event
-    :type event: String
+    :type event: str
     :param iteration: Name of iteration for simulation
-    :type iteration: String
+    :type iteration: str
     """
     import h5py
 
@@ -335,30 +354,34 @@ def prepare_source(comm, event, iteration):
 
 
 def process_two_files_without_parallel_output(
-    ds, other_ds, process_function, traceback_limit=3
+    ds: pyasdf.ASDFDataSet,
+    other_ds: pyasdf.ASDFDataSet,
+    process_function,
+    traceback_limit=3,
 ):
     import traceback
     import sys
     from mpi4py import MPI
 
     """
-    Process data in two data sets.
+    Process data in two data sets. Based on pyasdf
 
     This is mostly useful for comparing data in two data sets in any
     number of scenarios. It again takes a function and will apply it on
-    each station that is common in both data sets. Please see the
-    :doc:`parallel_processing` document for more details.
+    each station that is common in both data sets. 
 
     Can only be run with MPI.
 
-    :type other_ds: :class:`.ASDFDataSet`
+    :param ds: The dataset to process
+    :type ds: pyasdf.ASDFDataSet
     :param other_ds: The data set to compare to.
+    :type other_ds: pyasdf.ASDFDataSet
     :param process_function: The processing function takes two
         parameters: The station group from this data set and
         the matching station group from the other data set.
-    :type traceback_limit: int
     :param traceback_limit: The length of the traceback printed if an
-        error occurs in one of the workers.
+        error occurs in one of the workers, defaults to 3
+    :type traceback_limit: int, optional
     :return: A dictionary for each station with gathered values. Will
         only be available on rank 0.
     """
@@ -404,9 +427,7 @@ def process_two_files_without_parallel_output(
                 getattr(ds.waveforms, station),
                 getattr(other_ds.waveforms, station),
             )
-            # print("Working", flush=True)
         except Exception:
-            # print("Not working", flush=True)
             # If an exception is raised print a good error message
             # and traceback to help diagnose the issue.
             msg = (
@@ -426,8 +447,6 @@ def process_two_files_without_parallel_output(
             )
             tb += "".join(traceback.format_list(full_tb))
             tb += "\n"
-            # A bit convoluted but compatible with Python 2 and
-            # 3 and hopefully all encoding problems.
             tb += "".join(
                 _i.decode(errors="ignore") if hasattr(_i, "decode") else _i
                 for _i in exc_line

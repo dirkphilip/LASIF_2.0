@@ -6,6 +6,7 @@ import math
 import numpy as np
 import os
 import toml
+from typing import List
 
 from lasif.exceptions import LASIFError, LASIFNotFoundError
 
@@ -23,7 +24,7 @@ class VisualizationsComponent(Component):
 
     def plot_events(
         self,
-        plot_type="map",
+        plot_type: str = "map",
         iteration: str = None,
         inner_boundary: bool = False,
     ):
@@ -56,10 +57,7 @@ class VisualizationsComponent(Component):
         if plot_type == "map":
             m, projection = self.plot_domain(inner_boundary=inner_boundary)
             visualization.plot_events(
-                events,
-                map_object=m,
-                projection=projection,
-                domain=self.comm.project.domain,
+                events, map_object=m,
             )
             if iteration:
                 title = f"Event distribution for iteration: {iteration}"
@@ -132,17 +130,13 @@ class VisualizationsComponent(Component):
                 map_object=map_object,
                 station_dict=stations,
                 event_info=event_info,
-                projection=projection,
                 weight_set=weight_set,
                 print_title=True,
             )
 
-        # Plot the beachball for one event.
+        # Plot the earthquake star for one event.
         visualization.plot_events(
-            events=[event_info],
-            map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
+            events=[event_info], map_object=map_object,
         )
 
     def plot_domain(self, inner_boundary: bool = False):
@@ -199,17 +193,13 @@ class VisualizationsComponent(Component):
             map_object=map_object,
             station_dict=misfitted_stations,
             event_info=event_info,
-            projection=projection,
             plot_misfits=True,
             raypaths=False,
             print_title=True,
         )
 
         visualization.plot_events(
-            events=[event_info],
-            map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
+            events=[event_info], map_object=map_object,
         )
 
     def plot_raydensity(
@@ -294,8 +284,6 @@ class VisualizationsComponent(Component):
         visualization.plot_events(
             self.comm.events.get_all_events(iteration).values(),
             map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
         )
 
         if plot_stations:
@@ -393,16 +381,11 @@ class VisualizationsComponent(Component):
             event_stations.append((event_info, stations))
 
         visualization.plot_all_rays(
-            map_object=map_object,
-            station_events=event_stations,
-            domain=self.comm.project.domain,
-            projection=projection,
+            map_object=map_object, station_events=event_stations,
         )
         visualization.plot_events(
             events=self.comm.events.get_all_events(iteration).values(),
             map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
         )
         if plot_stations:
             visualization.plot_all_stations(
@@ -630,15 +613,20 @@ class VisualizationsComponent(Component):
         return ax
 
     def plot_window_statistics(
-        self, window_set_name: str, events, ax=None, show=True
+        self, window_set_name: str, events: List[str], ax=None, show=True
     ):
         """
         Plots the statistics of windows for one iteration.
 
-        :param iteration: The chosen iteration.
-        :param ax: If given, it will be plotted to this ax.
+        :param window_set_name: Name of window set
+        :type window_set_name: str
+        :param events: list of events
+        :type events: List[str]
+        :param ax: If given, it will be plotted to this ax. Defaults to None
+        :type ax: matplotlib.axes.Axes, optional
         :param show: If true, ``plt.show()`` will be called before returning.
-        :param cache: Use the cache for the statistics.
+            defaults to True
+        :type show: bool, optinal
 
         :return: The potentially created axes object.
         """
