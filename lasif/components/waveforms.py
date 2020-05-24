@@ -105,9 +105,8 @@ class WaveformsComponent(Component):
     def preprocessing_tag(self):
         """
         Gets the preprocessing tag for the lasif project, since each
-         lasif project assumes a constant frequency
+        lasif project assumes a constant frequency
         this only has to be one tag.
-        :return:
         """
         minimum_period = self.comm.project.simulation_settings[
             "minimum_period_in_s"
@@ -263,7 +262,7 @@ class WaveformsComponent(Component):
 
     def process_data_on_the_fly(
         self,
-        st: obspy.core.Stream,
+        st: obspy.core.stream.Stream,
         inv: obspy.core.inventory.inventory.Inventory,
         event_name: str,
     ):
@@ -271,13 +270,13 @@ class WaveformsComponent(Component):
         Process data on the fly
 
         :param st: Stream of waveforms
-        :type st: obspy.core.Stream
+        :type st: obspy.core.stream.Stream
         :param inv: Inventory of station information
-        :type inv: obspy.core.inventory.Inventory
+        :type inv: obspy.core.inventory.inventory.Inventory
         :param event_name: Name of event
         :type event_name: str
         :return: Processed data
-        :rtype: obspy.core.stream
+        :rtype: obspy.core.stream.Stream
         """
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("processing_function")

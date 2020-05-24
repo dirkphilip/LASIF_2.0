@@ -77,7 +77,7 @@ def lat2colat(lat: Union[np.ndarray, float]):
     0.0
 
     :param lat: The latitude.
-    :type lat: Union[np.ndarray, float]
+    :type lat: Union[numpy.ndarray, float]
     """
     return 90.0 - lat
 
@@ -99,7 +99,7 @@ def colat2lat(colat: Union[np.ndarray, float]):
     90.0
 
     :param colat: The colatitude.
-    :type colat: Union[np.ndarray, float]
+    :type colat: Union[numpy.ndarray, float]
     """
     return -1.0 * (colat - 90.0)
 
@@ -139,11 +139,11 @@ def lat_lon_radius_to_xyz(
     Converts latitude, longitude and radius to x, y, and z.
 
     :param lat: The latitude.
-    :type lat: Union[np.ndarray, float]
+    :type lat: Union[numpy.ndarray, float]
     :param lon:  The longitude.
-    :type lon: Union[np.ndarray, float]
+    :type lon: Union[numpy.ndarray, float]
     :param r: The radius.
-    :type r: Union[np.ndarray, float]
+    :type r: Union[numpy.ndarray, float]
     """
     colat = lat2colat(lat)
     # To radian

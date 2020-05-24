@@ -13,8 +13,12 @@ from collections import namedtuple
 from geographiclib import geodesic
 from fnmatch import fnmatch
 import os
+import obspy
 import numpy as np
 from tqdm import tqdm
+import pathlib
+from typing import Union
+import pyasdf
 
 from lasif.exceptions import LASIFError, LASIFNotFoundError
 

@@ -270,4 +270,8 @@ intersphinx_mapping = {
     "obspy": ("http://docs.obspy.org/", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
 }
-nitpick_ignore = [("py:class", "optional")]
+nitpick_ignore = [
+    ("py:class", "optional"),
+    ("py:class", "matplotlib.axes.Axes"),
+    # ("py:class", "obspy.core.Stream"),
+]

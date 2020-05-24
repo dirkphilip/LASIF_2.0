@@ -24,7 +24,7 @@ from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 
 class AdjointSourcesComponent(Component):
     """
-    Component dealing with the windows and adjoint sources.
+    Component dealing with the adjoint sources.
 
     :param folder: The folder where the files are stored.
     :param communicator: The communicator instance.

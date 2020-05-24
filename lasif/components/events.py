@@ -122,7 +122,7 @@ class EventsComponent(Component):
         >>> comm = getfixture('events_comm')
         >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
         ['GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
-         'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
+        'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
 
         :param iteration: Name of iteration, defaults to None
         :type iteration: str, optional

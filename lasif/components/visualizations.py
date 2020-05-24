@@ -35,7 +35,7 @@ class VisualizationsComponent(Component):
             * ``map`` (default) - a map view of the events
             * ``depth`` - a depth distribution histogram
             * ``time`` - a time distribution histogram
-        : type plot_type: str, optional
+        :type plot_type: str, optional
         :param iteration: Name of iteration, if given only events from that
             iteration will be plotted, defaults to None
         :type iteration: str, optional
@@ -626,7 +626,7 @@ class VisualizationsComponent(Component):
         :type ax: matplotlib.axes.Axes, optional
         :param show: If true, ``plt.show()`` will be called before returning.
             defaults to True
-        :type show: bool, optinal
+        :type show: bool, optional
 
         :return: The potentially created axes object.
         """
@@ -820,8 +820,7 @@ class VisualizationsComponent(Component):
 
         :param event_name: Name of the event
         :type event_name: str
-        :param data_type: The type of data, one of ``"raw"``,
-            ``"processed"``(default)
+        :param data_type: The type of data, one of: raw, processed (default)
         :type data_type: str, optional
         :param component: Component of the data Z(default), N, E
         :type component: str, optional

@@ -157,7 +157,7 @@ class DownloadsComponent(Component):
         starttime: obspy.core.utcdatetime.UTCDateTime,
         endtime: obspy.core.utcdatetime.UTCDateTime,
         ds: dict,
-    ) -> obspy.clients.fdsn.mass_downloader.Restrictions:
+    ):
         """
         Create a restriction criterion for the mass downloader
 
@@ -168,7 +168,6 @@ class DownloadsComponent(Component):
         :param ds: Dictionary of information
         :type ds: dict
         :return: Restrictions to download request
-        :rtype: obspy.clients.fdsn.mass_downloader.Restrictions
         """
         from obspy.clients.fdsn.mass_downloader import Restrictions
 

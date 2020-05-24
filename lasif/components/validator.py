@@ -206,9 +206,11 @@ class ValidatorComponent(Component):
 
     def clean_up_project(self, clean_up_file: str):
         """
-
+        Clean up lasif project based on a toml file with the events
+        that can be deleted.
+        
         :param clean_up_file: A toml describing the events that can be
-        deleted.
+            deleted.
         :type clean_up_file: str
         """
 

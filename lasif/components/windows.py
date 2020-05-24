@@ -82,6 +82,7 @@ class WindowsComponent(Component):
     ):
         """
         Writes windows to the sql database
+        
         :param event_name: The name of the event
         :type event_name: str
         :param window_set_name: The name of the window set

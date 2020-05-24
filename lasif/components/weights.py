@@ -188,7 +188,7 @@ class WeightsComponent(Component):
         :param lon_1: longitude of station
         :type lon_1: float
         :param locations: array of latitudes and longitudes of other stations
-        :type locations: np.ndarray
+        :type locations: numpy.ndarray
         :return: weight. weight for this specific station
         :rtype: float
         """

@@ -62,5 +62,6 @@ tomographic images.
 
     api_doc
     cli
+    components
     faq
 

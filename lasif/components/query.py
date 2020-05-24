@@ -23,7 +23,7 @@ class QueryComponent(Component):
     :param communicator: The communicator instance.
     :type communicatior: object
     :param component_name: The name of this component for the communicator.
-    :type str
+    :type component_name: str
 
     It should thus be initialized fairly late as it needs access to a number
     of other components via the communicator.
@@ -244,7 +244,7 @@ class QueryComponent(Component):
 
     def get_matching_waveforms(
         self, event: str, iteration: str, station_or_channel_id: str
-    ) -> collections.namedtuple:
+    ):
         """
         Get synthetic and processed waveforms for the same station and same
         event.
@@ -257,7 +257,6 @@ class QueryComponent(Component):
         :type station_or_channel_id: str
         :return: A named tuple with processed waveforms, synthetic waveforms
             and coordinates of station
-        :rtype: collections.namedtuple
         """
         seed_id = station_or_channel_id.split(".")
         if len(seed_id) == 2:
