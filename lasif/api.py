@@ -152,7 +152,7 @@ def plot_events(
 
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
-    :param type_of_plot: type of plot, options are 'map', 'depth' and 'time', 
+    :param type_of_plot: type of plot, options are 'map', 'depth' and 'time',
         defaults to 'map'
     :type type_of_plot: str, optional
     :param iteration: plot all events of an iteration, defaults to None
@@ -717,7 +717,7 @@ def select_windows(
     :type iteration: str
     :param window_set: name of window set
     :type window_set: str
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     """
@@ -763,7 +763,7 @@ def create_weight_set(lasif_root, weight_set: str):
 
     comm.weights.create_new_weight_set(
         weight_set_name=weight_set,
-        events_dict=comm.query.get_all_stations_for_events(),
+        events_dict=comm.query.get_stations_for_all_events(),
     )
 
 
@@ -780,7 +780,7 @@ def compute_station_weights(
     :type lasif_root: Union[str, pathlib.Path, object]
     :param weight_set: name of weight set to compute into
     :type weight_set: str
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     :param iteration: name of iteration to compute weights for, controls
@@ -854,7 +854,7 @@ def set_up_iteration(
     :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration
     :type iteration: str
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     :param event_specific: If the inversion needs a specific model for each
@@ -892,75 +892,6 @@ def set_up_iteration(
         )
 
 
-def write_misfit(
-    lasif_root,
-    iteration: str,
-    weight_set: str = None,
-    window_set: str = None,
-    events: Union[str, List[str]] = None,
-):
-    """
-    Write misfit for iteration
-
-    :param lasif_root: path to lasif root directory
-    :type lasif_root: Union[str, pathlib.Path, object]
-    :param iteration: name of iteration
-    :param weight_set: name of weight set [optional]
-    :param window_set: name of window set [optional]
-    :param events: An event or a list of events. To get all of them pass 
-        None, defaults to None
-    :type events: Union[str, List[str]], optional
-    """
-
-    comm = find_project_comm(lasif_root)
-
-    if weight_set:
-        if not comm.weights.has_weight_set(weight_set):
-            raise LASIFNotFoundError(
-                f"Weights {weight_set} not known" f"to LASIF"
-            )
-    # Check if iterations exists
-    if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError(
-            f"Iteration {iteration} " f"not known to LASIF"
-        )
-
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-
-    path = comm.project.paths["iterations"]
-    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
-    total_misfit = 0.0
-
-    if not events:
-        events = comm.events.list(iteration=iteration)
-        iteration_dict = {"event_misfits": {}}
-    if isinstance(events, str):
-        events = [events]
-    else:
-        # Check to see whether iteration_toml previously existed
-        if os.path.isfile(toml_filename):
-            iteration_dict = toml.load(toml_filename)
-            other_events = iteration_dict["event_misfits"].keys() - events
-            for event in other_events:
-                total_misfit += iteration_dict["event_misfits"][event]
-        else:
-            iteration_dict = {"event_misfits": {}}
-
-    for event in events:
-        event_misfit = comm.adj_sources.get_misfit_for_event(
-            event, iteration, weight_set
-        )
-        iteration_dict["event_misfits"][event] = float(event_misfit)
-        total_misfit += event_misfit
-
-    iteration_dict["total_misfit"] = float(total_misfit)
-    iteration_dict["weight_set_name"] = weight_set
-    iteration_dict["window_set_name"] = window_set
-
-    with open(toml_filename, "w") as fh:
-        toml.dump(iteration_dict, fh)
-
-
 def list_iterations(lasif_root, output: bool = False):
     """
     List iterations in project
@@ -969,7 +900,6 @@ def list_iterations(lasif_root, output: bool = False):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param output: If the function should return the list, defaults to False
     :type output: bool, optional
-    
     """
 
     comm = find_project_comm(lasif_root)
@@ -1016,7 +946,7 @@ def compare_misfits(
     :type from_it: str
     :param to_it: to this iteration
     :type to_it: str
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     :param weight_set: Set of station and event weights, defaults to None
@@ -1075,10 +1005,16 @@ def compare_misfits(
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
     print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit * 100.0
-    print(
-        f"Relative change in total misfit from iteration {from_it} to "
-        f"{to_it} is: {rel_change:.2f}"
-    )
+    if rel_change > 0.0:
+        print(
+            f"Misfit has increased {rel_change:.2f}% from iteration "
+            f"{from_it} to iteration {to_it}."
+        )
+    else:
+        print(
+            f"Misfit has decreased {-rel_change:.2f}% from iteration "
+            f"{from_it} to iteration {to_it}"
+        )
     n_events = len(comm.events.list())
     print(
         f"Misfit per event for iteration {from_it}: "
@@ -1116,7 +1052,7 @@ def process_data(
 
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     :param iteration: Process data from events used in an iteration,
@@ -1165,7 +1101,7 @@ def plot_window_statistics(
     :type window_set: str
     :param save: Saves the plot in a file, defaults to False,
     :type save: bool, optional
-    :param events: An event or a list of events. To get all of them pass 
+    :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
     :param iteration: Plot statistics related to events in a specific iteration
@@ -1435,14 +1371,16 @@ def create_salvus_simulation(
         raise LASIFError("Only types of simulations are forward or adjoint")
 
     comm = find_project_comm(lasif_root)
-
-    return css(
-        comm=comm,
-        event=event,
-        iteration=iteration,
-        mesh=mesh,
-        side_set=side_set,
-    )
+    if type_of_simulation == "forward":
+        return css(
+            comm=comm,
+            event=event,
+            iteration=iteration,
+            mesh=mesh,
+            side_set=side_set,
+        )
+    else:
+        return css(comm=comm, event=event, iteration=iteration, mesh=mesh,)
 
 
 def submit_salvus_simulation(

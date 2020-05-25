@@ -42,7 +42,7 @@ class QueryComponent(Component):
         A station is considered to be available for an event if at least one
         channel has raw data and an associated station file. Furthermore it
         must be possible to derive coordinates for the station.
-        
+
         :param event_name: Name of the event.
         :type event_name: str
         :param list_only: Whether you only want names of stations, defaults

@@ -14,6 +14,8 @@ from itertools import chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import cartopy as cp
+
+# from cartopy.mpl.geoaxes import GeoAxes
 import numpy as np
 from obspy.signal.tf_misfit import plot_tfr
 from lasif.exceptions import LASIFError
@@ -81,7 +83,7 @@ def xy_to_lonlat(
 
 
 def plot_events(
-    events: List[object], map_object: cp.mpl.geoaxes.GeoAxes,
+    events: List[object], map_object,
 ):
     """
     Plot event stars on a map
@@ -109,7 +111,7 @@ def plot_events(
 
 
 def plot_raydensity(
-    map_object: cp.mpl.geoaxes.GeoAxes,
+    map_object,
     station_events: List[Tuple[dict, dict]],
     domain: object,
     projection: cp.crs.Projection,
@@ -297,9 +299,7 @@ def plot_raydensity(
     map_object.add_feature(cp.feature.BORDERS, linestyle=":", zorder=13)
 
 
-def plot_all_rays(
-    map_object: cp.mpl.geoaxes.GeoAxes, station_events: List[Tuple[dict, dict]]
-):
+def plot_all_rays(map_object, station_events: List[Tuple[dict, dict]]):
     """
     Plot all the rays in the project on a plot. Each event has a different
     color of rays.
@@ -332,7 +332,7 @@ def plot_all_rays(
 
 
 def plot_stations_for_event(
-    map_object: cp.mpl.geoaxes.GeoAxes,
+    map_object,
     station_dict: Dict[str, Union[str, float]],
     event_info: Dict[str, Union[str, float]],
     color: str = "green",
@@ -357,10 +357,10 @@ def plot_stations_for_event(
     :type alpha: float, optional
     :param raypaths: Should raypaths be plotted?, defaults to True
     :type raypaths: bool, optional
-    :param weight_set: Do we colorcode stations with their respective 
+    :param weight_set: Do we colorcode stations with their respective
         weights, defaults to None
     :type weight_set: str, optional
-    :param plot_misfits: Color code stations with their respective 
+    :param plot_misfits: Color code stations with their respective
         misfits, defaults to False
     :type plot_misfits: bool, optional
     :param print_title: Have a title on the figure, defaults to True
@@ -477,9 +477,7 @@ def plot_stations_for_event(
     return stations
 
 
-def plot_all_stations(
-    map_object: cp.mpl.geoaxes.GeoAxes, event_stations: List[Tuple[dict, dict]]
-):
+def plot_all_stations(map_object, event_stations: List[Tuple[dict, dict]]):
     """
     Add all stations to a map object
 

@@ -84,7 +84,7 @@ class ValidatorComponent(Component):
             * Some simply sanity checks so that the event depth is reasonable
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
-        
+
         :param data_and_station_file_availability: Assert whether all waveform
             files have a corresponding station file, defaults to False
         :type data_and_station_file_availability: bool, optional
@@ -208,7 +208,7 @@ class ValidatorComponent(Component):
         """
         Clean up lasif project based on a toml file with the events
         that can be deleted.
-        
+
         :param clean_up_file: A toml describing the events that can be
             deleted.
         :type clean_up_file: str

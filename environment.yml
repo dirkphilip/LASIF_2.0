@@ -19,6 +19,7 @@ dependencies:
     - pip
     - sphinx
     - sphinx_rtd_theme
+    - seaborn
     - numexpr
     - ipython
     - dill

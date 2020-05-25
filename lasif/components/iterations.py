@@ -223,7 +223,7 @@ class IterationsComponent(Component):
         """
         Create the synthetics folder if it does not yet exist.
 
-        :param long_iteration_name: The iteration for which to create the 
+        :param long_iteration_name: The iteration for which to create the
             folders. ITERATION_<name of iteration>
         :type long_iteration_name: str
         :param remove_dirs: Should we delete the iteration?, defaults to False
@@ -268,7 +268,7 @@ class IterationsComponent(Component):
         """
         Create the adjoint_sources_and_windows folder if it does not yet exist.
 
-        :param long_iteration_name: The iteration for which to create the 
+        :param long_iteration_name: The iteration for which to create the
             folders. ITERATION_<name of iteration>
         :type long_iteration_name: str
         :param remove_dirs: Should we delete the iteration?, defaults to False
@@ -292,7 +292,7 @@ class IterationsComponent(Component):
         """
         Create the model folder if it does not yet exist.
 
-        :param long_iteration_name: The iteration for which to create the 
+        :param long_iteration_name: The iteration for which to create the
             folders. ITERATION_<name of iteration>
         :type long_iteration_name: str
         :param events: Events to include in iteration
@@ -322,7 +322,7 @@ class IterationsComponent(Component):
         """
         Create the kernel folder if it does not yet exist.
 
-        :param long_iteration_name: The iteration for which to create the 
+        :param long_iteration_name: The iteration for which to create the
             folders. ITERATION_<name of iteration>
         :type long_iteration_name: str
         :param remove_dirs: Should we delete the iteration?, defaults to False

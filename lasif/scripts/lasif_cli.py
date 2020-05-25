@@ -590,7 +590,7 @@ def lasif_generate_input_files(parser, args):
         lasif_root=".",
         iteration=args.iteration_name,
         simulation_type=args.simulation_type,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set_name if args.weight_set_name else None,
         prev_iter=args.prev_iter if args.prev_iter else None,
     )
@@ -633,7 +633,7 @@ def lasif_calculate_adjoint_sources(parser, args):
         lasif_root=".",
         iteration=args.iteration_name,
         window_set=args.window_set_name,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set if args.weight_set else None,
     )
 
@@ -660,7 +660,7 @@ def lasif_select_windows(parser, args):
         lasif_root=".",
         iteration=args.iteration,
         window_set=args.window_set_name,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
     )
 
 
@@ -778,7 +778,7 @@ def lasif_set_up_iteration(parser, args):
     api.set_up_iteration(
         lasif_root=".",
         iteration=args.iteration_name,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         remove_dirs=args.remove_dirs,
     )
 
@@ -859,7 +859,7 @@ def lasif_compare_misfits(parser, args):
         lasif_root=".",
         from_it=args.from_iteration,
         to_it=args.to_iteration,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set_name,
         print_events=args.print_events,
     )
@@ -900,7 +900,7 @@ def lasif_process_data(parser, args):
     args = parser.parse_args(args)
     api.process_data(
         lasif_root=".",
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         iteration=args.iteration,
     )
 
@@ -930,7 +930,7 @@ def lasif_plot_window_statistics(parser, args):
         lasif_root=".",
         window_set=args.window_set_name,
         save=args.save,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         iteration=args.iteration,
     )
 

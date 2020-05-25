@@ -213,7 +213,7 @@ class VisualizationsComponent(Component):
         Plots the raydensity. The plot will have number of ray crossings
         indicated with a brighter colour.
 
-        :param save_plot: Whether plot should be saved or displayed, 
+        :param save_plot: Whether plot should be saved or displayed,
             defaults to True (saved)
         :type save_plot: bool, optional
         :param plot_stations: Do you want to plot stations on top of rays?
@@ -228,7 +228,7 @@ class VisualizationsComponent(Component):
             station codes AND coordinates (LAT, LON, Z) are equal. If None is
             passed, the value use_only_intersection from the projects'
             configuration file is used, defaults to None
-        :type intersection_override: bool, optional 
+        :type intersection_override: bool, optional
         """
         from lasif import visualization
         import matplotlib.pyplot as plt

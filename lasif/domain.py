@@ -227,8 +227,8 @@ class HDF5Domain:
         """
         Test whether a point lies inside the domain. It is done in a step
         by step process of elimination:
-            * First one checks depth and sees whether the point is too deep 
-              and falls into the absorbing boundaries at depth. 
+            * First one checks depth and sees whether the point is too deep
+              and falls into the absorbing boundaries at depth.
             * Second is a box check seeing whether point falls outside
               of minimum and maximum latitude.
             * Third one uses the edge polygon to see whether point is inside
@@ -283,9 +283,7 @@ class HDF5Domain:
         return True
 
     def plot(
-        self,
-        ax: matplotlib.axes.Axes = None,
-        plot_inner_boundary: bool = False,
+        self, ax=None, plot_inner_boundary: bool = False,
     ):
         """
         Plots the domain

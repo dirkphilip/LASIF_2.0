@@ -44,18 +44,6 @@ installed almost everywhere.
     $ cd pyasdf
     $ pip install -e .
 
-which should print something like the following lines:
-
-We now need an open source component of `Salvus <https://www.mondaic.com>`
-_ salvus seismo.
-
-.. code-block:: bash
-
-    # Move to a directory where you want to store salvus seismo and then execute
-    $ git clone https://gitlab.com/Salvus/salvus_seismo
-    $ cd salvus_seismo/py
-    $ pip install -v -e .
-
 
 Installing LASIF
 ^^^^^^^^^^^^^^^^

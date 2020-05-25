@@ -10,7 +10,9 @@ from unittest import mock
 import lasif
 import os
 import toml
+import pytest
 from lasif.tests.testing_helpers import communicator as comm
+from lasif.exceptions import LASIFError
 
 
 def test_plot_domain(comm):
@@ -354,3 +356,104 @@ def test_get_source(comm):
     with mock.patch(uts + "prepare_source") as patch:
         _ = lasif.api.get_source(comm, event, "1")
     patch.assure_called_once_with(comm, event, "1")
+
+
+def test_compare_misfits(comm, capsys):
+    iterations = lasif.api.list_iterations(comm, output=True)
+    with pytest.raises(LASIFError) as excinfo:
+        lasif.api.compare_misfits(comm, iterations[0], iterations[1])
+    assert "Misfit has not been computed" in str(excinfo.value)
+    event = lasif.api.list_events(comm, output=True)[1]
+    lasif.api.compare_misfits(comm, iterations[0], iterations[1], event)
+    captured = capsys.readouterr()
+    assert "18.06%" in captured.out
+    assert "Misfit per event" in captured.out
+    lasif.api.compare_misfits(comm, iterations[1], iterations[0], event)
+    captured = capsys.readouterr()
+    assert "22.04%" in captured.out
+
+
+def test_create_weight_set(comm):
+    with mock.patch(
+        "lasif.components.weights.WeightsComponent.create_new_weight_set"
+    ) as patch:
+        lasif.api.create_weight_set(comm, "R")
+    assert patch.call_count == 1
+
+
+def test_list_weight_sets(comm, capsys):
+    lasif.api.list_weight_sets(comm)
+    captured = capsys.readouterr()
+    assert "sw_1" in captured.out
+
+
+def test_plot_window_statistics(comm):
+    stuff = "lasif.components.visualizations.VisualizationsComponent."
+    events = lasif.api.list_events(comm, output=True)
+    with mock.patch(stuff + "plot_window_statistics") as patch:
+        lasif.api.plot_window_statistics(comm, "A")
+    patch.assure_called_once_with("A", events, None, False)
+
+
+def test_plot_windows(comm):
+    stuff = "lasif.components.visualizations.VisualizationsComponent."
+    event = lasif.api.list_events(comm, output=True)[0]
+    with mock.patch(stuff + "plot_windows") as patch:
+        lasif.api.plot_windows(comm, event_name=event, window_set="A")
+    patch.assure_called_once_with(
+        event=event, window_set_name="A", ax=None, distance_bins=500, show=True
+    )
+
+
+def test_get_subset(comm):
+    stuff = "lasif.tools.query_gcmt_catalog."
+    with mock.patch(stuff + "get_subset_of_events") as patch:
+        lasif.api.get_subset(comm, events=["A"], count=1)
+    patch.assure_called_once_with(comm, 1, ["A"], None)
+
+
+def test_create_salvus_simulation(comm):
+    event = lasif.api.list_events(comm, output=True)[0]
+    iteration = "1"
+    adjoint = "lasif.salvus_utils.create_salvus_adjoint_simulation"
+    forward = "lasif.salvus_utils.create_salvus_forward_simulation"
+
+    with mock.patch(adjoint) as patch:
+        lasif.api.create_salvus_simulation(
+            comm,
+            event=event,
+            iteration=iteration,
+            type_of_simulation="adjoint",
+        )
+    patch.assure_called_once_with(
+        comm=comm, event=event, iteration=iteration, mesh=None
+    )
+
+    with mock.patch(forward) as patch:
+        lasif.api.create_salvus_simulation(
+            comm, event=event, iteration=iteration,
+        )
+    patch.assure_called_once_with(
+        comm=comm, event=event, iteration=iteration, mesh=None, side_set=None
+    )
+
+
+def test_submit_salvus_simulation(comm):
+    stuff = "lasif.salvus_utils.submit_salvus_simulation"
+
+    with mock.patch(stuff) as patch:
+        lasif.api.submit_salvus_simulation(comm, ["hh", "bb"])
+    patch.assure_called_once_with(comm=comm, simulations=["hh", "bb"])
+
+
+def test_validate_data(comm):
+    stuff = "lasif.components.validator.ValidatorComponent."
+    with mock.patch(stuff + "validate_data") as patch:
+        lasif.api.validate_data(comm)
+    patch.assure_called_once_with(False, False)
+    with mock.patch(stuff + "validate_data") as patch:
+        lasif.api.validate_data(comm, False, True)
+    patch.assure_called_once_with(False, True)
+    with mock.patch(stuff + "validate_data") as patch:
+        lasif.api.validate_data(comm, False, False, True)
+    patch.assure_called_once_with(True, True)

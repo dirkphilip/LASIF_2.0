@@ -120,7 +120,7 @@ class AdjointSourcesComponent(Component):
         Calculate adjoint sources based on the type of misfit defined in
         the lasif config file.
         The computed misfit for each station is also written down into
-        a misfit toml file. 
+        a misfit toml file.
 
         :param event: Name of event
         :type event: str

@@ -19,6 +19,7 @@ from tqdm import tqdm
 import pathlib
 from typing import Union
 import pyasdf
+import math
 
 from lasif.exceptions import LASIFError, LASIFNotFoundError
 
@@ -287,9 +288,7 @@ def place_receivers(event: str, comm: object):
     for station in stations[1:]:
         inv += ds.waveforms[station].StationXML
 
-    import salvus_seismo
-
-    recs = salvus_seismo.Receiver.parse(inv)
+    recs = Receiver.parse(inv)
     print("Writing receivers into a list of dictionaries")
     receivers = [
         {
@@ -372,7 +371,7 @@ def process_two_files_without_parallel_output(
 
     This is mostly useful for comparing data in two data sets in any
     number of scenarios. It again takes a function and will apply it on
-    each station that is common in both data sets. 
+    each station that is common in both data sets.
 
     Can only be run with MPI.
 
@@ -475,3 +474,112 @@ def process_two_files_without_parallel_output(
     if MPI.COMM_WORLD.rank == 0:
         print("All ranks finished", flush=True)
     return results
+
+
+def elliptic_to_geocentric_latitude(
+    lat: float, axis_a: float = 6378137.0, axis_b: float = 6356752.314245
+) -> float:
+    """
+    Convert latitudes defined on an ellipsoid to a geocentric one.
+    Based on Salvus Seismo
+
+    :param lat: Latitude to convert
+    :type lat: float
+    :param axis_a: Major axis of planet in m, defaults to 6378137.0
+    :type axis_a: float, optional
+    :param axis_b: Minor axis of planet in m, defaults to 6356752.314245
+    :type axis_b: float, optional
+    :return: Converted latitude
+    :rtype: float
+
+    >>> elliptic_to_geocentric_latitude(0.0)
+    0.0
+    >>> elliptic_to_geocentric_latitude(90.0)
+    90.0
+    >>> elliptic_to_geocentric_latitude(-90.0)
+    -90.0
+    """
+    _f = (axis_a - axis_b) / axis_a
+    E_2 = 2 * _f - _f ** 2
+    if abs(lat) < 1e-6 or abs(lat - 90) < 1e-6 or abs(lat + 90) < 1e-6:
+        return lat
+
+    return math.degrees(math.atan((1 - E_2) * math.tan(math.radians(lat))))
+
+
+class Receiver(object):
+    from lasif.utils import elliptic_to_geocentric_latitude
+
+    def __init__(self, network, station, latitude, longitude, depth_in_m=0.0):
+        self.latitude = float(latitude)
+        self.longitude = float(longitude)
+        self.depth_in_m = float(depth_in_m)
+        if self.depth_in_m <= 0.0:
+            self.depth_in_m = 0.0
+        self.network = network
+        self.network = self.network.strip()
+        assert len(self.network) <= 2
+        self.station = station
+        self.station = self.station.strip()
+
+    @staticmethod
+    def parse(obj: object, network_code: str = None):
+        """
+        Based on the receiver parser of Salvus Seismo by Lion Krischer and
+        Martin van Driel.
+        It aims to parse an obspy inventory object into a list of
+        Receiver objects
+        Maybe we want to remove this elliptic to geocentric latitude thing
+        at some point. Depends on what solver wants.
+
+        :param obj: Obspy inventory object
+        :type obj: object
+        :param network_code: Used to keep information about network when
+            at the station level, defaults to None
+        :type network_code: str, optional
+        """
+        receivers = []
+
+        if isinstance(obj, obspy.core.inventory.Inventory):
+            for network in obj:
+                receivers.extend(Receiver.parse(network))
+            return receivers
+
+        elif isinstance(obj, obspy.core.inventory.Network):
+            for station in obj:
+                receivers.extend(
+                    Receiver.parse(station, network_code=obj.code)
+                )
+            return receivers
+
+        elif isinstance(obj, obspy.core.inventory.Station):
+            # If there are no channels, use the station coordinates
+            if not obj.channels:
+                return [
+                    Receiver(
+                        latitude=elliptic_to_geocentric_latitude(obj.latitude),
+                        longitude=obj.longitude,
+                        network=network_code,
+                        station=obj.code,
+                    )
+                ]
+            # Otherwise we use channel information
+            else:
+                coords = set(
+                    (_i.latitude, _i.longitude, _i.depth)
+                    for _i in obj.channels
+                )
+                if len(coords) != 1:
+                    raise LASIFError(
+                        f"Coordinates of channels of station {network_code}.{obj.code} are not identical"
+                    )
+                coords = coords.pop()
+                return [
+                    Receiver(
+                        latitude=elliptic_to_geocentric_latitude(coords[0]),
+                        longitude=coords[1],
+                        depth_in_m=coords[2],
+                        network=network_code,
+                        station=obj.code,
+                    )
+                ]

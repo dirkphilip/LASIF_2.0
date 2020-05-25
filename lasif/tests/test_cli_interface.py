@@ -527,7 +527,7 @@ def test_processing_event_limiting_works(cli):
     patch.assert_called_once_with(
         [
             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "GCMT_event_TURKEY_Mag_5.9" "_2011-5-19-20-15",
+            "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
         ]
     )
 
