@@ -1,0 +1,5 @@
+WARNING: The event-station raypath for the station
+	'II.KIV'
+ does not fully lay within the domain. You might want to remove the file or change the domain specifications.
+================================================================================
+================================================================================

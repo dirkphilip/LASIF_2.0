@@ -30,7 +30,6 @@ dependencies:
     - pyqtgraph
     - ipykernel
     - pathlib
-    - typing
     - jupyter
     - jupyter_contrib_nbextensions
     - jupytext

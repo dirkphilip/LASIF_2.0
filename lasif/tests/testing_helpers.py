@@ -17,7 +17,7 @@ import matplotlib as mpl
 
 import matplotlib.pylab as plt
 
-# from matplotlib.testing.compare import compare_images as mpl_compare_images
+from matplotlib.testing.compare import compare_images as mpl_compare_images
 
 # import numpy as np
 # import obspy
@@ -122,29 +122,29 @@ def cli(communicator, request, capsys):
     return request
 
 
-# def images_are_identical(image_name, temp_dir, dpi=None, tol=5):
-#     """
-#     Partially copied from ObsPy
-#     """
-#     image_name += ".png"
-#     expected = os.path.join(IMAGES, image_name)
-#     actual = os.path.join(str(temp_dir), image_name)
+def images_are_identical(image_name, temp_dir, dpi=None, tol=5):
+    """
+    Partially copied from ObsPy
+    """
+    image_name += ".png"
+    expected = os.path.join(IMAGES, image_name)
+    actual = os.path.join(str(temp_dir), image_name)
 
-#     if dpi:
-#         plt.savefig(actual, dpi=dpi)
-#     else:
-#         plt.savefig(actual)
-#     plt.close()
+    if dpi:
+        plt.savefig(actual, dpi=dpi)
+    else:
+        plt.savefig(actual)
+    plt.close()
 
-#     assert os.path.exists(expected)
-#     assert os.path.exists(actual)
+    assert os.path.exists(expected)
+    assert os.path.exists(actual)
 
-#     # Use a reasonably high tolerance to get around difference with different
-#     # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
-#     result = mpl_compare_images(expected, actual, tol=tol, in_decorator=True)
-#     if result is not None:
-#         print(result)
-#     assert result is None
+    # Use a reasonably high tolerance to get around difference with different
+    # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
+    result = mpl_compare_images(expected, actual, tol=tol, in_decorator=True)
+    if result is not None:
+        print(result)
+    assert result is None
 
 
 def reset_matplotlib():

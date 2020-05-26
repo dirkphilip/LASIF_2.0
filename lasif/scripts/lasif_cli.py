@@ -451,7 +451,10 @@ def lasif_list_events(parser, args):
     args = parser.parse_args(args)
 
     api.list_events(
-        lasif_root=".", just_list=args.just_list, iteration=args.iteration
+        lasif_root=".",
+        just_list=args.just_list,
+        iteration=args.iteration,
+        output=False,
     )
 
 
@@ -816,7 +819,7 @@ def lasif_list_iterations(parser, args):
     Creates directory structure for a new iteration.
     """
     args = parser.parse_args(args)
-    api.list_iterations(lasif_root=".")
+    api.list_iterations(lasif_root=".", output=False)
 
 
 @mpi_enabled

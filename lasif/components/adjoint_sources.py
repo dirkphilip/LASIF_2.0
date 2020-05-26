@@ -12,15 +12,6 @@ from lasif.exceptions import LASIFNotFoundError, LASIFError
 from .component import Component
 from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
 
-# Map the adjoint source type names to functions implementing them.
-# MISFIT_MAPPING = {
-#     "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
-#     "L2Norm": adsrc_l2_norm_misfit,
-#     "CCTimeShift": adsrc_cc_time_shift,
-#     "DoubleDifference": double_difference_adjoint,
-#     "L2NormWeighted": adsrc_l2_norm_weighted
-# }
-
 
 class AdjointSourcesComponent(Component):
     """

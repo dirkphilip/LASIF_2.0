@@ -9,6 +9,8 @@ interface feels sluggish and slow. Import things only the functions they are
 needed.
 
 :copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2020
+    Dirk-Philip van Herwaarden (dirkphilip.vanherwaarden@erdw.ethz.ch), 2020
 
 :license: GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)

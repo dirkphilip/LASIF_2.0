@@ -27,6 +27,9 @@ plt.switch_backend("agg")
 
 # Fixtures will be available in the whole module.
 from lasif.tests.components.test_events_component import comm as events_comm
+from lasif.tests.components.test_visualization_component import (
+    comm as vis_comm,
+)
 from lasif.tests.components.test_waveforms_component import (
     comm as waveforms_comm,
 )

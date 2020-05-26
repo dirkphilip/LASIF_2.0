@@ -414,7 +414,7 @@ def list_events(
     lasif_root,
     just_list: bool = True,
     iteration: str = None,
-    output: bool = False,
+    output: bool = True,
 ):
     """
     Print a list of events in project
@@ -427,7 +427,7 @@ def list_events(
     :param iteration: Show only events for specific iteration, defaults to None
     :type iteration: str, optional
     :param output: Do you want to output the list into a variable, defaults
-        to False
+        to True
     :type output: bool, optional
     """
 
@@ -892,13 +892,13 @@ def set_up_iteration(
         )
 
 
-def list_iterations(lasif_root, output: bool = False):
+def list_iterations(lasif_root, output: bool = True):
     """
     List iterations in project
 
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
-    :param output: If the function should return the list, defaults to False
+    :param output: If the function should return the list, defaults to True
     :type output: bool, optional
     """
 

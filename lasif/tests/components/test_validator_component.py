@@ -2,41 +2,69 @@
 # # -*- coding: utf-8 -*-
 # from __future__ import absolute_import
 #
-# import inspect
-# import os
-# import pytest
-# import shutil
-# from unittest import mock
-#
-# from lasif.components.project import Project
-#
-#
-# @pytest.fixture()
-# def comm(tmpdir):
-#     proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-#         inspect.getfile(inspect.currentframe())))), "data",
-#         "example_project")
-#     tmpdir = str(tmpdir)
-#     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
-#     proj_dir = os.path.join(tmpdir, "proj")
-#
-#     project = Project(project_root_path=proj_dir, init_project=False)
-#
-#     return project.comm
-#
-#
-# def test_is_event_station_raypath_within_boundaries(comm):
-#     """
-#     Tests the raypath checker.
-#     """
-#     # latitude = 38.82
-#     # longitude = 40.14
-#     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
-#
-#     assert comm.validator.is_event_station_raypath_within_boundaries(
-#         event, 38.92, 40.0)
-#     assert not comm.validator.is_event_station_raypath_within_boundaries(
-#         event, 38.92, 140.0)
+import inspect
+import os
+import pytest
+import shutil
+from unittest import mock
+import pathlib
+
+from lasif.components.project import Project
+import lasif
+
+
+@pytest.fixture()
+def comm(tmpdir):
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "example_project",
+    )
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
+    folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
+    os.chdir(os.path.abspath(folder_path))
+
+    return project.comm
+
+
+def test_is_event_station_raypath_within_boundaries(comm):
+    """
+    Tests the raypath checker.
+    """
+
+    event = lasif.api.list_events(comm)[1]
+
+    assert comm.validator.is_event_station_raypath_within_boundaries(
+        event, 44.989, 24.611
+    )
+    assert not comm.validator.is_event_station_raypath_within_boundaries(
+        event, 43.955, 42.686
+    )
+
+
+def test_validate_data(comm, capsys):
+    """
+    See if basic checks work
+    """
+    comm.validator.validate_data(True, False)
+    capture = capsys.readouterr()
+    assert "Skipping raypath checks" in capture.out
+    assert "FAILED" not in capture.out
+
+    comm.validator.validate_data(False, True)
+    capture = capsys.readouterr()
+    assert "FAILED" in capture.out
+    assert "Skipping data and station" in capture.out
+
+
 #
 #
 # def test_data_validation_raypath_in_domain(comm):
