@@ -7,8 +7,10 @@ Data management for seismological full seismic waveform inversions using the
 Salvus suite of tools.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de) and
-    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2017
+    Lion Krischer (krischer@geophysik.uni-muenchen.de),
+    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch),
+    Dirk-Philip van Herwaarden (dirkphilip.vanherwaarden@erdw.ethz.ch),
+    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2020
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
