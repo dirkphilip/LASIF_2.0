@@ -13,7 +13,7 @@ coordinates.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import pathlib
-import typing
+from typing import Union, Dict
 import cartopy as cp
 import matplotlib
 
@@ -33,7 +33,7 @@ class HDF5Domain:
 
     def __init__(
         self,
-        mesh_file: typing.Union[str, pathlib.Path],
+        mesh_file: Union[str, pathlib.Path],
         absorbing_boundary_length: float,
     ):
         self.mesh_file = str(mesh_file)
@@ -334,6 +334,15 @@ class HDF5Domain:
                 m = plt.axes(projection=projection)
             else:
                 m = ax
+            m.set_extent(
+                [
+                    self.min_lon - 3.0,
+                    self.max_lon + 3.0,
+                    self.min_lat - 3.0,
+                    self.max_lat + 3.0,
+                ],
+                crs=transform,
+            )
 
         else:
             projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
@@ -343,11 +352,12 @@ class HDF5Domain:
                 m = ax
             m.set_extent(
                 [
-                    self.min_lon - 1.0,
-                    self.max_lon + 1.0,
-                    self.min_lat - 1.0,
-                    self.max_lat + 1.0,
-                ]
+                    self.min_lon - 3.0,
+                    self.max_lon + 3.0,
+                    self.min_lat - 3.0,
+                    self.max_lat + 3.0,
+                ],
+                crs=transform,
             )
 
         try:
@@ -509,3 +519,185 @@ def _plot_lines(
     lats = lines[:, 0]
     lngs = lines[:, 1]
     map_object.plot(lngs, lats, transform=transform, color=color, label=label)
+
+
+class SimpleDomain:
+    """
+    A class handling more simplistic domains than the HDF5Domain class
+    """
+
+    def __init__(self, info: Dict[str, Union[str, float]]):
+        self.max_lat = info["max_lat"]
+        self.min_lat = info["min_lat"]
+        self.max_lon = info["max_lon"]
+        self.min_lon = info["min_lon"]
+        self.depth_in_m = info["depth_in_km"] * 1000.0
+        self._is_global = None
+
+        assert (
+            self.max_lat > self.min_lat
+        ), "Max latitude less than Min latitude"
+        assert (
+            self.max_lon > self.min_lon
+        ), "Max longitude less than Min longitude"
+        assert self.depth_in_m > 0.0, "Depth needs to be bigger than 0.0"
+
+        assert self.max_lat <= 90.0, "Latitude exists between -90.0 and 90.0"
+        assert self.min_lat >= -90.0, "Latitude exists between -90.0 and 90.0"
+        assert (
+            self.max_lon <= 180.0
+        ), "Longitude exists between -180.0 and 180.0"
+        assert (
+            self.min_lon >= -180.0
+        ), "Longitude exists between -180.0 and 180.0"
+
+        if (
+            self.min_lat == -90.0
+            and self.max_lat == 90.0
+            and self.min_lon == -180.0
+            and self.max_lon == 180.0
+        ):
+            self._is_global = True
+        else:
+            self._is_global = False
+
+    def point_in_domain(
+        self, longitude: float, latitude: float, depth: float = None
+    ) -> bool:
+        """
+        Check whether point is located inside or outside domain
+
+        :param longitude: Longitude coordinate
+        :type longitude: float
+        :param latitude: Latitude coordinate
+        :type latitude: float
+        :param depth: Depth in meters, defaults to None
+        :type depth: float, optional
+        :rtype: bool
+        """
+        if self._is_global:
+            return True
+
+        if longitude < self.min_lon:
+            return False
+        if longitude > self.max_lon:
+            return False
+        if latitude > self.max_lat:
+            return False
+        if latitude < self.min_lat:
+            return False
+        if depth is not None:
+            if depth > self.depth_in_m:
+                return False
+
+        return True
+
+    def plot(
+        self, ax=None, plot_inner_boundary: bool = False,
+    ):
+        """
+        Plots the domain
+        Global domain is plotted using an equal area Mollweide projection.
+        Smaller domains have eihter Orthographic projections or PlateCarree.
+
+        :param ax: matplotlib axes, defaults to None
+        :type ax: matplotlib.axes.Axes, optional
+        :param plot_inner_boundary: plot the convex hull of the mesh
+        surface nodes that lie inside the domain. Defaults to False
+        :type plot_inner_boundary: bool, optional
+        :return: The created GeoAxes instance.
+        """
+        import matplotlib.pyplot as plt
+
+        transform = cp.crs.Geodetic()
+
+        if plot_inner_boundary:
+            raise LASIFError("Inner boundary is not plotted on simple domains")
+
+        if self._is_global:
+            projection = cp.crs.Mollweide()
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
+            _plot_features(m, projection=projection)
+            return m, projection
+
+        lat_extent = self.max_lat - self.min_lat
+        lon_extent = self.max_lon - self.min_lon
+        max_extent = max(lat_extent, lon_extent)
+        center_lat = np.mean((self.max_lat, self.min_lat))
+        center_lon = np.mean((self.max_lon, self.min_lon))
+
+        # Use a global plot for very large domains.
+        if lat_extent >= 90.0 and lon_extent >= 90.0:
+            projection = cp.crs.Mollweide()
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
+
+        elif max_extent >= 75.0:
+            projection = cp.crs.Orthographic(
+                central_longitude=center_lon, central_latitude=center_lat,
+            )
+            if ax is None:
+                m = plt.axes(projection=projection)
+            else:
+                m = ax
+            m.set_extent(
+                [
+                    self.min_lon - 3.0,
+                    self.max_lon + 3.0,
+                    self.min_lat - 3.0,
+                    self.max_lat + 3.0,
+                ],
+                crs=transform,
+            )
+
+        else:
+            projection = cp.crs.PlateCarree(central_longitude=center_lon,)
+            if ax is None:
+                m = plt.axes(projection=projection,)
+            else:
+                m = ax
+            m.set_extent(
+                [
+                    self.min_lon - 3.0,
+                    self.max_lon + 3.0,
+                    self.min_lat - 3.0,
+                    self.max_lat + 3.0,
+                ],
+                crs=transform,
+            )
+        boundary = self.get_sorted_corner_coords()
+
+        _plot_lines(
+            m,
+            boundary,
+            transform=transform,
+            color="red",
+            lw=2,
+            label="Domain Edge",
+        )
+        _plot_features(m, projection=projection)
+        m.legend(framealpha=0.5, loc="lower right")
+
+        return m, projection
+
+    def get_sorted_corner_coords(self) -> np.array:
+        """
+        Return an array which can be used to plot the edges of the domain
+
+        :return: Properly ordered corner coordinates for plotting
+        :rtype: numpy.array
+        """
+        return np.array(
+            [
+                [self.min_lat, self.min_lon],
+                [self.min_lat, self.max_lon],
+                [self.max_lat, self.max_lon],
+                [self.max_lat, self.min_lon],
+                [self.min_lat, self.min_lon],
+            ]
+        )

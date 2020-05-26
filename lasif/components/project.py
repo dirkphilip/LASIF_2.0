@@ -160,11 +160,15 @@ class Project(Component):
             )
             + 1
         )
-
-        self.domain = lasif.domain.HDF5Domain(
-            self.lasif_config["domain_settings"]["domain_file"],
-            self.lasif_config["domain_settings"]["boundary_in_km"],
-        )
+        if self.lasif_config["solver_used"].lower() == "salvus":
+            self.domain = lasif.domain.HDF5Domain(
+                self.lasif_config["domain_settings"]["domain_file"],
+                self.lasif_config["domain_settings"]["boundary_in_km"],
+            )
+        else:
+            self.domain = lasif.domain.SimpleDomain(
+                self.lasif_config["domain_settings"]["simple_domain"]
+            )
         self.optimization_settings = config_dict["optimization_settings"]
 
         # Source-stacking configuration
@@ -329,10 +333,22 @@ class Project(Component):
                 "Here you specify your domain with an hdf5 mesh and "
                 "how thick of a boundary you need regarding data downloading "
                 "(i.e. What is the minimum distance from the boundary which "
-                "data can be downloded)"
+                "data can be downloded).\n"
             ),
             "domain_file": domain_file,
             "boundary_in_km": 100.0,
+            "simple_domain": {
+                "comment": (
+                    "The domain file only works for Salvus meshes. If you "
+                    "wish to use another solver you can use a simple domain "
+                    "where your only inputs are max/min lat/lon and depth."
+                ),
+                "max_lat": 45.0,
+                "min_lat": 10.0,
+                "max_lon": 45.0,
+                "min_lon": 10.0,
+                "depth_in_km": 500.0,
+            },
         }
         download = {
             "comment": (
@@ -356,6 +372,7 @@ class Project(Component):
         lasif_project = {
             "project_name": project_name,
             "description": "",
+            "solver_used": "Salvus",
             "domain_settings": domain,
             "download_settings": download,
         }

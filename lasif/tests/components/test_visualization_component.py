@@ -9,6 +9,8 @@ import os
 import pytest
 import shutil
 import lasif.api
+from lasif.exceptions import LASIFError
+import toml
 
 from lasif.components.project import Project
 from ..testing_helpers import reset_matplotlib, images_are_identical
@@ -42,6 +44,35 @@ def comm(tmpdir):
     proj_dir = os.path.join(tmpdir, "proj")
 
     folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
+    os.chdir(os.path.abspath(folder_path))
+
+    return project.comm
+
+
+@pytest.fixture()
+def comm_simple(tmpdir):
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "data",
+        "example_project",
+    )
+
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
+    folder_path = pathlib.Path(proj_dir).absolute()
+    toml_file = folder_path / "lasif_config.toml"
+    config = toml.load(toml_file)
+    config["lasif_project"]["solver_used"] = "other"
+    with open(toml_file, "w") as fh:
+        toml.dump(config, fh)
+
     project = Project(project_root_path=folder_path, init_project=False)
     os.chdir(os.path.abspath(folder_path))
 
@@ -153,3 +184,16 @@ def test_plot_window_statistics(comm):
     images_are_identical(
         "window_statistics", comm.project.paths["root"], tol=30, dpi=200
     )
+
+
+@pytest.mark.filterwarnings(
+    "ignore: can't resolve package from __spec__ or __package__"
+)
+def test_simple_domain_plotting(comm_simple):
+    comm_simple.visualizations.plot_domain(inner_boundary=False)
+    images_are_identical(
+        "simple_domain", comm_simple.project.paths["root"], tol=30, dpi=200
+    )
+    with pytest.raises(LASIFError) as excinfo:
+        comm_simple.visualizations.plot_domain(inner_boundary=True)
+        assert "Inner boundary is not" in str(excinfo.value)
