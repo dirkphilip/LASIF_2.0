@@ -9,6 +9,7 @@ dependencies:
     - pyproj=1.9
     - obspy
     - cartopy
+    - pyasdf
     - progressbar
     - colorama
     - joblib

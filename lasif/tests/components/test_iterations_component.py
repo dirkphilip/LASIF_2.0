@@ -89,7 +89,7 @@ def test_setup_directories_for_iteration(comm):
 def test_setup_iteration_toml(comm):
     lasif.api.set_up_iteration(comm, "4")
     iter_file = (
-        comm.project.paths["iterations"] / f"ITERATION_4" / "central_info.toml"
+        comm.project.paths["iterations"] / "ITERATION_4" / "central_info.toml"
     )
     info = toml.load(iter_file)
     assert "events" in info.keys()
@@ -100,14 +100,14 @@ def test_setup_events_toml(comm):
     lasif.api.set_up_iteration(comm, "4")
     events = lasif.api.list_events(comm, output=True)
     event_file = (
-        comm.project.paths["iterations"] / f"ITERATION_4" / "events_used.toml"
+        comm.project.paths["iterations"] / "ITERATION_4" / "events_used.toml"
     )
     events_toml = toml.load(event_file)
     assert set(events_toml["events"]["events_used"]) == set(events)
     lasif.api.set_up_iteration(comm, "4", remove_dirs=True)
     lasif.api.set_up_iteration(comm, "5", events=events[0])
     event_file = (
-        comm.project.paths["iterations"] / f"ITERATION_5" / "events_used.toml"
+        comm.project.paths["iterations"] / "ITERATION_5" / "events_used.toml"
     )
     events_toml = toml.load(event_file)
     assert set(events_toml["events"]["events_used"]) != set(events)

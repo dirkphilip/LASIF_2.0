@@ -38,12 +38,6 @@ installed almost everywhere.
     $ conda env create -f environment.yml
     # Activate the lasif environment. This will always be needed when LASIF is started.
     $ source activate lasif
-    # Install extra dependencies
-    # Install pyasdf. Move into the directory you want to keep it
-    $ git clone https://github.com/SeismicData/pyasdf.git
-    $ cd pyasdf
-    $ pip install -e .
-
 
 Installing LASIF
 ^^^^^^^^^^^^^^^^

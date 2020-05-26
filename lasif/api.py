@@ -443,7 +443,7 @@ def list_events(
         if output:
             raise LASIFError("You can only output a basic list")
         print(
-            f"%i event%s in %s:"
+            "%i event%s in %s:"
             % (
                 comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
@@ -1389,7 +1389,6 @@ def submit_salvus_simulation(
     """
     Submit a Salvus simulation to the machine defined in config file
     with details specified in config file
-
     :param lasif_root: The Lasif communicator object or root file
     :type lasif_root: Union[str, pathlib.Path, object]
     :param simulations: Simulation object
