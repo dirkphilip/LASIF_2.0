@@ -5,6 +5,17 @@
 
 
 Documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
+Currently the documentation is out of date but here is how you install
+LASIF:
+
+```bash
+cd <directory to download LASIF>
+git clone https://github.com/dirkphilip/LASIF_2.0.git
+cd LASIF_2.0
+conda env create -f environment.yml
+conda activate lasif
+pip install -e .
+```
 
 
 ### Paper
