@@ -4,9 +4,9 @@
 [![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/dirkphilip/LASIF_2.0/blob/master/LICENSE)
 
 
-Documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
-Currently the documentation is out of date but here is how you install
-LASIF:
+Detailed documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
+
+Installation process:
 
 ```bash
 cd <directory to download LASIF>
