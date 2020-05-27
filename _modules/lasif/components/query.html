@@ -1,0 +1,608 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.query &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.query</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.query</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFError</span><span class="p">,</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFWarning</span>
+<span class="kn">import</span> <span class="nn">pyasdf</span>
+
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+
+<span class="n">DataTuple</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s2">&quot;DataTuple&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;synthetics&quot;</span><span class="p">,</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="QueryComponent"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent">[docs]</a><span class="k">class</span> <span class="nc">QueryComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This component is responsible for making queries across the different</span>
+<span class="sd">    components and integrating them in a meaningful way.</span>
+
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :type communicatior: object</span>
+<span class="sd">    :param component_name: The name of this component for the communicator.</span>
+<span class="sd">    :type component_name: str</span>
+
+<span class="sd">    It should thus be initialized fairly late as it needs access to a number</span>
+<span class="sd">    of other components via the communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="QueryComponent.get_all_stations_for_event"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent.get_all_stations_for_event">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_stations_for_event</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">list_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of all stations for one event and their</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">        A station is considered to be available for an event if at least one</span>
+<span class="sd">        channel has raw data and an associated station file. Furthermore it</span>
+<span class="sd">        must be possible to derive coordinates for the station.</span>
+
+<span class="sd">        :param event_name: Name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param list_only: Whether you only want names of stations, defaults</span>
+<span class="sd">            to False.</span>
+<span class="sd">        :type list_only: bool, optional</span>
+<span class="sd">        :param intersection_override: boolean to require to have the same</span>
+<span class="sd">            stations recording all events, i.e. the intersection of receiver</span>
+<span class="sd">            sets. The intersection will consider two stations equal i.f.f. the</span>
+<span class="sd">            station codes AND coordinates (LAT, LON, Z) are equal.</span>
+<span class="sd">        :type intersection_override: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">waveform_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">use_only_intersection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">stacking_settings</span><span class="p">[</span>
+            <span class="s2">&quot;use_only_intersection&quot;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">intersection_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">use_only_intersection</span> <span class="o">=</span> <span class="n">intersection_override</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_only_intersection</span><span class="p">:</span>
+            <span class="c1"># In this case return normal selection</span>
+
+            <span class="k">if</span> <span class="n">list_only</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span>
+                    <span class="n">waveform_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">waveform_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># In this case only return intersecting stations</span>
+
+            <span class="c1"># Get names of all events</span>
+            <span class="n">event_names_intersection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="c1"># Remove &#39;original&#39; event from the intersection list to prevent</span>
+            <span class="c1"># extra work</span>
+            <span class="n">event_names_intersection</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+
+            <span class="c1"># Get stations with coordinates</span>
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">waveform_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">coordinate_dictionary_event</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>
+
+            <span class="n">station_codes_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">coordinate_dictionary_event</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="c1"># Get filenames of all other events</span>
+            <span class="n">intsec_waveform_filenames</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">event_names_intersection</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Open the datasets of all other events, until we have everything</span>
+            <span class="c1"># we need ... [*]</span>
+            <span class="n">intsec_datasets</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span>
+                    <span class="n">intsec_waveform_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">intsec_waveform_filename</span> <span class="ow">in</span> <span class="n">intsec_waveform_filenames</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Extract stations and coordinates</span>
+            <span class="n">intsec_coordinate_dictionaries</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">intsec_dataset</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">intsec_dataset</span> <span class="ow">in</span> <span class="n">intsec_datasets</span>
+            <span class="p">]</span>
+
+            <span class="c1"># [*] ... and close datasets</span>
+            <span class="c1"># [ds.close() for ds in intsec_datasets]</span>
+
+            <span class="c1"># Create sets of station codes (without information on the</span>
+            <span class="c1"># location)</span>
+            <span class="n">intsec_station_sets</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">intsec_cor_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">intsec_cor_dict</span> <span class="ow">in</span> <span class="n">intsec_coordinate_dictionaries</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Interesect the set of the station codes for the current event</span>
+            <span class="c1"># with the rest</span>
+            <span class="n">intersection_stations_codes</span> <span class="o">=</span> <span class="n">station_codes_set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">intsec_station_sets</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Convert the intersection to a list</span>
+            <span class="n">list_intsec_station_codes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">intersection_stations_codes</span><span class="p">)</span>
+
+            <span class="c1"># Create a copy which we can edit to contain only those stations</span>
+            <span class="c1"># with the correct coordinates</span>
+            <span class="n">updated_list_intsec_station_codes</span> <span class="o">=</span> <span class="n">list_intsec_station_codes</span>
+
+            <span class="c1"># Iterate over stations and check the equality of coordinates</span>
+            <span class="c1"># during all events (some stations might be moved around)</span>
+            <span class="k">for</span> <span class="n">station_code_in_intersection</span> <span class="ow">in</span> <span class="n">list_intsec_station_codes</span><span class="p">:</span>
+
+                <span class="c1"># Get coordinates of the original event in a dictionary</span>
+                <span class="n">coordinates_in_origi_event</span> <span class="o">=</span> <span class="n">coordinate_dictionary_event</span><span class="p">[</span>
+                    <span class="n">station_code_in_intersection</span>
+                <span class="p">]</span>
+
+                <span class="c1"># Get coordinates of the other events in a list of dictionaries</span>
+                <span class="n">coordinates_in_other_events</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">oth_evt_dict</span><span class="p">[</span><span class="n">station_code_in_intersection</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">oth_evt_dict</span> <span class="ow">in</span> <span class="n">intsec_coordinate_dictionaries</span>
+                <span class="p">]</span>
+
+                <span class="c1"># Check if the dictionaries are all equal</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">coordinates_in_other_events</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="n">coordinates_in_other_events</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                        <span class="n">coordinates_in_other_events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">coordinates_in_other_events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="o">==</span> <span class="n">coordinates_in_origi_event</span>
+                <span class="p">):</span>
+                    <span class="c1"># Coordinates are equivalent for the same station, nothing</span>
+                    <span class="c1"># to worry about</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Coordinates are not equivalent for the same station,</span>
+                    <span class="c1"># removing the station</span>
+                    <span class="n">updated_list_intsec_station_codes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
+                        <span class="n">station_code_in_intersection</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">list_only</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">updated_list_intsec_station_codes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Filter the existing coordiante dictionary with the</span>
+                <span class="c1"># intersection and equivalent coordinate stations.</span>
+                <span class="n">filtered_coordinate_dictionary_event</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coordinate_dictionary_event</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">updated_list_intsec_station_codes</span>
+                <span class="p">}</span>
+                <span class="k">return</span> <span class="n">filtered_coordinate_dictionary_event</span></div>
+
+<div class="viewcode-block" id="QueryComponent.get_coordinates_for_station"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent.get_coordinates_for_station">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinates_for_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the coordinates for one station.</span>
+
+<span class="sd">        Must be in sync with :meth:`~.get_all_stations_for_event`.</span>
+
+<span class="sd">        :param event_name: Name of event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The unique id of the station in the waveform file</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">waveform_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">waveform_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span><span class="o">.</span><span class="n">coordinates</span></div>
+
+<div class="viewcode-block" id="QueryComponent.get_stations_for_all_events"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent.get_stations_for_all_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_stations_for_all_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with a list of stations per event.</span>
+
+<span class="sd">        :param intersection_override: boolean to require to have the same</span>
+<span class="sd">            stations recording all events, i.e. the intersection of receiver</span>
+<span class="sd">            sets. The intersection will consider two stations equal i.f.f. the</span>
+<span class="sd">            station codes AND coordinates (LAT, LON, Z) are equal.</span>
+<span class="sd">        :type intersection_override: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">use_only_intersection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">stacking_settings</span><span class="p">[</span>
+            <span class="s2">&quot;use_only_intersection&quot;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">intersection_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">use_only_intersection</span> <span class="o">=</span> <span class="n">intersection_override</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_only_intersection</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span>
+                        <span class="n">event</span><span class="p">,</span> <span class="n">list_only</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If we only want to get the stations that are the same for all</span>
+            <span class="c1"># events, we can just query the stations once.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">list_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">intersection_override</span><span class="o">=</span><span class="n">use_only_intersection</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># And add them to every event equally</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+                <span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">return</span> <span class="n">events</span></div>
+
+<div class="viewcode-block" id="QueryComponent.get_matching_waveforms"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent.get_matching_waveforms">[docs]</a>    <span class="k">def</span> <span class="nf">get_matching_waveforms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_or_channel_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get synthetic and processed waveforms for the same station and same</span>
+<span class="sd">        event.</span>
+
+<span class="sd">        :param event: Name of event</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration: Name of iteration</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        :param station_or_channel_id: The id for the station of the channel</span>
+<span class="sd">        :type station_or_channel_id: str</span>
+<span class="sd">        :return: A named tuple with processed waveforms, synthetic waveforms</span>
+<span class="sd">            and coordinates of station</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seed_id</span> <span class="o">=</span> <span class="n">station_or_channel_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed_id</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">station_id</span> <span class="o">=</span> <span class="n">station_or_channel_id</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed_id</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">seed_id</span>
+            <span class="n">station_id</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;station_or_channel_id&#39; must either have &quot;</span> <span class="s2">&quot;2 or 4 parts.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">iteration_long_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span>
+            <span class="n">iteration</span>
+        <span class="p">)</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c1"># Get the metadata for the processed and synthetics for this</span>
+        <span class="c1"># particular station.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_waveforms_processed</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">station_id</span><span class="p">,</span>
+            <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">preprocessing_tag</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># data_fly = self.comm.waveforms.get_waveforms_processed_on_the_fly(</span>
+        <span class="c1">#     event[&quot;event_name&quot;], station_id)</span>
+
+        <span class="n">synthetics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_waveforms_synthetic</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">station_id</span><span class="p">,</span>
+            <span class="n">long_iteration_name</span><span class="o">=</span><span class="n">iteration_long_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_coordinates_for_station</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">station_id</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Clear data and synthetics!</span>
+        <span class="k">for</span> <span class="n">_st</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;observed&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">synthetics</span><span class="p">,</span> <span class="s2">&quot;synthetic&quot;</span><span class="p">)):</span>
+            <span class="c1"># Get all components and loop over all components.</span>
+            <span class="n">_comps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">_st</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_c</span> <span class="ow">in</span> <span class="n">_comps</span><span class="p">:</span>
+                <span class="n">traces</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">_st</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">_c</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">traces</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">traces</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">traces</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> data for event &#39;</span><span class="si">%s</span><span class="s2">&#39;, iteration &#39;</span><span class="si">%s</span><span class="s2">&#39;, &quot;</span>
+                        <span class="s2">&quot;station &#39;</span><span class="si">%s</span><span class="s2">&#39;, and component &#39;</span><span class="si">%s</span><span class="s2">&#39; has </span><span class="si">%i</span><span class="s2"> traces: &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">. LASIF will select the first one, but please &quot;</span>
+                        <span class="s2">&quot;clean up your data.&quot;</span>
+                        <span class="o">%</span> <span class="p">(</span>
+                            <span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+                            <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+                            <span class="n">iteration</span><span class="p">,</span>
+                            <span class="n">station_id</span><span class="p">,</span>
+                            <span class="n">_c</span><span class="p">,</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">traces</span><span class="p">),</span>
+                            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">traces</span><span class="p">),</span>
+                        <span class="p">),</span>
+                        <span class="n">LASIFWarning</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">traces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                        <span class="n">_st</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Should not happen.</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="c1"># Make sure all data has the corresponding synthetics. It should not</span>
+        <span class="c1"># happen that one has three channels of data but only two channels</span>
+        <span class="c1"># of synthetics...in that case, discard the additional data and</span>
+        <span class="c1"># raise a warning.</span>
+        <span class="n">temp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data_tr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">component</span> <span class="o">=</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">synthetic_tr</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">tr</span>
+                <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">synthetics</span>
+                <span class="k">if</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">component</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">synthetic_tr</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Station &#39;</span><span class="si">%s</span><span class="s2">&#39; has observed data for component &#39;</span><span class="si">%s</span><span class="s2">&#39; but no &quot;</span>
+                    <span class="s2">&quot;matching synthetics.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">component</span><span class="p">),</span>
+                    <span class="n">LASIFWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">temp_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_tr</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">traces</span> <span class="o">=</span> <span class="n">temp_data</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                <span class="s2">&quot;No data remaining for station &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">station_id</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Scale the data if required.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;scale_data_to_synthetics&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">data_tr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">synthetic_tr</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">tr</span>
+                    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">synthetics</span>
+                    <span class="k">if</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="o">==</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">synthetic_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">/</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+                <span class="c1"># Store and apply the scaling.</span>
+                <span class="n">data_tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">scaling_factor</span>
+                <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">synthetics</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="c1"># Select component if necessary.</span>
+        <span class="k">if</span> <span class="n">channel</span> <span class="ow">and</span> <span class="n">channel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Only use the last letter of the channel for the selection.</span>
+            <span class="c1"># Different solvers have different conventions for the location</span>
+            <span class="c1"># and channel codes.</span>
+            <span class="n">component</span> <span class="o">=</span> <span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">traces</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">i</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">traces</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">component</span>
+            <span class="p">]</span>
+            <span class="n">synthetics</span><span class="o">.</span><span class="n">traces</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">i</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">synthetics</span><span class="o">.</span><span class="n">traces</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">component</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">DataTuple</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">synthetics</span><span class="o">=</span><span class="n">synthetics</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="QueryComponent.point_in_domain"><a class="viewcode-back" href="../../../components/query.html#lasif.components.query.QueryComponent.point_in_domain">[docs]</a>    <span class="k">def</span> <span class="nf">point_in_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests if the point is in the domain. Returns True/False</span>
+
+<span class="sd">        :param latitude: The latitude of the point.</span>
+<span class="sd">        :type latitude: float</span>
+<span class="sd">        :param longitude: The longitude of the point.</span>
+<span class="sd">        :type longitude: float</span>
+<span class="sd">        :param depth: The depth of the point</span>
+<span class="sd">        :type depth: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">domain</span>
+        <span class="k">return</span> <span class="n">domain</span><span class="o">.</span><span class="n">point_in_domain</span><span class="p">(</span>
+            <span class="n">longitude</span><span class="o">=</span><span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="n">latitude</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -36,8 +36,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Meshing" href="meshing.html" />
-    <link rel="prev" title="14. Gradient Visualization" href="tutorial/13_gradient_visualization.html" /> 
+    <link rel="next" title="Components" href="components.html" />
+    <link rel="prev" title="lasif.rotations" href="rotations.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,9 +86,10 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mpi">MPI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#command-documentation">Command Documentation</a><ul>
@@ -148,9 +149,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="meshing.html">Meshing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 </ul>
 
@@ -286,7 +285,7 @@ with MPI will result in an error.:</p>
 <p>In the following all subcommands are documented in detail. The commands
 are grouped by functionality.</p>
 <div class="contents local topic" id="available-commands">
-<p class="topic-title first">Available Commands</p>
+<p class="topic-title">Available Commands</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#data-acquisition-functions" id="id1">Data Acquisition Functions</a></p>
 <ul>
@@ -766,7 +765,7 @@ file.</p></td>
 <h4><a class="toc-backref" href="#id12">lasif calculate_adjoint_sources</a><a class="headerlink" href="#lasif-calculate-adjoint-sources" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif calculate_adjoint_sources [-h] [--ipdb]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif calculate_adjoint_sources [-h] [--ipdb] [--weight_set WEIGHT_SET]
                                            iteration_name window_set_name
                                            [events [events ...]]
 </pre></div>
@@ -775,8 +774,8 @@ file.</p></td>
 <p>Calculates adjoint sources for a given iteration.</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
+<col style="width: 31%" />
+<col style="width: 69%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td colspan="2"><p><strong>Positional Arguments</strong></p></td>
@@ -788,7 +787,7 @@ file.</p></td>
 <td><p>name of the window_set</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">events</span></code></p></td>
-<td><p>One or more events. If none given, all will be
+<td><p>One or more events. If none given,all will be
 done.</p></td>
 </tr>
 <tr class="row-odd"><td colspan="2"><p><strong>Optional Arguments</strong></p></td>
@@ -803,6 +802,10 @@ will be launched
 upon encountering an
 exception. Requires
 ipdb.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--weight_set</span></code></p></td>
+<td><p>name of station
+weight set</p></td>
 </tr>
 </tbody>
 </table>
@@ -1350,7 +1353,7 @@ ipdb.</p></td>
 <div class="section" id="lasif-plot-domain">
 <h4><a class="toc-backref" href="#id28">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_domain [-h] [--ipdb] [--save] [--show_mesh]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_domain [-h] [--ipdb] [--save]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1378,20 +1381,15 @@ ipdb.</p></td>
 <td><p>Save the plot in a
 file</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--show_mesh</span></code></p></td>
-<td><p>Also plot the mesh.
-Currently works for
-exodus
-meshes/domains.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-plot-event">
 <h4><a class="toc-backref" href="#id29">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_event [-h] [--ipdb] [--save]
-                            [--weight_set_name WEIGHT_SET_NAME] [--show_mesh]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_event [-h] [--ipdb] [--save] [--force_intersect]
+                            [--force_no_intersect]
+                            [--weight_set_name WEIGHT_SET_NAME]
                             event_name
 </pre></div>
 </div>
@@ -1399,8 +1397,8 @@ meshes/domains.</p></td>
 <p>Plot a single event including stations on a map.</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 46%" />
-<col style="width: 54%" />
+<col style="width: 49%" />
+<col style="width: 51%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td colspan="2"><p><strong>Positional Arguments</strong></p></td>
@@ -1425,17 +1423,29 @@ ipdb.</p></td>
 <td><p>Saves the plot in a
 file</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--force_intersect</span></code></p></td>
+<td><p>Force to plot only
+stations that
+recorded durng all
+events in the
+project, regardless
+of settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--force_no_intersect</span></code></p></td>
+<td><p>Force to plot all
+stations that
+recorded during
+events, even if they
+are not present for
+all events,
+regardless of
+settings.</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--weight_set_name</span></code></p></td>
 <td><p>for stations to be
 color coded as a
 function of their
 respective weights</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--show_mesh</span></code></p></td>
-<td><p>Also plot the mesh.
-Currently works for
-exodus
-meshes/domains.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1444,7 +1454,7 @@ meshes/domains.</p></td>
 <h4><a class="toc-backref" href="#id30">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: lasif plot_events [-h] [--ipdb] [--type {map,depth,time}]
-                             [--iteration ITERATION] [--save] [--show_mesh]
+                             [--iteration ITERATION] [--save]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1492,12 +1502,6 @@ an iteration</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--save</span></code></p></td>
 <td><p>Saves the plot in a
 file</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--show_mesh</span></code></p></td>
-<td><p>Also plot the mesh.
-Currently works for
-exodus
-meshes/domains.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1906,10 +1910,10 @@ ipdb.</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="meshing.html" class="btn btn-neutral float-right" title="Meshing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="components.html" class="btn btn-neutral float-right" title="Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial/13_gradient_visualization.html" class="btn btn-neutral float-left" title="14. Gradient Visualization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="rotations.html" class="btn btn-neutral float-left" title="lasif.rotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,1694 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.api &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.api</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.api</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">An api to communicate directly with lasif functions without using the</span>
+<span class="sd">command line interface. Ideal interface for scripting.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2018</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">colorama</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">lasif.components.communicator</span> <span class="kn">import</span> <span class="n">Communicator</span>
+<span class="kn">from</span> <span class="nn">lasif.components.project</span> <span class="kn">import</span> <span class="n">Project</span>
+
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LASIFError</span><span class="p">,</span>
+    <span class="n">LASIFNotFoundError</span><span class="p">,</span>
+    <span class="n">LASIFCommandLineException</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="find_project_comm"><a class="viewcode-back" href="../../api_doc.html#lasif.api.find_project_comm">[docs]</a><span class="k">def</span> <span class="nf">find_project_comm</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Will search upwards from the given folder until a folder containing a</span>
+<span class="sd">    LASIF root structure is found. The absolute path to the root is returned.</span>
+
+<span class="sd">    :param folder: Path to folder where you want to search from</span>
+<span class="sd">    :type folder: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">Communicator</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">folder</span>
+
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+    <span class="n">max_folder_depth</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_folder_depth</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">folder</span> <span class="o">/</span> <span class="s2">&quot;lasif_config.toml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Project</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span><span class="o">.</span><span class="n">get_communicator</span><span class="p">()</span>
+        <span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Not inside a LASIF project.&quot;</span>
+    <span class="k">raise</span> <span class="n">LASIFCommandLineException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_domain"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_domain">[docs]</a><span class="k">def</span> <span class="nf">plot_domain</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inner_boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the studied domain specified in config file</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory.</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param save: save file, defaults to False</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param inner_boundary: binary whether the inner boundary should be drawn</span>
+<span class="sd">        Only works well for convex domains, defaults to False</span>
+<span class="sd">    :type inner_boundary: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_domain</span><span class="p">(</span><span class="n">inner_boundary</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;domain_plot&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;domain&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;domain.png&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved picture at </span><span class="si">{</span><span class="n">outfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_event"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_event">[docs]</a><span class="k">def</span> <span class="nf">plot_event</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">weight_set_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inner_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a single event including stations on a map. Events can be</span>
+<span class="sd">    color coded based on their weight</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event_name: name of event to plot</span>
+<span class="sd">    :type event_name: str</span>
+<span class="sd">    :param weight_set_name: name of station weight set, defaults to None</span>
+<span class="sd">    :type weight_set_name: str, optional</span>
+<span class="sd">    :param save: if figure should be saved, defaults to False</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param intersection_override: boolean to require to have the same</span>
+<span class="sd">        stations recording all events, i.e. the intersection of receiver</span>
+<span class="sd">        sets. The intersection will consider two stations equal i.f.f. the</span>
+<span class="sd">        station codes AND coordinates (LAT, LON, Z) are equal. If None is</span>
+<span class="sd">        passed, the value use_only_intersection from the projects&#39;</span>
+<span class="sd">        configuration file is used, defaults to None</span>
+<span class="sd">    :type intersection_override: bool, optional</span>
+<span class="sd">    :param inner_boundary: binary whether the inner boundary should be drawn</span>
+<span class="sd">        Only works well for convex domains, defaults to False</span>
+<span class="sd">    :type inner_boundary: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s2">&quot;agg&quot;</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_event</span><span class="p">(</span>
+        <span class="n">event_name</span><span class="p">,</span>
+        <span class="n">weight_set_name</span><span class="p">,</span>
+        <span class="n">intersection_override</span><span class="o">=</span><span class="n">intersection_override</span><span class="p">,</span>
+        <span class="n">inner_boundary</span><span class="o">=</span><span class="n">inner_boundary</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;event_plots&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;event&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">),</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_events"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_events">[docs]</a><span class="k">def</span> <span class="nf">plot_events</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">type_of_plot</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">inner_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a all events on the domain</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param type_of_plot: type of plot, options are &#39;map&#39;, &#39;depth&#39; and &#39;time&#39;,</span>
+<span class="sd">        defaults to &#39;map&#39;</span>
+<span class="sd">    :type type_of_plot: str, optional</span>
+<span class="sd">    :param iteration: plot all events of an iteration, defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    :param save: if figure should be saved, defaults to False</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param inner_boundary: binary weather the inner boundary should be drawn</span>
+<span class="sd">        Only works well for convex domains, defaults to False</span>
+<span class="sd">    :type inner_boundary: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_events</span><span class="p">(</span>
+        <span class="n">type_of_plot</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">inner_boundary</span><span class="o">=</span><span class="n">inner_boundary</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">iteration</span><span class="p">:</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;events_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">.png&quot;</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;events.png&quot;</span>
+            <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;event_plots&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;events&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span>
+            <span class="p">),</span>
+            <span class="n">file</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_station_misfits"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_station_misfits">[docs]</a><span class="k">def</span> <span class="nf">plot_station_misfits</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a map of a specific event where all the stations are colour coded by</span>
+<span class="sd">    their respective misfit value. You need to compute adjoint sources for</span>
+<span class="sd">    the respective iteration prior to making this plot.</span>
+<span class="sd">    Keep in mind that station with no windows will not get plotted, these</span>
+<span class="sd">    stations might be the ones with the largest misfits in reality</span>
+
+<span class="sd">    :param lasif_root: Lasif root directory or communicator object</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    :param iteration: Name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param save: You want to save the plot?, defaults to False</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_station_misfits</span><span class="p">(</span>
+        <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;misfit_</span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">.png&quot;</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;event_plots&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;events&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span>
+            <span class="p">),</span>
+            <span class="n">file</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_raydensity"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_raydensity">[docs]</a><span class="k">def</span> <span class="nf">plot_raydensity</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">plot_stations</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a distribution of earthquakes and stations with great circle rays</span>
+<span class="sd">    plotted underneath.</span>
+
+<span class="sd">    :param lasif_root: Lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param plot_stations: boolean argument whether stations should be plotted</span>
+<span class="sd">    :type plot_stations: bool</span>
+<span class="sd">    :param iteration: If you only want events from a certain iteration, if</span>
+<span class="sd">        None is passed every event will be used, defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    :param save: Whether you want to save the figure, if False, it gets</span>
+<span class="sd">        plotted and not saved, defaults to True</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param intersection_override: boolean to require to have the same</span>
+<span class="sd">        stations recording all events, i.e. the intersection of receiver</span>
+<span class="sd">        sets. The intersection will consider two stations equal i.f.f. the</span>
+<span class="sd">        station codes AND coordinates (LAT, LON, Z) are equal. If None is</span>
+<span class="sd">        passed, the value use_only_intersection from the projects&#39;</span>
+<span class="sd">        configuration file is used, defaults to None</span>
+<span class="sd">    :type intersection_override: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_raydensity</span><span class="p">(</span>
+        <span class="n">plot_stations</span><span class="o">=</span><span class="n">plot_stations</span><span class="p">,</span>
+        <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+        <span class="n">save_plot</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+        <span class="n">intersection_override</span><span class="o">=</span><span class="n">intersection_override</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_all_rays"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_all_rays">[docs]</a><span class="k">def</span> <span class="nf">plot_all_rays</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">plot_stations</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot all the rays that are in the project or in a specific iteration.</span>
+<span class="sd">    This is typically slower than the plot_raydensity function</span>
+
+<span class="sd">    :param lasif_root: Lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[pathlib.Path, str, object]</span>
+<span class="sd">    :param plot_stations: True/False whether stations should be plotted</span>
+<span class="sd">    :type plot_stations: bool</span>
+<span class="sd">    :param iteration: If you only want events from a certain iteration, if</span>
+<span class="sd">        None is passed every event will be used, defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    :param save: Whether you want to save the figure, if False, it gets</span>
+<span class="sd">        plotted and not saved, defaults to True</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param intersection_override: boolean to require to have the same</span>
+<span class="sd">        stations recording all events, i.e. the intersection of receiver</span>
+<span class="sd">        sets. The intersection will consider two stations equal i.f.f. the</span>
+<span class="sd">        station codes AND coordinates (LAT, LON, Z) are equal. If None is</span>
+<span class="sd">        passed, the value use_only_intersection from the projects&#39;</span>
+<span class="sd">        configuration file is used, defaults to None</span>
+<span class="sd">    :type intersection_override: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_all_rays</span><span class="p">(</span>
+        <span class="n">plot_stations</span><span class="o">=</span><span class="n">plot_stations</span><span class="p">,</span>
+        <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+        <span class="n">save_plot</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
+        <span class="n">intersection_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_gcmt_events"><a class="viewcode-back" href="../../api_doc.html#lasif.api.add_gcmt_events">[docs]</a><span class="k">def</span> <span class="nf">add_gcmt_events</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">min_mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">max_mag</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">min_dist</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">min_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add events to the project.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param count: Nunber of events</span>
+<span class="sd">    :type count: int</span>
+<span class="sd">    :param min_mag: Minimum magnitude</span>
+<span class="sd">    :type min_mag: float</span>
+<span class="sd">    :param max_mag: Maximum magnitude</span>
+<span class="sd">    :type max_mag: float</span>
+<span class="sd">    :param min_dist: Minimum distance between events in km</span>
+<span class="sd">    :type min_dist: float</span>
+<span class="sd">    :param min_year: Year to start event search, defaults to None</span>
+<span class="sd">    :type min_year: float, optional</span>
+<span class="sd">    :param max_year: Year to end event search, defaults to None</span>
+<span class="sd">    :type max_year: float, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">lasif.tools.query_gcmt_catalog</span> <span class="kn">import</span> <span class="n">add_new_events</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">add_new_events</span><span class="p">(</span>
+        <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
+        <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+        <span class="n">min_magnitude</span><span class="o">=</span><span class="n">min_mag</span><span class="p">,</span>
+        <span class="n">max_magnitude</span><span class="o">=</span><span class="n">max_mag</span><span class="p">,</span>
+        <span class="n">min_year</span><span class="o">=</span><span class="n">min_year</span><span class="p">,</span>
+        <span class="n">max_year</span><span class="o">=</span><span class="n">max_year</span><span class="p">,</span>
+        <span class="n">threshold_distance_in_km</span><span class="o">=</span><span class="n">min_dist</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_spud_event"><a class="viewcode-back" href="../../api_doc.html#lasif.api.add_spud_event">[docs]</a><span class="k">def</span> <span class="nf">add_spud_event</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds events from the iris spud service, provided a link to the event</span>
+
+<span class="sd">    :param lasif_root: Path to lasif project</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param url: URL to the spud event</span>
+<span class="sd">    :type url: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.scripts.iris2quakeml</span> <span class="kn">import</span> <span class="n">iris2quakeml</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">iris2quakeml</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_data&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="project_info"><a class="viewcode-back" href="../../api_doc.html#lasif.api.project_info">[docs]</a><span class="k">def</span> <span class="nf">project_info</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a summary of the project</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_data"><a class="viewcode-back" href="../../api_doc.html#lasif.api.download_data">[docs]</a><span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">event_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">providers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download available data for events</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event_name: Name of event(s), if you want to pass all events,</span>
+<span class="sd">        pass None, you can pass either an event or a list of events,</span>
+<span class="sd">        defaults to None.</span>
+<span class="sd">    :type event_name: Union[str, List[str]], optional</span>
+<span class="sd">    :param providers: A list of providers to download from, if nothing passed</span>
+<span class="sd">        it will query all known providers that FDSN knows, defaults to None</span>
+<span class="sd">    :type providers: List[str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">event_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">event_name</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">event_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_name</span><span class="p">:</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">downloads</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">providers</span><span class="o">=</span><span class="n">providers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_events"><a class="viewcode-back" href="../../api_doc.html#lasif.api.list_events">[docs]</a><span class="k">def</span> <span class="nf">list_events</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">just_list</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a list of events in project</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param just_list: Show only a plain list of events, if False it gives</span>
+<span class="sd">        more information on the events, defaults to True</span>
+<span class="sd">    :type just_list: bool, optional</span>
+<span class="sd">    :param iteration: Show only events for specific iteration, defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    :param output: Do you want to output the list into a variable, defaults</span>
+<span class="sd">        to True</span>
+<span class="sd">    :type output: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">just_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="s2">&quot;You can only output a basic list&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> event</span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">:&quot;</span>
+            <span class="o">%</span> <span class="p">(</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+                <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;iteration&quot;</span> <span class="k">if</span> <span class="n">iteration</span> <span class="k">else</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">lasif.tools.prettytable</span> <span class="kn">import</span> <span class="n">PrettyTable</span>
+
+        <span class="n">tab</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">([</span><span class="s2">&quot;Event Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Lat&quot;</span><span class="p">,</span> <span class="s2">&quot;Lng&quot;</span><span class="p">,</span> <span class="s2">&quot;Depth (km)&quot;</span><span class="p">,</span> <span class="s2">&quot;Mag&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">):</span>
+            <span class="n">ev</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="n">tab</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">event</span><span class="p">,</span>
+                    <span class="s2">&quot;</span><span class="si">%6.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;</span><span class="si">%6.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;</span><span class="si">%3i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s2">&quot;depth_in_km&quot;</span><span class="p">]),</span>
+                    <span class="s2">&quot;</span><span class="si">%3.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;magnitude&quot;</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">tab</span><span class="o">.</span><span class="n">align</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
+        <span class="n">tab</span><span class="o">.</span><span class="n">align</span><span class="p">[</span><span class="s2">&quot;Event Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="event_info"><a class="viewcode-back" href="../../api_doc.html#lasif.api.event_info">[docs]</a><span class="k">def</span> <span class="nf">event_info</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print information about a single event</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event_name: Name of event</span>
+<span class="sd">    :type event_name: str</span>
+<span class="sd">    :param verbose: Print station information as well, defaults to False</span>
+<span class="sd">    :type verbose: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Event &#39;</span><span class="si">%s</span><span class="s2">&#39; not found in project.&quot;</span> <span class="o">%</span> <span class="n">event_name</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">event_dict</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Earthquake with </span><span class="si">%.1f</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> at </span><span class="si">%s</span><span class="s2">&quot;</span>
+        <span class="o">%</span> <span class="p">(</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;magnitude&quot;</span><span class="p">],</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;magnitude_type&quot;</span><span class="p">],</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Latitude: </span><span class="si">%.3f</span><span class="s2">, Longitude: </span><span class="si">%.3f</span><span class="s2">, Depth: </span><span class="si">%.1f</span><span class="s2"> km&quot;</span>
+        <span class="o">%</span> <span class="p">(</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+            <span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;depth_in_km&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> UTC&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">event_dict</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">]))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">LASIFError</span><span class="p">:</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">table_printer</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Station and waveform information available at </span><span class="si">%i</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;stations:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;Elevation_in_m&quot;</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">stations</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;elevation_in_m&quot;</span><span class="p">],</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span>
+        <span class="p">]</span>
+        <span class="n">table_printer</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Station and waveform information available at </span><span class="si">%i</span><span class="s2"> stations. &quot;</span>
+            <span class="s2">&quot;Use &#39;-v&#39; to print them.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_stf"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_stf">[docs]</a><span class="k">def</span> <span class="nf">plot_stf</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the source time function</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">lasif.visualization</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">freqmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+    <span class="n">freqmin</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+
+    <span class="n">stf_fct</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span><span class="s2">&quot;source_time_function&quot;</span><span class="p">)</span>
+
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;time_step_in_s&quot;</span><span class="p">]</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+    <span class="n">stf_type</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;source_time_function&quot;</span><span class="p">]</span>
+
+    <span class="n">stf</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">stf_type</span> <span class="o">==</span> <span class="s2">&quot;heaviside&quot;</span><span class="p">:</span>
+        <span class="n">stf</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stf_fct</span><span class="p">(</span><span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+        <span class="n">lasif</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">plot_heaviside</span><span class="p">(</span><span class="n">stf</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">stf</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">stf_type</span> <span class="o">==</span> <span class="s2">&quot;bandpass_filtered_heaviside&quot;</span><span class="p">:</span>
+        <span class="n">stf</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stf_fct</span><span class="p">(</span>
+            <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span>
+        <span class="p">)</span>
+        <span class="n">lasif</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">plot_tf</span><span class="p">(</span>
+            <span class="n">stf</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">stf</span><span class="p">[</span><span class="s2">&quot;delta&quot;</span><span class="p">],</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stf_type</span><span class="si">}</span><span class="s2"> is not supported by lasif. Check your&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;config file and make sure the source time &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;function is either &#39;heaviside&#39; or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;bandpass_filtered_heaviside&#39;.&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="init_project"><a class="viewcode-back" href="../../api_doc.html#lasif.api.init_project">[docs]</a><span class="k">def</span> <span class="nf">init_project</span><span class="p">(</span><span class="n">project_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new project</span>
+
+<span class="sd">    :param project_path: Path to project root directory. Can use absolute</span>
+<span class="sd">        paths or relative paths from current working directory.</span>
+<span class="sd">    :type project_path: Union[str, pathlib.Path]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">project_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">project_path</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">project_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The given PROJECT_PATH already exists. It must not exist yet.&quot;</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">project_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed creating directory </span><span class="si">{</span><span class="n">project_path</span><span class="si">}</span><span class="s2">. Permissions?&quot;</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">Project</span><span class="p">(</span><span class="n">project_root_path</span><span class="o">=</span><span class="n">project_path</span><span class="p">,</span> <span class="n">init_project</span><span class="o">=</span><span class="n">project_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initialized project in </span><span class="si">{</span><span class="n">project_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calculate_adjoint_sources"><a class="viewcode-back" href="../../api_doc.html#lasif.api.calculate_adjoint_sources">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_sources</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate adjoint sources for a given iteration</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param weight_set: name of station weight set, defaults to None</span>
+<span class="sd">    :type weight_set: str, optional</span>
+<span class="sd">    :param events: Name of event or list of events. To get all events for</span>
+<span class="sd">        the iteration, pass None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="c1"># some basic checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">has_window_set</span><span class="p">(</span><span class="n">window_set</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Window set </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window_set</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Iteration </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Event &#39;</span><span class="si">%s</span><span class="s2">&#39; not known to LASIF. No adjoint sources for &quot;</span>
+                    <span class="s2">&quot;this event will be calculated. &quot;</span> <span class="o">%</span> <span class="n">event</span>
+                <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="si">{green}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;===========================================================&quot;</span>
+                <span class="s2">&quot;</span><span class="si">{reset}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">green</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Starting adjoint source calculation for event </span><span class="si">%i</span><span class="s2"> of &quot;</span>
+                <span class="s2">&quot;</span><span class="si">%i</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{green}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;===========================================================&quot;</span>
+                <span class="s2">&quot;</span><span class="si">{reset}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">green</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Get adjoint sources_filename</span>
+        <span class="c1"># filename = comm.adj_sources.get_filename(</span>
+        <span class="c1">#     event=event, iteration=iteration</span>
+        <span class="c1"># )</span>
+
+        <span class="c1"># remove adjoint sources if they already exist</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_filename</span><span class="p">(</span>
+                <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">calculate_adjoint_sources</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span>
+        <span class="p">)</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">finalize_adjoint_sources</span><span class="p">(</span>
+                <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">weight_set</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="select_windows"><a class="viewcode-back" href="../../api_doc.html#lasif.api.select_windows">[docs]</a><span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Autoselect windows for a given iteration and event combination</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>  <span class="c1"># Might have to do this mpi</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting windows for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">select_windows</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="open_gui"><a class="viewcode-back" href="../../api_doc.html#lasif.api.open_gui">[docs]</a><span class="k">def</span> <span class="nf">open_gui</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Open up the misfit gui</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">lasif.misfit_gui.misfit_gui</span> <span class="kn">import</span> <span class="n">launch</span>
+
+    <span class="n">launch</span><span class="p">(</span><span class="n">comm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_weight_set"><a class="viewcode-back" href="../../api_doc.html#lasif.api.create_weight_set">[docs]</a><span class="k">def</span> <span class="nf">create_weight_set</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new set of event and station weights</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param weight_set: name of weight set</span>
+<span class="sd">    :type weight_set: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">create_new_weight_set</span><span class="p">(</span>
+        <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span>
+        <span class="n">events_dict</span><span class="o">=</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_stations_for_all_events</span><span class="p">(),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compute_station_weights"><a class="viewcode-back" href="../../api_doc.html#lasif.api.compute_station_weights">[docs]</a><span class="k">def</span> <span class="nf">compute_station_weights</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute weights for stations based on amount of neighbouring stations</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param weight_set: name of weight set to compute into</span>
+<span class="sd">    :type weight_set: str</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param iteration: name of iteration to compute weights for, controls</span>
+<span class="sd">        the events which are picked for computing weights for.</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+    <span class="n">events_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">has_weight_set</span><span class="p">(</span><span class="n">weight_set</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="n">events_dict</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">create_new_weight_set</span><span class="p">(</span>
+            <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span> <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">w_set</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">weight_set</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating station weights for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> is not known to LASIF&quot;</span><span class="p">)</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">events_dict</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stations</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">locations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stations</span><span class="p">):</span>
+            <span class="n">locations</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span>
+            <span class="n">locations</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+
+        <span class="n">sum_value</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">stations</span><span class="p">):</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">calculate_station_weight</span><span class="p">(</span>
+                <span class="n">lat_1</span><span class="o">=</span><span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                <span class="n">lon_1</span><span class="o">=</span><span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                <span class="n">locations</span><span class="o">=</span><span class="n">locations</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">sum_value</span> <span class="o">+=</span> <span class="n">weight</span>
+            <span class="n">w_set</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;station_weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weight</span>
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+            <span class="n">w_set</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="n">station</span><span class="p">][</span><span class="s2">&quot;station_weight&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span> <span class="o">/</span> <span class="n">sum_value</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">w_set</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">]][</span>
+                <span class="s2">&quot;station_weight&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">change_weight_set</span><span class="p">(</span>
+        <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span> <span class="n">weight_set</span><span class="o">=</span><span class="n">w_set</span><span class="p">,</span> <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_up_iteration"><a class="viewcode-back" href="../../api_doc.html#lasif.api.set_up_iteration">[docs]</a><span class="k">def</span> <span class="nf">set_up_iteration</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">event_specific</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">remove_dirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates or removes directory structure for an iteration</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param event_specific: If the inversion needs a specific model for each</span>
+<span class="sd">        event, defaults to False</span>
+<span class="sd">    :type event_specific: bool, optional</span>
+<span class="sd">    :param remove_dirs: boolean value to remove dirs, defaults to False</span>
+<span class="sd">    :type remove_dirs: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="n">iterations</span> <span class="o">=</span> <span class="n">list_iterations</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">remove_dirs</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2"> already exists&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+    <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">setup_directories_for_iteration</span><span class="p">(</span>
+        <span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+        <span class="n">remove_dirs</span><span class="o">=</span><span class="n">remove_dirs</span><span class="p">,</span>
+        <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">,</span>
+        <span class="n">event_specific</span><span class="o">=</span><span class="n">event_specific</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">remove_dirs</span><span class="p">:</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">setup_iteration_toml</span><span class="p">(</span><span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">setup_events_toml</span><span class="p">(</span>
+            <span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_iterations"><a class="viewcode-back" href="../../api_doc.html#lasif.api.list_iterations">[docs]</a><span class="k">def</span> <span class="nf">list_iterations</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List iterations in project</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param output: If the function should return the list, defaults to True</span>
+<span class="sd">    :type output: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">iterations</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There are no iterations in this project&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">iterations</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There is </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2"> iteration in this project&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iteration known to LASIF: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2"> iterations in this project&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iterations known to LASIF: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="n">iteration</span><span class="p">),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="compare_misfits"><a class="viewcode-back" href="../../api_doc.html#lasif.api.compare_misfits">[docs]</a><span class="k">def</span> <span class="nf">compare_misfits</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">from_it</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">to_it</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">print_events</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compares the total misfit between two iterations.</span>
+
+<span class="sd">    Total misfit is used regardless of the similarity of the picked windows</span>
+<span class="sd">    from each iteration. This might skew the results but should</span>
+<span class="sd">    give a good idea unless the windows change excessively between</span>
+<span class="sd">    iterations.</span>
+
+<span class="sd">    If windows are weighted in the calculation of the adjoint</span>
+<span class="sd">    sources. That should translate into the calculated misfit</span>
+<span class="sd">    value.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param from_it: evaluate misfit from this iteration</span>
+<span class="sd">    :type from_it: str</span>
+<span class="sd">    :param to_it: to this iteration</span>
+<span class="sd">    :type to_it: str</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param weight_set: Set of station and event weights, defaults to None</span>
+<span class="sd">    :type weight_set: str, optional</span>
+<span class="sd">    :param print_events: compare misfits for each event, defaults to False</span>
+<span class="sd">    :type print_events: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">weight_set</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">has_weight_set</span><span class="p">(</span><span class="n">weight_set</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Weights </span><span class="si">{</span><span class="n">weight_set</span><span class="si">}</span><span class="s2"> not known&quot;</span> <span class="sa">f</span><span class="s2">&quot;to LASIF&quot;</span>
+            <span class="p">)</span>
+    <span class="c1"># Check if iterations exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">from_it</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2"> not known to LASIF&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">to_it</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2"> not known to LASIF&quot;</span><span class="p">)</span>
+
+    <span class="n">from_it_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">to_it_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">from_it_misfit</span> <span class="o">+=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="p">)</span>
+        <span class="n">to_it_misfit</span> <span class="o">+=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">print_events</span><span class="p">:</span>
+            <span class="c1"># Print information about every event.</span>
+            <span class="n">from_it_misfit_event</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+                <span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span>
+            <span class="p">)</span>
+            <span class="n">to_it_misfit_event</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+                <span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> iteration </span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2"> has misfit: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_it_misfit_event</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2"> has misfit: </span><span class="si">{</span><span class="n">to_it_misfit_event</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">rel_change</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">to_it_misfit_event</span> <span class="o">-</span> <span class="n">from_it_misfit_event</span><span class="p">)</span>
+                <span class="o">/</span> <span class="n">from_it_misfit_event</span>
+                <span class="o">*</span> <span class="mf">100.0</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Relative change: </span><span class="si">{</span><span class="n">rel_change</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total misfit for iteration </span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">from_it_misfit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total misfit for iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">to_it_misfit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">rel_change</span> <span class="o">=</span> <span class="p">(</span><span class="n">to_it_misfit</span> <span class="o">-</span> <span class="n">from_it_misfit</span><span class="p">)</span> <span class="o">/</span> <span class="n">from_it_misfit</span> <span class="o">*</span> <span class="mf">100.0</span>
+    <span class="k">if</span> <span class="n">rel_change</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Misfit has increased </span><span class="si">{</span><span class="n">rel_change</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">% from iteration &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2"> to iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Misfit has decreased </span><span class="si">{</span><span class="o">-</span><span class="n">rel_change</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">% from iteration &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2"> to iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Misfit per event for iteration </span><span class="si">{</span><span class="n">from_it</span><span class="si">}</span><span class="s2">: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_it_misfit</span><span class="o">/</span><span class="n">n_events</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Misfit per event for iteration </span><span class="si">{</span><span class="n">to_it</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">to_it_misfit</span><span class="o">/</span><span class="n">n_events</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_weight_sets"><a class="viewcode-back" href="../../api_doc.html#lasif.api.list_weight_sets">[docs]</a><span class="k">def</span> <span class="nf">list_weight_sets</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a list of all weight sets in the project.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">it_len</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> weight set(s)</span><span class="si">%s</span><span class="s2"> in project:&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">it_len</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">it_len</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">weights</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="process_data"><a class="viewcode-back" href="../../api_doc.html#lasif.api.process_data">[docs]</a><span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span> <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process recorded data</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param iteration: Process data from events used in an iteration,</span>
+<span class="sd">        defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="n">exceptions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># if MPI.COMM_WORLD.rank == 0:</span>
+    <span class="c1"># Check if the event ids are valid.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exceptions</span> <span class="ow">and</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Event &#39;</span><span class="si">%s</span><span class="s2">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">event_name</span>
+                <span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">break</span>
+
+    <span class="c1"># exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)</span>
+    <span class="k">if</span> <span class="n">exceptions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">exceptions</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Make sure all the ranks enter the processing at the same time.</span>
+    <span class="c1"># MPI.COMM_WORLD.barrier()</span>
+    <span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">process_data</span><span class="p">(</span><span class="n">events</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_window_statistics"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_window_statistics">[docs]</a><span class="k">def</span> <span class="nf">plot_window_statistics</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot some statistics related to windows in a specific set.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param save: Saves the plot in a file, defaults to False,</span>
+<span class="sd">    :type save: bool, optional</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param iteration: Plot statistics related to events in a specific iteration</span>
+<span class="sd">        , defaults to None</span>
+<span class="sd">    :type iteration: str, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">switch_backend</span><span class="p">(</span><span class="s2">&quot;agg&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">has_window_set</span><span class="p">(</span><span class="n">window_set</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="s2">&quot;Could not find the specified window set&quot;</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_window_statistics</span><span class="p">(</span>
+        <span class="n">window_set</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;window_statistics_plots&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;windows&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">),</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">window_set</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_windows"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_windows">[docs]</a><span class="k">def</span> <span class="nf">plot_windows</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">distance_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the selected windows for a specific event</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event_name: name of event</span>
+<span class="sd">    :type event_name: str</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param distance_bins: number of bins on distance axis for combined plot</span>
+<span class="sd">    :type distance_bins: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">visualizations</span><span class="o">.</span><span class="n">plot_windows</span><span class="p">(</span>
+        <span class="n">event</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
+        <span class="n">window_set_name</span><span class="o">=</span><span class="n">window_set</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">distance_bins</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_stations_to_file"><a class="viewcode-back" href="../../api_doc.html#lasif.api.write_stations_to_file">[docs]</a><span class="k">def</span> <span class="nf">write_stations_to_file</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function writes a csv file with station name and lat,lon locations</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory or communicator</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+    <span class="n">station_list</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span>
+                <span class="n">event</span><span class="p">,</span> <span class="n">list_only</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">station_list</span><span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">]:</span>
+                <span class="n">station_list</span><span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">station_list</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">])</span>
+                <span class="n">station_list</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">])</span>
+
+    <span class="n">stations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">station_list</span><span class="p">)</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">],</span> <span class="s2">&quot;station_list.csv&quot;</span>
+    <span class="p">)</span>
+    <span class="n">stations</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path_or_buf</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote a list of stations to file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="find_event_mesh"><a class="viewcode-back" href="../../api_doc.html#lasif.api.find_event_mesh">[docs]</a><span class="k">def</span> <span class="nf">find_event_mesh</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    See if there is a version of the event mesh which has been</span>
+<span class="sd">    constructed already but not moved to iteration folder.</span>
+<span class="sd">    If there is no mesh there it will return False and correct path.</span>
+<span class="sd">    Otherwise it returns true and the path.</span>
+
+<span class="sd">    :param lasif_root: Path to project root</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    :return: bool whether mesh exists and path to mesh</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">models</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
+    <span class="n">event_mesh</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="s2">&quot;EVENT_MESHES&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="s2">&quot;mesh.h5&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">event_mesh</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">event_mesh</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">event_mesh</span></div>
+
+
+<div class="viewcode-block" id="get_simulation_mesh"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_simulation_mesh">[docs]</a><span class="k">def</span> <span class="nf">get_simulation_mesh</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In the multi mesh approach, each event has a unique mesh.</span>
+<span class="sd">    This function returns the path of the correct mesh.</span>
+
+<span class="sd">    :param lasif_root: Path to project root</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    :param iteration: Name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :return: path to simulation mesh</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">toml</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="n">models</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
+    <span class="n">it_name</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="n">iteration_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">],</span> <span class="n">it_name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">list_iterations</span><span class="p">(</span>
+        <span class="n">comm</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2"> not in project&quot;</span>
+
+    <span class="n">events_in_iteration</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">iteration_path</span><span class="p">,</span> <span class="s2">&quot;events_used.toml&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">event</span> <span class="ow">in</span> <span class="n">events_in_iteration</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">][</span><span class="s2">&quot;events_used&quot;</span><span class="p">]</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not in iteration: </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">it_name</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="s2">&quot;mesh.h5&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_receivers"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_receivers">[docs]</a><span class="k">def</span> <span class="nf">get_receivers</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list of receiver dictionaries which are compatible with Salvus.</span>
+<span class="sd">    SalvusFlow can then use these dictionaries to place the receivers.</span>
+
+<span class="sd">    :param lasif_root: Path to project root</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event which we want to find the receivers for</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">place_receivers</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not in project&quot;</span>
+
+    <span class="k">return</span> <span class="n">place_receivers</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">comm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_source"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_source">[docs]</a><span class="k">def</span> <span class="nf">get_source</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provide source information to give to Salvus</span>
+
+<span class="sd">    :param lasif_root: Path to project root</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event which we want to find the source for</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    :param iteration: Name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">prepare_source</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not in project&quot;</span>
+
+    <span class="k">return</span> <span class="n">prepare_source</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_subset"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_subset">[docs]</a><span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">existing_events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function gets an optimally distributed subset of events from a larger</span>
+<span class="sd">    group of events. The distribution is based on Mitchel&#39;s best sampling</span>
+<span class="sd">    algorithm. It&#39;s possible to exclude events and have already picked</span>
+<span class="sd">    events.</span>
+
+<span class="sd">    :param lasif_root: Path to project root</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param events: List of event names from which to choose from. These</span>
+<span class="sd">        events must be known to LASIF.</span>
+<span class="sd">    :type events: List[str]</span>
+<span class="sd">    :param count: number of events to choose. (Size of subset)</span>
+<span class="sd">    :type count: int</span>
+<span class="sd">    :param existing_events: Events already in subset, They will be considered</span>
+<span class="sd">        in spatial sampling, defaults to None</span>
+<span class="sd">    :type existing_events: List[str]</span>
+<span class="sd">    :return: list of selected events, defaults to None</span>
+<span class="sd">    :rtype: List[str], optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.tools.query_gcmt_catalog</span> <span class="kn">import</span> <span class="n">get_subset_of_events</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">get_subset_of_events</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">existing_events</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_salvus_simulation"><a class="viewcode-back" href="../../api_doc.html#lasif.api.create_salvus_simulation">[docs]</a><span class="k">def</span> <span class="nf">create_salvus_simulation</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span>
+    <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">mesh</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">side_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">type_of_simulation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a Salvus simulation object based on simulation and salvus</span>
+<span class="sd">    specific parameters specified in config file.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root folder or the lasif communicator</span>
+<span class="sd">        object</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param event: Name of event</span>
+<span class="sd">    :type event: str</span>
+<span class="sd">    :param iteration: Name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param mesh: Path to mesh or Salvus mesh object, if None it will use</span>
+<span class="sd">        the domain file from config file, defaults to None</span>
+<span class="sd">    :type mesh: Union[str, pathlib.Path, object], optional</span>
+<span class="sd">    :param side_set: Name of side set on mesh to place receivers,</span>
+<span class="sd">        defaults to None.</span>
+<span class="sd">    :type side_set: str, optional</span>
+<span class="sd">    :param type_of_simulation: forward or adjoint, defaults to forward</span>
+<span class="sd">    :type type_of_simulation: str, optional</span>
+<span class="sd">    :return: Salvus simulation object</span>
+<span class="sd">    :rtype: object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">type_of_simulation</span> <span class="o">==</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.salvus_utils</span> <span class="kn">import</span> <span class="n">create_salvus_forward_simulation</span> <span class="k">as</span> <span class="n">css</span>
+    <span class="k">elif</span> <span class="n">type_of_simulation</span> <span class="o">==</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.salvus_utils</span> <span class="kn">import</span> <span class="n">create_salvus_adjoint_simulation</span> <span class="k">as</span> <span class="n">css</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="s2">&quot;Only types of simulations are forward or adjoint&quot;</span><span class="p">)</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">type_of_simulation</span> <span class="o">==</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">css</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span>
+            <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+            <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
+            <span class="n">side_set</span><span class="o">=</span><span class="n">side_set</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">css</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,)</span></div>
+
+
+<div class="viewcode-block" id="submit_salvus_simulation"><a class="viewcode-back" href="../../api_doc.html#lasif.api.submit_salvus_simulation">[docs]</a><span class="k">def</span> <span class="nf">submit_salvus_simulation</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">simulations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">object</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Submit a Salvus simulation to the machine defined in config file</span>
+<span class="sd">    with details specified in config file</span>
+<span class="sd">    :param lasif_root: The Lasif communicator object or root file</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param simulations: Simulation object</span>
+<span class="sd">    :type simulations: Union[List[object], object]</span>
+<span class="sd">    :return: SalvusJob object or array of them</span>
+<span class="sd">    :rtype: object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.salvus_utils</span> <span class="kn">import</span> <span class="n">submit_salvus_simulation</span> <span class="k">as</span> <span class="n">sss</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sss</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span> <span class="n">simulations</span><span class="o">=</span><span class="n">simulations</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_data"><a class="viewcode-back" href="../../api_doc.html#lasif.api.validate_data">[docs]</a><span class="k">def</span> <span class="nf">validate_data</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">data_station_file_availability</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">raypaths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate the data currently in the project.</span>
+
+<span class="sd">    This commands walks through all available data and checks it for validity.</span>
+<span class="sd">    It furthermore does some sanity checks to detect common problems. These</span>
+<span class="sd">    should be fixed.</span>
+
+<span class="sd">    By default is only checks some things. A full check is recommended but</span>
+<span class="sd">    potentially takes a very long time.</span>
+
+<span class="sd">    Things the command does:</span>
+
+<span class="sd">    Event files:</span>
+<span class="sd">        * Validate against QuakeML 1.2 scheme.</span>
+<span class="sd">        * Make sure they contain at least one origin, magnitude and focal</span>
+<span class="sd">          mechanism object.</span>
+<span class="sd">        * Check for duplicate ids amongst all QuakeML files.</span>
+<span class="sd">        * Some simply sanity checks so that the event depth is reasonable and</span>
+<span class="sd">          the moment tensor values as well. This is rather fragile and mainly</span>
+<span class="sd">          intended to detect values specified in wrong units.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param data_station_file_availability: asserts that all stations have</span>
+<span class="sd">        corresponding station files and all stations have waveforms, very slow.</span>
+<span class="sd">    :type data_station_file_availability: bool</span>
+<span class="sd">    :param raypaths: Assert that all raypaths are within the set boundaries.</span>
+<span class="sd">        Very slow.</span>
+<span class="sd">    :type raypaths: bool</span>
+<span class="sd">    :param full: Run all validations</span>
+<span class="sd">    :type full: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="c1"># If full check, check everything.</span>
+    <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
+        <span class="n">data_station_file_availability</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">raypaths</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">validator</span><span class="o">.</span><span class="n">validate_data</span><span class="p">(</span>
+        <span class="n">data_and_station_file_availability</span><span class="o">=</span><span class="n">data_station_file_availability</span><span class="p">,</span>
+        <span class="n">raypaths</span><span class="o">=</span><span class="n">raypaths</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="clean_up"><a class="viewcode-back" href="../../api_doc.html#lasif.api.clean_up">[docs]</a><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clean up the lasif project. The required file can be created with</span>
+<span class="sd">    the validate_data command.</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param clean_up_file: path to clean-up file</span>
+<span class="sd">    :type clean_up_file: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not find </span><span class="si">{</span><span class="n">clean_up_file</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please check that the specified file path &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;is correct.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">comm</span><span class="o">.</span><span class="n">validator</span><span class="o">.</span><span class="n">clean_up_project</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_catalog"><a class="viewcode-back" href="../../api_doc.html#lasif.api.update_catalog">[docs]</a><span class="k">def</span> <span class="nf">update_catalog</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update GCMT catalog</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">lasif.tools.query_gcmt_catalog</span> <span class="kn">import</span> <span class="n">update_GCMT_catalog</span>
+
+    <span class="n">update_GCMT_catalog</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="tutorial"><a class="viewcode-back" href="../../api_doc.html#lasif.api.tutorial">[docs]</a><span class="k">def</span> <span class="nf">tutorial</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Open the lasif tutorial in a web-browser.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">webbrowser</span>
+
+    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;http://dirkphilip.github.io/LASIF_2.0/&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

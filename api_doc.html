@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -36,8 +36,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html" />
-    <link rel="prev" title="Web Interface" href="webinterface.html" /> 
+    <link rel="next" title="lasif.rotations" href="rotations.html" />
+    <link rel="prev" title="2. Jupyter Notebooks" href="tutorial/01_jupyter_notebooks.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,21 +86,15 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing.html">Meshing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="window_selection.html">lasif.window_selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 </ul>
 
@@ -169,35 +163,714 @@
   <div class="section" id="api-documentation">
 <h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
 <p><strong>Project wide exceptions and warnings.</strong></p>
-<dl class="class">
-<dt id="lasif.LASIFError">
-<em class="property">class </em><code class="sig-prename descclassname">lasif.</code><code class="sig-name descname">LASIFError</code><a class="reference internal" href="_modules/lasif.html#LASIFError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFError" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt id="lasif.exceptions.LASIFError">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.exceptions.</code><code class="sig-name descname">LASIFError</code><a class="reference internal" href="_modules/lasif/exceptions.html#LASIFError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.exceptions.LASIFError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base exception class for LASIF.</p>
 </dd></dl>
 
-<dl class="class">
-<dt id="lasif.LASIFNotFoundError">
-<em class="property">class </em><code class="sig-prename descclassname">lasif.</code><code class="sig-name descname">LASIFNotFoundError</code><a class="reference internal" href="_modules/lasif.html#LASIFNotFoundError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt id="lasif.exceptions.LASIFNotFoundError">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.exceptions.</code><code class="sig-name descname">LASIFNotFoundError</code><a class="reference internal" href="_modules/lasif/exceptions.html#LASIFNotFoundError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.exceptions.LASIFNotFoundError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raised whenever something is not found inside the project.</p>
 </dd></dl>
 
-<dl class="class">
-<dt id="lasif.LASIFWarning">
-<em class="property">class </em><code class="sig-prename descclassname">lasif.</code><code class="sig-name descname">LASIFWarning</code><a class="reference internal" href="_modules/lasif.html#LASIFWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFWarning" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt id="lasif.exceptions.LASIFWarning">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.exceptions.</code><code class="sig-name descname">LASIFWarning</code><a class="reference internal" href="_modules/lasif/exceptions.html#LASIFWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.exceptions.LASIFWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base warning class for LASIF.</p>
 </dd></dl>
 
 <p><strong>Contents:</strong></p>
+<span class="target" id="module-lasif.api"></span><p>An api to communicate directly with lasif functions without using the
+command line interface. Ideal interface for scripting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Solvi Thrastarson (<a class="reference external" href="mailto:soelvi&#46;thrastarson&#37;&#52;&#48;erdw&#46;ethz&#46;ch">soelvi<span>&#46;</span>thrastarson<span>&#64;</span>erdw<span>&#46;</span>ethz<span>&#46;</span>ch</a>), 2018</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt id="lasif.api.add_gcmt_events">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">add_gcmt_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">count</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">min_mag</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">max_mag</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">min_dist</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">min_year</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_year</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#add_gcmt_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.add_gcmt_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add events to the project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Nunber of events</p></li>
+<li><p><strong>min_mag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum magnitude</p></li>
+<li><p><strong>max_mag</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Maximum magnitude</p></li>
+<li><p><strong>min_dist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Minimum distance between events in km</p></li>
+<li><p><strong>min_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Year to start event search, defaults to None</p></li>
+<li><p><strong>max_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Year to end event search, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.add_spud_event">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">add_spud_event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">url</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#add_spud_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.add_spud_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds events from the iris spud service, provided a link to the event</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to lasif project</p></li>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – URL to the spud event</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.calculate_adjoint_sources">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">calculate_adjoint_sources</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">window_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#calculate_adjoint_sources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.calculate_adjoint_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate adjoint sources for a given iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of iteration</p></li>
+<li><p><strong>window_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of window set</p></li>
+<li><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – name of station weight set, defaults to None</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – Name of event or list of events. To get all events for
+the iteration, pass None, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.clean_up">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">clean_up</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">clean_up_file</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#clean_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.clean_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up the lasif project. The required file can be created with
+the validate_data command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>clean_up_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – path to clean-up file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.compare_misfits">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">compare_misfits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">from_it</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">to_it</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">print_events</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#compare_misfits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.compare_misfits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the total misfit between two iterations.</p>
+<p>Total misfit is used regardless of the similarity of the picked windows
+from each iteration. This might skew the results but should
+give a good idea unless the windows change excessively between
+iterations.</p>
+<p>If windows are weighted in the calculation of the adjoint
+sources. That should translate into the calculated misfit
+value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>from_it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – evaluate misfit from this iteration</p></li>
+<li><p><strong>to_it</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – to this iteration</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+<li><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Set of station and event weights, defaults to None</p></li>
+<li><p><strong>print_events</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – compare misfits for each event, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.compute_station_weights">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">compute_station_weights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#compute_station_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.compute_station_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute weights for stations based on amount of neighbouring stations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of weight set to compute into</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – name of iteration to compute weights for, controls
+the events which are picked for computing weights for.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.create_salvus_simulation">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">create_salvus_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">mesh</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)">pathlib.Path</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">side_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">type_of_simulation</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'forward'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#create_salvus_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.create_salvus_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Salvus simulation object based on simulation and salvus
+specific parameters specified in config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root folder or the lasif communicator
+object</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+<li><p><strong>mesh</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em><em>, </em><em>optional</em>) – Path to mesh or Salvus mesh object, if None it will use
+the domain file from config file, defaults to None</p></li>
+<li><p><strong>side_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Name of side set on mesh to place receivers,
+defaults to None.</p></li>
+<li><p><strong>type_of_simulation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – forward or adjoint, defaults to forward</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Salvus simulation object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.create_weight_set">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">create_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#create_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.create_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new set of event and station weights</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of weight set</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.download_data">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">providers</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#download_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.download_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download available data for events</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>event_name</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – Name of event(s), if you want to pass all events,
+pass None, you can pass either an event or a list of events,
+defaults to None.</p></li>
+<li><p><strong>providers</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – A list of providers to download from, if nothing passed
+it will query all known providers that FDSN knows, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.event_info">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">event_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">verbose</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#event_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.event_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print information about a single event</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Print station information as well, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.find_event_mesh">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">find_event_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#find_event_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.find_event_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>See if there is a version of the event mesh which has been
+constructed already but not moved to iteration folder.
+If there is no mesh there it will return False and correct path.
+Otherwise it returns true and the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to project root</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool whether mesh exists and path to mesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.find_project_comm">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">find_project_comm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#find_project_comm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.find_project_comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will search upwards from the given folder until a folder containing a
+LASIF root structure is found. The absolute path to the root is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>folder</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to folder where you want to search from</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.get_receivers">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">get_receivers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#get_receivers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.get_receivers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of receiver dictionaries which are compatible with Salvus.
+SalvusFlow can then use these dictionaries to place the receivers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to project root</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event which we want to find the receivers for</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.get_simulation_mesh">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">get_simulation_mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><a class="reference internal" href="_modules/lasif/api.html#get_simulation_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.get_simulation_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the multi mesh approach, each event has a unique mesh.
+This function returns the path of the correct mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to project root</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>path to simulation mesh</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.get_source">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">get_source</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#get_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.get_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide source information to give to Salvus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to project root</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event which we want to find the source for</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.get_subset">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">get_subset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">count</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">existing_events</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#get_subset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.get_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets an optimally distributed subset of events from a larger
+group of events. The distribution is based on Mitchel’s best sampling
+algorithm. It’s possible to exclude events and have already picked
+events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Path to project root</p></li>
+<li><p><strong>events</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – List of event names from which to choose from. These
+events must be known to LASIF.</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of events to choose. (Size of subset)</p></li>
+<li><p><strong>existing_events</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Events already in subset, They will be considered
+in spatial sampling, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of selected events, defaults to None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>], optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.init_project">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">init_project</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">project_path</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)">pathlib.Path</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#init_project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.init_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_path</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>]</em>) – Path to project root directory. Can use absolute
+paths or relative paths from current working directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.list_events">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">list_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">just_list</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#list_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.list_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a list of events in project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>just_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Show only a plain list of events, if False it gives
+more information on the events, defaults to True</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Show only events for specific iteration, defaults to None</p></li>
+<li><p><strong>output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Do you want to output the list into a variable, defaults
+to True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.list_iterations">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">list_iterations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">output</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#list_iterations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.list_iterations" title="Permalink to this definition">¶</a></dt>
+<dd><p>List iterations in project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If the function should return the list, defaults to True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.list_weight_sets">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">list_weight_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#list_weight_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.list_weight_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a list of all weight sets in the project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.open_gui">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">open_gui</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#open_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.open_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open up the misfit gui</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_all_rays">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_all_rays</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">plot_stations</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_all_rays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_all_rays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot all the rays that are in the project or in a specific iteration.
+This is typically slower than the plot_raydensity function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Lasif root directory</p></li>
+<li><p><strong>plot_stations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – True/False whether stations should be plotted</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – If you only want events from a certain iteration, if
+None is passed every event will be used, defaults to None</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether you want to save the figure, if False, it gets
+plotted and not saved, defaults to True</p></li>
+<li><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
+stations recording all events, i.e. the intersection of receiver
+sets. The intersection will consider two stations equal i.f.f. the
+station codes AND coordinates (LAT, LON, Z) are equal. If None is
+passed, the value use_only_intersection from the projects’
+configuration file is used, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_domain">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">inner_boundary</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the studied domain specified in config file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory.</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – save file, defaults to False</p></li>
+<li><p><strong>inner_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – binary whether the inner boundary should be drawn
+Only works well for convex domains, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_event">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">inner_boundary</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a single event including stations on a map. Events can be
+color coded based on their weight</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of event to plot</p></li>
+<li><p><strong>weight_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – name of station weight set, defaults to None</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – if figure should be saved, defaults to False</p></li>
+<li><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
+stations recording all events, i.e. the intersection of receiver
+sets. The intersection will consider two stations equal i.f.f. the
+station codes AND coordinates (LAT, LON, Z) are equal. If None is
+passed, the value use_only_intersection from the projects’
+configuration file is used, defaults to None</p></li>
+<li><p><strong>inner_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – binary whether the inner boundary should be drawn
+Only works well for convex domains, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_events">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">type_of_plot</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'map'</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">inner_boundary</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a all events on the domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>type_of_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – type of plot, options are ‘map’, ‘depth’ and ‘time’,
+defaults to ‘map’</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – plot all events of an iteration, defaults to None</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – if figure should be saved, defaults to False</p></li>
+<li><p><strong>inner_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – binary weather the inner boundary should be drawn
+Only works well for convex domains, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_raydensity">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_raydensity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">plot_stations</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_raydensity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_raydensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a distribution of earthquakes and stations with great circle rays
+plotted underneath.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Lasif root directory</p></li>
+<li><p><strong>plot_stations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – boolean argument whether stations should be plotted</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – If you only want events from a certain iteration, if
+None is passed every event will be used, defaults to None</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether you want to save the figure, if False, it gets
+plotted and not saved, defaults to True</p></li>
+<li><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
+stations recording all events, i.e. the intersection of receiver
+sets. The intersection will consider two stations equal i.f.f. the
+station codes AND coordinates (LAT, LON, Z) are equal. If None is
+passed, the value use_only_intersection from the projects’
+configuration file is used, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_station_misfits">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_station_misfits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_station_misfits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_station_misfits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a map of a specific event where all the stations are colour coded by
+their respective misfit value. You need to compute adjoint sources for
+the respective iteration prior to making this plot.
+Keep in mind that station with no windows will not get plotted, these
+stations might be the ones with the largest misfits in reality</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – Lasif root directory or communicator object</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – You want to save the plot?, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_stf">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_stf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_stf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_stf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the source time function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_window_statistics">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_window_statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">window_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">save</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_window_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_window_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot some statistics related to windows in a specific set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>window_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of window set</p></li>
+<li><p><strong>save</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Saves the plot in a file, defaults to False,</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Plot statistics related to events in a specific iteration
+, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.plot_windows">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">plot_windows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">window_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">distance_bins</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#plot_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.plot_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the selected windows for a specific event</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of event</p></li>
+<li><p><strong>window_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of window set</p></li>
+<li><p><strong>distance_bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of bins on distance axis for combined plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.process_data">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">process_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#process_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.process_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process recorded data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Process data from events used in an iteration,
+defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.project_info">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">project_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#project_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.project_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a summary of the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.select_windows">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">select_windows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">window_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#select_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.select_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Autoselect windows for a given iteration and event combination</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of iteration</p></li>
+<li><p><strong>window_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of window set</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.set_up_iteration">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">set_up_iteration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">event_specific</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">remove_dirs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#set_up_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.set_up_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates or removes directory structure for an iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of iteration</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+<li><p><strong>event_specific</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If the inversion needs a specific model for each
+event, defaults to False</p></li>
+<li><p><strong>remove_dirs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean value to remove dirs, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.submit_salvus_simulation">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">submit_salvus_simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">simulations</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)">object</a><a class="reference internal" href="_modules/lasif/api.html#submit_salvus_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.submit_salvus_simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a Salvus simulation to the machine defined in config file
+with details specified in config file
+:param lasif_root: The Lasif communicator object or root file
+:type lasif_root: Union[str, pathlib.Path, object]
+:param simulations: Simulation object
+:type simulations: Union[List[object], object]
+:return: SalvusJob object or array of them
+:rtype: object</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.tutorial">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">tutorial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#tutorial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.tutorial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the lasif tutorial in a web-browser.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.update_catalog">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">update_catalog</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#update_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.update_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update GCMT catalog</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.validate_data">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">validate_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">data_station_file_availability</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">raypaths</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">full</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#validate_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.validate_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the data currently in the project.</p>
+<p>This commands walks through all available data and checks it for validity.
+It furthermore does some sanity checks to detect common problems. These
+should be fixed.</p>
+<p>By default is only checks some things. A full check is recommended but
+potentially takes a very long time.</p>
+<p>Things the command does:</p>
+<dl class="simple">
+<dt>Event files:</dt><dd><ul class="simple">
+<li><p>Validate against QuakeML 1.2 scheme.</p></li>
+<li><p>Make sure they contain at least one origin, magnitude and focal
+mechanism object.</p></li>
+<li><p>Check for duplicate ids amongst all QuakeML files.</p></li>
+<li><p>Some simply sanity checks so that the event depth is reasonable and
+the moment tensor values as well. This is rather fragile and mainly
+intended to detect values specified in wrong units.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>data_station_file_availability</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – asserts that all stations have
+corresponding station files and all stations have waveforms, very slow.</p></li>
+<li><p><strong>raypaths</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Assert that all raypaths are within the set boundaries.
+Very slow.</p></li>
+<li><p><strong>full</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Run all validations</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lasif.api.write_stations_to_file">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">write_stations_to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#write_stations_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.write_stations_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes a csv file with station name and lat,lon locations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory or communicator</p>
+</dd>
+</dl>
+</dd></dl>
+
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="window_selection.html">lasif.window_selection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">lasif.tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 </ul>
-</div>
-<div class="toctree-wrapper compound">
 </div>
 </div>
 
@@ -209,10 +882,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="iris2quakeml.html" class="btn btn-neutral float-right" title="lasif.scripts.iris2quakeml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="rotations.html" class="btn btn-neutral float-right" title="lasif.rotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="webinterface.html" class="btn btn-neutral float-left" title="Web Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial/01_jupyter_notebooks.html" class="btn btn-neutral float-left" title="2. Jupyter Notebooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

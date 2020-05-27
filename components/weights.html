@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Weights Component &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Windows Component" href="windows.html" />
+    <link rel="prev" title="Waveforms Component" href="waveforms.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="project.html">Project Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjoint_sources.html">Adjoint Sources Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="downloads.html">Downloads Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterations.html">Iterations Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query.html">Query Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Visualizations Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="waveforms.html">Waveforms Component</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Weights Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html">Windows Component</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../components.html">Components</a> &raquo;</li>
+        
+      <li>Weights Component</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/weights.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="weights-component">
+<h1>Weights Component<a class="headerlink" href="#weights-component" title="Permalink to this headline">¶</a></h1>
+<p>In an inverse problem like full-waveform inversion, there is a problem
+of uneven distribution and quality of data. The weights component takes
+care of weighing your data up or down according to what is needed.</p>
+<p><strong>Contents:</strong></p>
+<span class="target" id="module-lasif.components.weights"></span><dl class="py class">
+<dt id="lasif.components.weights.WeightsComponent">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.components.weights.</code><code class="sig-name descname">WeightsComponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights_folder</span></em>, <em class="sig-param"><span class="n">communicator</span></em>, <em class="sig-param"><span class="n">component_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component dealing with station and event weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a>) – The folder with the weight toml files.</p></li>
+<li><p><strong>communicator</strong> – The communicator instance.</p></li>
+<li><p><strong>component_name</strong> – The name of this component for the communicator.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.calculate_station_weight">
+<code class="sig-name descname">calculate_station_weight</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lat_1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">lon_1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">locations</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)">numpy.ndarray</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.calculate_station_weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.calculate_station_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the weight set for a set of stations for one event</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – latitude of station</p></li>
+<li><p><strong>lon_1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – longitude of station</p></li>
+<li><p><strong>locations</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)"><em>numpy.ndarray</em></a>) – array of latitudes and longitudes of other stations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>weight. weight for this specific station</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.change_weight_set">
+<code class="sig-name descname">change_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em>, <em class="sig-param"><span class="n">events_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.change_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.change_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes an existing weight set. Writes into a tempfile and if
+successful it will replace the old file with the tempfile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight_set_name</strong> – The name of the weight set.</p></li>
+<li><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – The actual weight set</p></li>
+<li><p><strong>events_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary specifying the used events.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.count">
+<code class="sig-name descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of weight sets managed by this component.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.create_folder_for_weight_set">
+<code class="sig-name descname">create_folder_for_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.create_folder_for_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.create_folder_for_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the folder needed for weight set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weight_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of weight set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.create_new_weight_set">
+<code class="sig-name descname">create_new_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.create_new_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.create_new_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new weight set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the weight set.</p></li>
+<li><p><strong>events_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – A dictionary specifying the used events.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a weight_set object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the iteration to retrieve.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.get_filename_for_weight_set">
+<code class="sig-name descname">get_filename_for_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.get_filename_for_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.get_filename_for_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function returning the filename of a weight set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weight_set</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of weight set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.get_long_weight_set_name">
+<code class="sig-name descname">get_long_weight_set_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.get_long_weight_set_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.get_long_weight_set_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the long form of a weight set from its short name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weight_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of weight set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.get_weight_set_dict">
+<code class="sig-name descname">get_weight_set_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.get_weight_set_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.get_weight_set_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the keys being the weight_set names and the
+values the weight_set filenames.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.has_weight_set">
+<code class="sig-name descname">has_weight_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.has_weight_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.has_weight_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for existence of a weight_set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>weight_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the weight_set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.weights.WeightsComponent.list">
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/weights.html#WeightsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.weights.WeightsComponent.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of all weight sets managed by this component.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="windows.html" class="btn btn-neutral float-right" title="Windows Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="waveforms.html" class="btn btn-neutral float-left" title="Waveforms Component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

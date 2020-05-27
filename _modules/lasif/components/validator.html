@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.validator &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.validator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.validator</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">colorama</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+<span class="kn">import</span> <span class="nn">pyasdf</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+
+
+<div class="viewcode-block" id="ValidatorComponent"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent">[docs]</a><span class="k">class</span> <span class="nc">ValidatorComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component responsible for validating data inside a project. Needs access</span>
+<span class="sd">    to a lot of functionality and should therefore be initialized fairly late.</span>
+
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ValidatorComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_error_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_print_ok_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints a colored OK message when a certain test has been passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ok_string</span> <span class="o">=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">[</span><span class="si">%s</span><span class="s2">OK</span><span class="si">%s</span><span class="s2">]</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">ok_string</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_print_fail_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints a colored fail message when a certain test has been passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fail_string</span> <span class="o">=</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">[</span><span class="si">%s</span><span class="s2">FAIL</span><span class="si">%s</span><span class="s2">]</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">NORMAL</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">BRIGHT</span><span class="p">,</span>
+            <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fail_string</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_flush_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function just flushing a point to stdout to indicate progress.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method adding a new error message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_error_count</span> <span class="o">+=</span> <span class="n">error_count</span>
+
+<div class="viewcode-block" id="ValidatorComponent.validate_data"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.validate_data">[docs]</a>    <span class="k">def</span> <span class="nf">validate_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_and_station_file_availability</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">raypaths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates all data of the current project.</span>
+
+<span class="sd">        This commands walks through all available data and checks it for</span>
+<span class="sd">        validity.  It furthermore does some sanity checks to detect common</span>
+<span class="sd">        problems. These should be fixed.</span>
+
+<span class="sd">        Event files:</span>
+<span class="sd">            * Validate against QuakeML 1.2 scheme.</span>
+<span class="sd">            * Make sure they contain at least one origin, magnitude and focal</span>
+<span class="sd">              mechanism object.</span>
+<span class="sd">            * Check for duplicate ids amongst all QuakeML files.</span>
+<span class="sd">            * Some simply sanity checks so that the event depth is reasonable</span>
+<span class="sd">              and the moment tensor values as well. This is rather fragile and</span>
+<span class="sd">              mainly intended to detect values specified in wrong units.</span>
+
+<span class="sd">        :param data_and_station_file_availability: Assert whether all waveform</span>
+<span class="sd">            files have a corresponding station file, defaults to False</span>
+<span class="sd">        :type data_and_station_file_availability: bool, optional</span>
+<span class="sd">        :param raypaths: Assert that raypaths are fully inside domain,</span>
+<span class="sd">            defaults to False</span>
+<span class="sd">        :type raypaths: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Reset error and report counts.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_error_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_event_files</span><span class="p">()</span>
+
+        <span class="c1"># Assert that all waveform files have a corresponding station file.</span>
+        <span class="k">if</span> <span class="n">data_and_station_file_availability</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_station_and_waveform_availability</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Skipping data and station file availability check.</span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raypaths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">is_global_domain</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Skipping raypath checks for global domain...</span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">validate_raypaths_in_domain</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Skipping raypath checks.</span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Depending on whether or not the tests passed, report it accordingly.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">ALL CHECKS PASSED</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;The data seems to be valid. If we missed something please &quot;</span>
+                <span class="s2">&quot;contact the developers.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;data_integrity_report&quot;</span>
+            <span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;report.txt&quot;</span><span class="p">)</span>
+            <span class="n">seperator_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="mi">80</span> <span class="o">*</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span><span class="p">:</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">seperator_string</span><span class="p">)</span>
+            <span class="n">files_to_be_deleted_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;files_to_be_deleted.toml&quot;</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">files_to_be_deleted_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">FAILED</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Encountered </span><span class="si">%i</span><span class="s2"> errors!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;A report has been created at &#39;</span><span class="si">%s</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span>
+                    <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_total_error_count</span><span class="p">,</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;A file that can be used to clean up the project has been&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;created at &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">files_to_be_deleted_filename</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;It is advised to inspect the file before use.&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ValidatorComponent.validate_raypaths_in_domain"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.validate_raypaths_in_domain">[docs]</a>    <span class="k">def</span> <span class="nf">validate_raypaths_in_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks that all raypaths are within the specified domain boundaries.</span>
+
+<span class="sd">        Returns a list of waveform files violating that assumtion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Making sure raypaths are within boundaries &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">all_good</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_point</span><span class="p">()</span>
+            <span class="k">for</span> <span class="p">(</span>
+                <span class="n">station_id</span><span class="p">,</span>
+                <span class="n">value</span><span class="p">,</span>
+            <span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span>
+                <span class="n">event_name</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="c1"># Check if the whole path of the event-station pair is within</span>
+                <span class="c1"># the domain boundaries.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_event_station_raypath_within_boundaries</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="p">,</span>
+                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                    <span class="n">value</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                    <span class="n">raypath_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;WARNING: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;The event-station raypath for the &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;station</span><span class="se">\n\t</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">station_id</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;does not fully lay within the domain. You might want&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; to remove the file or change the domain &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;specifications.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">all_good</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ValidatorComponent.clean_up_project"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.clean_up_project">[docs]</a>    <span class="k">def</span> <span class="nf">clean_up_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean up lasif project based on a toml file with the events</span>
+<span class="sd">        that can be deleted.</span>
+
+<span class="sd">        :param clean_up_file: A toml describing the events that can be</span>
+<span class="sd">            deleted.</span>
+<span class="sd">        :type clean_up_file: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">clean_up_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">)</span>
+        <span class="n">num_of_deleted_files</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">clean_up_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station</span><span class="p">]</span>
+                    <span class="n">num_of_deleted_files</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Removed </span><span class="si">{</span><span class="n">num_of_deleted_files</span><span class="si">}</span><span class="s2"> stations &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;from the LASIF project.&quot;</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_station_and_waveform_availability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks that all waveforms have a corresponding StationXML file</span>
+<span class="sd">        and all stations have data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Confirming that station metainformation files exist for &quot;</span>
+            <span class="s2">&quot;all waveforms &quot;</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">all_good</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Loop over all events.</span>
+        <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_point</span><span class="p">()</span>
+
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+            <span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">station_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">station_name</span> <span class="ow">in</span> <span class="n">station_names</span><span class="p">:</span>
+                <span class="n">station</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_name</span><span class="p">]</span>
+                <span class="n">has_stationxml</span> <span class="o">=</span> <span class="s2">&quot;StationXML&quot;</span> <span class="ow">in</span> <span class="n">station</span>
+                <span class="n">has_waveforms</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">())</span>
+
+                <span class="k">if</span> <span class="n">has_stationxml</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">has_waveforms</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">elif</span> <span class="n">has_stationxml</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;WARNING:&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;No StationXML found for station &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;in event </span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="n">has_waveforms</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;WARNING:&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;No waveforms found for station </span><span class="si">{</span><span class="n">station</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;in event </span><span class="si">{</span><span class="n">event_name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">all_good</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_validate_event_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates all event files in the currently active project.</span>
+
+<span class="sd">        The following tasks are performed:</span>
+<span class="sd">            * Validate against QuakeML 1.2 scheme.</span>
+<span class="sd">            * Check for duplicate ids amongst all QuakeML files.</span>
+<span class="sd">            * Make sure they contain at least one origin, magnitude and focal</span>
+<span class="sd">              mechanism object.</span>
+<span class="sd">            * Some simply sanity checks so that the event depth is reasonable</span>
+<span class="sd">              and the moment tensor values as well. This is rather fragile and</span>
+<span class="sd">              mainly intended to detect values specified in wrong units.</span>
+<span class="sd">            * Events that are too close in time. Events that are less then one</span>
+<span class="sd">              hour apart can in general not be used for adjoint tomography.</span>
+<span class="sd">              This will naturally also detect duplicate events.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+        <span class="kn">import</span> <span class="nn">math</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validating </span><span class="si">%i</span><span class="s2"> event files ...&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                <span class="s2">&quot;WARNING: File &#39;</span><span class="si">{event_name}</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;contains </span><span class="si">{msg}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="n">message</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Performing simple sanity checks.</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Performing some basic sanity checks &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">all_good</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_point</span><span class="p">()</span>
+            <span class="n">cat</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">events</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="c1"># Check that all files contain exactly one event!</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> events instead of only one.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">cat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Sanity checks related to the origin.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">origins</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;no origin&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">preferred_origin</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">origins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">origin</span><span class="o">.</span><span class="n">depth</span> <span class="o">%</span> <span class="mf">100.0</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="p">,</span>
+                    <span class="s2">&quot;a depth of </span><span class="si">%.1f</span><span class="s2"> meters. This kind of accuracy &quot;</span>
+                    <span class="s2">&quot;seems unrealistic. The depth in the QuakeML &quot;</span>
+                    <span class="s2">&quot;file has to be specified in meters. Checking &quot;</span>
+                    <span class="s2">&quot;all other QuakeML files for the correct units &quot;</span>
+                    <span class="s2">&quot;might be a good idea&quot;</span> <span class="o">%</span> <span class="n">origin</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">origin</span><span class="o">.</span><span class="n">depth</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mf">800.0</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">):</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="p">,</span>
+                    <span class="s2">&quot;a depth of more than 800 km. This is&quot;</span> <span class="s2">&quot; likely wrong.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Sanity checks related to the magnitude.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">magnitudes</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;no magnitude&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Sanity checks related to the focal mechanism.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">focal_mechanisms</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;no focal mechanism&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">focmec</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">preferred_focal_mechanism</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">focal_mechanisms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">focmec</span><span class="p">,</span> <span class="s2">&quot;moment_tensor&quot;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="ow">not</span> <span class="n">focmec</span><span class="o">.</span><span class="n">moment_tensor</span>
+            <span class="p">):</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;no moment tensor&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">mt</span> <span class="o">=</span> <span class="n">focmec</span><span class="o">.</span><span class="n">moment_tensor</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mt</span><span class="p">,</span> <span class="s2">&quot;tensor&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">mt</span><span class="o">.</span><span class="n">tensor</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;no actual moment tensor&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">tensor</span> <span class="o">=</span> <span class="n">mt</span><span class="o">.</span><span class="n">tensor</span>
+
+            <span class="c1"># Convert the moment tensor to a magnitude and see if it is</span>
+            <span class="c1"># reasonable.</span>
+            <span class="n">mag_in_file</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">preferred_magnitude</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">magnitudes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">mag_in_file</span> <span class="o">=</span> <span class="n">mag_in_file</span><span class="o">.</span><span class="n">mag</span>
+            <span class="n">M_0</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">1.0</span>
+                <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="n">tensor</span><span class="o">.</span><span class="n">m_rr</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="o">+</span> <span class="n">tensor</span><span class="o">.</span><span class="n">m_tt</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="o">+</span> <span class="n">tensor</span><span class="o">.</span><span class="n">m_pp</span> <span class="o">**</span> <span class="mi">2</span>
+                    <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">m_rt</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">m_tp</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">m_rp</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">magnitude</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">M_0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">6.0</span>
+            <span class="c1"># Use some buffer to account for different magnitudes.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">mag_in_file</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">magnitude</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">mag_in_file</span> <span class="o">+</span> <span class="mf">0.3</span><span class="p">):</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">print_warning</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="p">,</span>
+                    <span class="s2">&quot;a moment tensor that would result in a moment &quot;</span>
+                    <span class="s2">&quot;magnitude of </span><span class="si">%.2f</span><span class="s2">. The magnitude specified in &quot;</span>
+                    <span class="s2">&quot;the file is </span><span class="si">%.2f</span><span class="s2">. Please check that all &quot;</span>
+                    <span class="s2">&quot;components of the tensor are in Newton * meter&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">mag_in_file</span><span class="p">),</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">all_good</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span>
+
+        <span class="c1"># Collect event times</span>
+        <span class="n">event_infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="c1"># Now check the time distribution of events.</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Checking for duplicates and events too close in time </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">*</span> <span class="s2">&quot;.&quot;</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">all_good</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Sort the events by time.</span>
+        <span class="n">event_infos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">event_infos</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">])</span>
+        <span class="c1"># Loop over adjacent indices.</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">tee</span><span class="p">(</span><span class="n">event_infos</span><span class="p">)</span>
+        <span class="nb">next</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event_1</span><span class="p">,</span> <span class="n">event_2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="n">time_diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">event_2</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">event_1</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">])</span>
+            <span class="c1"># If time difference is under one hour, it could be either a</span>
+            <span class="c1"># duplicate event or interfering events.</span>
+            <span class="k">if</span> <span class="n">time_diff</span> <span class="o">&lt;=</span> <span class="mf">3600.0</span><span class="p">:</span>
+                <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                    <span class="s2">&quot;WARNING: &quot;</span>
+                    <span class="s2">&quot;The time difference between events &#39;</span><span class="si">{file_1}</span><span class="s2">&#39; and &quot;</span>
+                    <span class="s2">&quot;&#39;</span><span class="si">{file_2}</span><span class="s2">&#39; is only </span><span class="si">{diff:.1f}</span><span class="s2"> minutes. This could &quot;</span>
+                    <span class="s2">&quot;be either due to a duplicate event or events that have &quot;</span>
+                    <span class="s2">&quot;interfering waveforms.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">file_1</span><span class="o">=</span><span class="n">event_1</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
+                        <span class="n">file_2</span><span class="o">=</span><span class="n">event_2</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">],</span>
+                        <span class="n">diff</span><span class="o">=</span><span class="n">time_diff</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">all_good</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span>
+
+        <span class="c1"># Check that all events fall within the chosen boundaries.</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Assure all events are in chosen domain </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">*</span> <span class="s2">&quot;.&quot;</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">all_good</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">domain</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_infos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">domain</span><span class="o">.</span><span class="n">point_in_domain</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: &quot;</span>
+                <span class="s2">&quot;Event &#39;</span><span class="si">{filename}</span><span class="s2">&#39; is out of bounds of the chosen domain.&quot;</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">all_good</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ValidatorComponent.is_event_station_raypath_within_boundaries"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.is_event_station_raypath_within_boundaries">[docs]</a>    <span class="k">def</span> <span class="nf">is_event_station_raypath_within_boundaries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">station_latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">station_longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">raypath_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the full station-event raypath is within the project&#39;s domain</span>
+<span class="sd">        boundaries.</span>
+
+<span class="sd">        Returns True if this is the case, False if not.</span>
+
+<span class="sd">        :param event_name: Name of the event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_latitude: The station latitude.</span>
+<span class="sd">        :type station_latitude: float</span>
+<span class="sd">        :param station_longitude: The station longitude.</span>
+<span class="sd">        :type station_longitude: float</span>
+<span class="sd">        :param raypath_steps: The number of discrete points along the raypath</span>
+<span class="sd">            that will be checked, defaults to 25</span>
+<span class="sd">        :type raypath_steps: int, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">greatcircle_points</span><span class="p">,</span> <span class="n">Point</span>
+
+        <span class="n">ev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+
+        <span class="n">domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">domain</span>
+
+        <span class="c1"># Short circuit.</span>
+        <span class="k">if</span> <span class="n">domain</span><span class="o">.</span><span class="n">is_global_domain</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">greatcircle_points</span><span class="p">(</span>
+            <span class="n">Point</span><span class="p">(</span><span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">),</span>
+            <span class="n">Point</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">ev</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]),</span>
+            <span class="n">max_npts</span><span class="o">=</span><span class="n">raypath_steps</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">domain</span><span class="o">.</span><span class="n">point_in_domain</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">lng</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

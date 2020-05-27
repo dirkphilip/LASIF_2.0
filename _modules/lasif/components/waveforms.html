@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.waveforms &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.waveforms</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.waveforms</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pyasdf</span>
+<span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFWarning</span>
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+
+
+<div class="viewcode-block" id="LimitedSizeDict"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.LimitedSizeDict">[docs]</a><span class="k">class</span> <span class="nc">LimitedSizeDict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Based on http://stackoverflow.com/a/2437645/1657047</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size_limit</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;size_limit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_size_limit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_size_limit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_check_size_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">size_limit</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">popitem</span><span class="p">(</span><span class="n">last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WaveformsComponent"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent">[docs]</a><span class="k">class</span> <span class="nc">WaveformsComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component managing the waveform data.</span>
+
+<span class="sd">    The LASIF-HP branch can only deal with ASDF files so all waveform data</span>
+<span class="sd">    is expected to be in this format.</span>
+
+<span class="sd">    :param data_folder: The data folder in a LASIF project.</span>
+<span class="sd">    :type data_folder: pathlib.Path</span>
+<span class="sd">    :param synthetics_folder: The synthetics folder in a LASIF project.</span>
+<span class="sd">    :type synthetics_folder: pathlib.Path</span>
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_folder</span><span class="p">,</span>
+        <span class="n">preproc_data_folder</span><span class="p">,</span>
+        <span class="n">synthetics_folder</span><span class="p">,</span>
+        <span class="n">communicator</span><span class="p">,</span>
+        <span class="n">component_name</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_folder</span> <span class="o">=</span> <span class="n">data_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preproc_data_folder</span> <span class="o">=</span> <span class="n">preproc_data_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span> <span class="o">=</span> <span class="n">synthetics_folder</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WaveformsComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WaveformsComponent.get_asdf_filename"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_asdf_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_asdf_filename</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tag_or_iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the filename for an ASDF waveform file.</span>
+
+<span class="sd">        :param event_name: Name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param data_type: The type of data, one of ``&quot;raw&quot;``,</span>
+<span class="sd">            ``&quot;processed&quot;``, ``&quot;synthetic&quot;``</span>
+<span class="sd">        :type data_type: str</span>
+<span class="sd">        :param tag_or_iteration: The processing tag or iteration name if any.</span>
+<span class="sd">            Defaults to None</span>
+<span class="sd">        :type tag_or_iteration: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_folder</span><span class="p">,</span> <span class="n">event_name</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;processed&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_or_iteration</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Tag must be given for processed data.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_preproc_data_folder</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">tag_or_iteration</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;synthetic&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_or_iteration</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Long iteration name must be given for synthetic data.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tag_or_iteration</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ITERATION_&quot;</span><span class="p">):</span>
+                <span class="n">tag_or_iteration</span> <span class="o">=</span> <span class="s2">&quot;ITERATION_&quot;</span> <span class="o">+</span> <span class="n">tag_or_iteration</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span><span class="p">,</span>
+                <span class="n">tag_or_iteration</span><span class="p">,</span>
+                <span class="n">event_name</span><span class="p">,</span>
+                <span class="s2">&quot;receivers.h5&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid data type &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">data_type</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preprocessing_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the preprocessing tag for the lasif project, since each</span>
+<span class="sd">        lasif project assumes a constant frequency</span>
+<span class="sd">        this only has to be one tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minimum_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+            <span class="s2">&quot;minimum_period_in_s&quot;</span>
+        <span class="p">]</span>
+        <span class="n">maximum_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+            <span class="s2">&quot;maximum_period_in_s&quot;</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;preprocessed_</span><span class="si">%i</span><span class="s2">s_to_</span><span class="si">%i</span><span class="s2">s&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">minimum_period</span><span class="p">),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">maximum_period</span><span class="p">),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="WaveformsComponent.delete_station_from_raw"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.delete_station_from_raw">[docs]</a>    <span class="k">def</span> <span class="nf">delete_station_from_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes all information from the raw data file for the</span>
+<span class="sd">        given station.</span>
+
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The id of the station in the form ``NET.STA``.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.get_waveforms_raw"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw">[docs]</a>    <span class="k">def</span> <span class="nf">get_waveforms_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the raw waveforms for the given event and station as a</span>
+<span class="sd">        :class:`~obspy.core.stream.Stream` object.</span>
+
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The id of the station in the form ``NET.STA``.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveforms</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.get_waveforms_processed"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed">[docs]</a>    <span class="k">def</span> <span class="nf">get_waveforms_processed</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the processed waveforms for the given event and station as a</span>
+<span class="sd">        :class:`~obspy.core.stream.Stream` object.</span>
+
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The id of the station in the form ``NET.STA``.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        :param tag: The processing tag.</span>
+<span class="sd">        :type tag: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveforms</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;processed&quot;</span><span class="p">,</span> <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">tag</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.get_waveforms_processed_on_the_fly"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed_on_the_fly">[docs]</a>    <span class="k">def</span> <span class="nf">get_waveforms_processed_on_the_fly</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the processed waveforms for the given event and station as a</span>
+<span class="sd">        :class:`~obspy.core.stream.Stream` object.</span>
+
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The id of the station in the form ``NET.STA``.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">st</span><span class="p">,</span> <span class="n">inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveforms</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">get_inventory</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_data_on_the_fly</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">event_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.get_waveforms_synthetic"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic">[docs]</a>    <span class="k">def</span> <span class="nf">get_waveforms_synthetic</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">long_iteration_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the synthetic waveforms for the given event and station as a</span>
+<span class="sd">        :class:`~obspy.core.stream.Stream` object.</span>
+
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The id of the station in the form ``NET.STA``.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        :param long_iteration_name: The long form of an iteration name.</span>
+<span class="sd">        :type long_iteration_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveforms</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="p">,</span>
+            <span class="n">station_id</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;synthetic&quot;</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">long_iteration_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_synthetics</span><span class="p">(</span>
+            <span class="n">st</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">long_iteration_name</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.process_synthetics"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.process_synthetics">[docs]</a>    <span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">st</span><span class="p">:</span> <span class="n">obspy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">Stream</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process synthetics using the project function.</span>
+
+<span class="sd">        :param st: Stream of waveforms</span>
+<span class="sd">        :type st: obspy.core.stream.Stream</span>
+<span class="sd">        :param event_name: Name of event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param iteration: Name of iteration</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        :return: Processed stream of waveforms</span>
+<span class="sd">        :rtype: obspy.core.stream.Stream</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">toml</span>
+
+        <span class="n">fct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span><span class="s2">&quot;process_synthetics&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">iteration</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ITERATION&quot;</span><span class="p">):</span>
+            <span class="n">iteration</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ITERATION_</span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">info_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;synthetics&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;INFORMATION&quot;</span><span class="p">,</span>
+            <span class="n">iteration</span><span class="p">,</span>
+            <span class="s2">&quot;forward.toml&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_file</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">info_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">iter_info</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+            <span class="n">simulation_settings</span> <span class="o">=</span> <span class="n">iter_info</span><span class="p">[</span><span class="s2">&quot;simulation_settings&quot;</span><span class="p">]</span>
+            <span class="n">simulation_settings</span><span class="p">[</span>
+                <span class="s2">&quot;end_time_in_s&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;end_time_in_s&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">simulation_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+            <span class="n">simulation_settings</span><span class="p">[</span>
+                <span class="s2">&quot;start_time_in_s&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;start_time_in_s&quot;</span><span class="p">]</span>
+            <span class="n">simulation_settings</span><span class="p">[</span>
+                <span class="s2">&quot;end_time_in_s&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;end_time_in_s&quot;</span><span class="p">]</span>
+            <span class="n">simulation_settings</span><span class="p">[</span>
+                <span class="s2">&quot;minimum_period&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+            <span class="n">simulation_settings</span><span class="p">[</span>
+                <span class="s2">&quot;maximum_period&quot;</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">fct</span><span class="p">(</span>
+            <span class="n">st</span><span class="p">,</span> <span class="n">simulation_settings</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.process_data_on_the_fly"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.process_data_on_the_fly">[docs]</a>    <span class="k">def</span> <span class="nf">process_data_on_the_fly</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">st</span><span class="p">:</span> <span class="n">obspy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">stream</span><span class="o">.</span><span class="n">Stream</span><span class="p">,</span>
+        <span class="n">inv</span><span class="p">:</span> <span class="n">obspy</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">inventory</span><span class="o">.</span><span class="n">inventory</span><span class="o">.</span><span class="n">Inventory</span><span class="p">,</span>
+        <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process data on the fly</span>
+
+<span class="sd">        :param st: Stream of waveforms</span>
+<span class="sd">        :type st: obspy.core.stream.Stream</span>
+<span class="sd">        :param inv: Inventory of station information</span>
+<span class="sd">        :type inv: obspy.core.inventory.inventory.Inventory</span>
+<span class="sd">        :param event_name: Name of event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :return: Processed data</span>
+<span class="sd">        :rtype: obspy.core.stream.Stream</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Apply the project function that modifies synthetics on the fly.</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span><span class="s2">&quot;processing_function&quot;</span><span class="p">)</span>
+
+        <span class="n">processing_parmams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+        <span class="n">processing_parmams</span><span class="p">[</span>
+            <span class="s2">&quot;start_time_in_s&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;start_time_in_s&quot;</span><span class="p">]</span>
+        <span class="n">processing_parmams</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+            <span class="s2">&quot;time_step_in_s&quot;</span>
+        <span class="p">]</span>
+        <span class="n">processing_parmams</span><span class="p">[</span><span class="s2">&quot;npts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+            <span class="s2">&quot;number_of_time_steps&quot;</span>
+        <span class="p">]</span>
+        <span class="n">processing_parmams</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+            <span class="s2">&quot;end_time_in_s&quot;</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">fct</span><span class="p">(</span>
+            <span class="n">st</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">processing_parmams</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.process_data"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.process_data">[docs]</a>    <span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes all data for a given iteration.</span>
+
+<span class="sd">        This function works with and without MPI.</span>
+
+<span class="sd">        :param events: event_ids is a list of events to process in this</span>
+<span class="sd">            run. It will process all events if not given.</span>
+<span class="sd">        :type events: List[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+
+        <span class="n">process_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+        <span class="n">simulation_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;time_step_in_s&quot;</span><span class="p">]</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;start_time_in_s&quot;</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">processing_data_generator</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generate a dictionary with information for processing for each</span>
+<span class="sd">            waveform.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Loop over the chosen events.</span>
+            <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+                <span class="n">output_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;preproc_eq_data&quot;</span><span class="p">],</span> <span class="n">event_name</span>
+                <span class="p">)</span>
+                <span class="n">asdf_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+                <span class="p">)</span>
+                <span class="n">preprocessing_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">preprocessing_tag</span>
+                <span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">output_folder</span><span class="p">,</span> <span class="n">preprocessing_tag</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+
+                <span class="n">minimum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+                <span class="n">maximum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+
+                <span class="c1"># remove asdf file if it already exists</span>
+                <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">):</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span>
+
+                <span class="n">ret_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;process_params&quot;</span><span class="p">:</span> <span class="n">process_params</span><span class="p">,</span>
+                    <span class="s2">&quot;asdf_input_filename&quot;</span><span class="p">:</span> <span class="n">asdf_file_name</span><span class="p">,</span>
+                    <span class="s2">&quot;asdf_output_filename&quot;</span><span class="p">:</span> <span class="n">output_filename</span><span class="p">,</span>
+                    <span class="s2">&quot;preprocessing_tag&quot;</span><span class="p">:</span> <span class="n">preprocessing_tag</span><span class="p">,</span>
+                    <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span>
+                    <span class="s2">&quot;npts&quot;</span><span class="p">:</span> <span class="n">npts</span><span class="p">,</span>
+                    <span class="s2">&quot;start_time_in_s&quot;</span><span class="p">:</span> <span class="n">start_time</span><span class="p">,</span>
+                    <span class="s2">&quot;maximum_period&quot;</span><span class="p">:</span> <span class="n">maximum_period</span><span class="p">,</span>
+                    <span class="s2">&quot;minimum_period&quot;</span><span class="p">:</span> <span class="n">minimum_period</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">yield</span> <span class="n">ret_dict</span>
+
+        <span class="n">to_be_processed</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;processing_info&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">}</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">processing_data_generator</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Load project specific data processing function.</span>
+        <span class="n">preprocessing_function_asdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+            <span class="s2">&quot;preprocessing_function_asdf&quot;</span>
+        <span class="p">)</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">to_be_processed</span><span class="p">:</span>
+            <span class="n">preprocessing_function_asdf</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;processing_info&quot;</span><span class="p">])</span>
+            <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_waveforms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event_name</span><span class="p">,</span>
+        <span class="n">station_id</span><span class="p">,</span>
+        <span class="n">data_type</span><span class="p">,</span>
+        <span class="n">tag_or_iteration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_inventory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">tag_or_iteration</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;No &#39;</span><span class="si">%s</span><span class="s2">&#39; waveform data found for event &quot;</span>
+                <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; and station &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">station_group</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span>
+
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assert_tags</span><span class="p">(</span>
+                <span class="n">station_group</span><span class="o">=</span><span class="n">station_group</span><span class="p">,</span>
+                <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Get the waveform data.</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">station_group</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+
+            <span class="c1"># Make sure it only contains data from a single location.</span>
+            <span class="n">locs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">location</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; contains </span><span class="si">%i</span><span class="s2"> location codes for station &quot;</span>
+                    <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;. The alphabetically first one will be chosen.&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">locs</span><span class="p">),</span> <span class="n">station_id</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">LASIFWarning</span><span class="p">)</span>
+
+                <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">locs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">get_inventory</span><span class="p">:</span>
+                <span class="n">inv</span> <span class="o">=</span> <span class="n">station_group</span><span class="p">[</span><span class="s2">&quot;StationXML&quot;</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">st</span><span class="p">,</span> <span class="n">inv</span>
+
+            <span class="k">return</span> <span class="n">st</span>
+
+    <span class="k">def</span> <span class="nf">_assert_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_group</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts the available tags and returns a single tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">station_id</span> <span class="o">=</span> <span class="n">station_group</span><span class="o">.</span><span class="n">_station_name</span>
+
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">station_group</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Station &#39;</span><span class="si">%s</span><span class="s2">&#39; in file &#39;</span><span class="si">%s</span><span class="s2">&#39; contains no &quot;</span>
+                <span class="s2">&quot;tag. LASIF currently expects a &quot;</span>
+                <span class="s2">&quot;single waveform tag per station.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Station &#39;</span><span class="si">%s</span><span class="s2">&#39; in file &#39;</span><span class="si">%s</span><span class="s2">&#39; contains more &quot;</span>
+                <span class="s2">&quot;than one tag. LASIF currently expects a &quot;</span>
+                <span class="s2">&quot;single waveform tag per station.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Currently has some expectations on the used waveform tags.</span>
+        <span class="c1"># Might change in the future.</span>
+        <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;raw_recording&quot;</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;The tag for station &#39;</span><span class="si">%s</span><span class="s2">&#39; in file &#39;</span><span class="si">%s</span><span class="s2">&#39; must be &quot;</span>
+                <span class="s2">&quot;&#39;raw_recording&#39; for raw data.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;processed&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s2">&quot;processed&quot;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;The tag for station &#39;</span><span class="si">%s</span><span class="s2">&#39; in file &#39;</span><span class="si">%s</span><span class="s2">&#39; must contain &quot;</span>
+                <span class="s2">&quot;&#39;processed&#39; for processed data.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;synthetic&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s2">&quot;displacement&quot;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;The tag for station &#39;</span><span class="si">%s</span><span class="s2">&#39; in file &#39;</span><span class="si">%s</span><span class="s2">&#39; must contain &quot;</span>
+                <span class="s2">&quot;&#39;displacement&#39; for displacement data.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="k">return</span> <span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="WaveformsComponent.get_available_data"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_available_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_available_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with information about the available data.</span>
+
+<span class="sd">        Information is specific for a given event and station.</span>
+
+<span class="sd">        :param event_name: The event name.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param station_id: The station id.</span>
+<span class="sd">        :type station_id: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">information</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;processed&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;synthetic&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="c1"># Check the raw data components.</span>
+        <span class="n">raw_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">raw_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">station_group</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span>
+
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assert_tags</span><span class="p">(</span>
+                <span class="n">station_group</span><span class="o">=</span><span class="n">station_group</span><span class="p">,</span>
+                <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">raw_filename</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">raw_components</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">_i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_group</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="n">information</span><span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">][</span><span class="s2">&quot;raw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_components</span>
+
+        <span class="c1"># Now figure out which processing tags are available.</span>
+        <span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_folder</span><span class="p">,</span> <span class="n">event_name</span><span class="p">)</span>
+        <span class="n">processing_tags</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">_i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">_i</span><span class="p">))</span>
+            <span class="ow">and</span> <span class="n">_i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.h5&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">_i</span> <span class="o">!=</span> <span class="s2">&quot;raw.h5&quot;</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">proc_tag</span> <span class="ow">in</span> <span class="n">processing_tags</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
+                <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;processed&quot;</span><span class="p">,</span>
+                <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">proc_tag</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">station_group</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span>
+
+                <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assert_tags</span><span class="p">(</span>
+                    <span class="n">station_group</span><span class="o">=</span><span class="n">station_group</span><span class="p">,</span>
+                    <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;processed&quot;</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_group</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="n">information</span><span class="p">[</span><span class="s2">&quot;processed&quot;</span><span class="p">][</span><span class="n">proc_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">components</span>
+
+        <span class="c1"># And the synthetics.</span>
+        <span class="n">iterations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_i</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;ITERATION_&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ITERATION_&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span><span class="p">,</span> <span class="n">_i</span><span class="p">))</span>
+        <span class="p">]</span>
+
+        <span class="n">synthetic_coordinates_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
+                <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;synthetic&quot;</span><span class="p">,</span>
+                <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">station_group</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span>
+
+                <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assert_tags</span><span class="p">(</span>
+                    <span class="n">station_group</span><span class="o">=</span><span class="n">station_group</span><span class="p">,</span>
+                    <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;synthetic&quot;</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_group</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span> <span class="o">+</span> <span class="n">tag</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="n">information</span><span class="p">[</span><span class="s2">&quot;synthetic&quot;</span><span class="p">][</span><span class="n">iteration</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">synthetic_coordinates_mapping</span><span class="p">[</span><span class="n">_i</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">components</span>
+            <span class="p">]</span>
+        <span class="k">return</span> <span class="n">information</span></div>
+
+<div class="viewcode-block" id="WaveformsComponent.get_available_synthetics"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_available_synthetics">[docs]</a>    <span class="k">def</span> <span class="nf">get_available_synthetics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the available synthetics for a given event.</span>
+
+<span class="sd">        :param event_name: The event name.</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span><span class="p">,</span> <span class="n">event_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;No synthetic data for event &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">event_name</span>
+            <span class="p">)</span>
+        <span class="n">iterations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_synthetics_folder</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+            <span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;ITERATION_*&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">iterations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+
+        <span class="c1"># Make sure the iterations also contain the event and the stations.</span>
+        <span class="n">its</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">it</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">its</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">its</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

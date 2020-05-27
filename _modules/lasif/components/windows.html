@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.windows &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.windows</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.windows</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+
+<span class="kn">from</span> <span class="nn">..window_manager_sql</span> <span class="kn">import</span> <span class="n">WindowGroupManager</span>
+<span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">process_two_files_without_parallel_output</span>
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span>
+
+
+<div class="viewcode-block" id="WindowsComponent"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent">[docs]</a><span class="k">class</span> <span class="nc">WindowsComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component dealing with the windows and adjoint sources.</span>
+
+<span class="sd">    :param folder: The folder where the files are stored.</span>
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WindowsComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WindowsComponent.get"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the window manager instance for a window set.</span>
+
+<span class="sd">        :param window_set_name: The name of the window set.</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window_set_filename</span><span class="p">(</span><span class="n">window_set_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WindowGroupManager</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.list"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of window sets currently</span>
+<span class="sd">        present within the LASIF project.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">],</span> <span class="s2">&quot;*.sqlite&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">window_sets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">_i</span><span class="p">))[</span><span class="mi">0</span><span class="p">][:]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">files</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">window_sets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.has_window_set"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.has_window_set">[docs]</a>    <span class="k">def</span> <span class="nf">has_window_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a window set is already defined.</span>
+<span class="sd">        Returns True or False</span>
+
+<span class="sd">        :param window_set_name: The name of the window set.</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">window_set_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.get_window_set_filename"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.get_window_set_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_window_set_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the filename for a given window set</span>
+
+<span class="sd">        :param window_set_name: The name of the window set.</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :return: filename of the window set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">],</span> <span class="n">window_set_name</span> <span class="o">+</span> <span class="s2">&quot;.sqlite&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">filename</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.write_windows_to_sql"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.write_windows_to_sql">[docs]</a>    <span class="k">def</span> <span class="nf">write_windows_to_sql</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">windows</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes windows to the sql database</span>
+
+<span class="sd">        :param event_name: The name of the event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param window_set_name: The name of the window set</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :param windows: The actual windows, structured in a</span>
+<span class="sd">            dictionary(stations) of dicts(channels) of lists(windowS)</span>
+<span class="sd">            of tuples (start- and end times)</span>
+<span class="sd">        :type windows: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">window_group_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">window_set_name</span><span class="p">)</span>
+        <span class="n">window_group_manager</span><span class="o">.</span><span class="n">write_windows_bulk</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">windows</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.read_all_windows"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.read_all_windows">[docs]</a>    <span class="k">def</span> <span class="nf">read_all_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a flat dictionary with all windows for a specific event.</span>
+<span class="sd">        This should always be</span>
+<span class="sd">        fairly small.</span>
+
+<span class="sd">        :param event: Name of event</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param window_set_name: The name of the window set.</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">window_group_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">window_set_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">window_group_manager</span><span class="o">.</span><span class="n">get_all_windows_for_event</span><span class="p">(</span><span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.get_window_statistics"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.get_window_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">get_window_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">events</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a dictionary with window statistics for an iteration per event.</span>
+<span class="sd">        Depending on the size of your inversion and chosen iteration,</span>
+<span class="sd">        this might take a while...</span>
+
+<span class="sd">        :param window_set_name: The window_set_name.</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :param events: List of event(s)</span>
+<span class="sd">        :type events: List[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Collecting statistics for event </span><span class="si">%i</span><span class="s2"> of </span><span class="si">%i</span><span class="s2"> ...&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="n">wm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_all_windows</span><span class="p">(</span>
+                <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">window_set_name</span><span class="o">=</span><span class="n">window_set_name</span>
+            <span class="p">)</span>
+
+            <span class="c1"># wm is dict with stations/channels/list of start_end tuples</span>
+            <span class="n">station_details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+            <span class="n">component_window_count</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="n">component_length_sum</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="n">stations_with_windows_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">stations_without_windows_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">station_details</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">wins</span> <span class="o">=</span> <span class="n">wm</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="k">if</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">wm</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="p">{}</span>
+                <span class="n">has_windows</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">channel</span><span class="p">,</span> <span class="n">windows</span> <span class="ow">in</span> <span class="n">wins</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">component</span> <span class="o">=</span> <span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+                    <span class="n">total_length</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+                        <span class="n">total_length</span> <span class="o">+=</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">total_length</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">has_windows</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">component_window_count</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">component_length_sum</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">+=</span> <span class="n">total_length</span>
+                <span class="k">if</span> <span class="n">has_windows</span><span class="p">:</span>
+                    <span class="n">stations_with_windows_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">stations_without_windows_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">statistics</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;total_station_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_details</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                <span class="s2">&quot;stations_with_windows&quot;</span><span class="p">:</span> <span class="n">stations_with_windows_count</span><span class="p">,</span>
+                <span class="s2">&quot;stations_without_windows&quot;</span><span class="p">:</span> <span class="n">stations_without_windows_count</span><span class="p">,</span>
+                <span class="s2">&quot;stations_with_vertical_windows&quot;</span><span class="p">:</span> <span class="n">component_window_count</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;stations_with_north_windows&quot;</span><span class="p">:</span> <span class="n">component_window_count</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;stations_with_east_windows&quot;</span><span class="p">:</span> <span class="n">component_window_count</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;total_window_length&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">component_length_sum</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="s2">&quot;window_length_vertical_components&quot;</span><span class="p">:</span> <span class="n">component_length_sum</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;window_length_north_components&quot;</span><span class="p">:</span> <span class="n">component_length_sum</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;window_length_east_components&quot;</span><span class="p">:</span> <span class="n">component_length_sum</span><span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">statistics</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.select_windows"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.select_windows">[docs]</a>    <span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatically select the windows for the given event and iteration.</span>
+
+<span class="sd">        Function must be called with MPI.</span>
+
+<span class="sd">        :param event: The event.</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration_name: The iteration.</span>
+<span class="sd">        :type iteration_name: str</span>
+<span class="sd">        :param window_set_name: The name of the window set to pick into</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">select_component_from_stream</span>
+
+        <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+        <span class="kn">import</span> <span class="nn">pyasdf</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c1"># Get the ASDF filenames.</span>
+        <span class="n">processed_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;processed&quot;</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">preprocessing_tag</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">synthetic_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;synthetic&quot;</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">iteration_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">processed_filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exists.&quot;</span> <span class="o">%</span> <span class="n">processed_filename</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">synthetic_filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exists.&quot;</span> <span class="o">%</span> <span class="n">synthetic_filename</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Load project specific window selection function.</span>
+        <span class="n">select_windows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+            <span class="s2">&quot;window_picking_function&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get source time function</span>
+        <span class="n">stf_fct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+            <span class="s2">&quot;source_time_function&quot;</span>
+        <span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;time_step_in_s&quot;</span><span class="p">]</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+        <span class="n">freqmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">freqmin</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">stf_trace</span> <span class="o">=</span> <span class="n">stf_fct</span><span class="p">(</span>
+            <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span>
+        <span class="p">)</span>
+
+        <span class="n">process_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+        <span class="n">minimum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="n">maximum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">observed_station</span><span class="p">,</span> <span class="n">synthetic_station</span><span class="p">):</span>
+            <span class="n">obs_tag</span> <span class="o">=</span> <span class="n">observed_station</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">()</span>
+            <span class="n">syn_tag</span> <span class="o">=</span> <span class="n">synthetic_station</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">()</span>
+
+            <span class="c1"># Make sure both have length 1.</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_tag</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Station: </span><span class="si">%s</span><span class="s2"> - Requires 1 observed waveform tag. Has </span><span class="si">%i</span><span class="s2">.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">observed_station</span><span class="o">.</span><span class="n">_station_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_tag</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">syn_tag</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Station: </span><span class="si">%s</span><span class="s2"> - Requires 1 synthetic waveform tag. Has </span><span class="si">%i</span><span class="s2">.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">observed_station</span><span class="o">.</span><span class="n">_station_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">syn_tag</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="n">obs_tag</span> <span class="o">=</span> <span class="n">obs_tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">syn_tag</span> <span class="o">=</span> <span class="n">syn_tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Finally get the data.</span>
+            <span class="n">st_obs</span> <span class="o">=</span> <span class="n">observed_station</span><span class="p">[</span><span class="n">obs_tag</span><span class="p">]</span>
+            <span class="n">st_syn</span> <span class="o">=</span> <span class="n">synthetic_station</span><span class="p">[</span><span class="n">syn_tag</span><span class="p">]</span>
+
+            <span class="c1"># Extract coordinates once.</span>
+            <span class="n">coordinates</span> <span class="o">=</span> <span class="n">observed_station</span><span class="o">.</span><span class="n">coordinates</span>
+
+            <span class="c1"># Process the synthetics.</span>
+            <span class="n">st_syn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">process_synthetics</span><span class="p">(</span>
+                <span class="n">st</span><span class="o">=</span><span class="n">st_syn</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+                <span class="n">iteration</span><span class="o">=</span><span class="n">iteration_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">all_windows</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">]:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span><span class="n">st_obs</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+                    <span class="n">synth_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span><span class="n">st_syn</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+                        <span class="s2">&quot;scale_data_to_synthetics&quot;</span>
+                    <span class="p">]:</span>
+                        <span class="n">scaling_factor</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">synth_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">/</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+                        <span class="p">)</span>
+                        <span class="c1"># Store and apply the scaling.</span>
+                        <span class="n">data_tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">scaling_factor</span>
+                        <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+
+                <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">windows</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">windows</span> <span class="o">=</span> <span class="n">select_windows</span><span class="p">(</span>
+                        <span class="n">data_tr</span><span class="p">,</span>
+                        <span class="n">synth_tr</span><span class="p">,</span>
+                        <span class="n">stf_trace</span><span class="p">,</span>
+                        <span class="n">event</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                        <span class="n">event</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                        <span class="n">event</span><span class="p">[</span><span class="s2">&quot;depth_in_km&quot;</span><span class="p">],</span>
+                        <span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                        <span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                        <span class="n">minimum_period</span><span class="o">=</span><span class="n">minimum_period</span><span class="p">,</span>
+                        <span class="n">maximum_period</span><span class="o">=</span><span class="n">maximum_period</span><span class="p">,</span>
+                        <span class="n">iteration</span><span class="o">=</span><span class="n">iteration_name</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">all_windows</span><span class="p">[</span><span class="n">data_tr</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">windows</span>
+
+            <span class="k">if</span> <span class="n">all_windows</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">all_windows</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">processed_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ds_synth</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">synthetic_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">process_two_files_without_parallel_output</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">ds_synth</span><span class="p">,</span> <span class="n">process</span>
+        <span class="p">)</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+        <span class="c1"># Write files on rank 0.</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished window selection&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="n">thread</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Writing windows for rank: </span><span class="si">{</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="sa">f</span><span class="s2">&quot;out of </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">write_windows_to_sql</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+                    <span class="n">windows</span><span class="o">=</span><span class="n">results</span><span class="p">,</span>
+                    <span class="n">window_set_name</span><span class="o">=</span><span class="n">window_set_name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WindowsComponent.select_windows_for_station"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.select_windows_for_station">[docs]</a>    <span class="k">def</span> <span class="nf">select_windows_for_station</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">station</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects windows for the given event, iteration, and station. Will</span>
+<span class="sd">        delete any previously existing windows for that station if any.</span>
+
+<span class="sd">        :param event: The event.</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration: The iteration name.</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        :param station: The station id in the form NET.STA.</span>
+<span class="sd">        :type station: str</span>
+<span class="sd">        :param window_set_name: Name of window set</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">select_component_from_stream</span>
+
+        <span class="c1"># Load project specific window selection function.</span>
+        <span class="n">select_windows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+            <span class="s2">&quot;window_picking_function&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_matching_waveforms</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">station</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get source time function</span>
+        <span class="n">stf_fct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+            <span class="s2">&quot;source_time_function&quot;</span>
+        <span class="p">)</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;time_step_in_s&quot;</span><span class="p">]</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+        <span class="n">freqmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">freqmin</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">stf_trace</span> <span class="o">=</span> <span class="n">stf_fct</span><span class="p">(</span>
+            <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span>
+        <span class="p">)</span>
+
+        <span class="n">process_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+        <span class="n">minimum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">]</span>
+        <span class="n">maximum_period</span> <span class="o">=</span> <span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">]</span>
+
+        <span class="n">window_group_manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">window_set_name</span><span class="p">)</span>
+
+        <span class="n">found_something</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+                <span class="n">synth_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">synthetics</span><span class="p">,</span> <span class="n">component</span>
+                <span class="p">)</span>
+                <span class="c1"># delete preexisting windows</span>
+                <span class="n">window_group_manager</span><span class="o">.</span><span class="n">del_all_windows_from_event_channel</span><span class="p">(</span>
+                    <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">id</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">found_something</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">windows</span> <span class="o">=</span> <span class="n">select_windows</span><span class="p">(</span>
+                <span class="n">data_tr</span><span class="p">,</span>
+                <span class="n">synth_tr</span><span class="p">,</span>
+                <span class="n">stf_trace</span><span class="p">,</span>
+                <span class="n">event</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                <span class="n">event</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                <span class="n">event</span><span class="p">[</span><span class="s2">&quot;depth_in_km&quot;</span><span class="p">],</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                <span class="n">minimum_period</span><span class="o">=</span><span class="n">minimum_period</span><span class="p">,</span>
+                <span class="n">maximum_period</span><span class="o">=</span><span class="n">maximum_period</span><span class="p">,</span>
+                <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">,</span> <span class="n">b_wave</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+                <span class="n">window_group_manager</span><span class="o">.</span><span class="n">add_window_to_event_channel</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+                    <span class="n">channel_name</span><span class="o">=</span><span class="n">data_tr</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="n">start_time</span><span class="o">=</span><span class="n">starttime</span><span class="p">,</span>
+                    <span class="n">end_time</span><span class="o">=</span><span class="n">endtime</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">found_something</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;No matching data found for event &#39;</span><span class="si">%s</span><span class="s2">&#39;, iteration &#39;</span><span class="si">%s</span><span class="s2">&#39;, and &quot;</span>
+                <span class="s2">&quot;station &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">iteration</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">station</span><span class="p">)</span>
+            <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

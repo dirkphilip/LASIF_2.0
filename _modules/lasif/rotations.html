@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -84,13 +84,12 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../meshing.html">Meshing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
 </ul>
 
@@ -138,8 +137,6 @@
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
-          <li><a href="../lasif.html">lasif</a> &raquo;</li>
         
       <li>lasif.rotations</li>
     
@@ -197,6 +194,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="n">eps</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">epsilon</span>
 
@@ -218,7 +216,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
-<div class="viewcode-block" id="lat2colat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat2colat">[docs]</a><span class="k">def</span> <span class="nf">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">):</span>
+<div class="viewcode-block" id="lat2colat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat2colat">[docs]</a><span class="k">def</span> <span class="nf">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to convert latitude to colatitude. This, surprisingly, is</span>
 <span class="sd">    quite an error source.</span>
@@ -235,11 +233,12 @@
 <span class="sd">    0.0</span>
 
 <span class="sd">    :param lat: The latitude.</span>
+<span class="sd">    :type lat: Union[numpy.ndarray, float]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat</span></div>
 
 
-<div class="viewcode-block" id="colat2lat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.colat2lat">[docs]</a><span class="k">def</span> <span class="nf">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">):</span>
+<div class="viewcode-block" id="colat2lat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.colat2lat">[docs]</a><span class="k">def</span> <span class="nf">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to convert colatitude to latitude. This, surprisingly, is</span>
 <span class="sd">    quite an error source.</span>
@@ -256,6 +255,7 @@
 <span class="sd">    90.0</span>
 
 <span class="sd">    :param colat: The colatitude.</span>
+<span class="sd">    :type colat: Union[numpy.ndarray, float]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">colat</span> <span class="o">-</span> <span class="mf">90.0</span><span class="p">)</span></div>
 
@@ -286,13 +286,20 @@
     <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span></div>
 
 
-<div class="viewcode-block" id="lat_lon_radius_to_xyz"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat_lon_radius_to_xyz">[docs]</a><span class="k">def</span> <span class="nf">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<div class="viewcode-block" id="lat_lon_radius_to_xyz"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat_lon_radius_to_xyz">[docs]</a><span class="k">def</span> <span class="nf">lat_lon_radius_to_xyz</span><span class="p">(</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">r</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts latitude, longitude and radius to x, y, and z.</span>
 
 <span class="sd">    :param lat: The latitude.</span>
+<span class="sd">    :type lat: Union[numpy.ndarray, float]</span>
 <span class="sd">    :param lon:  The longitude.</span>
+<span class="sd">    :type lon: Union[numpy.ndarray, float]</span>
 <span class="sd">    :param r: The radius.</span>
+<span class="sd">    :type r: Union[numpy.ndarray, float]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">colat</span> <span class="o">=</span> <span class="n">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
     <span class="c1"># To radian</span>

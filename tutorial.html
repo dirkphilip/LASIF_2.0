@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -86,29 +86,16 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/00_interfaces.html">1. Interfaces</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/04_download_helpers.html">5. Download Helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/05_data_inspection.html">6. Data Inspection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/06_data_validation.html">7. Data Validation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/07_a_new_iteration.html">8. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/08_data_processing.html">9. Data Processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/10_generating_input_files.html">11. Generating Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/13_gradient_visualization.html">14. Gradient Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/01_jupyter_notebooks.html">2. Jupyter Notebooks</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meshing.html">Meshing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 </ul>
 
@@ -176,34 +163,13 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>This tutorial will teach you how to perform an iterative full waveform
-inversion with LASIF and SES3D on a simple toy example.
-Before going through the tutorial we recommend that you make a mesh which
-you can see how is done here: <a class="reference internal" href="meshing.html"><span class="doc">Meshing</span></a></p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This tutorial is written for an older version of LASIF and is thus not
-up to date. It will be properly updated once LASIF’s dependencies are
-stable enough.</p>
-<p>The rest of LASIF’s documentation is generated from the actual code and
-thus is guaranteed to accurately reflect the code base.</p>
-</div>
+<p>The tutorial is implemented via a Jupyter notebook. We have a repository
+of tutorials and if a specific one is requested feel free to contact
+developers.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/00_interfaces.html">1. Interfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/02_seismic_events.html">3. Seismic Events</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/03_station_data.html">4. Station Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/04_download_helpers.html">5. Download Helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/05_data_inspection.html">6. Data Inspection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/06_data_validation.html">7. Data Validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/07_a_new_iteration.html">8. Defining a New Iteration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/08_data_processing.html">9. Data Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/10_generating_input_files.html">11. Generating Input Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/13_gradient_visualization.html">14. Gradient Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/01_jupyter_notebooks.html">2. Jupyter Notebooks</a></li>
 </ul>
 </div>
 </div>

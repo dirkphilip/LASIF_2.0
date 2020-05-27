@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Waveforms Component &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Weights Component" href="weights.html" />
+    <link rel="prev" title="Visualizations Component" href="visualizations.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="project.html">Project Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjoint_sources.html">Adjoint Sources Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="downloads.html">Downloads Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iterations.html">Iterations Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query.html">Query Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Visualizations Component</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Waveforms Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="weights.html">Weights Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html">Windows Component</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../components.html">Components</a> &raquo;</li>
+        
+      <li>Waveforms Component</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/waveforms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="waveforms-component">
+<h1>Waveforms Component<a class="headerlink" href="#waveforms-component" title="Permalink to this headline">¶</a></h1>
+<p>When waveforms are requested and you for example need the same waveform
+for data and synthetics. The Waveforms component handles your requests.</p>
+<p><strong>Contents:</strong></p>
+<span class="target" id="module-lasif.components.waveforms"></span><dl class="py class">
+<dt id="lasif.components.waveforms.LimitedSizeDict">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.components.waveforms.</code><code class="sig-name descname">LimitedSizeDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#LimitedSizeDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.LimitedSizeDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Based on <a class="reference external" href="http://stackoverflow.com/a/2437645/1657047">http://stackoverflow.com/a/2437645/1657047</a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="lasif.components.waveforms.WaveformsComponent">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.components.waveforms.</code><code class="sig-name descname">WaveformsComponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_folder</span></em>, <em class="sig-param"><span class="n">preproc_data_folder</span></em>, <em class="sig-param"><span class="n">synthetics_folder</span></em>, <em class="sig-param"><span class="n">communicator</span></em>, <em class="sig-param"><span class="n">component_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component managing the waveform data.</p>
+<p>The LASIF-HP branch can only deal with ASDF files so all waveform data
+is expected to be in this format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a>) – The data folder in a LASIF project.</p></li>
+<li><p><strong>synthetics_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a>) – The synthetics folder in a LASIF project.</p></li>
+<li><p><strong>communicator</strong> – The communicator instance.</p></li>
+<li><p><strong>component_name</strong> – The name of this component for the communicator.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.delete_station_from_raw">
+<code class="sig-name descname">delete_station_from_raw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.delete_station_from_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.delete_station_from_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes all information from the raw data file for the
+given station.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the event.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id of the station in the form <code class="docutils literal notranslate"><span class="pre">NET.STA</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_asdf_filename">
+<code class="sig-name descname">get_asdf_filename</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data_type</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">tag_or_iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_asdf_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_asdf_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the filename for an ASDF waveform file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the event.</p></li>
+<li><p><strong>data_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The type of data, one of <code class="docutils literal notranslate"><span class="pre">&quot;raw&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;processed&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;synthetic&quot;</span></code></p></li>
+<li><p><strong>tag_or_iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – The processing tag or iteration name if any.
+Defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_available_data">
+<code class="sig-name descname">get_available_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with information about the available data.</p>
+<p>Information is specific for a given event and station.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The event name.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The station id.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_available_synthetics">
+<code class="sig-name descname">get_available_synthetics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_synthetics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the available synthetics for a given event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The event name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_processed">
+<code class="sig-name descname">get_waveforms_processed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">tag</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the processed waveforms for the given event and station as a
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the event.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id of the station in the form <code class="docutils literal notranslate"><span class="pre">NET.STA</span></code>.</p></li>
+<li><p><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The processing tag.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_processed_on_the_fly">
+<code class="sig-name descname">get_waveforms_processed_on_the_fly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed_on_the_fly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed_on_the_fly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the processed waveforms for the given event and station as a
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the event.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id of the station in the form <code class="docutils literal notranslate"><span class="pre">NET.STA</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_raw">
+<code class="sig-name descname">get_waveforms_raw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the raw waveforms for the given event and station as a
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the event.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id of the station in the form <code class="docutils literal notranslate"><span class="pre">NET.STA</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic">
+<code class="sig-name descname">get_waveforms_synthetic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">long_iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the synthetic waveforms for the given event and station as a
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the event.</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id of the station in the form <code class="docutils literal notranslate"><span class="pre">NET.STA</span></code>.</p></li>
+<li><p><strong>long_iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The long form of an iteration name.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.preprocessing_tag">
+<em class="property">property </em><code class="sig-name descname">preprocessing_tag</code><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.preprocessing_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the preprocessing tag for the lasif project, since each
+lasif project assumes a constant frequency
+this only has to be one tag.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.process_data">
+<code class="sig-name descname">process_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.process_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.process_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes all data for a given iteration.</p>
+<p>This function works with and without MPI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>events</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – event_ids is a list of events to process in this
+run. It will process all events if not given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.process_data_on_the_fly">
+<code class="sig-name descname">process_data_on_the_fly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">st</span><span class="p">:</span> <span class="n"><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)">obspy.core.stream.Stream</a></span></em>, <em class="sig-param"><span class="n">inv</span><span class="p">:</span> <span class="n"><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.inventory.inventory.Inventory.html#obspy.core.inventory.inventory.Inventory" title="(in ObsPy Documentation (1.2.0) v1.2)">obspy.core.inventory.inventory.Inventory</a></span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.process_data_on_the_fly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.process_data_on_the_fly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process data on the fly</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>st</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><em>obspy.core.stream.Stream</em></a>) – Stream of waveforms</p></li>
+<li><p><strong>inv</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.inventory.inventory.Inventory.html#obspy.core.inventory.inventory.Inventory" title="(in ObsPy Documentation (1.2.0) v1.2)"><em>obspy.core.inventory.inventory.Inventory</em></a>) – Inventory of station information</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Processed data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)">obspy.core.stream.Stream</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.waveforms.WaveformsComponent.process_synthetics">
+<code class="sig-name descname">process_synthetics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">st</span><span class="p">:</span> <span class="n"><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)">obspy.core.stream.Stream</a></span></em>, <em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.process_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.process_synthetics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process synthetics using the project function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>st</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)"><em>obspy.core.stream.Stream</em></a>) – Stream of waveforms</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Processed stream of waveforms</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.2.0) v1.2)">obspy.core.stream.Stream</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="weights.html" class="btn btn-neutral float-right" title="Weights Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="visualizations.html" class="btn btn-neutral float-left" title="Visualizations Component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

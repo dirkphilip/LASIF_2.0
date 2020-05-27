@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.adjoint_sources &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.adjoint_sources</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.adjoint_sources</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">pyasdf</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">process_two_files_without_parallel_output</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFError</span>
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">lasif.tools.adjoint.adjoint_source</span> <span class="kn">import</span> <span class="n">calculate_adjoint_source</span>
+
+
+<div class="viewcode-block" id="AdjointSourcesComponent"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent">[docs]</a><span class="k">class</span> <span class="nc">AdjointSourcesComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component dealing with the adjoint sources.</span>
+
+<span class="sd">    :param folder: The folder where the files are stored.</span>
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span> <span class="o">=</span> <span class="n">folder</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AdjointSourcesComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AdjointSourcesComponent.get_filename"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.get_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the filename for the adjoint source.</span>
+
+<span class="sd">        :param event: The event.</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration: The iteration name.</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">iteration_long_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span>
+            <span class="n">iteration</span>
+        <span class="p">)</span>
+
+        <span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_folder</span><span class="p">,</span> <span class="n">iteration_long_name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;adjoint_source_auxiliary.h5&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdjointSourcesComponent.get_misfit_file"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.get_misfit_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_misfit_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get path to the iteration misfit file</span>
+
+<span class="sd">        :param iteration: Name of iteration</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">iteration_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span>
+            <span class="n">iteration</span>
+        <span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span>
+            <span class="o">/</span> <span class="n">iteration_name</span>
+            <span class="o">/</span> <span class="s2">&quot;misfits.toml&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">file</span></div>
+
+<div class="viewcode-block" id="AdjointSourcesComponent.get_misfit_for_event"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.get_misfit_for_event">[docs]</a>    <span class="k">def</span> <span class="nf">get_misfit_for_event</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">weight_set_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_station_misfit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function returns the total misfit for an event.</span>
+
+<span class="sd">        :param event: name of the event</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration: iteration for which to get the misfit</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        :param weight_set_name: Name of station weights, defaults to None</span>
+<span class="sd">        :type weight_set_name: str, optional</span>
+<span class="sd">        :param include_station_misfit: Whether individual station misfits</span>
+<span class="sd">            should be written down or not, defaults to False</span>
+<span class="sd">        :type include_station_misfit: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">misfit_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_misfit_file</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="n">misfits</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">misfit_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">misfits</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Misfit has not been computed for event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;iteration: </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="p">)</span>
+        <span class="n">event_misfit</span> <span class="o">=</span> <span class="n">misfits</span><span class="p">[</span><span class="n">event</span><span class="p">][</span><span class="s2">&quot;event_misfit&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">include_station_misfit</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">misfits</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">event_misfit</span></div>
+
+<div class="viewcode-block" id="AdjointSourcesComponent.calculate_adjoint_sources"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.calculate_adjoint_sources">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_adjoint_sources</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate adjoint sources based on the type of misfit defined in</span>
+<span class="sd">        the lasif config file.</span>
+<span class="sd">        The computed misfit for each station is also written down into</span>
+<span class="sd">        a misfit toml file.</span>
+
+<span class="sd">        :param event: Name of event</span>
+<span class="sd">        :type event: str</span>
+<span class="sd">        :param iteration: Name of iteration</span>
+<span class="sd">        :type iteration: str</span>
+<span class="sd">        :param window_set_name: Name of window set</span>
+<span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :param plot: Should the adjoint source be plotted?, defaults to False</span>
+<span class="sd">        :type plot: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">select_component_from_stream</span>
+
+        <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+        <span class="kn">import</span> <span class="nn">pyasdf</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c1"># Get the ASDF filenames.</span>
+        <span class="n">processed_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;processed&quot;</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">preprocessing_tag</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">synthetic_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+            <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;synthetic&quot;</span><span class="p">,</span>
+            <span class="n">tag_or_iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">processed_filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exists.&quot;</span> <span class="o">%</span> <span class="n">processed_filename</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">synthetic_filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exists.&quot;</span> <span class="o">%</span> <span class="n">synthetic_filename</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Read all windows on rank 0 and broadcast.</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">all_windows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">read_all_windows</span><span class="p">(</span>
+                <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">window_set_name</span><span class="o">=</span><span class="n">window_set_name</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_windows</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">all_windows</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">all_windows</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">process_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span>
+
+        <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">observed_station</span><span class="p">,</span> <span class="n">synthetic_station</span><span class="p">):</span>
+            <span class="n">obs_tag</span> <span class="o">=</span> <span class="n">observed_station</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">()</span>
+            <span class="n">syn_tag</span> <span class="o">=</span> <span class="n">synthetic_station</span><span class="o">.</span><span class="n">get_waveform_tags</span><span class="p">()</span>
+
+            <span class="c1"># Make sure both have length 1.</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_tag</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Station: </span><span class="si">%s</span><span class="s2"> - Requires 1 observed waveform tag. Has </span><span class="si">%i</span><span class="s2">.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">observed_station</span><span class="o">.</span><span class="n">_station_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_tag</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">syn_tag</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Station: </span><span class="si">%s</span><span class="s2"> - Requires 1 synthetic waveform tag. Has </span><span class="si">%i</span><span class="s2">.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">observed_station</span><span class="o">.</span><span class="n">_station_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">syn_tag</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="n">obs_tag</span> <span class="o">=</span> <span class="n">obs_tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">syn_tag</span> <span class="o">=</span> <span class="n">syn_tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Finally get the data.</span>
+            <span class="n">st_obs</span> <span class="o">=</span> <span class="n">observed_station</span><span class="p">[</span><span class="n">obs_tag</span><span class="p">]</span>
+            <span class="n">st_syn</span> <span class="o">=</span> <span class="n">synthetic_station</span><span class="p">[</span><span class="n">syn_tag</span><span class="p">]</span>
+
+            <span class="c1"># Process the synthetics.</span>
+            <span class="n">st_syn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">process_synthetics</span><span class="p">(</span>
+                <span class="n">st</span><span class="o">=</span><span class="n">st_syn</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                <span class="n">event_name</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span>
+                <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">adjoint_sources</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">ad_src_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">optimization_settings</span><span class="p">[</span>
+                <span class="s2">&quot;misfit_type&quot;</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">ad_src_type</span> <span class="o">==</span> <span class="s2">&quot;weighted_waveform_misfit&quot;</span><span class="p">:</span>
+                <span class="n">env_scaling</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">ad_src_type</span> <span class="o">=</span> <span class="s2">&quot;waveform_misfit&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env_scaling</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">]:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span><span class="n">st_obs</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+                    <span class="n">synth_tr</span> <span class="o">=</span> <span class="n">select_component_from_stream</span><span class="p">(</span><span class="n">st_syn</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+                    <span class="s2">&quot;scale_data_to_synthetics&quot;</span>
+                <span class="p">]:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">optimization_settings</span><span class="p">[</span>
+                            <span class="s2">&quot;misfit_type&quot;</span>
+                        <span class="p">]</span>
+                        <span class="o">==</span> <span class="s2">&quot;L2NormWeighted&quot;</span>
+                    <span class="p">):</span>
+                        <span class="n">scaling_factor</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">synth_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">/</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+                        <span class="p">)</span>
+                        <span class="c1"># Store and apply the scaling.</span>
+                        <span class="n">data_tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">scaling_factor</span> <span class="o">=</span> <span class="n">scaling_factor</span>
+                        <span class="n">data_tr</span><span class="o">.</span><span class="n">data</span> <span class="o">*=</span> <span class="n">scaling_factor</span>
+
+                <span class="n">net</span><span class="p">,</span> <span class="n">sta</span><span class="p">,</span> <span class="n">cha</span> <span class="o">=</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">station</span> <span class="o">=</span> <span class="n">net</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">sta</span>
+
+                <span class="k">if</span> <span class="n">station</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_windows</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">data_tr</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_windows</span><span class="p">[</span><span class="n">station</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Collect all.</span>
+                <span class="n">windows</span> <span class="o">=</span> <span class="n">all_windows</span><span class="p">[</span><span class="n">station</span><span class="p">][</span><span class="n">data_tr</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># for window in windows:</span>
+                    <span class="n">asrc</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
+                        <span class="n">observed</span><span class="o">=</span><span class="n">data_tr</span><span class="p">,</span>
+                        <span class="n">synthetic</span><span class="o">=</span><span class="n">synth_tr</span><span class="p">,</span>
+                        <span class="n">window</span><span class="o">=</span><span class="n">windows</span><span class="p">,</span>
+                        <span class="n">min_period</span><span class="o">=</span><span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">],</span>
+                        <span class="n">max_period</span><span class="o">=</span><span class="n">process_params</span><span class="p">[</span><span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">],</span>
+                        <span class="n">adj_src_type</span><span class="o">=</span><span class="n">ad_src_type</span><span class="p">,</span>
+                        <span class="n">window_set</span><span class="o">=</span><span class="n">window_set_name</span><span class="p">,</span>
+                        <span class="n">taper_ratio</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+                        <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
+                        <span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span>
+                        <span class="n">envelope_scaling</span><span class="o">=</span><span class="n">env_scaling</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="c1"># Either pass or fail for the whole component.</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">asrc</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># Sum up both misfit, and adjoint source.</span>
+                <span class="n">misfit</span> <span class="o">=</span> <span class="n">asrc</span><span class="o">.</span><span class="n">misfit</span>
+                <span class="n">adj_source</span> <span class="o">=</span> <span class="n">asrc</span><span class="o">.</span><span class="n">adjoint_source</span><span class="o">.</span><span class="n">data</span>
+
+                <span class="n">adjoint_sources</span><span class="p">[</span><span class="n">data_tr</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;misfit&quot;</span><span class="p">:</span> <span class="n">misfit</span><span class="p">,</span>
+                    <span class="s2">&quot;adj_source&quot;</span><span class="p">:</span> <span class="n">adj_source</span><span class="p">,</span>
+                <span class="p">}</span>
+
+            <span class="k">return</span> <span class="n">adjoint_sources</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">processed_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ds_synth</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">synthetic_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Launch the processing. This will be executed in parallel across</span>
+        <span class="c1"># ranks.</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">process_two_files_without_parallel_output</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">ds_synth</span><span class="p">,</span> <span class="n">process</span>
+        <span class="p">)</span>
+        <span class="c1"># Write files on all ranks.</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_filename</span><span class="p">(</span>
+            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">],</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span>
+        <span class="p">)</span>
+        <span class="n">long_iter_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span>
+            <span class="n">iteration</span>
+        <span class="p">)</span>
+        <span class="n">misfit_toml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span>
+        <span class="n">toml_filename</span> <span class="o">=</span> <span class="n">misfit_toml</span> <span class="o">/</span> <span class="n">long_iter_name</span> <span class="o">/</span> <span class="s2">&quot;misfits.toml&quot;</span>
+
+        <span class="n">ad_src_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">):</span>
+                <span class="n">iteration_misfits</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">iteration_misfits</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]][</span>
+                        <span class="s2">&quot;event_misfit&quot;</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">iteration_misfits</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="n">thread</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Writing adjoint sources for rank: </span><span class="si">{</span><span class="n">rank</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;out of </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">bs</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">toml_filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                        <span class="n">iteration_misfits</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">iteration_misfits</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="n">total_misfit</span> <span class="o">=</span> <span class="n">iteration_misfits</span><span class="p">[</span>
+                                <span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span>
+                            <span class="p">][</span><span class="s2">&quot;event_misfit&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+                            <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]][</span>
+                                <span class="s2">&quot;stations&quot;</span>
+                            <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                            <span class="n">total_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">iteration_misfits</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">total_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="n">station_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+                        <span class="k">for</span> <span class="n">c_id</span><span class="p">,</span> <span class="n">adj_source</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="n">net</span><span class="p">,</span> <span class="n">sta</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">cha</span> <span class="o">=</span> <span class="n">c_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+                            <span class="n">bs</span><span class="o">.</span><span class="n">add_auxiliary_data</span><span class="p">(</span>
+                                <span class="n">data</span><span class="o">=</span><span class="n">adj_source</span><span class="p">[</span><span class="s2">&quot;adj_source&quot;</span><span class="p">],</span>
+                                <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;AdjointSources&quot;</span><span class="p">,</span>
+                                <span class="n">path</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">/Channel_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span>
+                                <span class="o">%</span> <span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">sta</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">cha</span><span class="p">),</span>
+                                <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;misfit&quot;</span><span class="p">:</span> <span class="n">adj_source</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">]},</span>
+                            <span class="p">)</span>
+                            <span class="n">station_misfit</span> <span class="o">+=</span> <span class="n">adj_source</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">]</span>
+                            <span class="n">station_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">net</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">sta</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span>
+                            <span class="n">station_name</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">station_misfit</span><span class="p">)</span>
+                        <span class="n">ad_src_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">total_misfit</span> <span class="o">+=</span> <span class="n">station_misfit</span>
+                    <span class="n">iteration_misfits</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]][</span>
+                        <span class="s2">&quot;event_misfit&quot;</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_misfit</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                        <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">iteration_misfits</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+
+            <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">auxiliary_data</span><span class="o">.</span><span class="n">AdjointSources</span><span class="o">.</span><span class="n">list</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> Adjoint sources are in your file.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AdjointSourcesComponent.finalize_adjoint_sources"><a class="viewcode-back" href="../../../components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.finalize_adjoint_sources">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_adjoint_sources</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">weight_set_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Work with adjoint source in a way that it is written down properly</span>
+<span class="sd">        into an hdf5 file and prepared for being used as a source time</span>
+<span class="sd">        function.</span>
+<span class="sd">        The misfit values and adjoint sources are multiplied by the</span>
+<span class="sd">        weight of the event and the station.</span>
+
+<span class="sd">        :param iteration_name: Name of iteration</span>
+<span class="sd">        :type iteration_name: str</span>
+<span class="sd">        :param event_name: Name of event</span>
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param weight_set_name: Name of station weights, defaults to None</span>
+<span class="sd">        :type weight_set_name: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">pyasdf</span>
+        <span class="kn">import</span> <span class="nn">h5py</span>
+
+        <span class="c1"># This will do stuff for each event and a single iteration</span>
+        <span class="c1"># Step one, read adj_src file that should have been created already</span>
+        <span class="n">iteration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span>
+            <span class="n">iteration_name</span>
+        <span class="p">)</span>
+
+        <span class="n">adj_src_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_filename</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">adj_src_file</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">adj_srcs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">auxiliary_data</span><span class="p">[</span><span class="s2">&quot;AdjointSources&quot;</span><span class="p">]</span>
+
+        <span class="n">input_files_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;adjoint_sources&quot;</span><span class="p">]</span>
+
+        <span class="n">receivers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_files_dir</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="n">adjoint_source_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;stf.h5&quot;</span><span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">adjoint_source_file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="n">event_weight</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">weight_set_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">weight_set_name</span><span class="p">)</span>
+            <span class="n">event_weight</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;event_weight&quot;</span><span class="p">]</span>
+            <span class="n">station_weights</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span>
+            <span class="n">computed_misfits</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_misfit_file</span><span class="p">(</span><span class="n">iteration</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">adj_src</span> <span class="ow">in</span> <span class="n">adj_srcs</span><span class="p">:</span>
+            <span class="n">station_name</span> <span class="o">=</span> <span class="n">adj_src</span><span class="o">.</span><span class="n">auxiliary_data_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">channels</span> <span class="o">=</span> <span class="n">adj_src</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="n">e_comp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">adj_src</span><span class="p">[</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span><span class="p">[()])</span>
+            <span class="n">n_comp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">adj_src</span><span class="p">[</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span><span class="p">[()])</span>
+            <span class="n">z_comp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">adj_src</span><span class="p">[</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span><span class="p">[()])</span>
+
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">:</span>
+                <span class="c1"># check channel and set component</span>
+                <span class="k">if</span> <span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span><span class="p">:</span>
+                    <span class="n">e_comp</span> <span class="o">=</span> <span class="n">adj_src</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[()]</span>
+                <span class="k">elif</span> <span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+                    <span class="n">n_comp</span> <span class="o">=</span> <span class="n">adj_src</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[()]</span>
+                <span class="k">elif</span> <span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+                    <span class="n">z_comp</span> <span class="o">=</span> <span class="n">adj_src</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[()]</span>
+            <span class="n">zne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">z_comp</span><span class="p">,</span> <span class="n">n_comp</span><span class="p">,</span> <span class="n">e_comp</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">receiver</span> <span class="ow">in</span> <span class="n">receivers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">station</span> <span class="o">=</span> <span class="n">receiver</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="c1"># station = receiver[&quot;network&quot;] + &quot;_&quot; + receiver[&quot;station&quot;]</span>
+
+                <span class="k">if</span> <span class="n">station</span> <span class="o">==</span> <span class="n">station_name</span><span class="p">:</span>
+                    <span class="c1"># transform_mat = np.array(receiver[&quot;transform_matrix&quot;])</span>
+                    <span class="c1"># xyz = np.dot(transform_mat.T, zne).T</span>
+
+                    <span class="c1"># net_dot_sta = \</span>
+                    <span class="c1">#    receiver[&quot;network&quot;] + &quot;.&quot; + receiver[&quot;station&quot;]</span>
+                    <span class="k">if</span> <span class="n">weight_set_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">weight</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">station_weights</span><span class="p">[</span><span class="n">receiver</span><span class="p">][</span><span class="s2">&quot;station_weight&quot;</span><span class="p">]</span>
+                            <span class="o">*</span> <span class="n">event_weight</span>
+                        <span class="p">)</span>
+                        <span class="n">zne</span> <span class="o">*=</span> <span class="n">weight</span>
+                        <span class="n">computed_misfits</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span>
+                            <span class="n">receiver</span>
+                        <span class="p">]</span> <span class="o">*=</span> <span class="n">weight</span>
+
+                    <span class="n">source</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">zne</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+                        <span class="s2">&quot;time_step_in_s&quot;</span>
+                    <span class="p">]</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;sampling_rate_in_hertz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="mi">1</span> <span class="o">/</span> <span class="n">source</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># source.attrs[&#39;location&#39;] = np.array(</span>
+                    <span class="c1">#    [receivers[receiver][&quot;s&quot;]])</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;spatial-type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="s2">&quot;vector&quot;</span><span class="p">)</span>
+                    <span class="c1"># Start time in nanoseconds</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span>
+                        <span class="s2">&quot;start_time_in_seconds&quot;</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span>
+                        <span class="s2">&quot;start_time_in_s&quot;</span>
+                    <span class="p">]</span>
+
+                    <span class="c1"># toml_string += f&quot;[[source]]\n&quot; \</span>
+                    <span class="c1">#               f&quot;name = \&quot;{station}\&quot;\n&quot; \</span>
+                    <span class="c1">#               f&quot;dataset_name = \&quot;/{station}\&quot;\n\n&quot;</span>
+        <span class="k">if</span> <span class="n">weight_set_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">computed_misfits</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;event_misfit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">computed_misfits</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_misfit_file</span><span class="p">(</span><span class="n">iteration</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">computed_misfits</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_return_value</span><span class="p">(</span><span class="n">adsrc</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adsrc</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">adsrc</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="p">[</span>
+            <span class="s2">&quot;adjoint_source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;misfit_value&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adsrc</span><span class="p">[</span><span class="s2">&quot;adjoint_source&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adsrc</span><span class="p">[</span><span class="s2">&quot;misfit_value&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adsrc</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

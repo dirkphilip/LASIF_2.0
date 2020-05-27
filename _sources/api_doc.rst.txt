@@ -3,27 +3,20 @@ API Documentation
 
 **Project wide exceptions and warnings.**
 
-.. autoclass:: lasif.LASIFError
+.. autoclass:: lasif.exceptions.LASIFError
 
-.. autoclass:: lasif.LASIFNotFoundError
+.. autoclass:: lasif.exceptions.LASIFNotFoundError
 
-.. autoclass:: lasif.LASIFWarning
+.. autoclass:: lasif.exceptions.LASIFWarning
 
 
 
 **Contents:**
 
+.. automodule:: lasif.api
+    :members:
+
 .. toctree::
     :maxdepth: 2
 
-    iris2quakeml
     rotations
-    window_selection
-    tools
-    tools.parallel
-
-
-.. toctree::
-    :hidden:
-
-    how_lasif_finds_coordinates

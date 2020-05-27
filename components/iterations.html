@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Iterations Component &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Query Component" href="query.html" />
+    <link rel="prev" title="Events Component" href="events.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="project.html">Project Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adjoint_sources.html">Adjoint Sources Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="downloads.html">Downloads Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events Component</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Iterations Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query.html">Query Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator.html">Validator Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Visualizations Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="waveforms.html">Waveforms Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="weights.html">Weights Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="windows.html">Windows Component</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../components.html">Components</a> &raquo;</li>
+        
+      <li>Iterations Component</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/iterations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="iterations-component">
+<h1>Iterations Component<a class="headerlink" href="#iterations-component" title="Permalink to this headline">¶</a></h1>
+<p>LASIF projects are organized into iterations and this component deals
+with creating, modifying or deleting iterations. Any information regarding
+the iterations, can be accessed via this component.</p>
+<p><strong>Contents:</strong></p>
+<span class="target" id="module-lasif.components.iterations"></span><dl class="py class">
+<dt id="lasif.components.iterations.IterationsComponent">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.components.iterations.</code><code class="sig-name descname">IterationsComponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">communicator</span></em>, <em class="sig-param"><span class="n">component_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component dealing with the iterations of the project. Mostly an
+organizational component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>communicator</strong> – The communicator instance.</p></li>
+<li><p><strong>component_name</strong> – The name of this component for the communicator.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.get_long_iteration_name">
+<code class="sig-name descname">get_long_iteration_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.get_long_iteration_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.get_long_iteration_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the long form of an iteration from its short or long name.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+<span class="go">&#39;ITERATION_1&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.has_iteration">
+<code class="sig-name descname">has_iteration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.has_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.has_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for existance of an iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.list">
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all the iterations known to LASIF.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.setup_directories_for_iteration">
+<code class="sig-name descname">setup_directories_for_iteration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">remove_dirs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">event_specific</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.setup_directories_for_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.setup_directories_for_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up the directory structure required for the iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The iteration for which to create the folders.</p></li>
+<li><p><strong>events</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – which events are in the iteration</p></li>
+<li><p><strong>remove_dirs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Boolean if set to True the iteration is removed,
+defaults to False</p></li>
+<li><p><strong>event_specific</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Will create specific folder for each model if
+inversion uses event specific meshes, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.setup_events_toml">
+<code class="sig-name descname">setup_events_toml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.setup_events_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.setup_events_toml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes all events into a toml file. User can modify this if he wishes
+to use less events for this specific iteration. Lasif should be smart
+enough to know which events were used in which iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
+<li><p><strong>events</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – List of events to include</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.setup_iteration_toml">
+<code class="sig-name descname">setup_iteration_toml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.setup_iteration_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.setup_iteration_toml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up a toml file which can be used to keep track of needed
+information related to the iteration. It can be used to specify which
+events to use and it can remember which input parameters were used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The iteration for which to create the folders.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.components.iterations.IterationsComponent.write_info_toml">
+<code class="sig-name descname">write_info_toml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">simulation_type</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.write_info_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.write_info_toml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a toml file to store information related to how the important
+config settings were when input files were generated. This will
+create a new file when forward input files are generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The iteration for which to write into toml</p></li>
+<li><p><strong>simulation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The type of simulation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="query.html" class="btn btn-neutral float-right" title="Query Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="events.html" class="btn btn-neutral float-left" title="Events Component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

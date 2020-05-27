@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.project &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.components.project</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.components.project</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Project components class.</span>
+
+<span class="sd">It is important to not import necessary things at the method level to make</span>
+<span class="sd">importing this file as fast as possible. Otherwise using the command line</span>
+<span class="sd">interface feels sluggish and slow. Import things only the functions they are</span>
+<span class="sd">needed.</span>
+
+<span class="sd">:copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013</span>
+<span class="sd">    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2020</span>
+<span class="sd">    Dirk-Philip van Herwaarden (dirkphilip.vanherwaarden@erdw.ethz.ch), 2020</span>
+
+<span class="sd">:license: GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">importlib.machinery</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+
+<span class="kn">import</span> <span class="nn">lasif.domain</span>
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFError</span><span class="p">,</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFWarning</span>
+<span class="kn">from</span> <span class="nn">.adjoint_sources</span> <span class="kn">import</span> <span class="n">AdjointSourcesComponent</span>
+<span class="kn">from</span> <span class="nn">.communicator</span> <span class="kn">import</span> <span class="n">Communicator</span>
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">.downloads</span> <span class="kn">import</span> <span class="n">DownloadsComponent</span>
+<span class="kn">from</span> <span class="nn">.events</span> <span class="kn">import</span> <span class="n">EventsComponent</span>
+<span class="kn">from</span> <span class="nn">.iterations</span> <span class="kn">import</span> <span class="n">IterationsComponent</span>
+<span class="kn">from</span> <span class="nn">.query</span> <span class="kn">import</span> <span class="n">QueryComponent</span>
+<span class="kn">from</span> <span class="nn">.validator</span> <span class="kn">import</span> <span class="n">ValidatorComponent</span>
+<span class="kn">from</span> <span class="nn">.visualizations</span> <span class="kn">import</span> <span class="n">VisualizationsComponent</span>
+<span class="kn">from</span> <span class="nn">.waveforms</span> <span class="kn">import</span> <span class="n">WaveformsComponent</span>
+<span class="kn">from</span> <span class="nn">.weights</span> <span class="kn">import</span> <span class="n">WeightsComponent</span>
+<span class="kn">from</span> <span class="nn">.windows</span> <span class="kn">import</span> <span class="n">WindowsComponent</span>
+
+
+<div class="viewcode-block" id="Project"><a class="viewcode-back" href="../../../components/project.html#lasif.components.project.Project">[docs]</a><span class="k">class</span> <span class="nc">Project</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class managing LASIF projects.</span>
+
+<span class="sd">    It represents the heart of LASIF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">project_root_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">init_project</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Upon intialization, set the paths and read the config file.</span>
+
+<span class="sd">        :param project_root_path: The root path of the project.</span>
+<span class="sd">        :type project_root_path: pathlib.Path</span>
+<span class="sd">        :param init_project: Determines whether or not to initialize a new</span>
+<span class="sd">            project, e.g. create the necessary folder structure. If a string is</span>
+<span class="sd">            passed, the project will be given this name. Otherwise a default</span>
+<span class="sd">            name will be chosen. Defaults to False.</span>
+<span class="sd">        :type init_project: bool, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup the paths.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__setup_paths</span><span class="p">(</span><span class="n">project_root_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">init_project</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">project_root_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">project_root_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init_new_project</span><span class="p">(</span><span class="n">init_project</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Could not find the project&#39;s config file. Wrong project &quot;</span>
+                <span class="s2">&quot;path or uninitialized project?&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Setup the communicator and register this component.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__comm</span> <span class="o">=</span> <span class="n">Communicator</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Project</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__comm</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__setup_components</span><span class="p">()</span>
+
+        <span class="c1"># Finally update the folder structure.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_folder_structure</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_config_file</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_config_file</span><span class="p">()</span>
+
+        <span class="c1"># Functions will be cached here.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__project_function_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__copy_fct_templates</span><span class="p">(</span><span class="n">init_project</span><span class="o">=</span><span class="n">init_project</span><span class="p">)</span>
+
+        <span class="c1"># Write a default window set file</span>
+        <span class="k">if</span> <span class="n">init_project</span><span class="p">:</span>
+            <span class="n">default_window_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">],</span> <span class="s2">&quot;A.sqlite&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">default_window_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty string representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Count all files and sizes.</span>
+        <span class="n">ret_str</span> <span class="o">=</span> <span class="s1">&#39;LASIF project &quot;</span><span class="si">%s</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;project_name&quot;</span><span class="p">]</span>
+        <span class="n">ret_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Description: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="n">ret_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Project root: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+        <span class="n">ret_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Content:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">ret_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t\t</span><span class="si">%i</span><span class="s2"> events</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">ret_str</span>
+
+    <span class="k">def</span> <span class="nf">__copy_fct_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_project</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copies the function templates to the project folder if they do not</span>
+<span class="sd">        yet exist.</span>
+
+<span class="sd">        :param init_project: Flag if this is called during the project</span>
+<span class="sd">            initialization or not. If not called during project initialization</span>
+<span class="sd">            this function will raise a warning to make users aware of the</span>
+<span class="sd">            changes in LASIF.</span>
+<span class="sd">        :type init_project: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;function_templates&quot;</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">directory</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.py&quot;</span><span class="p">):</span>
+            <span class="n">new_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">new_filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">init_project</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Function template &#39;</span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; did not exist. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;It does now. Did you update a later LASIF version? &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Please make sure you are aware of the changes.&quot;</span><span class="p">,</span>
+                        <span class="n">LASIFWarning</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="kn">import</span> <span class="nn">shutil</span>
+
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="n">new_filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the config file. The config file is a toml file in the root</span>
+<span class="sd">        directory which reads directly into a dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">toml</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">config_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;lasif_project&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;simulation_settings&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="nb">round</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;end_time_in_s&quot;</span><span class="p">]</span>
+                    <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;start_time_in_s&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;time_step_in_s&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;solver_used&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;salvus&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">lasif</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">HDF5Domain</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;domain_settings&quot;</span><span class="p">][</span><span class="s2">&quot;domain_file&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;domain_settings&quot;</span><span class="p">][</span><span class="s2">&quot;boundary_in_km&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">lasif</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">SimpleDomain</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lasif_config</span><span class="p">[</span><span class="s2">&quot;domain_settings&quot;</span><span class="p">][</span><span class="s2">&quot;simple_domain&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;optimization_settings&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Source-stacking configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacking_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;stacking&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">salvus_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;salvus_settings&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_validate_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check to make sure the inputs into the project are compatible</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_settings</span><span class="p">[</span><span class="s2">&quot;source_time_function&quot;</span><span class="p">]</span>
+        <span class="n">misfit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_settings</span><span class="p">[</span><span class="s2">&quot;misfit_type&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">stf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;heaviside&quot;</span><span class="p">,</span> <span class="s2">&quot;bandpass_filtered_heaviside&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="se">\n\n</span><span class="s2">Source time function </span><span class="si">{</span><span class="n">stf</span><span class="si">}</span><span class="s2"> is not &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;supported by Lasif. </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;The only supported STF</span><span class="se">\&#39;</span><span class="s1">s are &quot;heaviside&quot; &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;and &quot;bandpass_filtered_heaviside&quot;. </span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;Please modify your config file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">misfit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;tf_phase_misfit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cc_traveltime_misfit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cc_traveltime_misfit_Korta2018&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;weighted_waveform_misfit&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Misfit type </span><span class="si">{</span><span class="n">misfit</span><span class="si">}</span><span class="s2"> is not supported &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;by LASIF. </span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Currently the only supported misfit type&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; is:</span><span class="se">\n</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;tf_phase_misfit&quot; ,&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &quot;cc_traveltime_misfit&quot;, &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &quot;waveform_misfit&quot; and &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &quot;cc_traveltime_misfit_Korta2018&quot;.&#39;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_communicator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__comm</span>
+
+    <span class="k">def</span> <span class="nf">__setup_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the different components of the project. The goal is to</span>
+<span class="sd">        decouple them as much as possible to keep the structure sane and</span>
+<span class="sd">        maintainable.</span>
+
+<span class="sd">        Communication will happen through the communicator which will also</span>
+<span class="sd">        keep the references to the single components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic components.</span>
+        <span class="n">EventsComponent</span><span class="p">(</span>
+            <span class="n">folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_data&quot;</span><span class="p">],</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;events&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">WaveformsComponent</span><span class="p">(</span>
+            <span class="n">data_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_data&quot;</span><span class="p">],</span>
+            <span class="n">preproc_data_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;preproc_eq_data&quot;</span><span class="p">],</span>
+            <span class="n">synthetics_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_synthetics&quot;</span><span class="p">],</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;waveforms&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">WeightsComponent</span><span class="p">(</span>
+            <span class="n">weights_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">],</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;weights&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">IterationsComponent</span><span class="p">(</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;iterations&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Action and query components.</span>
+        <span class="n">QueryComponent</span><span class="p">(</span><span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">)</span>
+        <span class="n">VisualizationsComponent</span><span class="p">(</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;visualizations&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ValidatorComponent</span><span class="p">(</span><span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;validator&quot;</span><span class="p">)</span>
+        <span class="n">AdjointSourcesComponent</span><span class="p">(</span>
+            <span class="n">folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;adjoint_sources&quot;</span><span class="p">],</span>
+            <span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;adj_sources&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">WindowsComponent</span><span class="p">(</span><span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;windows&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Data downloading component.</span>
+        <span class="n">DownloadsComponent</span><span class="p">(</span><span class="n">communicator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="p">,</span> <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;downloads&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setup_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Central place to define all paths.</span>
+
+<span class="sd">        :param root_path: The path to the projects root directory</span>
+<span class="sd">        :type root_path: pathlib.Path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Every key containing the string &quot;file&quot; denotes a file, all others</span>
+        <span class="c1"># should denote directories.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span>
+
+        <span class="c1"># Data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;DATA&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;corr_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;DATA&quot;</span> <span class="o">/</span> <span class="s2">&quot;CORRELATIONS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;DATA&quot;</span> <span class="o">/</span> <span class="s2">&quot;EARTHQUAKES&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;synthetics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SYNTHETICS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;corr_synthetics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SYNTHETICS&quot;</span> <span class="o">/</span> <span class="s2">&quot;CORRELATIONS&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;eq_synthetics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SYNTHETICS&quot;</span> <span class="o">/</span> <span class="s2">&quot;EARTHQUAKES&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;preproc_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;PROCESSED_DATA&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;preproc_eq_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;PROCESSED_DATA&quot;</span> <span class="o">/</span> <span class="s2">&quot;EARTHQUAKES&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;preproc_corr_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;PROCESSED_DATA&quot;</span> <span class="o">/</span> <span class="s2">&quot;CORRELATIONS&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SETS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;windows&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SETS&quot;</span> <span class="o">/</span> <span class="s2">&quot;WINDOWS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SETS&quot;</span> <span class="o">/</span> <span class="s2">&quot;WEIGHTS&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;adjoint_sources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;ADJOINT_SOURCES&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;OUTPUT&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;OUTPUT&quot;</span> <span class="o">/</span> <span class="s2">&quot;LOGS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;salvus_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;SALVUS_FILES&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;MODELS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;gradients&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;GRADIENTS&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;ITERATIONS&quot;</span>
+        <span class="c1"># Path for the custom functions.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;FUNCTIONS&quot;</span>
+
+        <span class="c1"># Paths for various files.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">/</span> <span class="s2">&quot;lasif_config.toml&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__update_folder_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the folder structure of the project.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init_new_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a new project. This currently just means that it creates a</span>
+<span class="sd">        default config file. The folder structure is checked and rebuilt every</span>
+<span class="sd">        time the project is initialized anyways.</span>
+
+<span class="sd">        :param project_name: Name of the project</span>
+<span class="sd">        :type project_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">project_name</span><span class="p">:</span>
+            <span class="n">project_name</span> <span class="o">=</span> <span class="s2">&quot;LASIFProject&quot;</span>
+
+        <span class="n">directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
+        <span class="n">domain_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">),</span> <span class="s2">&quot;mesh.h5&quot;</span><span class="p">)</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Here you specify your domain with an hdf5 mesh and &quot;</span>
+                <span class="s2">&quot;how thick of a boundary you need regarding data downloading &quot;</span>
+                <span class="s2">&quot;(i.e. What is the minimum distance from the boundary which &quot;</span>
+                <span class="s2">&quot;data can be downloded).</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;domain_file&quot;</span><span class="p">:</span> <span class="n">domain_file</span><span class="p">,</span>
+            <span class="s2">&quot;boundary_in_km&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>
+            <span class="s2">&quot;simple_domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;The domain file only works for Salvus meshes. If you &quot;</span>
+                    <span class="s2">&quot;wish to use another solver you can use a simple domain &quot;</span>
+                    <span class="s2">&quot;where your only inputs are max/min lat/lon and depth.&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;max_lat&quot;</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
+                <span class="s2">&quot;min_lat&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+                <span class="s2">&quot;max_lon&quot;</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
+                <span class="s2">&quot;min_lon&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+                <span class="s2">&quot;depth_in_km&quot;</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+        <span class="n">download</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Time period to download, minimum interstation distance &quot;</span>
+                <span class="s2">&quot;and channel priorities. If networks is &#39;None&#39;, all networks &quot;</span>
+                <span class="s2">&quot;will be downloaded.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;seconds_before_event&quot;</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>
+            <span class="s2">&quot;seconds_after_event&quot;</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">,</span>
+            <span class="s2">&quot;interstation_distance_in_m&quot;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span>
+            <span class="s2">&quot;channel_priorities&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;BH?&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;LH[Z,N,E]&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;HH[Z,N,E]&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;EH[Z,N,E]&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MH[Z,N,E]&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;location_priorities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;00&quot;</span><span class="p">,</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;20&quot;</span><span class="p">,</span> <span class="s2">&quot;01&quot;</span><span class="p">,</span> <span class="s2">&quot;02&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;networks&quot;</span><span class="p">:</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">lasif_project</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;project_name&quot;</span><span class="p">:</span> <span class="n">project_name</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;solver_used&quot;</span><span class="p">:</span> <span class="s2">&quot;Salvus&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;domain_settings&quot;</span><span class="p">:</span> <span class="n">domain</span><span class="p">,</span>
+            <span class="s2">&quot;download_settings&quot;</span><span class="p">:</span> <span class="n">download</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">stacking</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;This is only used if you plan to do source stacking&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;use_stacking&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;use_only_intersection&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">simulation_settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This section controls both the way your data are processed &quot;</span>
+                <span class="s2">&quot;and the input files to your numerical solver &quot;</span>
+                <span class="s2">&quot;(i.e. how the source time function is processed). &quot;</span>
+                <span class="s2">&quot;We currently only support bandpass_filtered_heaviside as &quot;</span>
+                <span class="s2">&quot;a source time function.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;minimum_period_in_s&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
+            <span class="s2">&quot;maximum_period_in_s&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>
+            <span class="s2">&quot;time_step_in_s&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;end_time_in_s&quot;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span>
+            <span class="s2">&quot;start_time_in_s&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;source_time_function&quot;</span><span class="p">:</span> <span class="s2">&quot;bandpass_filtered_heaviside&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scale_data_to_synthetics&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">salvus_settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;You only need this if you plan to use Salvus as a &quot;</span>
+                <span class="s2">&quot;numerical solver. LASIF should be general enough to &quot;</span>
+                <span class="s2">&quot;work with other solvers too. &quot;</span>
+                <span class="s2">&quot;Parameterization is only works for tti and rho-vp-vs.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;attenuation&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;gradient_parameterization&quot;</span><span class="p">:</span> <span class="s2">&quot;tti&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;absorbing_boundaries_in_km&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>
+            <span class="s2">&quot;site_name&quot;</span><span class="p">:</span> <span class="s2">&quot;daint&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ranks&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+            <span class="s2">&quot;wall_time_in_s&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+            <span class="s2">&quot;ocean_loading&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">optimization_settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Supported misfits are: tf_phase_misfit, &quot;</span>
+                <span class="s2">&quot;cc_traveltime_misfit, &quot;</span>
+                <span class="s2">&quot;waveform_misfit&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;misfit_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tf_phase_misfit&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;lasif_project&quot;</span><span class="p">:</span> <span class="n">lasif_project</span><span class="p">,</span>
+            <span class="s2">&quot;stacking&quot;</span><span class="p">:</span> <span class="n">stacking</span><span class="p">,</span>
+            <span class="s2">&quot;simulation_settings&quot;</span><span class="p">:</span> <span class="n">simulation_settings</span><span class="p">,</span>
+            <span class="s2">&quot;salvus_settings&quot;</span><span class="p">:</span> <span class="n">salvus_settings</span><span class="p">,</span>
+            <span class="s2">&quot;optimization_settings&quot;</span><span class="p">:</span> <span class="n">optimization_settings</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;config_file&quot;</span><span class="p">],</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Project.get_project_function"><a class="viewcode-back" href="../../../components/project.html#lasif.components.project.Project.get_project_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_project_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fct_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper importing the project specific function.</span>
+
+<span class="sd">        :param fct_type: The desired function.</span>
+<span class="sd">        :type fct_type: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Cache to avoid repeated imports.</span>
+        <span class="k">if</span> <span class="n">fct_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__project_function_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__project_function_cache</span><span class="p">[</span><span class="n">fct_type</span><span class="p">]</span>
+
+        <span class="c1"># type / filename map</span>
+        <span class="n">fct_type_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;window_picking_function&quot;</span><span class="p">:</span> <span class="s2">&quot;window_picking_function.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;processing_function&quot;</span><span class="p">:</span> <span class="s2">&quot;process_data.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;preprocessing_function_asdf&quot;</span><span class="p">:</span> <span class="s2">&quot;preprocessing_function_asdf.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;process_synthetics&quot;</span><span class="p">:</span> <span class="s2">&quot;process_synthetics.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source_time_function&quot;</span><span class="p">:</span> <span class="s2">&quot;source_time_function.py&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;light_preprocessing_function&quot;</span><span class="p">:</span> <span class="s2">&quot;light_preprocessing.py&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">fct_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fct_type</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Function &#39;</span><span class="si">%s</span><span class="s2">&#39; not found. Available types: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">fct_type</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fct_type_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">],</span> <span class="n">fct_type_map</span><span class="p">[</span><span class="n">fct_type</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No file &#39;</span><span class="si">%s</span><span class="s2">&#39; in existence.&quot;</span> <span class="o">%</span> <span class="n">filename</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">fct_template</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SourceFileLoader</span><span class="p">(</span>
+            <span class="s2">&quot;_lasif_fct_template&quot;</span><span class="p">,</span> <span class="n">filename</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s2">&quot;_lasif_fct_template&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fct</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">fct_template</span><span class="p">,</span> <span class="n">fct_type</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Could not find function </span><span class="si">%s</span><span class="s2"> in file &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">fct_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">fct</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                <span class="s2">&quot;Attribute </span><span class="si">%s</span><span class="s2"> in file &#39;</span><span class="si">%s</span><span class="s2">&#39; is not a function.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">fct_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Add to cache.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__project_function_cache</span><span class="p">[</span><span class="n">fct_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">fct</span>
+        <span class="k">return</span> <span class="n">fct</span></div>
+
+<div class="viewcode-block" id="Project.get_output_folder"><a class="viewcode-back" href="../../../components/project.html#lasif.components.project.Project.get_output_folder">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a output folder in a unified way.</span>
+
+<span class="sd">        :param type: The type of data. Will be a subfolder.</span>
+<span class="sd">        :param tag: The tag of the folder. Will be postfix of the final folder.</span>
+<span class="sd">        :param timestamp: Add timestamp to folder name to ensure</span>
+<span class="sd">            uniqueness. Defaults to True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+
+        <span class="k">if</span> <span class="n">timestamp</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">UTCDateTime</span><span class="p">())</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">folder_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">__</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">folder_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tag</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">],</span> <span class="nb">type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">folder_name</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_dir</span></div>
+
+<div class="viewcode-block" id="Project.get_log_file"><a class="viewcode-back" href="../../../components/project.html#lasif.components.project.Project.get_log_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_log_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_type</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the name of a log file. It will create all necessary</span>
+<span class="sd">        directories along the way but not the log file itsself.</span>
+
+<span class="sd">        :param log_type: The type of logging. Will result in a subfolder.</span>
+<span class="sd">            Examples for this are ``&quot;PROCESSING&quot;``, ``&quot;DOWNLOADS&quot;``, ...</span>
+<span class="sd">        :param description: Short description of what is being downloaded.</span>
+<span class="sd">            Will be used to derive the name of the logfile.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+
+        <span class="n">log_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">],</span> <span class="n">log_type</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">___</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">UTCDateTime</span><span class="p">()),</span> <span class="n">description</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extsep</span> <span class="o">+</span> <span class="s2">&quot;log&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_dir</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
