@@ -13,22 +13,10 @@ before_install:
 - conda config --add channels conda-forge
 - conda env create -f environment.yml
 - source activate lasif
-- cd ..
-- git clone https://github.com/SalvusHub/pyexodus.git
-- cd pyexodus
-- pip install .
-- cd ..
-- git clone https://github.com/SeismicData/pyasdf.git
-- cd pyasdf
-- pip install .
-- cd ..
-- git clone https://gitlab.com/Salvus/salvus_seismo
-- cd salvus_seismo/py
-- pip install .
 install:
 - cd $TRAVIS_BUILD_DIR; pip install .
 script:
-- cd $TRAVIS_BUILD_DIR; py.test
+- cd $TRAVIS_BUILD_DIR; pytest
 - cd $TRAVIS_BUILD_DIR/doc; make html
 after_failure:
 - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"

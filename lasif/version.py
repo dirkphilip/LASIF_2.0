@@ -69,7 +69,7 @@ def call_git_describe(abbrev=4):  # pragma: no cover
             [
                 "git",
                 "describe",
-                "--dirty",
+                # "--dirty",
                 "--abbrev=%d" % abbrev,
                 "--always",
                 "--tags",
@@ -80,11 +80,11 @@ def call_git_describe(abbrev=4):  # pragma: no cover
         )
 
         p.stderr.close()
-        line = p.stdout.readline().decode()
+        line = p.stdout.readline().decode() - "/n" + "0" + "/n"
         p.stdout.close()
 
         if "-" not in line and "." not in line:
-            line = "0.0.0-g%s" % line
+            line = "0.0.1-g%s" % line
         return line.strip()
     except:
         return None

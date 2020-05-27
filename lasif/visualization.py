@@ -102,7 +102,7 @@ def plot_events(
             zorder=22,
             marker="*",
             c="yellow",
-            transform=cp.crs.Geodetic(),
+            transform=cp.crs.PlateCarree(),
             s=180,
             edgecolors="black",
         )
@@ -399,7 +399,7 @@ def plot_stations_for_event(
             marker="v",
             alpha=alpha,
             zorder=5,
-            transform=cp.crs.Geodetic(),
+            transform=cp.crs.PlateCarree(),
         )
         cbar = plt.colorbar(stations)
         cbar.ax.set_ylabel("Station Weights", rotation=-90)
@@ -417,7 +417,7 @@ def plot_stations_for_event(
             marker="v",
             alpha=alpha,
             zorder=5,
-            transform=cp.crs.Geodetic(),
+            transform=cp.crs.PlateCarree,
         )
         # from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -437,7 +437,7 @@ def plot_stations_for_event(
             marker="v",
             alpha=alpha,
             zorder=5,
-            transform=cp.crs.Geodetic(),
+            transform=cp.crs.PlateCarree(),
         )
         # Setting the picker overwrites the edgecolor attribute on certain
         # matplotlib and basemap versions. Fix it here.
@@ -452,7 +452,7 @@ def plot_stations_for_event(
                 [event_info["latitude"], sta_lat],
                 lw=2,
                 alpha=0.3,
-                transform=cp.crs.Geodetic(),
+                transform=cp.crs.PlateCarree(),
             )
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"],
@@ -503,7 +503,7 @@ def plot_all_stations(map_object, event_stations: List[Tuple[dict, dict]]):
         alpha=0.6,
         zorder=12,
         marker="v",
-        transform=cp.crs.Geodetic(),
+        transform=cp.crs.PlateCarree(),
     )
     plt.tight_layout()
 

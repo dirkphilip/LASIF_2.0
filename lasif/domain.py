@@ -675,7 +675,7 @@ class SimpleDomain:
         _plot_lines(
             m,
             boundary,
-            transform=transform,
+            transform=cp.crs.PlateCarree(),
             color="red",
             lw=2,
             label="Domain Edge",
