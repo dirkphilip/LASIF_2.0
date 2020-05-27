@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 An api to communicate directly with lasif functions without using the
-command line interface.
+command line interface. Ideal for scripting.
 
 :copyright:
     Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2018
