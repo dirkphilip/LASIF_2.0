@@ -322,7 +322,7 @@ def plot_all_rays(map_object, station_events: List[Tuple[dict, dict]]):
                 [event["longitude"], station["longitude"]],
                 [event["latitude"], station["latitude"]],
                 c=c[i],
-                transform=cp.crs.Geodetic(),
+                transform=cp.crs.PlateCarree(),
                 alpha=0.8,
                 linewidth=0.4,
                 zorder=19,
@@ -417,7 +417,7 @@ def plot_stations_for_event(
             marker="v",
             alpha=alpha,
             zorder=5,
-            transform=cp.crs.PlateCarree,
+            transform=cp.crs.PlateCarree(),
         )
         # from mpl_toolkits.axes_grid1 import make_axes_locatable
 

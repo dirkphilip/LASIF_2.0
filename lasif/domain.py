@@ -334,15 +334,6 @@ class HDF5Domain:
                 m = plt.axes(projection=projection)
             else:
                 m = ax
-            m.set_extent(
-                [
-                    self.min_lon - 3.0,
-                    self.max_lon + 3.0,
-                    self.min_lat - 3.0,
-                    self.max_lat + 3.0,
-                ],
-                crs=transform,
-            )
 
         else:
             projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
