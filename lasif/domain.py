@@ -15,8 +15,6 @@ coordinates.
 import pathlib
 from typing import Union, Dict
 import cartopy as cp
-import matplotlib
-
 
 import numpy as np
 import h5py
@@ -24,6 +22,8 @@ from scipy.spatial import cKDTree
 
 from lasif.exceptions import LASIFNotFoundError, LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
+from lasif.utils import normalize_coordinates
+import lasif.spherical_geometry
 
 
 class HDF5Domain:
@@ -178,6 +178,8 @@ class HDF5Domain:
         self.min_lon = np.min(lons)
         self.max_lon = np.max(lons)
 
+        # Find point outside the domain:
+        outside_point = self.find_outside_point()
         # Get coords for the bottom edge of mesh
         x, y, z = self.bottom_edge_coords.T
         x, y, z = x[0], y[0], z[0]
@@ -195,8 +197,14 @@ class HDF5Domain:
         sorted_indices = self.get_sorted_edge_coords()
         x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
         lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
+
+        x, y, z = normalize_coordinates(x[0], y[0], z[0])
+        points = np.array((x, y, z)).T
+
         self.boundary = np.array([lats, lons]).T
-        self.edge_polygon = matplotlib.path.Path(self.boundary)
+        self.edge_polygon = lasif.spherical_geometry.SphericalPolygon(
+            points, outside_point
+        )
         # Close file
         self.m.close()
 
@@ -221,20 +229,56 @@ class HDF5Domain:
             self._read()
         return self.side_set_names
 
+    def find_outside_point(self) -> tuple:
+        """
+        Find a point which is not inside the domain
+
+        :return: Points in normalized x, y, z coordinates
+        :rtype: tuple
+        """
+        found_latitude = False
+        found_longitude = False
+        if self.max_lat < 80.0:
+            outside_lat = self.max_lat + 8.0
+            found_latitude = True
+        elif self.min_lat > -80.0:
+            outside_lat = self.min_lat - 8.0
+            found_latitude = True
+        if self.max_lon < 170.0:
+            outside_lon = self.max_lon + 8.0
+            found_longitude = True
+        elif self.min_lon > -170.0:
+            outside_lon = self.min_lon - 8.0
+            found_longitude = True
+
+        if found_latitude and not found_longitude:
+            # We can assign a random longitude as it is outside the latitudes
+            outside_lon = 0.0
+            found_longitude = True
+        elif found_longitude and not found_latitude:
+            # We can assign a random latitude as it is outside the longitudes
+            outside_lat = 0.0
+            found_latitude = True
+        if not found_latitude and not found_longitude:
+            # I might want to give the option of providing a point
+            raise LASIFError("Could not find an outside point")
+        return lat_lon_radius_to_xyz(outside_lat, outside_lon, 1.0)
+
     def point_in_domain(
         self, longitude: float, latitude: float, depth: float = None
     ):
         """
         Test whether a point lies inside the domain. It is done in a step
         by step process of elimination:
-            * First one checks depth and sees whether the point is too deep
-              and falls into the absorbing boundaries at depth.
-            * Second is a box check seeing whether point falls outside
-              of minimum and maximum latitude.
-            * Third one uses the edge polygon to see whether point is inside
-              it or not.
-            * Last one checks whether the point is too close to the edge
-              meaning that it would fall into the absorbing boundaries.
+
+        - First one checks depth and sees whether the point is too deep
+          and falls into the absorbing boundaries at depth.
+        - Second is a box check seeing whether point falls outside
+          of minimum and maximum latitude.
+        - Third one uses the edge polygon to see whether point is inside
+          it or not.
+        - Last one checks whether the point is too close to the edge
+          meaning that it would fall into the absorbing boundaries.
 
         :param longitude: longitude in degrees
         :type longitude: float
@@ -273,7 +317,9 @@ class HDF5Domain:
             return False
 
         # Third elimination:
-        if not self.edge_polygon.contains_point((latitude, longitude)):
+        point = lat_lon_radius_to_xyz(latitude, longitude, 1.0)
+
+        if not self.edge_polygon.contains_point(point):
             return False
 
         # Fourth elimination
@@ -293,7 +339,7 @@ class HDF5Domain:
         :param ax: matplotlib axes, defaults to None
         :type ax: matplotlib.axes.Axes, optional
         :param plot_inner_boundary: plot the convex hull of the mesh
-        surface nodes that lie inside the domain. Defaults to False
+            surface nodes that lie inside the domain. Defaults to False
         :type plot_inner_boundary: bool, optional
         :return: The created GeoAxes instance.
         """
@@ -594,7 +640,7 @@ class SimpleDomain:
         :param ax: matplotlib axes, defaults to None
         :type ax: matplotlib.axes.Axes, optional
         :param plot_inner_boundary: plot the convex hull of the mesh
-        surface nodes that lie inside the domain. Defaults to False
+            surface nodes that lie inside the domain. Defaults to False
         :type plot_inner_boundary: bool, optional
         :return: The created GeoAxes instance.
         """
@@ -652,15 +698,7 @@ class SimpleDomain:
                 m = plt.axes(projection=projection,)
             else:
                 m = ax
-            m.set_extent(
-                [
-                    self.min_lon - 3.0,
-                    self.max_lon + 3.0,
-                    self.min_lat - 3.0,
-                    self.max_lat + 3.0,
-                ],
-                crs=transform,
-            )
+
         boundary = self.get_sorted_corner_coords()
 
         _plot_lines(
@@ -676,12 +714,12 @@ class SimpleDomain:
 
         return m, projection
 
-    def get_sorted_corner_coords(self) -> np.array:
+    def get_sorted_corner_coords(self) -> np.ndarray:
         """
         Return an array which can be used to plot the edges of the domain
 
         :return: Properly ordered corner coordinates for plotting
-        :rtype: numpy.array
+        :rtype: numpy.ndarray
         """
         return np.array(
             [

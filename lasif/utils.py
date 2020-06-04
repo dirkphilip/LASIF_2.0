@@ -476,6 +476,29 @@ def process_two_files_without_parallel_output(
     return results
 
 
+def normalize_coordinates(
+    x: Union[float, np.array],
+    y: Union[float, np.array],
+    z: Union[float, np.array],
+):
+    """
+    Take coordinates which are defined on some sphere to being defined on
+    the unit sphere
+
+    :param x: X coordinate
+    :type x: Union[float, np.array]
+    :param y: Y coordinate
+    :type y: Union[float, np.array]
+    :param z: Z coordinate
+    :type z: Union[float, np.array]
+    """
+    curr_rad = np.max(np.sqrt(np.square(x) + np.square(y) + np.square(z)))
+    x *= 1.0 / curr_rad
+    y *= 1.0 / curr_rad
+    z *= 1.0 / curr_rad
+    return x, y, z
+
+
 def elliptic_to_geocentric_latitude(
     lat: float, axis_a: float = 6378137.0, axis_b: float = 6356752.314245
 ) -> float:
