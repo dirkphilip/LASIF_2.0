@@ -20,3 +20,4 @@ API Documentation
     :maxdepth: 2
 
     rotations
+    domain

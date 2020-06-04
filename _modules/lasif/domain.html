@@ -1,0 +1,930 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.domain &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lasif.domain</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lasif.domain</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes handling the domain definition and associated functionality for LASIF.</span>
+<span class="sd">It can handle complex domains defined by HDF5 Salvus meshes. Otherwise it</span>
+<span class="sd">uses more simple domains which are just defined as min/max lat/lon</span>
+<span class="sd">coordinates.</span>
+
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Solvi Thrastarson, (soelvi.thrastarson@erdw.ethz.ch) 2019</span>
+
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span> <span class="nn">cartopy</span> <span class="k">as</span> <span class="nn">cp</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span>
+
+<span class="kn">from</span> <span class="nn">lasif.exceptions</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFError</span>
+<span class="kn">from</span> <span class="nn">lasif.rotations</span> <span class="kn">import</span> <span class="n">lat_lon_radius_to_xyz</span><span class="p">,</span> <span class="n">xyz_to_lat_lon_radius</span>
+<span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">normalize_coordinates</span>
+<span class="kn">import</span> <span class="nn">lasif.spherical_geometry</span>
+
+
+<div class="viewcode-block" id="HDF5Domain"><a class="viewcode-back" href="../../domain.html#lasif.domain.HDF5Domain">[docs]</a><span class="k">class</span> <span class="nc">HDF5Domain</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class which handles domains based on HDF5 Salvus meshes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mesh_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span>
+        <span class="n">absorbing_boundary_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mesh_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_boundary_length</span> <span class="o">=</span> <span class="n">absorbing_boundary_length</span> <span class="o">*</span> <span class="mf">1000.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_earth</span> <span class="o">=</span> <span class="mi">6371000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_tree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_tree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">approx_elem_width</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_coords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KDTrees_initialized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_lat</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_lon</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the HDF5 file and gathers basic information such as the</span>
+<span class="sd">        coordinates of the edge nodes. In the case of domain that spans</span>
+<span class="sd">        the entire earth, all points will lie inside the domain, therefore</span>
+<span class="sd">        further processing is not necessary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Could not open the project&#39;s mesh file. &quot;</span>
+                <span class="s2">&quot;Please ensure that the path specified &quot;</span>
+                <span class="s2">&quot;in config is correct.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># if less than 2 side sets, this must be a global mesh.  Return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;SIDE_SETS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span>
+            <span class="ow">and</span> <span class="s2">&quot;outer_boundary&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">=</span> <span class="o">-</span><span class="mf">90.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">=</span> <span class="mf">90.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">180.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">=</span> <span class="mf">180.0</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s2">&quot;a0&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">=</span> <span class="o">-</span><span class="mf">90.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">=</span> <span class="mf">90.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">180.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">=</span> <span class="mf">180.0</span>
+            <span class="k">return</span>
+
+        <span class="n">side_elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">earth_surface_elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">earth_bottom_elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">side_set</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">side_set</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">side_set</span> <span class="o">==</span> <span class="s2">&quot;r0&quot;</span><span class="p">:</span>
+                <span class="n">earth_bottom_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;SIDE_SETS&quot;</span><span class="p">][</span><span class="n">side_set</span><span class="p">][</span>
+                    <span class="s2">&quot;elements&quot;</span>
+                <span class="p">][()]</span>
+
+            <span class="k">elif</span> <span class="n">side_set</span> <span class="o">==</span> <span class="s2">&quot;r1&quot;</span><span class="p">:</span>
+                <span class="n">earth_surface_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;SIDE_SETS&quot;</span><span class="p">][</span><span class="n">side_set</span><span class="p">][</span>
+                    <span class="s2">&quot;elements&quot;</span>
+                <span class="p">][()]</span>
+            <span class="k">elif</span> <span class="n">side_set</span> <span class="o">==</span> <span class="s2">&quot;r1_ol&quot;</span><span class="p">:</span>
+                <span class="n">earth_surface_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;SIDE_SETS&quot;</span><span class="p">][</span><span class="n">side_set</span><span class="p">][</span>
+                    <span class="s2">&quot;elements&quot;</span>
+                <span class="p">][()]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">side_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;SIDE_SETS&quot;</span><span class="p">][</span><span class="n">side_set</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][()]</span>
+                <span class="p">)</span>
+
+        <span class="n">side_elements_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">side_elements</span><span class="p">)):</span>
+            <span class="n">side_elements_tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">side_elements_tmp</span><span class="p">,</span> <span class="n">side_elements</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Remove Duplicates</span>
+        <span class="n">side_elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">side_elements_tmp</span><span class="p">)</span>
+
+        <span class="c1"># Get node numbers of the nodes specifying the domain boundaries</span>
+        <span class="n">surface_boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span>
+            <span class="n">side_elements</span><span class="p">,</span> <span class="n">earth_surface_elements</span>
+        <span class="p">)</span>
+        <span class="n">bottom_boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span>
+            <span class="n">side_elements</span><span class="p">,</span> <span class="n">earth_bottom_elements</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get coordinates</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;MODEL/coordinates&quot;</span><span class="p">][()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">surface_boundaries</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">earth_surface_elements</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earth_bottom_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">earth_bottom_elements</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_edge_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">bottom_boundaries</span><span class="p">]</span>
+
+        <span class="c1"># Get approximation of element width, take second smallest value</span>
+
+        <span class="c1"># For now we will just take a random point on the surface and</span>
+        <span class="c1"># take the maximum distance between gll points and use that</span>
+        <span class="c1"># as the element with. It should be an overestimation</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="o">+</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="o">+</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">z</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">approx_elem_width</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="c1"># Get extent and center of domain</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># pick a random GLL point to represent the boundary</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">edge_lat</span><span class="p">,</span> <span class="n">edge_lon</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># get center lat/lon</span>
+        <span class="n">x_cen</span><span class="p">,</span> <span class="n">y_cen</span><span class="p">,</span> <span class="n">z_cen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_lon</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span>
+            <span class="n">x_cen</span><span class="p">,</span> <span class="n">y_cen</span><span class="p">,</span> <span class="n">z_cen</span>
+        <span class="p">)</span>
+
+        <span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>
+
+        <span class="c1"># Find point outside the domain:</span>
+        <span class="n">outside_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_outside_point</span><span class="p">()</span>
+        <span class="c1"># Get coords for the bottom edge of mesh</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_edge_coords</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Figure out maximum depth of mesh</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="n">min_r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_earth</span> <span class="o">-</span> <span class="n">min_r</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># In order to create the self.edge_polygon we need to make sure that</span>
+        <span class="c1"># the points on the boundary are arranged in a way that a proper</span>
+        <span class="c1"># polygon will be drawn.</span>
+        <span class="n">sorted_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sorted_edge_coords</span><span class="p">()</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sorted_indices</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">normalize_coordinates</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_polygon</span> <span class="o">=</span> <span class="n">lasif</span><span class="o">.</span><span class="n">spherical_geometry</span><span class="o">.</span><span class="n">SphericalPolygon</span><span class="p">(</span>
+            <span class="n">points</span><span class="p">,</span> <span class="n">outside_point</span>
+        <span class="p">)</span>
+        <span class="c1"># Close file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_kd_trees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        KDTrees are used to quickly access closest points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">()</span>
+
+        <span class="c1"># KDTrees not needed in the case of a global mesh</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># build KDTree that can be used for querying later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_tree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KDTrees_initialized</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">get_side_set_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_set_names</span>
+
+<div class="viewcode-block" id="HDF5Domain.find_outside_point"><a class="viewcode-back" href="../../domain.html#lasif.domain.HDF5Domain.find_outside_point">[docs]</a>    <span class="k">def</span> <span class="nf">find_outside_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find a point which is not inside the domain</span>
+
+<span class="sd">        :return: Points in normalized x, y, z coordinates</span>
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_latitude</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">found_longitude</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">&lt;</span> <span class="mf">80.0</span><span class="p">:</span>
+            <span class="n">outside_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">+</span> <span class="mf">8.0</span>
+            <span class="n">found_latitude</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">80.0</span><span class="p">:</span>
+            <span class="n">outside_lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">-</span> <span class="mf">8.0</span>
+            <span class="n">found_latitude</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">&lt;</span> <span class="mf">170.0</span><span class="p">:</span>
+            <span class="n">outside_lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">+</span> <span class="mf">8.0</span>
+            <span class="n">found_longitude</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mf">170.0</span><span class="p">:</span>
+            <span class="n">outside_lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">-</span> <span class="mf">8.0</span>
+            <span class="n">found_longitude</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">found_latitude</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found_longitude</span><span class="p">:</span>
+            <span class="c1"># We can assign a random longitude as it is outside the latitudes</span>
+            <span class="n">outside_lon</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">found_longitude</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">found_longitude</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found_latitude</span><span class="p">:</span>
+            <span class="c1"># We can assign a random latitude as it is outside the longitudes</span>
+            <span class="n">outside_lat</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">found_latitude</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_latitude</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found_longitude</span><span class="p">:</span>
+            <span class="c1"># I might want to give the option of providing a point</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="s2">&quot;Could not find an outside point&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">outside_lat</span><span class="p">,</span> <span class="n">outside_lon</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5Domain.point_in_domain"><a class="viewcode-back" href="../../domain.html#lasif.domain.HDF5Domain.point_in_domain">[docs]</a>    <span class="k">def</span> <span class="nf">point_in_domain</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test whether a point lies inside the domain. It is done in a step</span>
+<span class="sd">        by step process of elimination:</span>
+
+<span class="sd">        - First one checks depth and sees whether the point is too deep</span>
+<span class="sd">          and falls into the absorbing boundaries at depth.</span>
+<span class="sd">        - Second is a box check seeing whether point falls outside</span>
+<span class="sd">          of minimum and maximum latitude.</span>
+<span class="sd">        - Third one uses the edge polygon to see whether point is inside</span>
+<span class="sd">          it or not.</span>
+<span class="sd">        - Last one checks whether the point is too close to the edge</span>
+<span class="sd">          meaning that it would fall into the absorbing boundaries.</span>
+
+<span class="sd">        :param longitude: longitude in degrees</span>
+<span class="sd">        :type longitude: float</span>
+<span class="sd">        :param latitude: latitude in degrees</span>
+<span class="sd">        :type latitude: float</span>
+<span class="sd">        :param depth: depth of event in meters</span>
+<span class="sd">        :type depth: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">KDTrees_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_kd_trees</span><span class="p">()</span>
+
+        <span class="c1"># Assuming a spherical Earth without topography</span>
+        <span class="n">point_on_surface</span> <span class="o">=</span> <span class="n">lat_lon_radius_to_xyz</span><span class="p">(</span>
+            <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_earth</span>
+        <span class="p">)</span>
+
+        <span class="n">dist</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">point_on_surface</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># First elimination:</span>
+        <span class="c1"># Check whether domain is deep enough to include the point.</span>
+        <span class="c1"># Multiply element width with 1.5 since they are larger at the bottom</span>
+        <span class="k">if</span> <span class="n">depth</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_boundary_length</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Second elimination:</span>
+        <span class="k">if</span> <span class="n">latitude</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="ow">or</span> <span class="n">latitude</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">longitude</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="ow">or</span> <span class="n">longitude</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Third elimination:</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_polygon</span><span class="o">.</span><span class="n">contains_point</span><span class="p">(</span><span class="n">point</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Fourth elimination</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_boundary_length</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="HDF5Domain.plot"><a class="viewcode-back" href="../../domain.html#lasif.domain.HDF5Domain.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_inner_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the domain</span>
+<span class="sd">        Global domain is plotted using an equal area Mollweide projection.</span>
+<span class="sd">        Smaller domains have eihter Orthographic projections or PlateCarree.</span>
+
+<span class="sd">        :param ax: matplotlib axes, defaults to None</span>
+<span class="sd">        :type ax: matplotlib.axes.Axes, optional</span>
+<span class="sd">        :param plot_inner_boundary: plot the convex hull of the mesh</span>
+<span class="sd">            surface nodes that lie inside the domain. Defaults to False</span>
+<span class="sd">        :type plot_inner_boundary: bool, optional</span>
+<span class="sd">        :return: The created GeoAxes instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">()</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="c1"># if global mesh return moll</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Mollweide</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+            <span class="n">_plot_features</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">m</span><span class="p">,</span> <span class="n">projection</span>
+
+        <span class="n">lat_extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span>
+        <span class="n">lon_extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span>
+        <span class="n">max_extent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_extent</span><span class="p">,</span> <span class="n">lon_extent</span><span class="p">)</span>
+
+        <span class="c1"># Use a global plot for very large domains.</span>
+        <span class="k">if</span> <span class="n">lat_extent</span> <span class="o">&gt;=</span> <span class="mf">90.0</span> <span class="ow">and</span> <span class="n">lon_extent</span> <span class="o">&gt;=</span> <span class="mf">90.0</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Mollweide</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+
+        <span class="k">elif</span> <span class="n">max_extent</span> <span class="o">&gt;=</span> <span class="mf">75.0</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Orthographic</span><span class="p">(</span>
+                <span class="n">central_longitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center_lon</span><span class="p">,</span>
+                <span class="n">central_latitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center_lat</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">center_lon</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">crs</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_plot_lines</span><span class="p">(</span>
+                <span class="n">m</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Domain Edge&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">plot_inner_boundary</span><span class="p">:</span>
+                <span class="c1"># Get surface points</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">earth_surface_coords</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">latlonrad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="c1"># This part is potentially slow when lots</span>
+                <span class="c1"># of points need to be checked</span>
+                <span class="n">in_domain</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">latlonrad</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_in_domain</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">lon</span><span class="p">,):</span>
+                        <span class="n">in_domain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                    <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">latlonrad</span><span class="p">[:,</span> <span class="n">in_domain</span><span class="p">])</span>
+
+                <span class="c1"># Get the complex hull from projected (to 2D) points</span>
+                <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
+
+                <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">hull</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+                <span class="c1"># Plot the hull simplices</span>
+                <span class="k">for</span> <span class="n">simplex</span> <span class="ow">in</span> <span class="n">hull</span><span class="o">.</span><span class="n">simplices</span><span class="p">:</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                        <span class="n">points</span><span class="p">[</span><span class="n">simplex</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="n">points</span><span class="p">[</span><span class="n">simplex</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">c</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                        <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">points</span><span class="p">[</span><span class="n">simplex</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">points</span><span class="p">[</span><span class="n">simplex</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">c</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                    <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Convex Hull of Inner boundary&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">LASIFError</span><span class="p">:</span>
+            <span class="c1"># Back up plot if the other one fails, which happens for</span>
+            <span class="c1"># very weird meshes sometimes.</span>
+            <span class="c1"># This Scatter all edge nodes on the plotted domain</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">lons</span><span class="p">,</span>
+                <span class="n">lats</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Edge nodes&quot;</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">_plot_features</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m</span><span class="p">,</span> <span class="n">projection</span></div>
+
+<div class="viewcode-block" id="HDF5Domain.get_sorted_edge_coords"><a class="viewcode-back" href="../../domain.html#lasif.domain.HDF5Domain.get_sorted_edge_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_edge_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the indices of a sorted array of domain edge nodes,</span>
+<span class="sd">        this method should work, as long as the top surfaces of the elements</span>
+<span class="sd">        are approximately square</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">KDTrees_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_kd_trees</span><span class="p">()</span>
+
+        <span class="c1"># For each point get the indices of the five nearest points, of</span>
+        <span class="c1"># which the first one is the point itself.</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">indices_nearest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span>
+        <span class="p">)</span>
+        <span class="n">indices_nearest</span> <span class="o">=</span> <span class="n">indices_nearest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">num_edge_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain_edge_coords</span><span class="p">)</span>
+        <span class="n">indices_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_edge_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># start sorting with the first node</span>
+        <span class="n">indices_sorted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_edge_points</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">prev_idx</span> <span class="o">=</span> <span class="n">indices_sorted</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># take 4 closest points</span>
+            <span class="n">closest_indices</span> <span class="o">=</span> <span class="n">indices_nearest</span><span class="p">[</span><span class="n">prev_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">indices_sorted</span><span class="p">:</span>
+                <span class="n">indices_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">indices_sorted</span><span class="p">:</span>
+                <span class="n">indices_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">indices_sorted</span><span class="p">:</span>
+                <span class="n">indices_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="n">indices_sorted</span><span class="p">:</span>
+                <span class="n">indices_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">closest_indices</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span>
+                    <span class="s2">&quot;Edge node sort algorithm only works &quot;</span>
+                    <span class="s2">&quot;for reasonably square elements&quot;</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">indices_sorted</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;HDF5 Domain&quot;</span>
+
+    <span class="k">def</span> <span class="nf">is_global_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_global_mesh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="k">def</span> <span class="nf">_plot_features</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">projection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function aiding in consistent plot styling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">cartopy.mpl.gridliner</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">LONGITUDE_FORMATTER</span><span class="p">,</span>
+        <span class="n">LATITUDE_FORMATTER</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">m</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">LAND</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">OCEAN</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">COASTLINE</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">BORDERS</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">LAKES</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="c1"># m.add_feature(cp.feature.RIVERS)</span>
+    <span class="c1"># m.stock_img()</span>
+    <span class="k">if</span> <span class="n">projection</span><span class="o">.</span><span class="n">proj4_params</span><span class="p">[</span><span class="s2">&quot;proj&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;eqc&quot;</span><span class="p">:</span>
+        <span class="n">grid_lines</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">grid_lines</span><span class="o">.</span><span class="n">xformatter</span> <span class="o">=</span> <span class="n">LONGITUDE_FORMATTER</span>
+        <span class="n">grid_lines</span><span class="o">.</span><span class="n">yformatter</span> <span class="o">=</span> <span class="n">LATITUDE_FORMATTER</span>
+        <span class="n">grid_lines</span><span class="o">.</span><span class="n">xlabels_top</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">grid_lines</span><span class="o">.</span><span class="n">ylabels_right</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">stock_img</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_plot_lines</span><span class="p">(</span>
+    <span class="n">map_object</span><span class="p">,</span>
+    <span class="n">lines</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">,</span>
+    <span class="n">lw</span><span class="p">,</span>
+    <span class="n">transform</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">effects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="n">lats</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">lngs</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">map_object</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lngs</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SimpleDomain"><a class="viewcode-back" href="../../domain.html#lasif.domain.SimpleDomain">[docs]</a><span class="k">class</span> <span class="nc">SimpleDomain</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class handling more simplistic domains than the HDF5Domain class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;max_lat&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;min_lat&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;max_lon&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;min_lon&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_m</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;depth_in_km&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1000.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span>
+        <span class="p">),</span> <span class="s2">&quot;Max latitude less than Min latitude&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span>
+        <span class="p">),</span> <span class="s2">&quot;Max longitude less than Min longitude&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_m</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Depth needs to be bigger than 0.0&quot;</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">&lt;=</span> <span class="mf">90.0</span><span class="p">,</span> <span class="s2">&quot;Latitude exists between -90.0 and 90.0&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="s2">&quot;Latitude exists between -90.0 and 90.0&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">&lt;=</span> <span class="mf">180.0</span>
+        <span class="p">),</span> <span class="s2">&quot;Longitude exists between -180.0 and 180.0&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">180.0</span>
+        <span class="p">),</span> <span class="s2">&quot;Longitude exists between -180.0 and 180.0&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">==</span> <span class="o">-</span><span class="mf">90.0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">==</span> <span class="mf">90.0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">==</span> <span class="o">-</span><span class="mf">180.0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">==</span> <span class="mf">180.0</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="SimpleDomain.point_in_domain"><a class="viewcode-back" href="../../domain.html#lasif.domain.SimpleDomain.point_in_domain">[docs]</a>    <span class="k">def</span> <span class="nf">point_in_domain</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check whether point is located inside or outside domain</span>
+
+<span class="sd">        :param longitude: Longitude coordinate</span>
+<span class="sd">        :type longitude: float</span>
+<span class="sd">        :param latitude: Latitude coordinate</span>
+<span class="sd">        :type latitude: float</span>
+<span class="sd">        :param depth: Depth in meters, defaults to None</span>
+<span class="sd">        :type depth: float, optional</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">longitude</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">longitude</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">latitude</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">latitude</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_m</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="SimpleDomain.plot"><a class="viewcode-back" href="../../domain.html#lasif.domain.SimpleDomain.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_inner_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the domain</span>
+<span class="sd">        Global domain is plotted using an equal area Mollweide projection.</span>
+<span class="sd">        Smaller domains have eihter Orthographic projections or PlateCarree.</span>
+
+<span class="sd">        :param ax: matplotlib axes, defaults to None</span>
+<span class="sd">        :type ax: matplotlib.axes.Axes, optional</span>
+<span class="sd">        :param plot_inner_boundary: plot the convex hull of the mesh</span>
+<span class="sd">            surface nodes that lie inside the domain. Defaults to False</span>
+<span class="sd">        :type plot_inner_boundary: bool, optional</span>
+<span class="sd">        :return: The created GeoAxes instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">plot_inner_boundary</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="s2">&quot;Inner boundary is not plotted on simple domains&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Mollweide</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+            <span class="n">_plot_features</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">m</span><span class="p">,</span> <span class="n">projection</span>
+
+        <span class="n">lat_extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span>
+        <span class="n">lon_extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span>
+        <span class="n">max_extent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_extent</span><span class="p">,</span> <span class="n">lon_extent</span><span class="p">)</span>
+        <span class="n">center_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">))</span>
+        <span class="n">center_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">))</span>
+
+        <span class="c1"># Use a global plot for very large domains.</span>
+        <span class="k">if</span> <span class="n">lat_extent</span> <span class="o">&gt;=</span> <span class="mf">90.0</span> <span class="ow">and</span> <span class="n">lon_extent</span> <span class="o">&gt;=</span> <span class="mf">90.0</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Mollweide</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+
+        <span class="k">elif</span> <span class="n">max_extent</span> <span class="o">&gt;=</span> <span class="mf">75.0</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">Orthographic</span><span class="p">(</span>
+                <span class="n">central_longitude</span><span class="o">=</span><span class="n">center_lon</span><span class="p">,</span> <span class="n">central_latitude</span><span class="o">=</span><span class="n">center_lat</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">crs</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">projection</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">center_lon</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">ax</span>
+
+        <span class="n">boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sorted_corner_coords</span><span class="p">()</span>
+
+        <span class="n">_plot_lines</span><span class="p">(</span>
+            <span class="n">m</span><span class="p">,</span>
+            <span class="n">boundary</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Domain Edge&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_plot_features</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m</span><span class="p">,</span> <span class="n">projection</span></div>
+
+<div class="viewcode-block" id="SimpleDomain.get_sorted_corner_coords"><a class="viewcode-back" href="../../domain.html#lasif.domain.SimpleDomain.get_sorted_corner_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_corner_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an array which can be used to plot the edges of the domain</span>
+
+<span class="sd">        :return: Properly ordered corner coordinates for plotting</span>
+<span class="sd">        :rtype: numpy.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">],</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span><span class="p">],</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_lon</span><span class="p">],</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">max_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">],</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">min_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lon</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

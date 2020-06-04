@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.domain &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command Line Interface" href="cli.html" />
+    <link rel="prev" title="lasif.rotations" href="rotations.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">lasif.domain</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+        
+      <li>lasif.domain</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/domain.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-lasif.domain">
+<span id="lasif-domain"></span><h1>lasif.domain<a class="headerlink" href="#module-lasif.domain" title="Permalink to this headline">¶</a></h1>
+<p>Classes handling the domain definition and associated functionality for LASIF.
+It can handle complex domains defined by HDF5 Salvus meshes. Otherwise it
+uses more simple domains which are just defined as min/max lat/lon
+coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">copyright</dt>
+<dd class="field-odd"><p>Solvi Thrastarson, (<a class="reference external" href="mailto:soelvi&#46;thrastarson&#37;&#52;&#48;erdw&#46;ethz&#46;ch">soelvi<span>&#46;</span>thrastarson<span>&#64;</span>erdw<span>&#46;</span>ethz<span>&#46;</span>ch</a>) 2019</p>
+</dd>
+<dt class="field-even">license</dt>
+<dd class="field-even"><p>GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</p>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="lasif.domain.HDF5Domain">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.domain.</code><code class="sig-name descname">HDF5Domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mesh_file</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)">pathlib.Path</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">absorbing_boundary_length</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#HDF5Domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.HDF5Domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class which handles domains based on HDF5 Salvus meshes</p>
+<dl class="py method">
+<dt id="lasif.domain.HDF5Domain.find_outside_point">
+<code class="sig-name descname">find_outside_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a><a class="reference internal" href="_modules/lasif/domain.html#HDF5Domain.find_outside_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.HDF5Domain.find_outside_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a point which is not inside the domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Points in normalized x, y, z coordinates</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.domain.HDF5Domain.get_sorted_edge_coords">
+<code class="sig-name descname">get_sorted_edge_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#HDF5Domain.get_sorted_edge_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.HDF5Domain.get_sorted_edge_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the indices of a sorted array of domain edge nodes,
+this method should work, as long as the top surfaces of the elements
+are approximately square</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.domain.HDF5Domain.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_inner_boundary</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#HDF5Domain.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.HDF5Domain.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the domain
+Global domain is plotted using an equal area Mollweide projection.
+Smaller domains have eihter Orthographic projections or PlateCarree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – matplotlib axes, defaults to None</p></li>
+<li><p><strong>plot_inner_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – plot the convex hull of the mesh
+surface nodes that lie inside the domain. Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The created GeoAxes instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.domain.HDF5Domain.point_in_domain">
+<code class="sig-name descname">point_in_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">longitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">latitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#HDF5Domain.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.HDF5Domain.point_in_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test whether a point lies inside the domain. It is done in a step
+by step process of elimination:</p>
+<ul class="simple">
+<li><p>First one checks depth and sees whether the point is too deep
+and falls into the absorbing boundaries at depth.</p></li>
+<li><p>Second is a box check seeing whether point falls outside
+of minimum and maximum latitude.</p></li>
+<li><p>Third one uses the edge polygon to see whether point is inside
+it or not.</p></li>
+<li><p>Last one checks whether the point is too close to the edge
+meaning that it would fall into the absorbing boundaries.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – longitude in degrees</p></li>
+<li><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – latitude in degrees</p></li>
+<li><p><strong>depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – depth of event in meters</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="lasif.domain.SimpleDomain">
+<em class="property">class </em><code class="sig-prename descclassname">lasif.domain.</code><code class="sig-name descname">SimpleDomain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">info</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#SimpleDomain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.SimpleDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class handling more simplistic domains than the HDF5Domain class</p>
+<dl class="py method">
+<dt id="lasif.domain.SimpleDomain.get_sorted_corner_coords">
+<code class="sig-name descname">get_sorted_corner_coords</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)">numpy.ndarray</a><a class="reference internal" href="_modules/lasif/domain.html#SimpleDomain.get_sorted_corner_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.SimpleDomain.get_sorted_corner_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an array which can be used to plot the edges of the domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Properly ordered corner coordinates for plotting</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.domain.SimpleDomain.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_inner_boundary</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/domain.html#SimpleDomain.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.SimpleDomain.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the domain
+Global domain is plotted using an equal area Mollweide projection.
+Smaller domains have eihter Orthographic projections or PlateCarree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em>) – matplotlib axes, defaults to None</p></li>
+<li><p><strong>plot_inner_boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – plot the convex hull of the mesh
+surface nodes that lie inside the domain. Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The created GeoAxes instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="lasif.domain.SimpleDomain.point_in_domain">
+<code class="sig-name descname">point_in_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">longitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">latitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="reference internal" href="_modules/lasif/domain.html#SimpleDomain.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.domain.SimpleDomain.point_in_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether point is located inside or outside domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Longitude coordinate</p></li>
+<li><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Latitude coordinate</p></li>
+<li><p><strong>depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – Depth in meters, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rotations.html" class="btn btn-neutral float-left" title="lasif.rotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -277,9 +277,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.finalize_adjoint_sources">finalize_adjoint_sources() (lasif.components.adjoint_sources.AdjointSourcesComponent method)</a>
 </li>
+      <li><a href="api_doc.html#lasif.api.find_event_mesh">find_event_mesh() (in module lasif.api)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_doc.html#lasif.api.find_event_mesh">find_event_mesh() (in module lasif.api)</a>
+      <li><a href="domain.html#lasif.domain.HDF5Domain.find_outside_point">find_outside_point() (lasif.domain.HDF5Domain method)</a>
 </li>
       <li><a href="api_doc.html#lasif.api.find_project_comm">find_project_comm() (in module lasif.api)</a>
 </li>
@@ -323,10 +325,10 @@
 </li>
       <li><a href="components/weights.html#lasif.components.weights.WeightsComponent.get_long_weight_set_name">get_long_weight_set_name() (lasif.components.weights.WeightsComponent method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/query.html#lasif.components.query.QueryComponent.get_matching_waveforms">get_matching_waveforms() (lasif.components.query.QueryComponent method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.get_misfit_file">get_misfit_file() (lasif.components.adjoint_sources.AdjointSourcesComponent method)</a>
 </li>
       <li><a href="components/adjoint_sources.html#lasif.components.adjoint_sources.AdjointSourcesComponent.get_misfit_for_event">get_misfit_for_event() (lasif.components.adjoint_sources.AdjointSourcesComponent method)</a>
@@ -338,6 +340,10 @@
       <li><a href="api_doc.html#lasif.api.get_receivers">get_receivers() (in module lasif.api)</a>
 </li>
       <li><a href="api_doc.html#lasif.api.get_simulation_mesh">get_simulation_mesh() (in module lasif.api)</a>
+</li>
+      <li><a href="domain.html#lasif.domain.SimpleDomain.get_sorted_corner_coords">get_sorted_corner_coords() (lasif.domain.SimpleDomain method)</a>
+</li>
+      <li><a href="domain.html#lasif.domain.HDF5Domain.get_sorted_edge_coords">get_sorted_edge_coords() (lasif.domain.HDF5Domain method)</a>
 </li>
       <li><a href="api_doc.html#lasif.api.get_source">get_source() (in module lasif.api)</a>
 </li>
@@ -374,6 +380,8 @@
       <li><a href="components/weights.html#lasif.components.weights.WeightsComponent.has_weight_set">has_weight_set() (lasif.components.weights.WeightsComponent method)</a>
 </li>
       <li><a href="components/windows.html#lasif.components.windows.WindowsComponent.has_window_set">has_window_set() (lasif.components.windows.WindowsComponent method)</a>
+</li>
+      <li><a href="domain.html#lasif.domain.HDF5Domain">HDF5Domain (class in lasif.domain)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -482,6 +490,13 @@
 </li>
       </ul></li>
       <li>
+    lasif.domain
+
+      <ul>
+        <li><a href="domain.html#module-lasif.domain">module</a>
+</li>
+      </ul></li>
+      <li>
     lasif.rotations
 
       <ul>
@@ -550,6 +565,8 @@
 </li>
         <li><a href="components/windows.html#module-lasif.components.windows">lasif.components.windows</a>
 </li>
+        <li><a href="domain.html#module-lasif.domain">lasif.domain</a>
+</li>
         <li><a href="rotations.html#module-lasif.rotations">lasif.rotations</a>
 </li>
       </ul></li>
@@ -567,6 +584,12 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="domain.html#lasif.domain.HDF5Domain.plot">plot() (lasif.domain.HDF5Domain method)</a>
+
+      <ul>
+        <li><a href="domain.html#lasif.domain.SimpleDomain.plot">(lasif.domain.SimpleDomain method)</a>
+</li>
+      </ul></li>
       <li><a href="api_doc.html#lasif.api.plot_all_rays">plot_all_rays() (in module lasif.api)</a>
 
       <ul>
@@ -624,7 +647,13 @@
 </li>
       </ul></li>
       <li><a href="components/query.html#lasif.components.query.QueryComponent.point_in_domain">point_in_domain() (lasif.components.query.QueryComponent method)</a>
+
+      <ul>
+        <li><a href="domain.html#lasif.domain.HDF5Domain.point_in_domain">(lasif.domain.HDF5Domain method)</a>
 </li>
+        <li><a href="domain.html#lasif.domain.SimpleDomain.point_in_domain">(lasif.domain.SimpleDomain method)</a>
+</li>
+      </ul></li>
       <li><a href="components/waveforms.html#lasif.components.waveforms.WaveformsComponent.preprocessing_tag">preprocessing_tag() (lasif.components.waveforms.WaveformsComponent property)</a>
 </li>
       <li><a href="api_doc.html#lasif.api.process_data">process_data() (in module lasif.api)</a>
@@ -673,13 +702,15 @@
 </li>
       <li><a href="api_doc.html#lasif.api.set_up_iteration">set_up_iteration() (in module lasif.api)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.setup_directories_for_iteration">setup_directories_for_iteration() (lasif.components.iterations.IterationsComponent method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.setup_events_toml">setup_events_toml() (lasif.components.iterations.IterationsComponent method)</a>
 </li>
       <li><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.setup_iteration_toml">setup_iteration_toml() (lasif.components.iterations.IterationsComponent method)</a>
+</li>
+      <li><a href="domain.html#lasif.domain.SimpleDomain">SimpleDomain (class in lasif.domain)</a>
 </li>
       <li><a href="api_doc.html#lasif.api.submit_salvus_simulation">submit_salvus_simulation() (in module lasif.api)</a>
 </li>
