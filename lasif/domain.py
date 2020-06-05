@@ -43,7 +43,6 @@ class HDF5Domain:
         self.is_global_mesh = False
         self.domain_edge_tree = None
         self.earth_surface_tree = None
-        self.approx_elem_width = None
         self.domain_edge_coords = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
@@ -149,22 +148,15 @@ class HDF5Domain:
         # For now we will just take a random point on the surface and
         # take the maximum distance between gll points and use that
         # as the element with. It should be an overestimation
-        x, y, z = self.earth_surface_coords[0, :, :].T
-        r = np.sqrt(
-            (max(x) - min(x)) ** 2
-            + (max(y) - min(y)) ** 2
-            + (max(z) - min(z)) ** 2
-        )
-        self.approx_elem_width = r
+        x, y, z = self.earth_surface_coords[:, 0, :].T
 
-        # Get extent and center of domain
-        x, y, z = self.domain_edge_coords.T
+        # # Get extent and center of domain
+        # x, y, z = self.domain_edge_coords.T
 
-        # pick a random GLL point to represent the boundary
-        x = x[0]
-        y = y[0]
-        z = z[0]
-        edge_lat, edge_lon, _ = xyz_to_lat_lon_radius(x, y, z)
+        # # pick a random GLL point to represent the boundary
+        # x = x[0]
+        # y = y[0]
+        # z = z[0]
 
         # get center lat/lon
         x_cen, y_cen, z_cen = np.median(x), np.median(y), np.median(z)
@@ -181,7 +173,8 @@ class HDF5Domain:
         # Find point outside the domain:
         outside_point = self.find_outside_point()
         # Get coords for the bottom edge of mesh
-        x, y, z = self.bottom_edge_coords.T
+        # x, y, z = self.bottom_edge_coords.T
+        x, y, z = self.earth_bottom_coords.T
         x, y, z = x[0], y[0], z[0]
 
         # Figure out maximum depth of mesh

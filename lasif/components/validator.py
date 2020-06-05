@@ -476,6 +476,7 @@ class ValidatorComponent(Component):
                 "Event '{filename}' is out of bounds of the chosen domain."
                 "\n".format(filename=event["filename"])
             )
+            print(f"Event: {event['event_name']} is out of bounds")
         if all_good is True:
             self._print_ok_message()
         else:
