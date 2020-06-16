@@ -1455,7 +1455,9 @@ def validate_data(
     )
 
 
-def clean_up(lasif_root, clean_up_file: str):
+def clean_up(
+    lasif_root, clean_up_file: str, delete_outofbounds_events: bool = False
+):
     """
     Clean up the lasif project. The required file can be created with
     the validate_data command.
@@ -1464,6 +1466,9 @@ def clean_up(lasif_root, clean_up_file: str):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param clean_up_file: path to clean-up file
     :type clean_up_file: str
+    :param delete_outofbounds_events: Whether full event files should be
+        deleted if the event is out of the domain, defaults to False.
+    :type delete_outofbounds_events: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -1474,7 +1479,7 @@ def clean_up(lasif_root, clean_up_file: str):
             f"is correct."
         )
 
-    comm.validator.clean_up_project(clean_up_file)
+    comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
 def update_catalog():

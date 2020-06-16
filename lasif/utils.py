@@ -594,7 +594,8 @@ class Receiver(object):
                 )
                 if len(coords) != 1:
                     raise LASIFError(
-                        f"Coordinates of channels of station {network_code}.{obj.code} are not identical"
+                        f"Coordinates of channels of station "
+                        f"{network_code}.{obj.code} are not identical"
                     )
                 coords = coords.pop()
                 return [

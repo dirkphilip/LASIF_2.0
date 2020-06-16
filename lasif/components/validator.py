@@ -25,6 +25,7 @@ class ValidatorComponent(Component):
         self._reports = []
         self._total_error_count = 0
         self.files_to_be_deleted = {}
+        self.events_to_be_deleted = {}
 
     def _print_ok_message(self):
         """
@@ -142,8 +143,12 @@ class ValidatorComponent(Component):
             files_to_be_deleted_filename = os.path.join(
                 folder, "files_to_be_deleted.toml"
             )
+            stuff_to_be_deleted = {
+                "stations": self.files_to_be_deleted,
+                "events": self.events_to_be_deleted,
+            }
             with open(files_to_be_deleted_filename, "w") as fh:
-                toml.dump(self.files_to_be_deleted, fh)
+                toml.dump(stuff_to_be_deleted, fh)
             print(
                 "\n%sFAILED%s\nEncountered %i errors!\n"
                 "A report has been created at '%s'.\n"
@@ -186,7 +191,7 @@ class ValidatorComponent(Component):
                     event_name,
                     value["latitude"],
                     value["longitude"],
-                    raypath_steps=3,
+                    raypath_steps=30,
                 ):
                     continue
                 all_good = False
@@ -204,19 +209,27 @@ class ValidatorComponent(Component):
         else:
             self._print_fail_message()
 
-    def clean_up_project(self, clean_up_file: str):
+    def clean_up_project(
+        self, clean_up_file: str, delete_outofbounds_events: bool = False
+    ):
         """
         Clean up lasif project based on a toml file with the events
         that can be deleted.
 
-        :param clean_up_file: A toml describing the events that can be
+        :param clean_up_file: A toml describing the files that can be
             deleted.
         :type clean_up_file: str
+        :param delete_outofbounds_events: Whether full event files should be
+            deleted if the origin is out of bounds. It is recommended to take
+            a look at the toml file before doing this, defaults to False
+        :type delete_outofbounds_events: bool, optional
         """
 
         clean_up_dict = toml.load(clean_up_file)
         num_of_deleted_files = 0
-        for event_name, stations in clean_up_dict.items():
+        events_deleted = 0
+        station_cleanup = clean_up_dict["stations"]
+        for event_name, stations in station_cleanup.items():
             filename = self.comm.waveforms.get_asdf_filename(
                 event_name, data_type="raw"
             )
@@ -224,11 +237,23 @@ class ValidatorComponent(Component):
                 for station in stations:
                     del ds.waveforms[station]
                     num_of_deleted_files += 1
-
-        print(
+        print_string = (
             f"Removed {num_of_deleted_files} stations "
-            f"from the LASIF project."
+            f"from the LASIF project. \n \n"
         )
+        if delete_outofbounds_events:
+            event_cleanup = clean_up_dict["events"]
+            for event_name, problem in event_cleanup.items():
+                filename = self.comm.waveforms.get_asdf_filename(
+                    event_name, data_type="raw"
+                )
+                if problem == "out of bounds":
+                    os.remove(filename)
+                    events_deleted += 1
+            print_string += (
+                f"Removed {events_deleted} events from LASIF project."
+            )
+        print(print_string)
 
     def _validate_station_and_waveform_availability(self):
         """
@@ -470,13 +495,14 @@ class ValidatorComponent(Component):
                 latitude=event["latitude"], longitude=event["longitude"]
             ):
                 continue
+            self.events_to_be_deleted[event["event_name"]] = "out of bounds"
             all_good = False
             self._add_report(
                 "\nWARNING: "
                 "Event '{filename}' is out of bounds of the chosen domain."
                 "\n".format(filename=event["filename"])
             )
-            print(f"Event: {event['event_name']} is out of bounds")
+            print(f"\n Event: {event['event_name']} is out of bounds")
         if all_good is True:
             self._print_ok_message()
         else:
@@ -487,7 +513,7 @@ class ValidatorComponent(Component):
         event_name: str,
         station_latitude: float,
         station_longitude: float,
-        raypath_steps: int = 25,
+        raypath_steps: int = 500,
     ):
         """
         Checks if the full station-event raypath is within the project's domain
