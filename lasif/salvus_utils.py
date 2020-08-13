@@ -92,7 +92,7 @@ def create_salvus_forward_simulation(
     import lasif.domain
 
     domain = lasif.domain.HDF5Domain(
-        mesh, sim_set["absorbing_boundaries_in_km"]
+        mesh, sal_set["absorbing_boundaries_in_km"]
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
