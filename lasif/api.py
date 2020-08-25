@@ -975,19 +975,21 @@ def compare_misfits(
     from_it_misfit = 0.0
     to_it_misfit = 0.0
     for event in events:
-        from_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, from_it, weight_set
+        from_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, from_it, weight_set)
         )
-        to_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, to_it, weight_set
+        to_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
         )
         if print_events:
             # Print information about every event.
-            from_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, from_it, weight_set
+            from_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(
+                    event, from_it, weight_set
+                )
             )
-            to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, to_it, weight_set
+            to_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
             )
             print(
                 f"{event}: \n"
