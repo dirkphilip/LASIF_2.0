@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -25,15 +30,11 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -49,7 +50,7 @@
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> LASIF
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> LASIF
           
 
           
@@ -76,6 +77,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -181,6 +184,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_total_error_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events_to_be_deleted</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">_print_ok_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -298,8 +302,12 @@
             <span class="n">files_to_be_deleted_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;files_to_be_deleted.toml&quot;</span>
             <span class="p">)</span>
+            <span class="n">stuff_to_be_deleted</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">,</span>
+                <span class="s2">&quot;events&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">events_to_be_deleted</span><span class="p">,</span>
+            <span class="p">}</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">files_to_be_deleted_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-                <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files_to_be_deleted</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+                <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">stuff_to_be_deleted</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">FAILED</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Encountered </span><span class="si">%i</span><span class="s2"> errors!</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="s2">&quot;A report has been created at &#39;</span><span class="si">%s</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -342,7 +350,7 @@
                     <span class="n">event_name</span><span class="p">,</span>
                     <span class="n">value</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
                     <span class="n">value</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
-                    <span class="n">raypath_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">raypath_steps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                 <span class="p">):</span>
                     <span class="k">continue</span>
                 <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
@@ -360,19 +368,27 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_print_fail_message</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="ValidatorComponent.clean_up_project"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.clean_up_project">[docs]</a>    <span class="k">def</span> <span class="nf">clean_up_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="ValidatorComponent.clean_up_project"><a class="viewcode-back" href="../../../components/validator.html#lasif.components.validator.ValidatorComponent.clean_up_project">[docs]</a>    <span class="k">def</span> <span class="nf">clean_up_project</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delete_outofbounds_events</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clean up lasif project based on a toml file with the events</span>
 <span class="sd">        that can be deleted.</span>
 
-<span class="sd">        :param clean_up_file: A toml describing the events that can be</span>
+<span class="sd">        :param clean_up_file: A toml describing the files that can be</span>
 <span class="sd">            deleted.</span>
 <span class="sd">        :type clean_up_file: str</span>
+<span class="sd">        :param delete_outofbounds_events: Whether full event files should be</span>
+<span class="sd">            deleted if the origin is out of bounds. It is recommended to take</span>
+<span class="sd">            a look at the toml file before doing this, defaults to False</span>
+<span class="sd">        :type delete_outofbounds_events: bool, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">clean_up_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">)</span>
         <span class="n">num_of_deleted_files</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">clean_up_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">events_deleted</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">station_cleanup</span> <span class="o">=</span> <span class="n">clean_up_dict</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">station_cleanup</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
                 <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
             <span class="p">)</span>
@@ -380,11 +396,23 @@
                 <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
                     <span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span><span class="n">station</span><span class="p">]</span>
                     <span class="n">num_of_deleted_files</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="nb">print</span><span class="p">(</span>
+        <span class="n">print_string</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Removed </span><span class="si">{</span><span class="n">num_of_deleted_files</span><span class="si">}</span><span class="s2"> stations &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;from the LASIF project.&quot;</span>
-        <span class="p">)</span></div>
+            <span class="sa">f</span><span class="s2">&quot;from the LASIF project. </span><span class="se">\n</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">delete_outofbounds_events</span><span class="p">:</span>
+            <span class="n">event_cleanup</span> <span class="o">=</span> <span class="n">clean_up_dict</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">problem</span> <span class="ow">in</span> <span class="n">event_cleanup</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_asdf_filename</span><span class="p">(</span>
+                    <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">problem</span> <span class="o">==</span> <span class="s2">&quot;out of bounds&quot;</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                    <span class="n">events_deleted</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Removed </span><span class="si">{</span><span class="n">events_deleted</span><span class="si">}</span><span class="s2"> events from LASIF project.&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">print_string</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_validate_station_and_waveform_availability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -626,13 +654,14 @@
                 <span class="n">latitude</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events_to_be_deleted</span><span class="p">[</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;out of bounds&quot;</span>
             <span class="n">all_good</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_report</span><span class="p">(</span>
                 <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">WARNING: &quot;</span>
                 <span class="s2">&quot;Event &#39;</span><span class="si">{filename}</span><span class="s2">&#39; is out of bounds of the chosen domain.&quot;</span>
                 <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">])</span>
             <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;event_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Event: </span><span class="si">{</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;event_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> is out of bounds&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">all_good</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_print_ok_message</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -643,7 +672,7 @@
         <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">station_latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">station_longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">raypath_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="n">raypath_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the full station-event raypath is within the project&#39;s domain</span>
@@ -694,11 +723,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -709,7 +746,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

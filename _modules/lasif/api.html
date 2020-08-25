@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,12 +11,18 @@
   
 
   
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -25,15 +30,11 @@
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -49,7 +50,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> LASIF
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> LASIF
           
 
           
@@ -76,6 +77,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -1131,19 +1134,21 @@
     <span class="n">from_it_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">to_it_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="n">from_it_misfit</span> <span class="o">+=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
-            <span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="n">from_it_misfit</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">to_it_misfit</span> <span class="o">+=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
-            <span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="n">to_it_misfit</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">print_events</span><span class="p">:</span>
             <span class="c1"># Print information about every event.</span>
-            <span class="n">from_it_misfit_event</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
-                <span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span>
+            <span class="n">from_it_misfit_event</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+                    <span class="n">event</span><span class="p">,</span> <span class="n">from_it</span><span class="p">,</span> <span class="n">weight_set</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">to_it_misfit_event</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
-                <span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span>
+            <span class="n">to_it_misfit_event</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">to_it</span><span class="p">,</span> <span class="n">weight_set</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -1611,7 +1616,9 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="clean_up"><a class="viewcode-back" href="../../api_doc.html#lasif.api.clean_up">[docs]</a><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="clean_up"><a class="viewcode-back" href="../../api_doc.html#lasif.api.clean_up">[docs]</a><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span> <span class="n">clean_up_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delete_outofbounds_events</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clean up the lasif project. The required file can be created with</span>
 <span class="sd">    the validate_data command.</span>
@@ -1620,6 +1627,9 @@
 <span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
 <span class="sd">    :param clean_up_file: path to clean-up file</span>
 <span class="sd">    :type clean_up_file: str</span>
+<span class="sd">    :param delete_outofbounds_events: Whether full event files should be</span>
+<span class="sd">        deleted if the event is out of the domain, defaults to False.</span>
+<span class="sd">    :type delete_outofbounds_events: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
@@ -1630,7 +1640,7 @@
             <span class="sa">f</span><span class="s2">&quot;is correct.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">comm</span><span class="o">.</span><span class="n">validator</span><span class="o">.</span><span class="n">clean_up_project</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">)</span></div>
+    <span class="n">comm</span><span class="o">.</span><span class="n">validator</span><span class="o">.</span><span class="n">clean_up_project</span><span class="p">(</span><span class="n">clean_up_file</span><span class="p">,</span> <span class="n">delete_outofbounds_events</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="update_catalog"><a class="viewcode-back" href="../../api_doc.html#lasif.api.update_catalog">[docs]</a><span class="k">def</span> <span class="nf">update_catalog</span><span class="p">():</span>
@@ -1662,11 +1672,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1677,7 +1695,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
