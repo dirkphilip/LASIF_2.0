@@ -166,7 +166,7 @@ class HDF5Domain:
         # Figure out maximum depth of mesh
         x, y, z = coords.T
         r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-        self.max_depth = self.r_earth - min(r)
+        self.max_depth = self.r_earth - np.min(r)
 
         self.is_read = True
 
