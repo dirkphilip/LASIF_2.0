@@ -100,11 +100,6 @@ class HDF5Domain:
         for side_set in self.side_set_names:
             if side_set == "surface":
                 continue
-            elif side_set == "r0":
-                earth_bottom_elements = self.m["SIDE_SETS"][side_set][
-                    "elements"
-                ][()]
-
             elif side_set == "r1":
                 earth_surface_elements = self.m["SIDE_SETS"][side_set][
                     "elements"
@@ -132,16 +127,11 @@ class HDF5Domain:
         surface_boundaries = np.intersect1d(
             side_elements, earth_surface_elements
         )
-        bottom_boundaries = np.intersect1d(
-            side_elements, earth_bottom_elements
-        )
 
         # Get coordinates
         coords = self.m["MODEL/coordinates"][()]
         self.domain_edge_coords = coords[surface_boundaries]
         self.earth_surface_coords = coords[earth_surface_elements]
-        self.earth_bottom_coords = coords[earth_bottom_elements]
-        self.bottom_edge_coords = coords[bottom_boundaries]
 
         # Get approximation of element width, take second smallest value
 
@@ -172,15 +162,11 @@ class HDF5Domain:
 
         # Find point outside the domain:
         outside_point = self.find_outside_point()
-        # Get coords for the bottom edge of mesh
-        # x, y, z = self.bottom_edge_coords.T
-        x, y, z = self.earth_bottom_coords.T
-        x, y, z = x[0], y[0], z[0]
 
         # Figure out maximum depth of mesh
-        _, _, r = xyz_to_lat_lon_radius(x, y, z)
-        min_r = min(r)
-        self.max_depth = self.r_earth - min_r
+        x, y, z = coords.T
+        r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+        self.max_depth = self.r_earth - min(r)
 
         self.is_read = True
 
