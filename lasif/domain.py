@@ -78,7 +78,7 @@ class HDF5Domain:
         self.side_set_names = list(self.m["SIDE_SETS"].keys())
         if (
             len(self.side_set_names) <= 2
-            and "outer_boundary" not in self.side_set_names
+            and "inner_boundary" not in self.side_set_names
         ):
             self.is_global_mesh = True
             self.min_lat = -90.0

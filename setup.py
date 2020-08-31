@@ -117,6 +117,7 @@ setup_config = dict(
         "ipykernel",
         "pathlib",
         "ipywidgets",
+        "pyasdf",
         "pythreejs",
         "geographiclib",
         "flask-cache",
