@@ -96,7 +96,6 @@ class HDF5Domain:
 
         side_elements = []
         earth_surface_elements = []
-        earth_bottom_elements = []
         for side_set in self.side_set_names:
             if side_set == "surface":
                 continue

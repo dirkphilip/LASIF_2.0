@@ -445,6 +445,7 @@ def list_events(
         print(
             "%i event%s in %s:"
             % (
+                comm.events.count(iteration) if iteration else
                 comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
                 "iteration" if iteration else "project",
