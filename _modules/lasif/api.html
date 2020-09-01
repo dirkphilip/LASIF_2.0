@@ -604,6 +604,7 @@
         <span class="nb">print</span><span class="p">(</span>
             <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> event</span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">:&quot;</span>
             <span class="o">%</span> <span class="p">(</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span> <span class="k">if</span> <span class="n">iteration</span> <span class="k">else</span>
                 <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
                 <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;iteration&quot;</span> <span class="k">if</span> <span class="n">iteration</span> <span class="k">else</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span>
