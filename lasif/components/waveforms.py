@@ -7,6 +7,8 @@ import fnmatch
 import os
 import warnings
 import pyasdf
+import obspy
+from typing import List
 
 from lasif.exceptions import LASIFNotFoundError, LASIFWarning
 from .component import Component
@@ -40,7 +42,9 @@ class WaveformsComponent(Component):
     is expected to be in this format.
 
     :param data_folder: The data folder in a LASIF project.
+    :type data_folder: pathlib.Path
     :param synthetics_folder: The synthetics folder in a LASIF project.
+    :type synthetics_folder: pathlib.Path
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
@@ -58,14 +62,20 @@ class WaveformsComponent(Component):
         self._synthetics_folder = synthetics_folder
         super(WaveformsComponent, self).__init__(communicator, component_name)
 
-    def get_asdf_filename(self, event_name, data_type, tag_or_iteration=None):
+    def get_asdf_filename(
+        self, event_name: str, data_type: str, tag_or_iteration: str = None
+    ):
         """
         Returns the filename for an ASDF waveform file.
 
         :param event_name: Name of the event.
+        :type event_name: str
         :param data_type: The type of data, one of ``"raw"``,
             ``"processed"``, ``"synthetic"``
+        :type data_type: str
         :param tag_or_iteration: The processing tag or iteration name if any.
+            Defaults to None
+        :type tag_or_iteration: str, optional
         """
         if data_type == "raw":
             return os.path.join(self._data_folder, event_name + ".h5")
@@ -95,9 +105,8 @@ class WaveformsComponent(Component):
     def preprocessing_tag(self):
         """
         Gets the preprocessing tag for the lasif project, since each
-         lasif project assumes a constant frequency
+        lasif project assumes a constant frequency
         this only has to be one tag.
-        :return:
         """
         minimum_period = self.comm.project.simulation_settings[
             "minimum_period_in_s"
@@ -110,50 +119,62 @@ class WaveformsComponent(Component):
             int(maximum_period),
         )
 
-    def delete_station_from_raw(self, event_name, station_id):
+    def delete_station_from_raw(self, event_name: str, station_id: str):
         """
         Deletes all information from the raw data file for the
         given station.
 
         :param event_name: The name of the event.
+        :type event_name: str
         :param station_id: The id of the station in the form ``NET.STA``.
+        :type station_id: str
         """
         filename = self.get_asdf_filename(event_name, data_type="raw")
 
         with pyasdf.ASDFDataSet(filename, mode="a") as ds:
             del ds.waveforms[station_id]
 
-    def get_waveforms_raw(self, event_name, station_id):
+    def get_waveforms_raw(self, event_name: str, station_id: str):
         """
         Gets the raw waveforms for the given event and station as a
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
+        :type event_name: str
         :param station_id: The id of the station in the form ``NET.STA``.
+        :type station_id: str
         """
         return self._get_waveforms(event_name, station_id, data_type="raw")
 
-    def get_waveforms_processed(self, event_name, station_id, tag):
+    def get_waveforms_processed(
+        self, event_name: str, station_id: str, tag: str
+    ):
         """
         Gets the processed waveforms for the given event and station as a
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
+        :type event_name: str
         :param station_id: The id of the station in the form ``NET.STA``.
+        :type station_id: str
         :param tag: The processing tag.
+        :type tag: str
         """
         return self._get_waveforms(
             event_name, station_id, data_type="processed", tag_or_iteration=tag
         )
 
-    def get_waveforms_processed_on_the_fly(self, event_name, station_id):
+    def get_waveforms_processed_on_the_fly(
+        self, event_name: str, station_id: str
+    ):
         """
         Gets the processed waveforms for the given event and station as a
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
+        :type event_name: str
         :param station_id: The id of the station in the form ``NET.STA``.
-        :param tag: The processing tag.
+        :type station_id: str
         """
         st, inv = self._get_waveforms(
             event_name, station_id, data_type="raw", get_inventory=True
@@ -161,15 +182,18 @@ class WaveformsComponent(Component):
         return self.process_data_on_the_fly(st, inv, event_name)
 
     def get_waveforms_synthetic(
-        self, event_name, station_id, long_iteration_name
+        self, event_name: str, station_id: str, long_iteration_name: str
     ):
         """
         Gets the synthetic waveforms for the given event and station as a
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
+        :type event_name: str
         :param station_id: The id of the station in the form ``NET.STA``.
+        :type station_id: str
         :param long_iteration_name: The long form of an iteration name.
+        :type long_iteration_name: str
         """
 
         st = self._get_waveforms(
@@ -183,8 +207,22 @@ class WaveformsComponent(Component):
             st=st, event_name=event_name, iteration=long_iteration_name
         )
 
-    def process_synthetics(self, st, event_name, iteration):
-        # Apply the project function that modifies synthetics on the fly.
+    def process_synthetics(
+        self, st: obspy.core.stream.Stream, event_name: str, iteration: str
+    ):
+        """
+        Process synthetics using the project function.
+
+        :param st: Stream of waveforms
+        :type st: obspy.core.stream.Stream
+        :param event_name: Name of event
+        :type event_name: str
+        :param iteration: Name of iteration
+        :type iteration: str
+        :return: Processed stream of waveforms
+        :rtype: obspy.core.stream.Stream
+        """
+
         import toml
 
         fct = self.comm.project.get_project_function("process_synthetics")
@@ -222,8 +260,24 @@ class WaveformsComponent(Component):
             st, simulation_settings, event=self.comm.events.get(event_name)
         )
 
-    def process_data_on_the_fly(self, st, inv, event_name):
-        """ This will process the data on the fly"""
+    def process_data_on_the_fly(
+        self,
+        st: obspy.core.stream.Stream,
+        inv: obspy.core.inventory.inventory.Inventory,
+        event_name: str,
+    ):
+        """
+        Process data on the fly
+
+        :param st: Stream of waveforms
+        :type st: obspy.core.stream.Stream
+        :param inv: Inventory of station information
+        :type inv: obspy.core.inventory.inventory.Inventory
+        :param event_name: Name of event
+        :type event_name: str
+        :return: Processed data
+        :rtype: obspy.core.stream.Stream
+        """
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("processing_function")
 
@@ -245,7 +299,7 @@ class WaveformsComponent(Component):
             st, inv, processing_parmams, event=self.comm.events.get(event_name)
         )
 
-    def process_data(self, events):
+    def process_data(self, events: List[str]):
         """
         Processes all data for a given iteration.
 
@@ -253,6 +307,7 @@ class WaveformsComponent(Component):
 
         :param events: event_ids is a list of events to process in this
             run. It will process all events if not given.
+        :type events: List[str]
         """
         from mpi4py import MPI
 
@@ -412,14 +467,16 @@ class WaveformsComponent(Component):
 
         return tags[0]
 
-    def get_available_data(self, event_name, station_id):
+    def get_available_data(self, event_name: str, station_id: str):
         """
         Returns a dictionary with information about the available data.
 
         Information is specific for a given event and station.
 
         :param event_name: The event name.
+        :type event_name: str
         :param station_id: The station id.
+        :type station_id: str
         """
         information = {"raw": {}, "processed": {}, "synthetic": {}}
 
@@ -518,11 +575,12 @@ class WaveformsComponent(Component):
             ]
         return information
 
-    def get_available_synthetics(self, event_name):
+    def get_available_synthetics(self, event_name: str):
         """
         Returns the available synthetics for a given event.
 
         :param event_name: The event name.
+        :type event_name: str
         """
         data_dir = os.path.join(self._synthetics_folder, event_name)
         if not os.path.exists(data_dir):

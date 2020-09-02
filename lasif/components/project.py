@@ -9,6 +9,8 @@ interface feels sluggish and slow. Import things only the functions they are
 needed.
 
 :copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2020
+    Dirk-Philip van Herwaarden (dirkphilip.vanherwaarden@erdw.ethz.ch), 2020
 
 :license: GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
@@ -51,10 +53,12 @@ class Project(Component):
         Upon intialization, set the paths and read the config file.
 
         :param project_root_path: The root path of the project.
+        :type project_root_path: pathlib.Path
         :param init_project: Determines whether or not to initialize a new
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
+        :type init_project: bool, optional
         """
         # Setup the paths.
         self.__setup_paths(project_root_path.absolute())
@@ -99,15 +103,15 @@ class Project(Component):
         Pretty string representation.
         """
         # Count all files and sizes.
-        ret_str = 'LASIF project "%s"\n' % self.config["project_name"]
-        ret_str += "\tDescription: %s\n" % self.config["description"]
+        ret_str = 'LASIF project "%s"\n' % self.lasif_config["project_name"]
+        ret_str += "\tDescription: %s\n" % self.lasif_config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % self.comm.events.count()
 
         return ret_str
 
-    def __copy_fct_templates(self, init_project):
+    def __copy_fct_templates(self, init_project: bool):
         """
         Copies the function templates to the project folder if they do not
         yet exist.
@@ -116,6 +120,7 @@ class Project(Component):
             initialization or not. If not called during project initialization
             this function will raise a warning to make users aware of the
             changes in LASIF.
+        :type init_project: bool
         """
         directory = pathlib.Path(__file__).parent.parent / "function_templates"
         for filename in directory.glob("*.py"):
@@ -134,7 +139,8 @@ class Project(Component):
 
     def _read_config_file(self):
         """
-        Parse the config file.
+        Parse the config file. The config file is a toml file in the root
+        directory which reads directly into a dictionary.
         """
         import toml
 
@@ -142,8 +148,8 @@ class Project(Component):
             config_dict = toml.load(fh)
 
         self.lasif_config = config_dict["lasif_project"]
-        self.optimization_settings = config_dict["optimization_settings"]
         self.simulation_settings = config_dict["simulation_settings"]
+
         self.simulation_settings["number_of_time_steps"] = int(
             round(
                 (
@@ -154,11 +160,16 @@ class Project(Component):
             )
             + 1
         )
-
-        self.domain = lasif.domain.HDF5Domain(
-            self.lasif_config["domain_settings"]["domain_file"],
-            self.lasif_config["domain_settings"]["boundary_in_km"],
-        )
+        if self.lasif_config["solver_used"].lower() == "salvus":
+            self.domain = lasif.domain.HDF5Domain(
+                self.lasif_config["domain_settings"]["domain_file"],
+                self.lasif_config["domain_settings"]["boundary_in_km"],
+            )
+        else:
+            self.domain = lasif.domain.SimpleDomain(
+                self.lasif_config["domain_settings"]["simple_domain"]
+            )
+        self.optimization_settings = config_dict["optimization_settings"]
 
         # Source-stacking configuration
         self.stacking_settings = config_dict["stacking"]
@@ -249,6 +260,9 @@ class Project(Component):
     def __setup_paths(self, root_path: pathlib.Path):
         """
         Central place to define all paths.
+
+        :param root_path: The path to the projects root directory
+        :type root_path: pathlib.Path
         """
         # Every key containing the string "file" denotes a file, all others
         # should denote directories.
@@ -300,11 +314,14 @@ class Project(Component):
                 continue
             os.makedirs(path)
 
-    def __init_new_project(self, project_name):
+    def __init_new_project(self, project_name: str):
         """
         Initializes a new project. This currently just means that it creates a
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
+
+        :param project_name: Name of the project
+        :type project_name: str
         """
         if not project_name:
             project_name = "LASIFProject"
@@ -316,10 +333,22 @@ class Project(Component):
                 "Here you specify your domain with an hdf5 mesh and "
                 "how thick of a boundary you need regarding data downloading "
                 "(i.e. What is the minimum distance from the boundary which "
-                "data can be downloded)"
+                "data can be downloded).\n"
             ),
             "domain_file": domain_file,
             "boundary_in_km": 100.0,
+            "simple_domain": {
+                "comment": (
+                    "The domain file only works for Salvus meshes. If you "
+                    "wish to use another solver you can use a simple domain "
+                    "where your only inputs are max/min lat/lon and depth."
+                ),
+                "max_lat": 45.0,
+                "min_lat": 10.0,
+                "max_lon": 45.0,
+                "min_lon": 10.0,
+                "depth_in_km": 500.0,
+            },
         }
         download = {
             "comment": (
@@ -343,6 +372,7 @@ class Project(Component):
         lasif_project = {
             "project_name": project_name,
             "description": "",
+            "solver_used": "Salvus",
             "domain_settings": domain,
             "download_settings": download,
         }
@@ -383,6 +413,7 @@ class Project(Component):
             "site_name": "daint",
             "ranks": 120,
             "wall_time_in_s": 3600,
+            "ocean_loading": False,
         }
         optimization_settings = {
             "comment": (
@@ -403,11 +434,12 @@ class Project(Component):
         with open(self.paths["config_file"], "w") as fh:
             toml.dump(cfg, fh)
 
-    def get_project_function(self, fct_type):
+    def get_project_function(self, fct_type: str):
         """
         Helper importing the project specific function.
 
         :param fct_type: The desired function.
+        :type fct_type: str
         """
         # Cache to avoid repeated imports.
         if fct_type in self.__project_function_cache:
@@ -465,7 +497,7 @@ class Project(Component):
         :param type: The type of data. Will be a subfolder.
         :param tag: The tag of the folder. Will be postfix of the final folder.
         :param timestamp: Add timestamp to folder name to ensure
-        uniqueness.
+            uniqueness. Defaults to True
         """
         from obspy import UTCDateTime
 

@@ -72,66 +72,70 @@ class EventsComponent(Component):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        ds = pyasdf.ASDFDataSet(filename, mode="r", mpi=False)
-        event = ds.events[0]
+        with pyasdf.ASDFDataSet(filename, mode="r", mpi=False) as ds:
+            event = ds.events[0]
 
-        # Extract information.
-        mag = event.preferred_magnitude() or event.magnitudes[0]
-        org = event.preferred_origin() or event.origins[0]
-        if org.depth is None:
-            warnings.warn(
-                "Origin contains no depth. Will be assumed to be 0",
-                LASIFWarning,
-            )
-            org.depth = 0.0
-        if mag.magnitude_type is None:
-            warnings.warn(
-                "Magnitude has no specified type. Will be assumed " "to be Mw",
-                LASIFWarning,
-            )
-            mag.magnitude_type = "Mw"
+            # Extract information.
+            mag = event.preferred_magnitude() or event.magnitudes[0]
+            org = event.preferred_origin() or event.origins[0]
+            if org.depth is None:
+                warnings.warn(
+                    "Origin contains no depth. Will be assumed to be 0",
+                    LASIFWarning,
+                )
+                org.depth = 0.0
+            if mag.magnitude_type is None:
+                warnings.warn(
+                    "Magnitude has no specified type. Will be assumed "
+                    "to be Mw",
+                    LASIFWarning,
+                )
+                mag.magnitude_type = "Mw"
 
-        # Get the moment tensor.
-        fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
-        mt = fm.moment_tensor.tensor
+            # Get the moment tensor.
+            fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
+            mt = fm.moment_tensor.tensor
 
-        event_name = os.path.splitext(os.path.basename(filename))[0]
+            event_name = os.path.splitext(os.path.basename(filename))[0]
 
-        return [
-            str(filename),
-            str(event_name),
-            float(org.latitude),
-            float(org.longitude),
-            float(org.depth / 1000.0),
-            float(org.time.timestamp),
-            float(mt.m_rr),
-            float(mt.m_pp),
-            float(mt.m_tt),
-            float(mt.m_rp),
-            float(mt.m_rt),
-            float(mt.m_tp),
-            float(mag.mag),
-            str(mag.magnitude_type),
-            str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
-        ]
+            return [
+                str(filename),
+                str(event_name),
+                float(org.latitude),
+                float(org.longitude),
+                float(org.depth / 1000.0),
+                float(org.time.timestamp),
+                float(mt.m_rr),
+                float(mt.m_pp),
+                float(mt.m_tt),
+                float(mt.m_rp),
+                float(mt.m_rt),
+                float(mt.m_tp),
+                float(mag.mag),
+                str(mag.magnitude_type),
+                str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
+            ]
 
-    def list(self, iteration=None):
+    def list(self, iteration: str = None):
         """
         List of all events.
         >>> comm = getfixture('events_comm')
         >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
         ['GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
-         'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
+        'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
         """
         self._update_cache()
-        if iteration:
+        if iteration is not None:
             import toml
 
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)
             path = os.path.join(
                 self.comm.project.paths["iterations"],
                 iter_name,
-                "central_info.toml",
+                "events_used.toml",
             )
             if not os.path.exists(path):
                 print(
@@ -139,14 +143,12 @@ class EventsComponent(Component):
                     "Will give all events"
                 )
                 return sorted(self.__event_info_cache.keys())
-            iter_info = toml.load(path)
-            event_toml = iter_info["events"]["events_used"]
-            iter_events = toml.load(event_toml)
+            iter_events = toml.load(path)
             return sorted(iter_events["events"]["events_used"])
         else:
             return sorted(self.__event_info_cache.keys())
 
-    def count(self, iteration=None):
+    def count(self, iteration: str = None):
         """
         Get the number of events managed by this component.
         If iteration given, return number of events in iteration
@@ -154,15 +156,18 @@ class EventsComponent(Component):
         >>> comm = getfixture('events_comm')
         >>> comm.events.count()
         2
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
         """
-        if iteration:
+        if iteration is not None:
             import toml
 
             iter_name = self.comm.iterations.get_long_iteration_name(iteration)
             path = os.path.join(
                 self.comm.project.paths["iterations"],
                 iter_name,
-                "central_info.toml",
+                "events_used.toml",
             )
             if not os.path.exists(path):
                 print(
@@ -170,18 +175,17 @@ class EventsComponent(Component):
                     "Will give all events"
                 )
                 return len(self.all_events)
-            iter_info = toml.load(path)
-            event_toml = iter_info["events"]["events_used"]
-            iter_events = toml.load(event_toml)
+            iter_events = toml.load(path)
             return len(iter_events["events"]["events_used"])
         else:
             return len(self.all_events)
 
-    def has_event(self, event_name):
+    def has_event(self, event_name: str):
         """
         Test for existence of an event.
-        :type event_name: str
+
         :param event_name: The name of the event.
+        :type event_name: str
         """
         # Make sure  it also works with existing event dictionaries. This
         # has the potential to simplify lots of code.
@@ -192,11 +196,16 @@ class EventsComponent(Component):
             pass
         return event_name in self.all_events
 
-    def get_all_events(self, iteration=None):
+    def get_all_events(self, iteration: str = None) -> dict:
         """
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
         :meth:`~lasif.components.events.EventsComponent.get` method.
+
+        :param iteration: Name of iteration, defaults to None
+        :type iteration: str, optional
+        :return: Dictonary with keys as event names and information as values
+        :rtype: dict
         """
         # make sure cache is filled
         self._update_cache()
@@ -210,13 +219,13 @@ class EventsComponent(Component):
         else:
             return copy.deepcopy(self.__event_info_cache)
 
-    def get(self, event_name):
+    def get(self, event_name: str) -> dict:
         """
         Get information about one event.
         This function uses multiple cache layers and is thus very cheap to
         call.
-        :type event_name: str
         :param event_name: The name of the event.
+        :type event_name: str
         :rtype: dict
         """
         try:

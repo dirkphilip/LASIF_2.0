@@ -4,7 +4,8 @@ from __future__ import absolute_import
 
 import inspect
 import re
-
+import shutil
+import pathlib
 import obspy
 import os
 import io
@@ -12,16 +13,35 @@ import pytest
 from unittest import mock
 
 from lasif import LASIFNotFoundError, LASIFWarning
+
 from lasif.components.events import EventsComponent
+from lasif.components.project import Project
 from lasif.components.communicator import Communicator
 
 
 @pytest.fixture
-def comm():
-    """
-    Returns a communicator with an initialized events component.
-    """
-    data_dir = os.path.join(
+# def comm():
+#     """
+#     Returns a communicator with an initialized events component.
+#     """
+#     data_dir = os.path.join(
+#         os.path.dirname(
+#             os.path.dirname(
+#                 os.path.abspath(inspect.getfile(inspect.currentframe()))
+#             )
+#         ),
+#         "data",
+#         "example_project",
+#         "DATA/EARTHQUAKES",
+#     )
+#     comm = Communicator()
+#     # Add project comm with paths to this fake component.
+#     comm.project = mock.MagicMock()
+#     comm.project.paths = {"root": data_dir}
+#     EventsComponent(data_dir, comm, "events")
+#     return comm
+def comm(tmpdir):
+    proj_dir = os.path.join(
         os.path.dirname(
             os.path.dirname(
                 os.path.abspath(inspect.getfile(inspect.currentframe()))
@@ -29,29 +49,32 @@ def comm():
         ),
         "data",
         "example_project",
-        "DATA/EARTHQUAKES",
     )
-    comm = Communicator()
-    # Add project comm with paths to this fake component.
-    comm.project = mock.MagicMock()
-    comm.project.paths = {"root": data_dir}
-    EventsComponent(data_dir, comm, "events")
-    return comm
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
+    folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
+
+    return project.comm
 
 
 def test_event_list(comm):
-    print(comm.events.list())
-    print("bla")
     assert sorted(comm.events.list()) == sorted(
         [
             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
             "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
         ]
     )
+    assert sorted(comm.events.list(iteration="2")) == sorted(
+        ["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",]
+    )
 
 
 def test_event_count(comm):
     assert comm.events.count() == 2
+    assert comm.events.count(iteration="2") == 1
 
 
 def test_has_event(comm):
@@ -116,6 +139,12 @@ def test_get_all_events(comm):
         ),
     }
     assert events == comm.events.get_all_events()
+    events = {
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15": comm.events.get(
+            "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+        ),
+    }
+    assert events == comm.events.get_all_events(iteration="2")
 
 
 def test_faulty_events(tmpdir, recwarn):

@@ -15,7 +15,7 @@ import numpy as np
 import obspy
 from obspy.signal.interpolation import lanczos_interpolation
 from lasif.tools.adjoint import utils
-from lasif.adjoint_sources import time_frequency
+from lasif.tools.adjoint import time_frequency
 from lasif.exceptions import LASIFAdjointSourceCalculationError
 
 eps = np.spacing(1)
@@ -265,7 +265,7 @@ def calculate_adjoint_source(
             "adjoint_source": obspy.Trace(
                 data=np.zeros_like(observed.data), header=observed.stats
             ),
-            "misfit": phase_misfit,
+            "misfit": phase_misfit * 2.0,
             "details": {"messages": messages},
         }
 

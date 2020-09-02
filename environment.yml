@@ -9,6 +9,7 @@ dependencies:
     - pyproj=1.9
     - obspy
     - cartopy
+    - pyasdf
     - progressbar
     - colorama
     - joblib
@@ -19,6 +20,7 @@ dependencies:
     - pip
     - sphinx
     - sphinx_rtd_theme
+    - seaborn
     - numexpr
     - ipython
     - dill
@@ -29,7 +31,6 @@ dependencies:
     - pyqtgraph
     - ipykernel
     - pathlib
-    - typing
     - jupyter
     - jupyter_contrib_nbextensions
     - jupytext

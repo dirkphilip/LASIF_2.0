@@ -69,7 +69,7 @@ def call_git_describe(abbrev=4):  # pragma: no cover
             [
                 "git",
                 "describe",
-                "--dirty",
+                # "--dirty",
                 "--abbrev=%d" % abbrev,
                 "--always",
                 "--tags",

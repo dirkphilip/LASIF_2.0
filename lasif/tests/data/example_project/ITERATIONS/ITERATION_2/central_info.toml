@@ -1,0 +1,15 @@
+# This toml file includes information relative to this iteration: ITERATION_2. 
+# It contains direct information as well as paths to other toml files with other information.
+ 
+[events]
+    # In this file you can modify the used events in the iteration. 
+    # This is what your commands will read when you don't specify events.
+    events_used = "./events_used.toml"
+
+[simulations]
+    # These files will be created or updated every time you generate input files for the respective simulations.
+    forward = "./forward.toml"
+    adjoint = "./adjoint.toml"
+    step_length = "./step_length.toml"
+
+    # That's it, if you need more, contact developers.

@@ -38,6 +38,7 @@ a spherical body, e.g. the Earth.
 import math
 import numpy as np
 import sys
+from typing import Union
 
 eps = sys.float_info.epsilon
 
@@ -59,7 +60,7 @@ def _get_vector(*args):
         raise NotImplementedError
 
 
-def lat2colat(lat):
+def lat2colat(lat: Union[np.ndarray, float]):
     """
     Helper function to convert latitude to colatitude. This, surprisingly, is
     quite an error source.
@@ -76,11 +77,12 @@ def lat2colat(lat):
     0.0
 
     :param lat: The latitude.
+    :type lat: Union[numpy.ndarray, float]
     """
     return 90.0 - lat
 
 
-def colat2lat(colat):
+def colat2lat(colat: Union[np.ndarray, float]):
     """
     Helper function to convert colatitude to latitude. This, surprisingly, is
     quite an error source.
@@ -97,6 +99,7 @@ def colat2lat(colat):
     90.0
 
     :param colat: The colatitude.
+    :type colat: Union[numpy.ndarray, float]
     """
     return -1.0 * (colat - 90.0)
 
@@ -127,13 +130,20 @@ def xyz_to_lat_lon_radius(*args):
     return lat, lon, r
 
 
-def lat_lon_radius_to_xyz(lat, lon, r):
+def lat_lon_radius_to_xyz(
+    lat: Union[np.ndarray, float],
+    lon: Union[np.ndarray, float],
+    r: Union[np.ndarray, float],
+):
     """
     Converts latitude, longitude and radius to x, y, and z.
 
     :param lat: The latitude.
+    :type lat: Union[numpy.ndarray, float]
     :param lon:  The longitude.
+    :type lon: Union[numpy.ndarray, float]
     :param r: The radius.
+    :type r: Union[numpy.ndarray, float]
     """
     colat = lat2colat(lat)
     # To radian

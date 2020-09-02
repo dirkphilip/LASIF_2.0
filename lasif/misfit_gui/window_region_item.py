@@ -81,7 +81,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
                 "communicator instance."
             )
 
-        from lasif.tools.adjoint import calculate_adjoint_source
+        from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
         import matplotlib.pyplot as plt
 
         plt.close("all")

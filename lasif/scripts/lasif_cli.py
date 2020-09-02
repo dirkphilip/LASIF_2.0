@@ -138,15 +138,10 @@ def lasif_plot_domain(parser, args):
     parser.add_argument(
         "--save", help="Save the plot in a file", action="store_true"
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
     args = parser.parse_args(args)
     save = args.save
 
-    api.plot_domain(lasif_root=".", save=save, show_mesh=args.show_mesh)
+    api.plot_domain(lasif_root=".", save=save)
 
 
 @command_group("Misc")
@@ -196,11 +191,6 @@ def lasif_plot_event(parser, args):
         "weights",
         default=None,
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
 
     args = parser.parse_args(args)
 
@@ -221,7 +211,6 @@ def lasif_plot_event(parser, args):
         weight_set_name=args.weight_set_name,
         intersection_override=intersection_override,
         save=args.save,
-        show_mesh=args.show_mesh,
     )
 
 
@@ -250,11 +239,7 @@ def lasif_plot_events(parser, args):
     parser.add_argument(
         "--save", help="Saves the plot in a file", action="store_true"
     )
-    parser.add_argument(
-        "--show_mesh",
-        action="store_true",
-        help="Also plot the mesh. Currently works for exodus meshes/domains.",
-    )
+
     args = parser.parse_args(args)
 
     api.plot_events(
@@ -262,7 +247,6 @@ def lasif_plot_events(parser, args):
         type_of_plot=args.type,
         iteration=args.iteration,
         save=args.save,
-        show_mesh=args.show_mesh,
     )
 
 
@@ -430,19 +414,11 @@ def lasif_download_data(parser, args):
         nargs="+",
         help="FDSN providers to query. Will use all known " "ones if not set.",
     )
-    parser.add_argument(
-        "--downsample_data",
-        action="store_true",
-        help="If the dataset could get too big this can"
-        " help with reducing the size."
-        " Be very careful while using this one. "
-        "Currently it changes the waveforms a bit.",
-    )
     args = parser.parse_args(args)
 
     api.download_data(
         lasif_root=".",
-        event_name=args.event_name if args.event_name else [],
+        event_name=args.event_name if args.event_name is not None else None,
         providers=args.providers,
     )
 
@@ -467,7 +443,10 @@ def lasif_list_events(parser, args):
     args = parser.parse_args(args)
 
     api.list_events(
-        lasif_root=".", just_list=args.just_list, iteration=args.iteration
+        lasif_root=".",
+        just_list=args.just_list,
+        iteration=args.iteration,
+        output=False,
     )
 
 
@@ -505,7 +484,7 @@ def lasif_submit_job(parser, args):
         wall_time=args.wall_time_in_seconds,
         simulation_type=args.simulation_type,
         site=args.site,
-        events=args.event if args.event else [],
+        events=args.event,
     )
 
 
@@ -536,7 +515,7 @@ def lasif_retrieve_output(parser, args):
         iteration=args.iteration_name,
         simulation_type=args.simulation_type,
         site=args.site,
-        events=args.event if args.event else [],
+        events=args.event,
     )
 
 
@@ -606,7 +585,7 @@ def lasif_generate_input_files(parser, args):
         lasif_root=".",
         iteration=args.iteration_name,
         simulation_type=args.simulation_type,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set_name if args.weight_set_name else None,
         prev_iter=args.prev_iter if args.prev_iter else None,
     )
@@ -649,7 +628,7 @@ def lasif_calculate_adjoint_sources(parser, args):
         lasif_root=".",
         iteration=args.iteration_name,
         window_set=args.window_set_name,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set if args.weight_set else None,
     )
 
@@ -676,7 +655,7 @@ def lasif_select_windows(parser, args):
         lasif_root=".",
         iteration=args.iteration,
         window_set=args.window_set_name,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
     )
 
 
@@ -736,7 +715,7 @@ def lasif_compute_station_weights(parser, args):
     api.compute_station_weights(
         lasif_root=".",
         weight_set=args.weight_set_name,
-        events=args.event_name if args.event_name else [],
+        events=args.event_name,
         iteration=args.iteration,
     )
 
@@ -762,7 +741,7 @@ def lasif_get_weighting_bins(parser, args):
     api.get_weighting_bins(
         lasif_root=".",
         window_set=args.window_set_name,
-        events=args.event_name if args.event_name else [],
+        events=args.event_name,
         iteration=args.iteration,
     )
 
@@ -794,7 +773,7 @@ def lasif_set_up_iteration(parser, args):
     api.set_up_iteration(
         lasif_root=".",
         iteration=args.iteration_name,
-        events=args.events if args.events else [],
+        events=args.events,
         remove_dirs=args.remove_dirs,
     )
 
@@ -832,7 +811,7 @@ def lasif_list_iterations(parser, args):
     Creates directory structure for a new iteration.
     """
     args = parser.parse_args(args)
-    api.list_iterations(lasif_root=".")
+    api.list_iterations(lasif_root=".", output=False)
 
 
 @mpi_enabled
@@ -875,7 +854,7 @@ def lasif_compare_misfits(parser, args):
         lasif_root=".",
         from_it=args.from_iteration,
         to_it=args.to_iteration,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         weight_set=args.weight_set_name,
         print_events=args.print_events,
     )
@@ -916,7 +895,7 @@ def lasif_process_data(parser, args):
     args = parser.parse_args(args)
     api.process_data(
         lasif_root=".",
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         iteration=args.iteration,
     )
 
@@ -946,7 +925,7 @@ def lasif_plot_window_statistics(parser, args):
         lasif_root=".",
         window_set=args.window_set_name,
         save=args.save,
-        events=args.events if args.events else [],
+        events=args.events if args.events else None,
         iteration=args.iteration,
     )
 

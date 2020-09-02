@@ -17,10 +17,13 @@ import inspect
 import os
 import pathlib
 import shutil
+import toml
+from lasif.domain import HDF5Domain, SimpleDomain
 
 # from lasif.domain import HDF5Domain
 from lasif.scripts import lasif_cli
 from lasif.tests.testing_helpers import reset_matplotlib
+
 # images_are_identical
 
 import pytest
@@ -52,6 +55,36 @@ def comm(tmpdir):
     proj_dir = os.path.join(tmpdir, "proj")
 
     folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
+    os.chdir(os.path.abspath(folder_path))
+
+    return project.comm
+
+
+@pytest.fixture()
+def comm_simple(tmpdir):
+    proj_dir = os.path.join(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        ),
+        "tests",
+        "data",
+        "example_project",
+    )
+
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
+    folder_path = pathlib.Path(proj_dir).absolute()
+    toml_file = folder_path / "lasif_config.toml"
+    config = toml.load(toml_file)
+    config["lasif_project"]["solver_used"] = "other"
+    with open(toml_file, "w") as fh:
+        toml.dump(config, fh)
+
     project = Project(project_root_path=folder_path, init_project=False)
     os.chdir(os.path.abspath(folder_path))
 
@@ -99,6 +132,7 @@ def test_point_in_domain(comm):
     """
     Check whether points exist inside domain or not.
     """
+    assert isinstance(comm.project.domain, HDF5Domain)
     event_list = comm.events.list()
     for event_name in event_list:
         event_dir = comm.events.get(event_name)
@@ -107,6 +141,7 @@ def test_point_in_domain(comm):
             latitude=event_dir["latitude"],
             depth=event_dir["depth_in_km"] * 1000.0,
         )
+        # assert event_dir["depth_in_km"] == 12.0
         assert in_domain
 
     # Make conditions to let the test fail due to depth.
@@ -117,16 +152,22 @@ def test_point_in_domain(comm):
     assert not in_domain
 
     # Fail by longitude
-    long = 90.0
+    long = 60.0
     depth = event_dir["depth_in_km"] * 1000
     in_domain = comm.project.domain.point_in_domain(long, lat, depth)
     assert not in_domain
 
     # Fail by latitude
-
     long = event_dir["longitude"]
-    lat = 82.0
+    lat = 62.0
     in_domain = comm.project.domain.point_in_domain(long, lat, depth)
+    assert not in_domain
+
+    # Fail by point inside minmax latlon but not in complex domain
+    lon = 32.155
+    lat = 43.24
+    depth = 300.0
+    in_domain = comm.project.domain.point_in_domain(lon, lat, depth)
     assert not in_domain
 
 
@@ -183,9 +224,45 @@ def test_point_in_global_domain(latitude, longitude, depth):
     assert global_domain.point_in_domain(longitude, latitude, depth * 1000.0)
 
 
-# def test_exodus_mesh_plotting(tmpdir):
-#     exodus_file = (pathlib.Path(__file__).parent / "data" /
-#                    "very_simple_1000s_single_layer_mesh.e")
-#     d = HDF5Domain(exodus_file, num_buffer_elems=0)
-#     d.plot(show_mesh=True)
-#     images_are_identical("example_mesh_plot", tmpdir)
+def test_simple_domain(comm_simple):
+    """
+    While Salvus is not used, different kind of domains are used.
+    That will be tested here.
+    """
+
+    assert isinstance(comm_simple.project.domain, SimpleDomain)
+
+
+@pytest.mark.parametrize("latitude", [50.0, 30.0, 25.0])
+@pytest.mark.parametrize("longitude", [-1.0, 30.0, 50.0])
+@pytest.mark.parametrize("depth", [10.0, 100.0])
+def test_point_in_simple_domain(comm_simple, latitude, longitude, depth):
+
+    assert comm_simple.project.domain.point_in_domain(
+        longitude, latitude, depth * 1000.0
+    )
+
+
+def test_point_out_of_simple_domain(comm_simple):
+
+    latitude = 30.0
+    longitude = 30.0
+    depth = 100.0
+
+    # fail by longitude
+    longitude_f = 80.0
+    assert not comm_simple.project.domain.point_in_domain(
+        longitude_f, latitude, depth * 1000.0
+    )
+
+    # fail by latitude
+    latitude_f = 80.0
+    assert not comm_simple.project.domain.point_in_domain(
+        longitude, latitude_f, depth * 1000.0
+    )
+
+    # fail by depth
+    depth_f = 700.0
+    assert not comm_simple.project.domain.point_in_domain(
+        longitude, latitude, depth_f * 1000.0
+    )

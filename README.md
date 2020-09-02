@@ -4,7 +4,18 @@
 [![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/dirkphilip/LASIF_2.0/blob/master/LICENSE)
 
 
-Documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
+Detailed documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
+
+Installation process:
+
+```bash
+cd <directory to download LASIF>
+git clone https://github.com/dirkphilip/LASIF_2.0.git
+cd LASIF_2.0
+conda env create -f environment.yml
+conda activate lasif
+pip install -e .
+```
 
 
 ### Paper

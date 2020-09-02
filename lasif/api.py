@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 An api to communicate directly with lasif functions without using the
-command line interface.
+command line interface. Ideal interface for scripting.
 
 :copyright:
     Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch), 2018
@@ -13,7 +13,7 @@ command line interface.
 """
 import os
 import pathlib
-
+from typing import Union
 import colorama
 import toml
 import numpy as np
@@ -33,6 +33,9 @@ def find_project_comm(folder):
     """
     Will search upwards from the given folder until a folder containing a
     LASIF root structure is found. The absolute path to the root is returned.
+
+    :param folder: Path to folder where you want to search from
+    :type folder: Union[str, pathlib.Path, object]
     """
     if isinstance(folder, Communicator):
         return folder
@@ -48,18 +51,23 @@ def find_project_comm(folder):
     raise LASIFCommandLineException(msg)
 
 
-def plot_domain(lasif_root, save, show_mesh=False):
+def plot_domain(lasif_root, save=False, inner_boundary=False):
     """
     Plot the studied domain specified in config file
+
     :param lasif_root: path to lasif root directory.
-    :param save: save file
-    :param show_mesh: Plot the mesh for exodus domains/meshes.
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param save: save file, defaults to False
+    :type save: bool, optional
+    :param inner_boundary: binary whether the inner boundary should be drawn
+        Only works well for convex domains, defaults to False
+    :type inner_boundary: bool, optional
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_domain(show_mesh=show_mesh)
+    comm.visualizations.plot_domain(inner_boundary)
 
     if save:
         outfile = os.path.join(
@@ -76,20 +84,34 @@ def plot_domain(lasif_root, save, show_mesh=False):
 
 def plot_event(
     lasif_root,
-    event_name,
-    weight_set_name=None,
-    save=False,
-    show_mesh=False,
-    intersection_override=None,
+    event_name: str,
+    weight_set_name: str = None,
+    save: bool = False,
+    intersection_override: bool = None,
+    inner_boundary: bool = False,
 ):
     """
     Plot a single event including stations on a map. Events can be
     color coded based on their weight
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event_name: name of event to plot
-    :param weight_set_name: name of station weight set
-    :param save: if figure should be saved
-    :param show_mesh: Plot the mesh for exodus domains/meshes.
+    :type event_name: str
+    :param weight_set_name: name of station weight set, defaults to None
+    :type weight_set_name: str, optional
+    :param save: if figure should be saved, defaults to False
+    :type save: bool, optional
+    :param intersection_override: boolean to require to have the same
+        stations recording all events, i.e. the intersection of receiver
+        sets. The intersection will consider two stations equal i.f.f. the
+        station codes AND coordinates (LAT, LON, Z) are equal. If None is
+        passed, the value use_only_intersection from the projects'
+        configuration file is used, defaults to None
+    :type intersection_override: bool, optional
+    :param inner_boundary: binary whether the inner boundary should be drawn
+        Only works well for convex domains, defaults to False
+    :type inner_boundary: bool, optional
     """
     import matplotlib.pyplot as plt
 
@@ -101,8 +123,8 @@ def plot_event(
     comm.visualizations.plot_event(
         event_name,
         weight_set_name,
-        show_mesh=show_mesh,
         intersection_override=intersection_override,
+        inner_boundary=inner_boundary,
     )
 
     if save:
@@ -119,23 +141,34 @@ def plot_event(
 
 
 def plot_events(
-    lasif_root, type_of_plot="map", iteration=None, save=False, show_mesh=False
+    lasif_root,
+    type_of_plot: str = "map",
+    iteration: str = None,
+    save: bool = False,
+    inner_boundary: bool = False,
 ):
     """
     Plot a all events on the domain
+
     :param lasif_root: path to lasif root directory
-    :param type_of_plot: type of plot, defaults to 'map'
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param type_of_plot: type of plot, options are 'map', 'depth' and 'time',
+        defaults to 'map'
+    :type type_of_plot: str, optional
     :param iteration: plot all events of an iteration, defaults to None
+    :type iteration: str, optional
     :param save: if figure should be saved, defaults to False
-    :param show_mesh: Plot the mesh for exodus domains/meshes, defaults to 
-        False
+    :type save: bool, optional
+    :param inner_boundary: binary weather the inner boundary should be drawn
+        Only works well for convex domains, defaults to False
+    :type inner_boundary: bool, optional
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_events(
-        type_of_plot, iteration=iteration, show_mesh=show_mesh
+        type_of_plot, iteration=iteration, inner_boundary=inner_boundary
     )
 
     if save:
@@ -164,9 +197,9 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
     the respective iteration prior to making this plot.
     Keep in mind that station with no windows will not get plotted, these
     stations might be the ones with the largest misfits in reality
-    
+
     :param lasif_root: Lasif root directory or communicator object
-    :type lasif_root: str, pathlib.Path, object
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
@@ -179,7 +212,7 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_station_misfits(
-        event_name=event, iteration=iteration, save=save,
+        event_name=event, iteration=iteration
     )
 
     if save:
@@ -200,20 +233,32 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
 
 def plot_raydensity(
     lasif_root,
-    plot_stations,
-    iteration=None,
-    save=True,
-    intersection_override=None,
+    plot_stations: bool,
+    iteration: str = None,
+    save: bool = True,
+    intersection_override: bool = None,
 ):
     """
     Plot a distribution of earthquakes and stations with great circle rays
     plotted underneath.
+
     :param lasif_root: Lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param plot_stations: boolean argument whether stations should be plotted
-    :param iteration: If you only want events from a certain iteration
+    :type plot_stations: bool
+    :param iteration: If you only want events from a certain iteration, if
+        None is passed every event will be used, defaults to None
+    :type iteration: str, optional
     :param save: Whether you want to save the figure, if False, it gets
         plotted and not saved, defaults to True
     :type save: bool, optional
+    :param intersection_override: boolean to require to have the same
+        stations recording all events, i.e. the intersection of receiver
+        sets. The intersection will consider two stations equal i.f.f. the
+        station codes AND coordinates (LAT, LON, Z) are equal. If None is
+        passed, the value use_only_intersection from the projects'
+        configuration file is used, defaults to None
+    :type intersection_override: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -229,25 +274,33 @@ def plot_raydensity(
 def plot_all_rays(
     lasif_root,
     plot_stations: bool,
-    iteration=None,
-    save=True,
-    intersection_override=None,
+    iteration: str = None,
+    save: bool = True,
+    intersection_override: bool = None,
 ):
     """
     Plot all the rays that are in the project or in a specific iteration.
     This is typically slower than the plot_raydensity function
-    
+
     :param lasif_root: Lasif root directory
-    :type lasif_root: path, str or Lasif communicator object
+    :type lasif_root: Union[pathlib.Path, str, object]
     :param plot_stations: True/False whether stations should be plotted
     :type plot_stations: bool
-    :param iteration: If you want to plot events from iteration, defaults to 
-        None
+    :param iteration: If you only want events from a certain iteration, if
+        None is passed every event will be used, defaults to None
     :type iteration: str, optional
     :param save: Whether you want to save the figure, if False, it gets
         plotted and not saved, defaults to True
     :type save: bool, optional
+    :param intersection_override: boolean to require to have the same
+        stations recording all events, i.e. the intersection of receiver
+        sets. The intersection will consider two stations equal i.f.f. the
+        station codes AND coordinates (LAT, LON, Z) are equal. If None is
+        passed, the value use_only_intersection from the projects'
+        configuration file is used, defaults to None
+    :type intersection_override: bool, optional
     """
+
     comm = find_project_comm(lasif_root)
 
     comm.visualizations.plot_all_rays(
@@ -259,17 +312,31 @@ def plot_all_rays(
 
 
 def add_gcmt_events(
-    lasif_root, count, min_mag, max_mag, min_dist, min_year=None, max_year=None
+    lasif_root,
+    count: int,
+    min_mag: float,
+    max_mag: float,
+    min_dist: float,
+    min_year: int = None,
+    max_year: int = None,
 ):
     """
     Add events to the project.
+
     :param lasif_root: path to lasif root directory
-    :param count: Amount of events
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param count: Nunber of events
+    :type count: int
     :param min_mag: Minimum magnitude
+    :type min_mag: float
     :param max_mag: Maximum magnitude
-    :param min_dist: Minimum distance between events
-    :param min_year: Year to start event search [optional]
-    :param max_year: Year to end event search [optional]
+    :type max_mag: float
+    :param min_dist: Minimum distance between events in km
+    :type min_dist: float
+    :param min_year: Year to start event search, defaults to None
+    :type min_year: float, optional
+    :param max_year: Year to end event search, defaults to None
+    :type max_year: float, optional
     """
 
     from lasif.tools.query_gcmt_catalog import add_new_events
@@ -292,7 +359,7 @@ def add_spud_event(lasif_root, url: str):
     Adds events from the iris spud service, provided a link to the event
 
     :param lasif_root: Path to lasif project
-    :type lasif_root: str
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param url: URL to the spud event
     :type url: str
     """
@@ -306,23 +373,36 @@ def add_spud_event(lasif_root, url: str):
 def project_info(lasif_root):
     """
     Print a summary of the project
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     """
 
     comm = find_project_comm(lasif_root)
     print(comm.project)
 
 
-def download_data(lasif_root, event_name=[], providers=None):
+def download_data(
+    lasif_root,
+    event_name: Union[str, List[str]] = None,
+    providers: List[str] = None,
+):
     """
     Download available data for events
+
     :param lasif_root: path to lasif root directory
-    :param event_name: Name of event [optional]
-    :param providers: Providers to download from [optional]
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param event_name: Name of event(s), if you want to pass all events,
+        pass None, you can pass either an event or a list of events,
+        defaults to None.
+    :type event_name: Union[str, List[str]], optional
+    :param providers: A list of providers to download from, if nothing passed
+        it will query all known providers that FDSN knows, defaults to None
+    :type providers: List[str]
     """
 
     comm = find_project_comm(lasif_root)
-    if len(event_name) == 0:
+    if event_name is None:
         event_name = comm.events.list()
     if not isinstance(event_name, list):
         event_name = [event_name]
@@ -330,12 +410,25 @@ def download_data(lasif_root, event_name=[], providers=None):
         comm.downloads.download_data(event, providers=providers)
 
 
-def list_events(lasif_root, just_list=True, iteration=None, output=False):
+def list_events(
+    lasif_root,
+    just_list: bool = True,
+    iteration: str = None,
+    output: bool = True,
+):
     """
     Print a list of events in project
+
     :param lasif_root: path to lasif root directory
-    :param just_list: Show only a list of events, good for scripting [optional]
-    :param iteration: Show only events for specific iteration [optional]
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param just_list: Show only a plain list of events, if False it gives
+        more information on the events, defaults to True
+    :type just_list: bool, optional
+    :param iteration: Show only events for specific iteration, defaults to None
+    :type iteration: str, optional
+    :param output: Do you want to output the list into a variable, defaults
+        to True
+    :type output: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -347,10 +440,14 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
                 print(event)
 
     else:
+        if output:
+            raise LASIFError("You can only output a basic list")
         print(
-            f"%i event%s in %s:"
+            "%i event%s in %s:"
             % (
-                comm.events.count(),
+                comm.events.count(iteration)
+                if iteration
+                else comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
                 "iteration" if iteration else "project",
             )
@@ -376,114 +473,16 @@ def list_events(lasif_root, just_list=True, iteration=None, output=False):
         print(tab)
 
 
-def submit_job(
-    lasif_root, iteration, ranks, wall_time, simulation_type, site, events=[]
-):
-    """
-    Submits job(s) to a supercomputer using salvus-flow. Be careful with this
-    one
-    :param lasif_root: path to lasif root directory
-    :param iteration: Name of iteration
-    :param ranks: Amount of CPUs to use
-    :param wall_time: Wall time in seconds
-    :param simulation_type: forward, adjoint, step_length
-    :param site: Which computer to send job to
-    :param events: If you only want to submit selected events. [optional]
-    """
-    import salvus_flow.api
-
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
-
-    if simulation_type not in ["forward", "step_length", "adjoint"]:
-        raise LASIFError(
-            "Simulation type needs to be forward, step_length" " or adjoint"
-        )
-
-    if len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-    input_files_dir = comm.project.paths["salvus_files"]
-
-    for event in events:
-        file = os.path.join(
-            input_files_dir,
-            long_iter_name,
-            event,
-            simulation_type,
-            "run_salvus.sh",
-        )
-        job_name = f"{event}_{long_iter_name}_{simulation_type}"
-
-        if simulation_type == "adjoint":
-            wave_job_name = f"{event}_{long_iter_name}_forward@{site}"
-            salvus_flow.api.run_salvus(
-                site=site,
-                cmd_line=file,
-                wall_time_in_seconds=wall_time,
-                custom_job_name=job_name,
-                ranks=ranks,
-                wavefield_job_name=wave_job_name,
-            )
-        else:
-            salvus_flow.api.run_salvus(
-                site=site,
-                cmd_line=file,
-                wall_time_in_seconds=wall_time,
-                custom_job_name=job_name,
-                ranks=ranks,
-            )
-
-
-def retrieve_output(lasif_root, iteration, simulation_type, site, events=[]):
-    """
-    Retrieve output from simulation
-    :param lasif_root: path to lasif root directory
-    :param iteration: Name of iteration
-    :param simulation_type: forward, adjoint, step_length
-    :param site: Which computer to send job to
-    :param events: If you only want to submit selected events. [optional]
-    """
-
-    import salvus_flow.api
-    import shutil
-
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
-
-    if len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-
-    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
-
-    if simulation_type in ["forward", "step_length"]:
-        base_dir = comm.project.paths["eq_synthetics"]
-    elif simulation_type == "adjoint":
-        base_dir = comm.project.paths["gradients"]
-    else:
-        raise LASIFError(
-            "Simulation type needs to be forward, step_length" " or adjoint"
-        )
-
-    for event in events:
-        output_dir = os.path.join(base_dir, long_iter_name, event)
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-        job_name = f"{event}_{long_iter_name}_{simulation_type}@{site}"
-        salvus_flow.api.get_output(job=job_name, destination=output_dir)
-
-
-def event_info(lasif_root, event_name, verbose):
+def event_info(lasif_root, event_name: str, verbose: bool = False):
     """
     Print information about a single event
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event_name: Name of event
-    :param verbose: Print station information as well
+    :type event_name: str
+    :param verbose: Print station information as well, defaults to False
+    :type verbose: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -545,7 +544,9 @@ def event_info(lasif_root, event_name, verbose):
 def plot_stf(lasif_root):
     """
     Plot the source time function
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     """
     import lasif.visualization
 
@@ -580,81 +581,13 @@ def plot_stf(lasif_root):
         )
 
 
-def generate_input_files(
-    lasif_root,
-    iteration,
-    simulation_type,
-    events=[],
-    weight_set=None,
-    prev_iter=None,
-):
-    """
-    Generate input files to prepare for numerical simulations
-    :param lasif_root: path to lasif root directory
-    :param iteration: name of iteration
-    :param simulation_type: forward, step_length, adjoint
-    :param events: One or more events [optional]
-    :param weight_set: Name of weight set [optional]
-    :param prev_iter: If input files can be copied from another iteration
-    [optional]
-    """
-
-    comm = find_project_comm(lasif_root)
-
-    simulation_type_options = ["forward", "step_length", "adjoint"]
-    if simulation_type not in simulation_type_options:
-        raise LASIFError(
-            "Please choose simulation_type from: "
-            "[%s]" % ", ".join(map(str, simulation_type_options))
-        )
-
-    if len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-
-    if weight_set:
-        if not comm.weights.has_weight_set(weight_set):
-            raise LASIFNotFoundError(
-                f"Weights {weight_set} not known" f"to LASIF"
-            )
-
-    if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError(f"Could not find iteration: {iteration}")
-
-    if prev_iter and not comm.iterations.has_iteration(prev_iter):
-        raise LASIFNotFoundError(f"Could not find iteration:" f" {prev_iter}")
-
-    for _i, event in enumerate(events):
-        if not comm.events.has_event(event):
-            print(
-                f"Event {event} not known to LASIF. "
-                f"No input files for this event"
-                f" will be generated. "
-            )
-            continue
-        print(
-            f"Generating input files for event "
-            f"{_i + 1} of {len(events)} -- {event}"
-        )
-        if simulation_type == "adjoint":
-            comm.adj_sources.finalize_adjoint_sources(
-                iteration, event, weight_set
-            )
-
-        else:
-            from lasif.utils import generate_input_files
-
-            generate_input_files(
-                iteration, event, comm, simulation_type, prev_iter
-            )
-
-    comm.iterations.write_info_toml(iteration, simulation_type)
-
-
-def init_project(project_path):
+def init_project(project_path: Union[str, pathlib.Path]):
     """
     Create a new project
+
     :param project_path: Path to project root directory. Can use absolute
-    paths or relative paths from current working directory.
+        paths or relative paths from current working directory.
+    :type project_path: Union[str, pathlib.Path]
     """
 
     project_path = pathlib.Path(project_path).absolute()
@@ -673,15 +606,26 @@ def init_project(project_path):
 
 
 def calculate_adjoint_sources(
-    lasif_root, iteration, window_set, weight_set=None, events=[]
+    lasif_root,
+    iteration: str,
+    window_set: str,
+    weight_set: str = None,
+    events: Union[str, List[str]] = None,
 ):
     """
     Calculate adjoint sources for a given iteration
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration
+    :type iteration: str
     :param window_set: name of window set
-    :param weight_set: name of station weight set [optional]
-    :param events: events [optional]
+    :type window_set: str
+    :param weight_set: name of station weight set, defaults to None
+    :type weight_set: str, optional
+    :param events: Name of event or list of events. To get all events for
+        the iteration, pass None, defaults to None
+    :type events: Union[str, List[str]]
     """
     from mpi4py import MPI
 
@@ -702,8 +646,10 @@ def calculate_adjoint_sources(
             )
         return
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
@@ -758,19 +704,32 @@ def calculate_adjoint_sources(
             )
 
 
-def select_windows(lasif_root, iteration, window_set, events=[]):
+def select_windows(
+    lasif_root,
+    iteration: str,
+    window_set: str,
+    events: Union[str, List[str]] = None,
+):
     """
     Autoselect windows for a given iteration and event combination
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration
+    :type iteration: str
     :param window_set: name of window set
-    :param events: events [optional]
+    :type window_set: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
     """
 
     comm = find_project_comm(lasif_root)  # Might have to do this mpi
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
 
     for event in events:
         print(f"Selecting windows for event: {event}")
@@ -780,7 +739,9 @@ def select_windows(lasif_root, iteration, window_set, events=[]):
 def open_gui(lasif_root):
     """
     Open up the misfit gui
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     """
 
     comm = find_project_comm(lasif_root)
@@ -790,34 +751,51 @@ def open_gui(lasif_root):
     launch(comm)
 
 
-def create_weight_set(lasif_root, weight_set):
+def create_weight_set(lasif_root, weight_set: str):
     """
     Create a new set of event and station weights
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param weight_set: name of weight set
+    :type weight_set: str
     """
 
     comm = find_project_comm(lasif_root)
 
     comm.weights.create_new_weight_set(
         weight_set_name=weight_set,
-        events_dict=comm.query.get_all_stations_for_events(),
+        events_dict=comm.query.get_stations_for_all_events(),
     )
 
 
-def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
+def compute_station_weights(
+    lasif_root,
+    weight_set: str,
+    events: Union[str, List[str]] = None,
+    iteration: str = None,
+):
     """
     Compute weights for stations based on amount of neighbouring stations
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param weight_set: name of weight set to compute into
-    :param events: name of event [optional]
-    :param iteration: name of iteration to compute weights for [optional]
+    :type weight_set: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    :param iteration: name of iteration to compute weights for, controls
+        the events which are picked for computing weights for.
+    :type iteration: str, optional
     """
 
     comm = find_project_comm(lasif_root)
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
     events_dict = {}
     if not comm.weights.has_weight_set(weight_set):
         for event in events:
@@ -854,6 +832,10 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
             w_set.events[event]["stations"][station]["station_weight"] *= (
                 len(stations) / sum_value
             )
+        if len(stations.keys()) == 1:
+            w_set.events[event]["stations"][stations[station]][
+                "station_weight"
+            ] = 1.0
 
     comm.weights.change_weight_set(
         weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
@@ -861,22 +843,35 @@ def compute_station_weights(lasif_root, weight_set, events=[], iteration=None):
 
 
 def set_up_iteration(
-    lasif_root, iteration, events=[], event_specific=False, remove_dirs=False
+    lasif_root,
+    iteration: str,
+    events: Union[str, List[str]] = None,
+    event_specific: bool = False,
+    remove_dirs: bool = False,
 ):
     """
     Creates or removes directory structure for an iteration
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration
-    :param events: events to include in iteration [optional]
-    :param event_specific: If the inversion needs a specific model for each 
-        event
-    :param remove_dirs: boolean value to remove dirs [default=False]
+    :type iteration: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    :param event_specific: If the inversion needs a specific model for each
+        event, defaults to False
+    :type event_specific: bool, optional
+    :param remove_dirs: boolean value to remove dirs, defaults to False
+    :type remove_dirs: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list()
+    if isinstance(events, str):
+        events = [events]
 
     iterations = list_iterations(comm, output=True)
     if isinstance(iterations, list):
@@ -966,11 +961,14 @@ def write_misfit(
     return total_misfit
 
 
-def list_iterations(lasif_root, output=False):
+def list_iterations(lasif_root, output: bool = True):
     """
     List iterations in project
+
     :param lasif_root: path to lasif root directory
-    :param output: If the function should return the list
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param output: If the function should return the list, defaults to True
+    :type output: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -992,7 +990,12 @@ def list_iterations(lasif_root, output=False):
 
 
 def compare_misfits(
-    lasif_root, from_it, to_it, events=[], weight_set=None, print_events=False
+    lasif_root,
+    from_it: str,
+    to_it: str,
+    events: Union[str, List[str]] = None,
+    weight_set: str = None,
+    print_events: bool = False,
 ):
     """
     Compares the total misfit between two iterations.
@@ -1005,17 +1008,27 @@ def compare_misfits(
     If windows are weighted in the calculation of the adjoint
     sources. That should translate into the calculated misfit
     value.
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param from_it: evaluate misfit from this iteration
+    :type from_it: str
     :param to_it: to this iteration
-    :param events: Events to use to compare
-    :param weight_set: Set of station and event weights
-    :param print_events: compare misfits for each event
+    :type to_it: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    :param weight_set: Set of station and event weights, defaults to None
+    :type weight_set: str, optional
+    :param print_events: compare misfits for each event, defaults to False
+    :type print_events: bool, optional
     """
     comm = find_project_comm(lasif_root)
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list()
+    if isinstance(events, str):
+        events = [events]
 
     if weight_set:
         if not comm.weights.has_weight_set(weight_set):
@@ -1031,19 +1044,21 @@ def compare_misfits(
     from_it_misfit = 0.0
     to_it_misfit = 0.0
     for event in events:
-        from_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, from_it, weight_set
+        from_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, from_it, weight_set)
         )
-        to_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, to_it, weight_set
+        to_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
         )
         if print_events:
             # Print information about every event.
-            from_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, from_it, weight_set
+            from_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(
+                    event, from_it, weight_set
+                )
             )
-            to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, to_it, weight_set
+            to_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
             )
             print(
                 f"{event}: \n"
@@ -1061,10 +1076,16 @@ def compare_misfits(
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
     print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit * 100.0
-    print(
-        f"Relative change in total misfit from iteration {from_it} to "
-        f"{to_it} is: {rel_change:.2f}"
-    )
+    if rel_change > 0.0:
+        print(
+            f"Misfit has increased {rel_change:.2f}% from iteration "
+            f"{from_it} to iteration {to_it}."
+        )
+    else:
+        print(
+            f"Misfit has decreased {-rel_change:.2f}% from iteration "
+            f"{from_it} to iteration {to_it}"
+        )
     n_events = len(comm.events.list())
     print(
         f"Misfit per event for iteration {from_it}: "
@@ -1078,7 +1099,9 @@ def compare_misfits(
 def list_weight_sets(lasif_root):
     """
     Print a list of all weight sets in the project.
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     """
 
     comm = find_project_comm(lasif_root)
@@ -1092,17 +1115,27 @@ def list_weight_sets(lasif_root):
         print("\t%s" % weights)
 
 
-def process_data(lasif_root, events=[], iteration=None):
+def process_data(
+    lasif_root, events: Union[str, List[str]] = None, iteration: str = None
+):
     """
     Process recorded data
+
     :param lasif_root: path to lasif root directory
-    :param events: Process data from specific events [optional]
-    :param iteration: Process data from events used in an iteration [optional]
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    :param iteration: Process data from events used in an iteration,
+        defaults to None
+    :type iteration: str, optional
     """
     comm = find_project_comm(lasif_root)
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
 
     exceptions = []
     # if MPI.COMM_WORLD.rank == 0:
@@ -1124,23 +1157,36 @@ def process_data(lasif_root, events=[], iteration=None):
 
 
 def plot_window_statistics(
-    lasif_root, window_set, save=False, events=[], iteration=None
+    lasif_root,
+    window_set: str,
+    save: bool = False,
+    events: Union[str, List[str]] = None,
+    iteration: str = None,
 ):
     """
     Plot some statistics related to windows in a specific set.
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param window_set: name of window set
-    :param save: Saves the plot in a file
-    :param events: Plot statistics related to specific events [optional]
+    :type window_set: str
+    :param save: Saves the plot in a file, defaults to False,
+    :type save: bool, optional
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
     :param iteration: Plot statistics related to events in a specific iteration
-    [optional]
+        , defaults to None
+    :type iteration: str, optional
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
-    if len(events) == 0:
+    if events is None:
         events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
 
     if save:
         plt.switch_backend("agg")
@@ -1165,14 +1211,20 @@ def plot_window_statistics(
         plt.show()
 
 
-def plot_windows(lasif_root, event_name, window_set, distance_bins=500):
+def plot_windows(
+    lasif_root, event_name: str, window_set: str, distance_bins: int = 500
+):
     """
     Plot the selected windows for a specific event
+
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event_name: name of event
+    :type event_name: str
     :param window_set: name of window set
+    :type window_set: str
     :param distance_bins: number of bins on distance axis for combined plot
-    [optional]
+    :type distance_bins: int
     """
 
     comm = find_project_comm(lasif_root)
@@ -1189,14 +1241,13 @@ def plot_windows(lasif_root, event_name, window_set, distance_bins=500):
 def write_stations_to_file(lasif_root):
     """
     This function writes a csv file with station name and lat,lon locations
+
     :param lasif_root: path to lasif root directory or communicator
+    :type lasif_root: Union[str, pathlib.Path, object]
     """
     import pandas as pd
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     events = comm.events.list()
 
@@ -1231,14 +1282,12 @@ def find_event_mesh(lasif_root, event: str):
     Otherwise it returns true and the path.
 
     :param lasif_root: Path to project root
-    :type lasif_root: str/communicator
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event
     :type event: str
+    :return: bool whether mesh exists and path to mesh
     """
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     models = comm.project.paths["models"]
     event_mesh = os.path.join(models, "EVENT_MESHES", event, "mesh.h5")
@@ -1254,19 +1303,18 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     This function returns the path of the correct mesh.
 
     :param lasif_root: Path to project root
-    :type lasif_root: str/communicator
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
+    :return: path to simulation mesh
+    :rtype: str
     """
     import os
     import toml
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     models = comm.project.paths["models"]
     it_name = comm.iterations.get_long_iteration_name(iteration)
@@ -1286,20 +1334,18 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
 
 
 def get_receivers(lasif_root, event: str):
-    """Get a list of receiver dictionaries which are compatible with Salvus.
+    """
+    Get a list of receiver dictionaries which are compatible with Salvus.
     SalvusFlow can then use these dictionaries to place the receivers.
 
     :param lasif_root: Path to project root
-    :type lasif_root: string/path
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event which we want to find the receivers for
     :type event: str
     """
     from lasif.utils import place_receivers
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     assert comm.events.has_event(event), f"Event: {event} not in project"
 
@@ -1307,42 +1353,54 @@ def get_receivers(lasif_root, event: str):
 
 
 def get_source(lasif_root, event: str, iteration: str):
-    """Provide source information to give to Salvus
+    """
+    Provide source information to give to Salvus
 
     :param lasif_root: Path to project root
-    :type lasif_root: string/path
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event which we want to find the source for
-    :type event: string
+    :type event: str
     :param iteration: Name of iteration
-    :type iteration: string
+    :type iteration: str
     """
     from lasif.utils import prepare_source
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     assert comm.events.has_event(event), f"Event: {event} not in project"
 
     return prepare_source(comm, event, iteration)
 
 
-def get_subset(lasif_root, events, count, existing_events=None):
+def get_subset(
+    lasif_root,
+    events: List[str],
+    count: int,
+    existing_events: List[str] = None,
+):
     """
-    This function gets an optimally distributed set of events
-    :param comm: LASIF communicator
-    :param count: number of events to choose.
-    :param events: list of event_names, from which to choose from. These
-    events must be known to LASIF
-    :return:
+    This function gets an optimally distributed subset of events from a larger
+    group of events. The distribution is based on Mitchel's best sampling
+    algorithm. It's possible to exclude events and have already picked
+    events.
+
+    :param lasif_root: Path to project root
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param events: List of event names from which to choose from. These
+        events must be known to LASIF.
+    :type events: List[str]
+    :param count: number of events to choose. (Size of subset)
+    :type count: int
+    :param existing_events: Events already in subset, They will be considered
+        in spatial sampling, defaults to None
+    :type existing_events: List[str]
+    :return: list of selected events, defaults to None
+    :rtype: List[str], optional
     """
     from lasif.tools.query_gcmt_catalog import get_subset_of_events
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
+
     return get_subset_of_events(comm, count, events, existing_events)
 
 
@@ -1350,42 +1408,50 @@ def create_salvus_simulation(
     lasif_root: Union[str, object],
     event: str,
     iteration: str,
-    mesh=None,
-    side_set=None,
+    mesh: Union[str, pathlib.Path, object] = None,
+    side_set: str = None,
+    type_of_simulation: str = "forward",
 ):
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param lasif_root: path to lasif root folder or the lasif communicator
         object
-    :type lasif_root: Union[str, Communicator]
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh], 
-        optional
+    :type mesh: Union[str, pathlib.Path, object], optional
     :param side_set: Name of side set on mesh to place receivers,
         defaults to None.
     :type side_set: str, optional
+    :param type_of_simulation: forward or adjoint, defaults to forward
+    :type type_of_simulation: str, optional
+    :return: Salvus simulation object
+    :rtype: object
     """
-    from lasif.salvus_utils import create_salvus_simulation as css
-
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
+    if type_of_simulation == "forward":
+        from lasif.salvus_utils import create_salvus_forward_simulation as css
+    elif type_of_simulation == "adjoint":
+        from lasif.salvus_utils import create_salvus_adjoint_simulation as css
     else:
-        comm = find_project_comm(lasif_root)
+        raise LASIFError("Only types of simulations are forward or adjoint")
 
-    return css(
-        comm=comm,
-        event=event,
-        iteration=iteration,
-        mesh=mesh,
-        side_set=side_set,
-    )
+    comm = find_project_comm(lasif_root)
+    if type_of_simulation == "forward":
+        return css(
+            comm=comm,
+            event=event,
+            iteration=iteration,
+            mesh=mesh,
+            side_set=side_set,
+        )
+    else:
+        return css(comm=comm, event=event, iteration=iteration, mesh=mesh,)
 
 
 def submit_salvus_simulation(
@@ -1394,9 +1460,8 @@ def submit_salvus_simulation(
     """
     Submit a Salvus simulation to the machine defined in config file
     with details specified in config file
-    
     :param lasif_root: The Lasif communicator object or root file
-    :type lasif_root: Union[str, object]
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param simulations: Simulation object
     :type simulations: Union[List[object], object]
     :return: SalvusJob object or array of them
@@ -1404,19 +1469,16 @@ def submit_salvus_simulation(
     """
     from lasif.salvus_utils import submit_salvus_simulation as sss
 
-    if isinstance(lasif_root, Communicator):
-        comm = lasif_root
-    else:
-        comm = find_project_comm(lasif_root)
+    comm = find_project_comm(lasif_root)
 
     return sss(comm=comm, simulations=simulations)
 
 
 def validate_data(
     lasif_root,
-    data_station_file_availability=False,
-    raypaths=False,
-    full=False,
+    data_station_file_availability: bool = False,
+    raypaths: bool = False,
+    full: bool = False,
 ):
     """
     Validate the data currently in the project.
@@ -1440,11 +1502,15 @@ def validate_data(
           intended to detect values specified in wrong units.
 
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param data_station_file_availability: asserts that all stations have
-    corresponding station files and all stations have waveforms, very slow.
+        corresponding station files and all stations have waveforms, very slow.
+    :type data_station_file_availability: bool
     :param raypaths: Assert that all raypaths are within the set boundaries.
-    Very slow.
+        Very slow.
+    :type raypaths: bool
     :param full: Run all validations
+    :type full: bool
     """
 
     comm = find_project_comm(lasif_root)
@@ -1460,13 +1526,20 @@ def validate_data(
     )
 
 
-def clean_up(lasif_root, clean_up_file):
+def clean_up(
+    lasif_root, clean_up_file: str, delete_outofbounds_events: bool = False
+):
     """
     Clean up the lasif project. The required file can be created with
     the validate_data command.
 
     :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
     :param clean_up_file: path to clean-up file
+    :type clean_up_file: str
+    :param delete_outofbounds_events: Whether full event files should be
+        deleted if the event is out of the domain, defaults to False.
+    :type delete_outofbounds_events: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -1477,7 +1550,7 @@ def clean_up(lasif_root, clean_up_file):
             f"is correct."
         )
 
-    comm.validator.clean_up_project(clean_up_file)
+    comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
 def update_catalog():

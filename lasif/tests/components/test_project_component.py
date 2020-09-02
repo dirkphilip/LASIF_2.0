@@ -48,16 +48,16 @@ def test_config_file_creation_and_parsing(tmpdir):
 
     # Assert the config file will test the creation of the default file and the
     # reading.
-    assert pr.config["project_name"] == "TestProject"
-    assert pr.config["description"] == ""
-    assert pr.config["download_settings"]["channel_priorities"] == [
-        "BH[Z,N,E]",
+    assert pr.lasif_config["project_name"] == "TestProject"
+    assert pr.lasif_config["description"] == ""
+    assert pr.lasif_config["download_settings"]["channel_priorities"] == [
+        "BH?",
         "LH[Z,N,E]",
         "HH[Z,N,E]",
         "EH[Z,N,E]",
         "MH[Z,N,E]",
     ]
-    assert pr.config["download_settings"]["location_priorities"] == [
+    assert pr.lasif_config["download_settings"]["location_priorities"] == [
         "",
         "00",
         "10",
@@ -65,12 +65,21 @@ def test_config_file_creation_and_parsing(tmpdir):
         "01",
         "02",
     ]
+    assert pr.lasif_config["download_settings"]["networks"] == "None"
+
     assert (
-        pr.config["download_settings"]["interstation_" "distance_in_meters"]
+        pr.lasif_config["download_settings"]["interstation_distance_in_m"]
         == 1000.0
     )
-    assert pr.config["download_settings"]["seconds_after_event"] == 3600.0
-    assert pr.config["download_settings"]["seconds_before_event"] == 300.0
+    assert (
+        pr.lasif_config["download_settings"]["seconds_after_event"] == 3600.0
+    )
+    assert (
+        pr.lasif_config["download_settings"]["seconds_before_event"] == 300.0
+    )
+    assert not pr.salvus_settings["attenuation"]
+    assert pr.salvus_settings["absorbing_boundaries_in_km"] == 100.0
+    assert pr.optimization_settings["misfit_type"] == "tf_phase_misfit"
 
 
 def test_output_folder_name(comm):

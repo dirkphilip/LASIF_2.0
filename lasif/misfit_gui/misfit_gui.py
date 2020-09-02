@@ -252,11 +252,7 @@ class Window(QtGui.QMainWindow):
         event = self.comm.events.get(self.current_event)
 
         self.current_mt_patches = lasif.visualization.plot_events(
-            events=[event],
-            map_object=self.basemap,
-            projection=self.projection,
-            beachball_size=0.04,
-            domain=self.comm.project.domain,
+            events=[event], map_object=self.basemap,
         )
 
         try:
@@ -276,7 +272,6 @@ class Window(QtGui.QMainWindow):
             station_dict=stations,
             event_info=event,
             raypaths=False,
-            projection=self.projection,
             print_title=False,
         )
 

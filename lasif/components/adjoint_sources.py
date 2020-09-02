@@ -7,25 +7,15 @@ import os
 import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
 import toml
-from pathlib import Path
 
-from lasif.exceptions import LASIFNotFoundError
+from lasif.exceptions import LASIFNotFoundError, LASIFError
 from .component import Component
 from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
-
-# Map the adjoint source type names to functions implementing them.
-# MISFIT_MAPPING = {
-#     "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
-#     "L2Norm": adsrc_l2_norm_misfit,
-#     "CCTimeShift": adsrc_cc_time_shift,
-#     "DoubleDifference": double_difference_adjoint,
-#     "L2NormWeighted": adsrc_l2_norm_weighted
-# }
 
 
 class AdjointSourcesComponent(Component):
     """
-    Component dealing with the windows and adjoint sources.
+    Component dealing with the adjoint sources.
 
     :param folder: The folder where the files are stored.
     :param communicator: The communicator instance.
@@ -38,12 +28,14 @@ class AdjointSourcesComponent(Component):
             communicator, component_name
         )
 
-    def get_filename(self, event, iteration):
+    def get_filename(self, event: str, iteration: str):
         """
         Gets the filename for the adjoint source.
 
         :param event: The event.
-        :param iteration: The iteration.
+        :type event: str
+        :param iteration: The iteration name.
+        :type iteration: str
         """
         iteration_long_name = self.comm.iterations.get_long_iteration_name(
             iteration
@@ -55,96 +47,81 @@ class AdjointSourcesComponent(Component):
 
         return os.path.join(folder, "adjoint_source_auxiliary.h5")
 
+    def get_misfit_file(self, iteration: str):
+        """
+        Get path to the iteration misfit file
+
+        :param iteration: Name of iteration
+        :type iteration: str
+        """
+        iteration_name = self.comm.iterations.get_long_iteration_name(
+            iteration
+        )
+        file = (
+            self.comm.project.paths["iterations"]
+            / iteration_name
+            / "misfits.toml"
+        )
+        if not os.path.exists(file):
+            raise LASIFNotFoundError(f"File {file} does not exist")
+        return file
+
     def get_misfit_for_event(
         self,
-        event,
-        iteration,
-        weight_set_name=None,
-        include_station_misfit=False,
+        event: str,
+        iteration: str,
+        weight_set_name: str = None,
+        include_station_misfit: bool = False,
     ):
         """
         This function returns the total misfit for an event.
+
         :param event: name of the event
+        :type event: str
         :param iteration: iteration for which to get the misfit
-        :return: t
+        :type iteration: str
         :param weight_set_name: Name of station weights, defaults to None
-        :type weight_set_name: str
+        :type weight_set_name: str, optional
         :param include_station_misfit: Whether individual station misfits
             should be written down or not, defaults to False
-        :type include_station_misfit: bool
+        :type include_station_misfit: bool, optional
         """
-        filename = self.get_filename(event=event, iteration=iteration)
-
-        event_weight = 1.0
-        if weight_set_name:
-            ws = self.comm.weights.get(weight_set_name)
-            event_weight = ws.events[event]["event_weight"]
-            station_weights = ws.events[event]["stations"]
-
-        if not os.path.exists(filename):
-            raise LASIFNotFoundError(f"Could not find {filename}")
-
-        with pyasdf.ASDFDataSet(filename, mode="r") as ds:
-            adj_src_data = ds.auxiliary_data["AdjointSources"]
-            stations = ds.auxiliary_data["AdjointSources"].list()
-            station_misfits = {}
-            total_misfit = 0.0
-            for station in stations:
-                channels = adj_src_data[station].list()
-                station_misfit = 0.0
-                for channel in channels:
-                    if weight_set_name:
-                        station_weight = station_weights[
-                            ".".join(station.split("_"))
-                        ]["station_weight"]
-                        misfit = (
-                            adj_src_data[station][channel].parameters["misfit"]
-                            * station_weight
-                        )
-                    else:
-                        misfit = adj_src_data[station][channel].parameters[
-                            "misfit"
-                        ]
-                    station_misfit += misfit
-                if include_station_misfit:
-                    station_misfits[station] = station_misfit
-                total_misfit += station_misfit
+        misfit_file = self.get_misfit_file(iteration)
+        misfits = toml.load(misfit_file)
+        if event not in misfits.keys():
+            raise LASIFError(
+                f"Misfit has not been computed for event {event}, "
+                f"iteration: {iteration}. "
+            )
+        event_misfit = misfits[event]["event_misfit"]
         if include_station_misfit:
-            return station_misfits, total_misfit * event_weight
-        return total_misfit * event_weight
-
-    def write_adjoint_sources(self, event, iteration, adj_sources):
-        """
-        Write an ASDF file
-        """
-        filename = self.get_filename(event=event, iteration=iteration)
-
-        print("\nStarting to write adjoint sources to ASDF file ...")
-
-        adj_src_counter = 0
-        # print(adj_sources)
-
-        # DANGERZONE: manually disable the MPIfile driver for pyasdf as
-        # we are already in MPI but only rank 0 will enter here and that
-        # will confuse pyasdf otherwise.
-        with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in adj_sources.values():
-                if not value:
-                    continue
-                for c_id, adj_source in value.items():
-                    net, sta, loc, cha = c_id.split(".")
-                    ds.add_auxiliary_data(
-                        data=adj_source["adj_source"],
-                        data_type="AdjointSources",
-                        path="%s_%s/Channel_%s_%s" % (net, sta, loc, cha),
-                        parameters={"misfit": adj_source["misfit"]},
-                    )
-                    adj_src_counter += 1
-        print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
+            return misfits[event]
+        else:
+            return event_misfit
 
     def calculate_adjoint_sources(
-        self, event, iteration, window_set_name, plot=False, **kwargs
+        self,
+        event: str,
+        iteration: str,
+        window_set_name: str,
+        plot: bool = False,
+        **kwargs,
     ):
+        """
+        Calculate adjoint sources based on the type of misfit defined in
+        the lasif config file.
+        The computed misfit for each station is also written down into
+        a misfit toml file.
+
+        :param event: Name of event
+        :type event: str
+        :param iteration: Name of iteration
+        :type iteration: str
+        :param window_set_name: Name of window set
+        :type window_set_name: str
+        :param plot: Should the adjoint source be plotted?, defaults to False
+        :type plot: bool, optional
+        """
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
@@ -305,6 +282,15 @@ class AdjointSourcesComponent(Component):
 
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
+        if MPI.COMM_WORLD.rank == 0:
+            if os.path.exists(toml_filename):
+                iteration_misfits = toml.load(toml_filename)
+                if event["event_name"] in iteration_misfits.keys():
+                    iteration_misfits[event["event_name"]][
+                        "event_misfit"
+                    ] = 0.0
+                with open(toml_filename, "w") as fh:
+                    toml.dump(iteration_misfits, fh)
         MPI.COMM_WORLD.Barrier()
         for thread in range(size):
             rank = MPI.COMM_WORLD.rank
@@ -370,19 +356,27 @@ class AdjointSourcesComponent(Component):
             print(f"{length} Adjoint sources are in your file.")
 
     def finalize_adjoint_sources(
-        self, iteration_name, event_name, weight_set_name=None
+        self, iteration_name: str, event_name: str, weight_set_name: str = None
     ):
         """
-        Finalizes the adjoint sources.
+        Work with adjoint source in a way that it is written down properly
+        into an hdf5 file and prepared for being used as a source time
+        function.
+        The misfit values and adjoint sources are multiplied by the
+        weight of the event and the station.
+
+        :param iteration_name: Name of iteration
+        :type iteration_name: str
+        :param event_name: Name of event
+        :type event_name: str
+        :param weight_set_name: Name of station weights, defaults to None
+        :type weight_set_name: str, optional
         """
         import pyasdf
         import h5py
 
         # This will do stuff for each event and a single iteration
         # Step one, read adj_src file that should have been created already
-        print(iteration_name)
-        print(event_name)
-        print(weight_set_name)
         iteration = self.comm.iterations.get_long_iteration_name(
             iteration_name
         )
@@ -405,10 +399,11 @@ class AdjointSourcesComponent(Component):
         f = h5py.File(adjoint_source_file_name, "w")
 
         event_weight = 1.0
-        if weight_set_name:
+        if weight_set_name is not None:
             ws = self.comm.weights.get(weight_set_name)
             event_weight = ws.events[event_name]["event_weight"]
             station_weights = ws.events[event_name]["stations"]
+            computed_misfits = toml.load(self.get_misfit_file(iteration))
 
         for adj_src in adj_srcs:
             station_name = adj_src.auxiliary_data_type.split("/")[1]
@@ -437,12 +432,15 @@ class AdjointSourcesComponent(Component):
 
                     # net_dot_sta = \
                     #    receiver["network"] + "." + receiver["station"]
-                    if weight_set_name:
+                    if weight_set_name is not None:
                         weight = (
                             station_weights[receiver]["station_weight"]
                             * event_weight
                         )
                         zne *= weight
+                        computed_misfits[event_name]["stations"][
+                            receiver
+                        ] *= weight
 
                     source = f.create_dataset(station, data=zne.T)
                     source.attrs["dt"] = self.comm.project.simulation_settings[
@@ -465,6 +463,14 @@ class AdjointSourcesComponent(Component):
                     # toml_string += f"[[source]]\n" \
                     #               f"name = \"{station}\"\n" \
                     #               f"dataset_name = \"/{station}\"\n\n"
+        if weight_set_name is not None:
+            computed_misfits[event_name]["event_misfit"] = np.sum(
+                np.array(
+                    list(computed_misfits[event_name]["stations"].values())
+                )
+            )
+            with open(self.get_misfit_file(iteration), "w") as fh:
+                toml.dump(computed_misfits, fh)
 
         f.close()
 

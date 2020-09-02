@@ -3,8 +3,7 @@ python:
 - '3.7'
 env:
   global:
-  - secure: k4sk3/LUdr/Ck//eCrGI5hEK1O4YWNww8F+KvUZhs+WgUlJYeLfbT8V4Zx5BDSkXa1CA5HeWJrQExwz5T+FFAhc8AqyQ8ujyENgNKY8N+8J93VYY/64fl+XJmZL0tukNw0bZMAIlbQHxWWafk5FHrJZbPwUrjH/SdJzonSgDNMWDw9skJ8Ti8p8dK8UVkPL5yQObU/8JPQcUCqxm+VVp38QS60AVGYQ7Uv93EbS9Y1aGknj2s1/CRrFHQJQZRXf7hCF4ZGnwbF74lTx40ERzYCOxlTDckGONmG3jGaiKk5bCIL9Np5OQc3IsDMz8qp5Seu7jYw9tj0QG8WWMxJsG1uBtegNuIhDj8d1rwdwzQVM5ztx1nBKL+P+yS5xsfkz1FaRCHbfUo6re7moJYqMTSID0/ghkcj9L43yjMvw84dKkjq1r2GHhrJZoWV6vSpHUgVNARYEQFZDZnn0sQXMTLOYvOlILmPCnuTosvqgZ70A1YOJjcV3nYIePZMOkZnMkTNr/PbIgBb9+JHGa27oOBVBejG61XV2czC0VtQjqY+by4PUAcaiHEHLRxBaNl4RdCbAo14hFtM+uLIIscUuUBoaTQqow7rcs62GjOFRMbdJSOBa1mBtagP4ygTdXaMeS28Siya5MEBMGfl1rFWPhMH1cMOmgcyDhu1ZBJM/Tk2g=
-  - secure: Ido6kNeMc+ruSMVaW9RcdZkLFNRmJXaFft77qKes6Btfez5p/YJx1WhpeECkM1HrRcoRYU81uvzsiLmMbe7HLVjv+5iutx/W3UYdqXjkViyEjBW8MhQjeE9HYhqf7EmKUw9qcXE7cJvEQBcIpYbBjGXnzh5+5Ee8ILuLr9hLK/smYav6xWac7D04DuzKVBztP0pxNOj/ndYvn20C55tV/zhGwOY9llfMCch2u3NKL9wJI/npSMdyjpK3R63sJ2b9fSThD0DZaG4wXdjlwiJk8GtAq513YIa8kqhZ8Q5nTll7lVZV2CrKDwpjp7LFJLWP/Fg+PD1umAhe8WqWJHHfI+N99Y+tjtTZHHUgh69DTR/cZGok3eaq5aosD+InXzm9nSqik+hv2iWtuW6lYnnrGSbEhbhYEQr0tg1HYUjEglof15tUKYz66LAKDizd+PTbIpu9rqzQtGokqVJW8b9LcRHCeAcXw6DqeD8cFv9A+S/LWLThoe4qdhkdl0b0e6QuIchbtLqK23ZP/WFQz0J+2Q7KgpGS+ZlPngxDNzGyKqydfejZcb0XXtK/PovYoglnD1M0d0shf2aW9yXj3P3N66OO8TpsQMnInfLAQ1as+mevs5+ae6EHVYidKe0uDHHVYrZaneDzY9omW+sWRIuCATcJWWR1tpk1Bl0MQfVwoCo=
+  - secure: eVckEatL55k0Tg4nKDzAA1hfjciwGYL9W2+OilGrMu5V6QdpL3E8AMZwyxnF582Rt/OoXwZMqFyhKTRB33OtdXKhjMWgHpi7yw1K/S54wUwVz3XxtRIlOimOj7H9ptqWk/LB/GWMU8isL9xG1mW1PKYQfetRJvsoiAh3zIPCntT0V7V0im8gpd2ZJKPQY81T1eHsX1FWzuPICgvTNFJjzsyf3CgjHwkQGGFbwS5KHQ2y8otZV4MWiRIUfqtOwkjxTXeWABc/QmYE9jziJe8v63dSi+ddPuDMuTE6btDrFTV0Ag9C7fA7oa17HgI37uGbZhv46IuXP9GAp47CsY0ZKWcCZne+HcTWJetVb/Ygy8RkNTnqiAG/IIlOS7cpbG6oqUdo3UZAsWQqD2RzHAMwgvdDnvxPu8Tx3Jf/GmLHYPeaA7dCLSi6t3J0VvIa9O3e/oT39LmOqMnPKtY1lnfIUuG1qQ0t51C7mWYxK1/w9IugGk4tMOGpcEKWlCr2ciHuM3K/TNPOXwWW27bjrv7WgRnzOGjlrk4SefqqqmGC2p+ynKtE8X1j7DjmwJfsDHpGzT++jInbod7lkVnn+P+Gb6fO5BU2wgy1gJZ8EWp+Nf2ylnDvT9/XqUp6Gj7U8q2k0lsDWeomtlrnLYHR12p0DVfEwG/vG3ShiYrfjhjkih0=
 before_install:
 - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
 - chmod +x miniconda.sh
@@ -13,22 +12,10 @@ before_install:
 - conda config --add channels conda-forge
 - conda env create -f environment.yml
 - source activate lasif
-- cd ..
-- git clone https://github.com/SalvusHub/pyexodus.git
-- cd pyexodus
-- pip install .
-- cd ..
-- git clone https://github.com/SeismicData/pyasdf.git
-- cd pyasdf
-- pip install .
-- cd ..
-- git clone https://gitlab.com/Salvus/salvus_seismo
-- cd salvus_seismo/py
-- pip install .
 install:
 - cd $TRAVIS_BUILD_DIR; pip install .
 script:
-- cd $TRAVIS_BUILD_DIR; py.test
+- cd $TRAVIS_BUILD_DIR; pytest
 - cd $TRAVIS_BUILD_DIR/doc; make html
 after_failure:
 - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"

@@ -221,44 +221,66 @@ def test_plotting_functions(cli):
 
     with mock.patch(vs + "plot_event") as patch:
         cli.run("lasif plot_event event_name")
-    patch.assert_called_once_with("event_name", None, show_mesh=False)
+    patch.assert_called_once_with(
+        "event_name", None, intersection_override=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:
         cli.run("lasif plot_event event_name --weight_set_name A")
-    patch.assert_called_once_with("event_name", "A", show_mesh=False)
+    patch.assert_called_once_with(
+        "event_name", "A", intersection_override=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     # Test the different variations of the plot_events function.
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events")
-    patch.assert_called_once_with("map", iteration=None, show_mesh=False)
+    patch.assert_called_once_with(
+        "map", iteration=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=map")
-    patch.assert_called_once_with("map", iteration=None, show_mesh=False)
+    patch.assert_called_once_with(
+        "map", iteration=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=time")
-    patch.assert_called_once_with("time", iteration=None, show_mesh=False)
+    patch.assert_called_once_with(
+        "time", iteration=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=depth")
-    patch.assert_called_once_with("depth", iteration=None, show_mesh=False)
+    patch.assert_called_once_with(
+        "depth", iteration=None, inner_boundary=False,
+    )
     assert patch.call_count == 1
 
     # Misc plotting functionality.
     with mock.patch(vs + "plot_raydensity") as patch:
         cli.run("lasif plot_raydensity")
-    patch.assert_called_once_with(iteration=None, plot_stations=False)
+    patch.assert_called_once_with(
+        iteration=None,
+        plot_stations=False,
+        save_plot=True,
+        intersection_override=None,
+    )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_raydensity") as patch:
         cli.run("lasif plot_raydensity --plot_stations")
-    patch.assert_called_once_with(iteration=None, plot_stations=True)
+    patch.assert_called_once_with(
+        iteration=None,
+        plot_stations=True,
+        save_plot=True,
+        intersection_override=None,
+    )
     assert patch.call_count == 1
 
     # Lacking the testing of plot_section. Need processed data.
@@ -332,11 +354,11 @@ def test_various_list_functions(cli):
     )
 
     iterations = cli.run("lasif list_iterations").stdout
-    assert "1 iteration in this project" in iterations
+    assert "2 iterations in this project" in iterations
 
-    cli.run("lasif set_up_iteration 2").stdout
+    cli.run("lasif set_up_iteration 3").stdout
     iterations = cli.run("lasif list_iterations").stdout
-    assert "2 iterations" in iterations
+    assert "3 iterations" in iterations
 
 
 def test_iteration_creation(cli):
@@ -488,7 +510,7 @@ def test_preprocessing(cli):
     assert len(os.listdir(processing_path)) >= 1
     assert os.path.exists(event_path)
     # The test below should be changed as soon as we have some data
-    assert len(os.listdir(event_path)) == 1
+    # assert len(os.listdir(event_path)) == 1
 
 
 def test_processing_event_limiting_works(cli):
@@ -505,7 +527,7 @@ def test_processing_event_limiting_works(cli):
     patch.assert_called_once_with(
         [
             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "GCMT_event_TURKEY_Mag_5.9" "_2011-5-19-20-15",
+            "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
         ]
     )
 

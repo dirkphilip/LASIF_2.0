@@ -6,21 +6,21 @@ import toml
 
 
 def create_salvus_forward_simulation(
-    comm: object, event: str, iteration: str, mesh=None, side_set=None,
+    comm: object, event: str, iteration: str, mesh=None, side_set: str = None,
 ):
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh), 
+    :type mesh: Union[str, salvus.mesh.unstructured_mesh.UnstructuredMesh],
         optional
     :param side_set: Name of side set on mesh to place receivers,
         defaults to None.
@@ -81,29 +81,22 @@ def create_salvus_forward_simulation(
         for src in source_info
     ]
 
-    w = sc.simulation.Waveform(mesh=mesh, sources=sources, receivers=recs)
-
-    w.physics.wave_equation.end_time_in_seconds = comm.project.simulation_settings[
-        "end_time_in_s"
-    ]
-    w.physics.wave_equation.time_step_in_seconds = comm.project.simulation_settings[
-        "time_step_in_s"
-    ]
-    w.physics.wave_equation.start_time_in_seconds = comm.project.simulation_settings[
-        "start_time_in_s"
-    ]
-    w.physics.wave_equation.attenuation = comm.project.salvus_settings[
-        "attenuation"
-    ]
+    w = sc.simulation.Waveform(mesh=mesh, sources=sources, receivers=recs,)
+    sim_set = comm.project.simulation_settings
+    sal_set = comm.project.salvus_settings
+    w.physics.wave_equation.end_time_in_seconds = sim_set["end_time_in_s"]
+    w.physics.wave_equation.time_step_in_seconds = sim_set["time_step_in_s"]
+    w.physics.wave_equation.start_time_in_seconds = sim_set["start_time_in_s"]
+    w.physics.wave_equation.attenuation = sal_set["attenuation"]
 
     import lasif.domain
 
     domain = lasif.domain.HDF5Domain(
-        mesh, comm.project.simulation_settings["absorbing_boundaries_in_km"]
+        mesh, sal_set["absorbing_boundaries_in_km"]
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
-            width_in_meters=comm.project.salvus_settings[
+            width_in_meters=comm.project.simulation_settings[
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
@@ -112,7 +105,7 @@ def create_salvus_forward_simulation(
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
         w.physics.wave_equation.boundaries = [absorbing]
-
+    w.output.memory_per_rank_in_MB = 4000.0
     w.output.volume_data.format = "hdf5"
     w.output.volume_data.filename = "output.h5"
     w.output.volume_data.fields = ["adjoint-checkpoint"]
@@ -129,7 +122,7 @@ def get_adjoint_source(
 ) -> List[object]:
     """
     Get a list of adjoint source objects
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
@@ -137,7 +130,7 @@ def get_adjoint_source(
     :param iteration: Name of iteration
     :type iteration: str
     :return: Adjoint source objects
-    :type return: List[object]    
+    :type return: List[object]
     """
     from salvus.flow.simple_config import source, stf
     import h5py
@@ -182,16 +175,16 @@ def create_salvus_adjoint_simulation(
     """
     Create a Salvus simulation object based on simulation and salvus
     specific parameters specified in config file.
-    
+
     :param comm: The lasif communicator object
     :type comm: object
     :param event: Name of event
     :type event: str
     :param iteration: Name of iteration
     :type iteration: str
-    :param mesh: Path to mesh or Salvus mesh object, if None it will use 
+    :param mesh: Path to mesh or Salvus mesh object, if None it will use
         the domain file from config file, defaults to None
-    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh), 
+    :type mesh: Union(str, salvus.mesh.unstructured_mesh.UnstructuredMesh),
         optional
     """
     import salvus.flow.api
@@ -247,7 +240,7 @@ def submit_salvus_simulation(
     """
     Submit a Salvus simulation to the machine defined in config file
     with details specified in config file
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param simulations: Simulation object
@@ -360,7 +353,7 @@ def check_job_status(
 ) -> Dict[str, str]:
     """
     Check on the statuses of jobs which have been submitted before.
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param events: We need names of events for the corresponding simulations
@@ -425,12 +418,12 @@ def check_job_status(
 def download_output(comm: object, event: str, iteration: str, sim_type: str):
     """
     Download output
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param event: Name of event to download output from
     :type event: str
-    :param iteration: Name of iteration, this is needed to know where to 
+    :param iteration: Name of iteration, this is needed to know where to
         download files to.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
@@ -492,7 +485,7 @@ def retrieve_salvus_simulations(
 ):
     """
     Retrieve Salvus simulations based on job names currently in job_toml file
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param events: We need names of events for the corresponding simulations
@@ -538,7 +531,7 @@ def retrieve_salvus_simulations_blocking(
 ):
     """
     Retrieve Salvus simulations based on job names currently in job_toml file
-    
+
     :param comm: The Lasif communicator object
     :type comm: object
     :param events: We need names of events for the corresponding simulations

@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import logging
 import os
+from typing import List
+import obspy
 
 from .component import Component
 
@@ -16,8 +18,14 @@ class DownloadsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def download_data(self, event, providers=None):
+    def download_data(self, event: str, providers: List[str] = None):
         """
+        Download data using the obspy mass downloader
+
+        :param event: Name of event
+        :type event: str
+        :param providers: List of providers, defaults to None
+        :type providers: List[str], optional
         """
         event = self.comm.events.get(event)
         from obspy.clients.fdsn.mass_downloader import (
@@ -36,24 +44,8 @@ class DownloadsComponent(Component):
         if ds["networks"] == "None":
             ds["networks"] = None
 
-        restrictions = Restrictions(
-            starttime=starttime,
-            endtime=endtime,
-            # Go back 1 day.
-            station_starttime=starttime - 86400 * 1,
-            # Advance 1 day.
-            station_endtime=endtime + 86400 * 1,
-            network=ds["networks"],
-            station=None,
-            location=None,
-            channel=None,
-            minimum_interstation_distance_in_m=ds[
-                "interstation_distance_in_m"
-            ],
-            reject_channels_with_gaps=True,
-            minimum_length=0.95,
-            location_priorities=ds["location_priorities"],
-            channel_priorities=ds["channel_priorities"],
+        restrictions = self.generate_restrictions(
+            starttime=starttime, endtime=endtime, ds=ds
         )
 
         filename = proj.paths["eq_data"] / (event["event_name"] + ".h5")
@@ -159,6 +151,45 @@ class DownloadsComponent(Component):
             shutil.rmtree(stationxml_storage_path)
         if os.path.exists(mseed_storage_path):
             shutil.rmtree(mseed_storage_path)
+
+    def generate_restrictions(
+        self,
+        starttime: obspy.core.utcdatetime.UTCDateTime,
+        endtime: obspy.core.utcdatetime.UTCDateTime,
+        ds: dict,
+    ):
+        """
+        Create a restriction criterion for the mass downloader
+
+        :param starttime: Start time of data request
+        :type starttime: obspy.core.utcdatetime.UTCDateTime
+        :param endtime: End time of data request
+        :type endtime: obspy.core.utcdatetime.UTCDateTime
+        :param ds: Dictionary of information
+        :type ds: dict
+        :return: Restrictions to download request
+        """
+        from obspy.clients.fdsn.mass_downloader import Restrictions
+
+        return Restrictions(
+            starttime=starttime,
+            endtime=endtime,
+            # Go back 1 day.
+            station_starttime=starttime - 86400 * 1,
+            # Advance 1 day.
+            station_endtime=endtime + 86400 * 1,
+            network=ds["networks"],
+            station=None,
+            location=None,
+            channel=None,
+            minimum_interstation_distance_in_m=ds[
+                "interstation_distance_in_m"
+            ],
+            reject_channels_with_gaps=True,
+            minimum_length=0.95,
+            location_priorities=ds["location_priorities"],
+            channel_priorities=ds["channel_priorities"],
+        )
 
     def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
         def get_mseed_storage(

@@ -11,7 +11,7 @@ Project specific function processing observed data.
 """
 import numpy as np
 from scipy import signal
-from lasif import LASIFError
+from lasif.exceptions import LASIFError
 
 
 def processing_function(st, inv, simulation_settings, event):  # NOQA
@@ -121,10 +121,10 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
     # =========================================================================
     npts = simulation_settings["npts"]
     dt = simulation_settings["dt"]
-    min_period = simulation_settings["highpass_period"]
-    max_period = simulation_settings["lowpass_period"]
+    min_period = simulation_settings["minimum_period"]
+    max_period = simulation_settings["maximum_period"]
 
-    starttime = event["origin_time"] + simulation_settings["salvus_start_time"]
+    starttime = event["origin_time"] + simulation_settings["start_time_in_s"]
     endtime = starttime + simulation_settings["dt"] * (
         simulation_settings["npts"] - 1
     )

@@ -2,15 +2,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import itertools
 import math
 import numpy as np
 import os
-import warnings
-import cartopy as cp
 import toml
+from typing import List
 
-from lasif.exceptions import LASIFError, LASIFNotFoundError, LASIFWarning
+from lasif.exceptions import LASIFError, LASIFNotFoundError
 
 from .component import Component
 
@@ -24,7 +22,12 @@ class VisualizationsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def plot_events(self, plot_type="map", iteration=None, show_mesh=False):
+    def plot_events(
+        self,
+        plot_type: str = "map",
+        iteration: str = None,
+        inner_boundary: bool = False,
+    ):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -32,7 +35,13 @@ class VisualizationsComponent(Component):
             * ``map`` (default) - a map view of the events
             * ``depth`` - a depth distribution histogram
             * ``time`` - a time distribution histogram
-        :param show_mesh: Plot the mesh for exodus domains/meshes on map plots.
+        :type plot_type: str, optional
+        :param iteration: Name of iteration, if given only events from that
+            iteration will be plotted, defaults to None
+        :type iteration: str, optional
+        :param inner_boundary: Should we plot inner boundary of domain?
+            defaults to False
+        :type inner_boundary: bool, optional
         """
         from lasif import visualization
 
@@ -46,12 +55,9 @@ class VisualizationsComponent(Component):
             events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
-            m, projection = self.plot_domain(show_mesh=show_mesh)
+            m, projection = self.plot_domain(inner_boundary=inner_boundary)
             visualization.plot_events(
-                events,
-                map_object=m,
-                projection=projection,
-                domain=self.comm.project.domain,
+                events, map_object=m,
             )
             if iteration:
                 title = f"Event distribution for iteration: {iteration}"
@@ -68,15 +74,28 @@ class VisualizationsComponent(Component):
 
     def plot_event(
         self,
-        event_name,
-        weight_set=None,
-        show_mesh=False,
-        intersection_override=None,
+        event_name: str,
+        weight_set: str = None,
+        intersection_override: bool = None,
+        inner_boundary: bool = False,
     ):
         """
         Plots information about one event on the map.
 
-        :param show_mesh: Plot the mesh for exodus domains/meshes.
+        :param event_name: Name of event
+        :type event_name: str
+        :param weight_set: Name of station weights set, defaults to None
+        :type weight_set: str, optional
+        :param intersection_override: boolean to require to have the same
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal. If None is
+            passed, the value use_only_intersection from the projects'
+            configuration file is used, defaults to None
+        :type intersection_override: bool, optional
+        :param inner_boundary: binary whether the inner boundary should be drawn
+            Only works well for convex domains, defaults to False
+        :type inner_boundary: bool, optional
         """
         if not self.comm.events.has_event(event_name):
             msg = "Event '%s' not found in project." % event_name
@@ -88,7 +107,9 @@ class VisualizationsComponent(Component):
                 raise ValueError(msg)
             weight_set = self.comm.weights.get(weight_set)
 
-        map_object, projection = self.plot_domain(show_mesh=show_mesh)
+        map_object, projection = self.plot_domain(
+            inner_boundary=inner_boundary
+        )
 
         from lasif import visualization
 
@@ -109,53 +130,45 @@ class VisualizationsComponent(Component):
                 map_object=map_object,
                 station_dict=stations,
                 event_info=event_info,
-                projection=projection,
                 weight_set=weight_set,
                 print_title=True,
             )
 
-        # Plot the beachball for one event.
+        # Plot the earthquake star for one event.
         visualization.plot_events(
-            events=[event_info],
-            map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
+            events=[event_info], map_object=map_object,
         )
 
-    def plot_domain(self, show_mesh=False):
+    def plot_domain(self, inner_boundary: bool = False):
         """
         Plots the simulation domain and the actual physical domain.
 
-        :param show_mesh: Plot the mesh for exodus domains/meshes.
+        :param inner_boundary: binary whether the inner boundary should be drawn
+            Only works well for convex domains, defaults to False
+        :type inner_boundary: bool, optional
         """
-        if show_mesh:
-            from ..domain import ExodusDomain  # NOQA
-
-            if not isinstance(self.comm.project.domain, ExodusDomain):
-                msg = "show_mesh only works for exodus domains/models."
-                warnings.warn(msg, LASIFWarning)
-                show_mesh = False
-            return self.comm.project.domain.plot(show_mesh=show_mesh)
-        else:
-            return self.comm.project.domain.plot()
+        return self.comm.project.domain.plot(
+            plot_inner_boundary=inner_boundary
+        )
 
     def plot_station_misfits(
-        self,
-        event_name: str,
-        iteration: str,
-        save: bool = False,
-        intersection_override=None,
+        self, event_name: str, iteration: str, intersection_override=None,
     ):
         """
         Plot a map of the stations where misfit was computed for a specific
         event. The stations are colour coded by misfit.
-        
+
         :param event_name: Name of event
         :type event_name: str
-        :param iteration: Name of iteration 
+        :param iteration: Name of iteration
         :type iteration: str
-        :param save: Save plot to file? defaults to False
-        :type save: bool, optional
+        :param intersection_override: boolean to require to have the same
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal. If None is
+            passed, the value use_only_intersection from the projects'
+            configuration file is used, defaults to None
+        :type intersection_override: bool, optional
         """
         from lasif import visualization
 
@@ -180,28 +193,42 @@ class VisualizationsComponent(Component):
             map_object=map_object,
             station_dict=misfitted_stations,
             event_info=event_info,
-            projection=projection,
             plot_misfits=True,
             raypaths=False,
             print_title=True,
         )
 
         visualization.plot_events(
-            events=[event_info],
-            map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
+            events=[event_info], map_object=map_object,
         )
 
     def plot_raydensity(
         self,
-        save_plot=True,
-        plot_stations=False,
-        iteration=None,
-        intersection_override=None,
+        save_plot: bool = True,
+        plot_stations: bool = False,
+        iteration: str = None,
+        intersection_override: bool = None,
     ):
         """
-        Plots the raydensity.
+        Plots the raydensity. The plot will have number of ray crossings
+        indicated with a brighter colour.
+
+        :param save_plot: Whether plot should be saved or displayed,
+            defaults to True (saved)
+        :type save_plot: bool, optional
+        :param plot_stations: Do you want to plot stations on top of rays?
+            defaults to False
+        :type plot_stations: bool, optional
+        :param iteration: Name of iteration that you only want events from,
+            defaults to None
+        :type iteration: str, optional
+        :param intersection_override: boolean to require to have the same
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal. If None is
+            passed, the value use_only_intersection from the projects'
+            configuration file is used, defaults to None
+        :type intersection_override: bool, optional
         """
         from lasif import visualization
         import matplotlib.pyplot as plt
@@ -257,8 +284,6 @@ class VisualizationsComponent(Component):
         visualization.plot_events(
             self.comm.events.get_all_events(iteration).values(),
             map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
         )
 
         if plot_stations:
@@ -293,22 +318,30 @@ class VisualizationsComponent(Component):
 
     def plot_all_rays(
         self,
-        save_plot=True,
-        iteration=None,
-        plot_stations=True,
-        intersection_override=None,
+        save_plot: bool = True,
+        iteration: str = None,
+        plot_stations: bool = True,
+        intersection_override: bool = None,
     ):
         """
         Plot all the rays that are in the project or in a specific iteration.
         This is typically slower than the plot_raydensity function as this one
         is non-parallel
-        
+
         :param save_plot: Should plot be saved, defaults to True
         :type save_plot: bool, optional
         :param iteration: Only events from an iteration, defaults to None
         :type iteration: str, optional
-        :param plot_stations: Whether stations are plotted on top, defaults to True
+        :param plot_stations: Whether stations are plotted on top, defaults to
+            True
         :type plot_stations: bool, optional
+        :param intersection_override: boolean to require to have the same
+            stations recording all events, i.e. the intersection of receiver
+            sets. The intersection will consider two stations equal i.f.f. the
+            station codes AND coordinates (LAT, LON, Z) are equal. If None is
+            passed, the value use_only_intersection from the projects'
+            configuration file is used, defaults to None
+        :type intersection_override: bool, optional
         """
         from lasif import visualization
         import matplotlib.pyplot as plt
@@ -348,16 +381,11 @@ class VisualizationsComponent(Component):
             event_stations.append((event_info, stations))
 
         visualization.plot_all_rays(
-            map_object=map_object,
-            station_events=event_stations,
-            domain=self.comm.project.domain,
-            projection=projection,
+            map_object=map_object, station_events=event_stations,
         )
         visualization.plot_events(
             events=self.comm.events.get_all_events(iteration).values(),
             map_object=map_object,
-            projection=projection,
-            domain=self.comm.project.domain,
         )
         if plot_stations:
             visualization.plot_all_stations(
@@ -389,7 +417,12 @@ class VisualizationsComponent(Component):
             plt.show()
 
     def plot_windows(
-        self, event, window_set_name, distance_bins=500, ax=None, show=True
+        self,
+        event: str,
+        window_set_name: str,
+        distance_bins: int = 500,
+        ax=None,
+        show: bool = True,
     ):
         """
         Plot all selected windows on a epicentral distance vs duration plot
@@ -397,12 +430,18 @@ class VisualizationsComponent(Component):
         overview of how well selected the windows for a certain event and
         iteration are.
 
-        :param event: The event.
+        :param event: The name of the event.
+        :type event: str
         :param window_set_name: The window set.
+        :type window_set_name: str
         :param distance_bins: The number of bins on the epicentral
-            distance axis.
-        :param ax: If given, it will be plotted to this ax.
+            distance axis. Defaults to 500
+        :type distance_bins: int, optional
+        :param ax: If given, it will be plotted to this ax. Defaults to None
+        :type ax: matplotlib.axes.Axes, optional
         :param show: If true, ``plt.show()`` will be called before returning.
+            defaults to True
+        :type show: bool, optional
         :return: The potentially created axes object.
         """
         from obspy.geodetics.base import locations2degrees
@@ -574,15 +613,20 @@ class VisualizationsComponent(Component):
         return ax
 
     def plot_window_statistics(
-        self, window_set_name, events, ax=None, show=True
+        self, window_set_name: str, events: List[str], ax=None, show=True
     ):
         """
         Plots the statistics of windows for one iteration.
 
-        :param iteration: The chosen iteration.
-        :param ax: If given, it will be plotted to this ax.
+        :param window_set_name: Name of window set
+        :type window_set_name: str
+        :param events: list of events
+        :type events: List[str]
+        :param ax: If given, it will be plotted to this ax. Defaults to None
+        :type ax: matplotlib.axes.Axes, optional
         :param show: If true, ``plt.show()`` will be called before returning.
-        :param cache: Use the cache for the statistics.
+            defaults to True
+        :type show: bool, optional
 
         :return: The potentially created axes object.
         """
@@ -690,17 +734,28 @@ class VisualizationsComponent(Component):
         return ax
 
     def plot_data_and_synthetics(
-        self, event, iteration, channel_id, ax=None, show=True
+        self,
+        event: str,
+        iteration: str,
+        channel_id: str,
+        ax=None,
+        show: bool = True,
     ):
         """
         Plots the data and corresponding synthetics for a given event,
         iteration, and channel.
 
         :param event: The event.
+        :type event: str
         :param iteration: The iteration.
+        :type iteration: str
         :param channel_id: The channel id.
-        :param ax: If given, it will be plotted to this ax.
+        :type channel_id: str
+        :param ax: If given, it will be plotted to this ax. Defaults to None
+        :type ax: matplotlib.axes.Axes, optional
         :param show: If true, ``plt.show()`` will be called before returning.
+            defaults to True
+        :type show: bool, optional
         :return: The potentially created axes object.
         """
         import matplotlib.pylab as plt
@@ -753,22 +808,26 @@ class VisualizationsComponent(Component):
 
     def plot_section(
         self,
-        event_name,
-        data_type="processed",
-        component="Z",
-        num_bins=1,
-        traces_per_bin=500,
+        event_name: str,
+        data_type: str = "processed",
+        component: str = "Z",
+        num_bins: int = 1,
+        traces_per_bin: int = 500,
     ):
         """
         Create a section plot of an event and store the plot in Output. Useful
         for quickly inspecting if an event is good for usage.
 
         :param event_name: Name of the event
-        :param data_type: The type of data, one of ``"raw"``,
-            ``"processed"``
-        :param component: Component of the data Z, N, E
-        :param num_bins: number of offset bins
-        :param traces_per_bin: number of traces per bin
+        :type event_name: str
+        :param data_type: The type of data, one of: raw, processed (default)
+        :type data_type: str, optional
+        :param component: Component of the data Z(default), N, E
+        :type component: str, optional
+        :param num_bins: number of offset bins, defaults to 1
+        :type num_bins: int, optional
+        :param traces_per_bin: number of traces per bin, defaults to 500
+        :type traces_per_bin: int, optional
         """
         import pyasdf
         import obspy

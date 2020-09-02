@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import glob
 import os
+from typing import List
 
 from .component import Component
 
@@ -24,11 +25,12 @@ class WindowsComponent(Component):
     def __init__(self, communicator, component_name):
         super(WindowsComponent, self).__init__(communicator, component_name)
 
-    def get(self, window_set_name):
+    def get(self, window_set_name: str):
         """
         Returns the window manager instance for a window set.
 
         :param window_set_name: The name of the window set.
+        :type window_set_name: str
         """
         filename = self.get_window_set_filename(window_set_name)
         return WindowGroupManager(filename)
@@ -50,20 +52,24 @@ class WindowsComponent(Component):
 
         return sorted(window_sets)
 
-    def has_window_set(self, window_set_name):
+    def has_window_set(self, window_set_name: str):
         """
         Checks whether a window set is already defined.
-        ReturnsL True or False
-        :param window_set_name: name of the window set
+        Returns True or False
+
+        :param window_set_name: The name of the window set.
+        :type window_set_name: str
         """
         if window_set_name in self.list():
             return True
         return False
 
-    def get_window_set_filename(self, window_set_name):
+    def get_window_set_filename(self, window_set_name: str):
         """
         Retrieves the filename for a given window set
-        :param window_set_name: The name of the window set
+
+        :param window_set_name: The name of the window set.
+        :type window_set_name: str
         :return: filename of the window set
         """
         filename = os.path.join(
@@ -71,34 +77,48 @@ class WindowsComponent(Component):
         )
         return filename
 
-    def write_windows_to_sql(self, event_name, window_set_name, windows):
+    def write_windows_to_sql(
+        self, event_name: str, window_set_name: str, windows: dict
+    ):
         """
         Writes windows to the sql database
+
         :param event_name: The name of the event
+        :type event_name: str
         :param window_set_name: The name of the window set
+        :type window_set_name: str
         :param windows: The actual windows, structured in a
-        dictionary(stations) of dicts(channels) of lists(windowS)
-        of tuples (start- and end times)
+            dictionary(stations) of dicts(channels) of lists(windowS)
+            of tuples (start- and end times)
+        :type windows: dict
         """
         window_group_manager = self.get(window_set_name)
         window_group_manager.write_windows_bulk(event_name, windows)
 
-    def read_all_windows(self, event, window_set_name):
+    def read_all_windows(self, event: str, window_set_name: str):
         """
         Return a flat dictionary with all windows for a specific event.
         This should always be
         fairly small.
+
+        :param event: Name of event
+        :type event: str
+        :param window_set_name: The name of the window set.
+        :type window_set_name: str
         """
         window_group_manager = self.get(window_set_name)
         return window_group_manager.get_all_windows_for_event(event_name=event)
 
-    def get_window_statistics(self, window_set_name, events):
+    def get_window_statistics(self, window_set_name: str, events: List[str]):
         """
         Get a dictionary with window statistics for an iteration per event.
         Depending on the size of your inversion and chosen iteration,
         this might take a while...
+
         :param window_set_name: The window_set_name.
+        :type window_set_name: str
         :param events: List of event(s)
+        :type events: List[str]
         """
         statistics = {}
 
@@ -153,15 +173,20 @@ class WindowsComponent(Component):
 
         return statistics
 
-    def select_windows(self, event, iteration_name, window_set_name, **kwargs):
+    def select_windows(
+        self, event: str, iteration_name: str, window_set_name: str, **kwargs
+    ):
         """
         Automatically select the windows for the given event and iteration.
 
         Function must be called with MPI.
 
         :param event: The event.
+        :type event: str
         :param iteration_name: The iteration.
+        :type iteration_name: str
         :param window_set_name: The name of the window set to pick into
+        :type window_set_name: str
         """
         from lasif.utils import select_component_from_stream
 
@@ -319,15 +344,25 @@ class WindowsComponent(Component):
             MPI.COMM_WORLD.Barrier()
 
     def select_windows_for_station(
-        self, event, iteration, station, window_set_name, **kwargs
+        self,
+        event: str,
+        iteration: str,
+        station: str,
+        window_set_name: str,
+        **kwargs,
     ):
         """
         Selects windows for the given event, iteration, and station. Will
         delete any previously existing windows for that station if any.
 
         :param event: The event.
-        :param iteration: The iteration.
+        :type event: str
+        :param iteration: The iteration name.
+        :type iteration: str
         :param station: The station id in the form NET.STA.
+        :type station: str
+        :param window_set_name: Name of window set
+        :type window_set_name: str
         """
         from lasif.utils import select_component_from_stream
 
