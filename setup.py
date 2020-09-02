@@ -92,6 +92,10 @@ setup_config = dict(
         "flask",
         "flask-cache",
         "geojson"],
+    extras_require={
+        "dev": [
+            "black",
+        ],
     package_data={
         "lasif": get_package_data()},
     entry_points={

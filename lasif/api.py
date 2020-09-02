@@ -24,7 +24,7 @@ from lasif.components.project import Project
 
 from lasif.exceptions import (
     LASIFError,
-    LASIFAdjointSourceCalculationError,
+    LASIFNotFoundError,
     LASIFCommandLineException,
 )
 
@@ -127,7 +127,8 @@ def plot_events(
     :param type_of_plot: type of plot, defaults to 'map'
     :param iteration: plot all events of an iteration, defaults to None
     :param save: if figure should be saved, defaults to False
-    :param show_mesh: Plot the mesh for exodus domains/meshes, defaults to False
+    :param show_mesh: Plot the mesh for exodus domains/meshes, defaults to 
+        False
     """
     import matplotlib.pyplot as plt
 
@@ -240,7 +241,8 @@ def plot_all_rays(
     :type lasif_root: path, str or Lasif communicator object
     :param plot_stations: True/False whether stations should be plotted
     :type plot_stations: bool
-    :param iteration: If you want to plot events from iteration, defaults to None
+    :param iteration: If you want to plot events from iteration, defaults to 
+        None
     :type iteration: str, optional
     :param save: Whether you want to save the figure, if False, it gets
         plotted and not saved, defaults to True
@@ -866,7 +868,8 @@ def set_up_iteration(
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param events: events to include in iteration [optional]
-    :param event_specific: If the inversion needs a specific model for each event
+    :param event_specific: If the inversion needs a specific model for each 
+        event
     :param remove_dirs: boolean value to remove dirs [default=False]
     """
 
@@ -959,6 +962,8 @@ def write_misfit(
 
     with open(toml_filename, "w") as fh:
         toml.dump(iteration_dict, fh)
+
+    return total_misfit
 
 
 def list_iterations(lasif_root, output=False):
