@@ -3,7 +3,6 @@ from typing import Union, List, Dict
 import os
 from lasif.exceptions import LASIFError
 import toml
-from pathlib import Path
 
 
 def create_salvus_forward_simulation(
@@ -82,7 +81,7 @@ def create_salvus_forward_simulation(
         for src in source_info
     ]
 
-    w = sc.simulation.Waveform(mesh=mesh, sources=sources, receivers=recs,)
+    w = sc.simulation.Waveform(mesh=mesh, sources=sources, receivers=recs)
 
     w.physics.wave_equation.end_time_in_seconds = comm.project.simulation_settings[
         "end_time_in_s"
@@ -108,7 +107,7 @@ def create_salvus_forward_simulation(
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
-            side_sets=["r0", "t0", "t1", "p0", "p1",],
+            side_sets=["r0", "t0", "t1", "p0", "p1"],
             taper_amplitude=1.0
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
@@ -208,7 +207,7 @@ def create_salvus_adjoint_simulation(
         )
         fwd_job_names = [j.job_name for j in fwd_job_array.jobs]
         fwd_job_name = forward_job_dict[event]
-        if not fwd_job_name in fwd_job_names:
+        if fwd_job_name not in fwd_job_names:
             raise LASIFError(f"{fwd_job_name} not in job_array names")
         fwd_job_array_index = fwd_job_names.index(fwd_job_name)
         fwd_job_path = fwd_job_array.jobs[fwd_job_array_index].output_path
@@ -243,6 +242,7 @@ def submit_salvus_simulation(
     events: Union[List[str], str],
     iteration: str,
     sim_type: str,
+    verbosity: int = 1,
 ) -> object:
     """
     Submit a Salvus simulation to the machine defined in config file
@@ -256,8 +256,8 @@ def submit_salvus_simulation(
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -266,7 +266,7 @@ def submit_salvus_simulation(
     """
     from salvus.flow.api import run_async, run_many_async
 
-    if not sim_type in ["forward", "adjoint"]:
+    if sim_type not in ["forward", "adjoint"]:
         raise LASIFError("sim_type needs to be forward or adjoint")
 
     array = False
@@ -274,8 +274,8 @@ def submit_salvus_simulation(
         array = True
         if not isinstance(events, list):
             raise LASIFError(
-                "If simulations are a list, events need to be "
-                "a list aswell, with the corresponding events in the same order"
+                "If simulations are a list, events need to be a list as well,"
+                " with the corresponding events in the same order"
             )
     else:
         if isinstance(events, list):
@@ -314,6 +314,7 @@ def submit_salvus_simulation(
             input_files=simulations,
             ranks_per_job=ranks,
             wall_time_in_seconds_per_job=wall_time,
+            verbosity=verbosity,
         )
         jobs["array_name"] = job.job_array_name
         for _i, j in enumerate(job.jobs):
@@ -337,7 +338,7 @@ def _get_job_dict(comm: object, iteration: str, sim_type: str) -> dict:
     """
     Get dictionary with the job names
     """
-    if not sim_type in ["forward", "adjoint"]:
+    if sim_type not in ["forward", "adjoint"]:
         raise LASIFError("sim_type can only be forward or adjoint")
     iteration = comm.iterations.get_long_iteration_name(iteration)
     toml_file = (
@@ -366,8 +367,8 @@ def check_job_status(
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -388,7 +389,7 @@ def check_job_status(
         jobs = salvus.flow.api.get_job_array(
             job_array_name=job_dict["array_name"], site_name=site_name
         )
-        jobs_updated = jobs.update_status(force_update=True)
+        jobs.update_status(force_update=True)
         job_names = [j.job_name for j in jobs.jobs]
 
         for event in events:
@@ -429,8 +430,8 @@ def download_output(comm: object, event: str, iteration: str, sim_type: str):
     :type comm: object
     :param event: Name of event to download output from
     :type event: str
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to.
+    :param iteration: Name of iteration, this is needed to know where to 
+        download files to.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -498,8 +499,8 @@ def retrieve_salvus_simulations(
         in order to keep tabs on which simulation object corresponds to which
         event.
     :type events: Union[List[str], str]
-    :param iteration: Name of iteration, this is needed to know where to download
-        files to when jobs are done.
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
     :type iteration: str
     :param sim_type: can be either forward or adjoint.
     :type sim_type: str
@@ -526,3 +527,63 @@ def retrieve_salvus_simulations(
                 f"Job status for event {event} is: {status[event].name}. "
                 "Can not download output."
             )
+
+
+def retrieve_salvus_simulations_blocking(
+    comm: object,
+    events: Union[List[str], str],
+    iteration: str,
+    sim_type: str,
+    verbosity: int = 1,
+):
+    """
+    Retrieve Salvus simulations based on job names currently in job_toml file
+    
+    :param comm: The Lasif communicator object
+    :type comm: object
+    :param events: We need names of events for the corresponding simulations
+        in order to keep tabs on which simulation object corresponds to which
+        event.
+    :type events: Union[List[str], str]
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
+    :type iteration: str
+    :param sim_type: can be either forward or adjoint.
+    :type sim_type: str
+    """
+    # We need to figure out the status of the jobs
+    # if finished we can proceed with downloading, else we have to
+    # output a message.
+    # If only some are finished, we retrieve those and send an informative
+    # message regarding the rest.
+
+    finished = False
+
+    while not finished:
+        # Get status
+        status = check_job_status(
+            comm=comm, events=events, iteration=iteration, sim_type=sim_type,
+        )
+
+        # Convert to list if a single entry
+        if not isinstance(events, list):
+            events = [events]
+
+        status_per_event = []
+
+        # Check all events
+        for event in events:
+            status_per_event.append(status[event].name)
+
+        if verbosity > 0:
+            print(status_per_event)
+
+        # Check if all are finished
+        if all(status == "finished" for status in status_per_event):
+            finished = True
+
+    # Download all once finished
+    for event in events:
+        download_output(
+            comm=comm, event=event, iteration=iteration, sim_type=sim_type,
+        )
