@@ -318,6 +318,7 @@ def submit_salvus_simulation(
             input_file=simulations,
             ranks=ranks,
             wall_time_in_seconds=wall_time,
+            verbosity=verbosity,
         )
         jobs[events] = job.job_name
 
