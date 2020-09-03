@@ -604,8 +604,9 @@
         <span class="nb">print</span><span class="p">(</span>
             <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> event</span><span class="si">%s</span><span class="s2"> in </span><span class="si">%s</span><span class="s2">:&quot;</span>
             <span class="o">%</span> <span class="p">(</span>
-                <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span> <span class="k">if</span> <span class="n">iteration</span> <span class="k">else</span>
-                <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+                <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">iteration</span>
+                <span class="k">else</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
                 <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;iteration&quot;</span> <span class="k">if</span> <span class="n">iteration</span> <span class="k">else</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1050,6 +1051,73 @@
         <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">setup_events_toml</span><span class="p">(</span>
             <span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_misfit"><a class="viewcode-back" href="../../api_doc.html#lasif.api.write_misfit">[docs]</a><span class="k">def</span> <span class="nf">write_misfit</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">,</span>
+    <span class="n">weight_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_stations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write misfit for iteration</span>
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :param weight_set: name of weight set [optional]</span>
+<span class="sd">    :param window_set: name of window set [optional]</span>
+<span class="sd">    :param events: list of events [optional]</span>
+<span class="sd">    :param include_stations: Write down station misfits? [optional]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">weight_set</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">has_weight_set</span><span class="p">(</span><span class="n">weight_set</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Weights </span><span class="si">{</span><span class="n">weight_set</span><span class="si">}</span><span class="s2"> not known&quot;</span> <span class="sa">f</span><span class="s2">&quot;to LASIF&quot;</span>
+            <span class="p">)</span>
+    <span class="c1"># Check if iterations exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2"> &quot;</span> <span class="sa">f</span><span class="s2">&quot;not known to LASIF&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">long_iter_name</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span>
+    <span class="n">toml_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">long_iter_name</span><span class="p">,</span> <span class="s2">&quot;misfits.toml&quot;</span><span class="p">)</span>
+    <span class="n">total_misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="n">iteration_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;event_misfits&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Check to see whether iteration_toml previously existed</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">):</span>
+            <span class="n">iteration_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">)</span>
+            <span class="n">other_events</span> <span class="o">=</span> <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;event_misfits&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="n">events</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">other_events</span><span class="p">:</span>
+                <span class="n">total_misfit</span> <span class="o">+=</span> <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;event_misfits&quot;</span><span class="p">][</span><span class="n">event</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">iteration_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;event_misfits&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">event_misfit</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_misfit_for_event</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="p">)</span>
+        <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;event_misfits&quot;</span><span class="p">][</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">event_misfit</span><span class="p">)</span>
+        <span class="n">total_misfit</span> <span class="o">+=</span> <span class="n">event_misfit</span>
+
+    <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;total_misfit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_misfit</span><span class="p">)</span>
+    <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;weight_set_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weight_set</span>
+    <span class="n">iteration_dict</span><span class="p">[</span><span class="s2">&quot;window_set_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">window_set</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">iteration_dict</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">total_misfit</span></div>
 
 
 <div class="viewcode-block" id="list_iterations"><a class="viewcode-back" href="../../api_doc.html#lasif.api.list_iterations">[docs]</a><span class="k">def</span> <span class="nf">list_iterations</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>

@@ -863,6 +863,18 @@ Very slow.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="lasif.api.write_misfit">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">write_misfit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">iteration</span></em>, <em class="sig-param"><span class="n">weight_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">window_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">events</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include_stations</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#write_misfit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.write_misfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write misfit for iteration
+:param lasif_root: path to lasif root directory
+:param iteration: name of iteration
+:param weight_set: name of weight set [optional]
+:param window_set: name of window set [optional]
+:param events: list of events [optional]
+:param include_stations: Write down station misfits? [optional]</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="lasif.api.write_stations_to_file">
 <code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">write_stations_to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#write_stations_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.write_stations_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function writes a csv file with station name and lat,lon locations</p>
