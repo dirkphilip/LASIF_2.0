@@ -235,6 +235,7 @@ def submit_salvus_simulation(
     events: Union[List[str], str],
     iteration: str,
     sim_type: str,
+    verbosity: int = 1,
 ) -> object:
     """
     Submit a Salvus simulation to the machine defined in config file
@@ -266,9 +267,8 @@ def submit_salvus_simulation(
         array = True
         if not isinstance(events, list):
             raise LASIFError(
-                "If simulations are a list, events need to be "
-                "a list aswell, with the corresponding events in the same "
-                "order"
+                "If simulations are a list, events need to be a list as well,"
+                " with the corresponding events in the same order"
             )
     else:
         if isinstance(events, list):
@@ -307,6 +307,7 @@ def submit_salvus_simulation(
             input_files=simulations,
             ranks_per_job=ranks,
             wall_time_in_seconds_per_job=wall_time,
+            verbosity=verbosity,
         )
         jobs["array_name"] = job.job_array_name
         for _i, j in enumerate(job.jobs):
@@ -317,6 +318,7 @@ def submit_salvus_simulation(
             input_file=simulations,
             ranks=ranks,
             wall_time_in_seconds=wall_time,
+            verbosity=verbosity,
         )
         jobs[events] = job.job_name
 
@@ -519,3 +521,63 @@ def retrieve_salvus_simulations(
                 f"Job status for event {event} is: {status[event].name}. "
                 "Can not download output."
             )
+
+
+def retrieve_salvus_simulations_blocking(
+    comm: object,
+    events: Union[List[str], str],
+    iteration: str,
+    sim_type: str,
+    verbosity: int = 1,
+):
+    """
+    Retrieve Salvus simulations based on job names currently in job_toml file
+
+    :param comm: The Lasif communicator object
+    :type comm: object
+    :param events: We need names of events for the corresponding simulations
+        in order to keep tabs on which simulation object corresponds to which
+        event.
+    :type events: Union[List[str], str]
+    :param iteration: Name of iteration, this is needed to know where to
+        download files to when jobs are done.
+    :type iteration: str
+    :param sim_type: can be either forward or adjoint.
+    :type sim_type: str
+    """
+    # We need to figure out the status of the jobs
+    # if finished we can proceed with downloading, else we have to
+    # output a message.
+    # If only some are finished, we retrieve those and send an informative
+    # message regarding the rest.
+
+    finished = False
+
+    while not finished:
+        # Get status
+        status = check_job_status(
+            comm=comm, events=events, iteration=iteration, sim_type=sim_type,
+        )
+
+        # Convert to list if a single entry
+        if not isinstance(events, list):
+            events = [events]
+
+        status_per_event = []
+
+        # Check all events
+        for event in events:
+            status_per_event.append(status[event].name)
+
+        if verbosity > 0:
+            print(status_per_event)
+
+        # Check if all are finished
+        if all(status == "finished" for status in status_per_event):
+            finished = True
+
+    # Download all once finished
+    for event in events:
+        download_output(
+            comm=comm, event=event, iteration=iteration, sim_type=sim_type,
+        )

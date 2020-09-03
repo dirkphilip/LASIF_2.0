@@ -445,8 +445,9 @@ def list_events(
         print(
             "%i event%s in %s:"
             % (
-                comm.events.count(iteration) if iteration else
-                comm.events.count(),
+                comm.events.count(iteration)
+                if iteration
+                else comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
                 "iteration" if iteration else "project",
             )
@@ -922,6 +923,73 @@ def set_up_iteration(
         comm.iterations.setup_events_toml(
             iteration_name=iteration, events=events
         )
+
+
+def write_misfit(
+    lasif_root,
+    iteration,
+    weight_set=None,
+    window_set=None,
+    events=None,
+    include_stations=False,
+):
+    """
+    Write misfit for iteration
+    :param lasif_root: path to lasif root directory
+    :param iteration: name of iteration
+    :param weight_set: name of weight set [optional]
+    :param window_set: name of window set [optional]
+    :param events: list of events [optional]
+    :param include_stations: Write down station misfits? [optional]
+    """
+
+    comm = find_project_comm(lasif_root)
+
+    if weight_set:
+        if not comm.weights.has_weight_set(weight_set):
+            raise LASIFNotFoundError(
+                f"Weights {weight_set} not known" f"to LASIF"
+            )
+    # Check if iterations exists
+    if not comm.iterations.has_iteration(iteration):
+        raise LASIFNotFoundError(
+            f"Iteration {iteration} " f"not known to LASIF"
+        )
+
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
+
+    path = comm.project.paths["iterations"]
+    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
+    total_misfit = 0.0
+
+    if not events:
+        events = comm.events.list(iteration=iteration)
+        iteration_dict = {"event_misfits": {}}
+    else:
+        # Check to see whether iteration_toml previously existed
+        if os.path.isfile(toml_filename):
+            iteration_dict = toml.load(toml_filename)
+            other_events = iteration_dict["event_misfits"].keys() - events
+            for event in other_events:
+                total_misfit += iteration_dict["event_misfits"][event]
+        else:
+            iteration_dict = {"event_misfits": {}}
+
+    for event in events:
+        event_misfit = comm.adj_sources.get_misfit_for_event(
+            event, iteration, weight_set
+        )
+        iteration_dict["event_misfits"][event] = float(event_misfit)
+        total_misfit += event_misfit
+
+    iteration_dict["total_misfit"] = float(total_misfit)
+    iteration_dict["weight_set_name"] = weight_set
+    iteration_dict["window_set_name"] = window_set
+
+    with open(toml_filename, "w") as fh:
+        toml.dump(iteration_dict, fh)
+
+    return total_misfit
 
 
 def list_iterations(lasif_root, output: bool = True):

@@ -121,13 +121,13 @@ setup_config = dict(
         "pythreejs",
         "geographiclib",
         "flask-cache",
-        "geojson",
-        "flake8",
-        "toml",
-        "tqdm",
-        "cmasher",
-    ],
-    package_data={"lasif": get_package_data()},
+        "geojson"],
+    extras_require={
+        "dev": [
+            "black",
+        ],
+    package_data={
+        "lasif": get_package_data()},
     entry_points={
         "console_scripts": [
             "lasif = lasif.scripts.lasif_cli:main",
