@@ -770,10 +770,15 @@ def lasif_set_up_iteration(parser, args):
     )
 
     args = parser.parse_args(args)
+    if len(args.events) == 0:
+        events = None
+    else:
+        events = args.events
+
     api.set_up_iteration(
         lasif_root=".",
         iteration=args.iteration_name,
-        events=args.events,
+        events=events,
         remove_dirs=args.remove_dirs,
     )
 

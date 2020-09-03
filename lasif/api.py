@@ -841,6 +841,38 @@ def compute_station_weights(
         weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
     )
 
+def calculate_validate_data_misfit(lasif_root, iteration: str,
+                                   events: Union[str, List[str]] = None):
+    """
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param iteration: name of iteration
+    :type iteration: str
+    :param events: An event or a list of events. To get all of them pass
+    None, defaults to None
+    :type events: Union[str, List[str]], optional
+    return: misfit
+    """
+    comm = find_project_comm(lasif_root)
+
+    if not comm.iterations.has_iteration(iteration):
+        raise LASIFNotFoundError("Iteration {} not known to LASIF".
+                                 format(iteration))
+        return
+
+    if events is None:
+        events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
+
+    misfit = 0.0
+    for event in events:
+        print(f"Computing L2 validation misfit for event {event}.")
+        misfit += comm.adj_sources.\
+            calculate_validation_misfits(event, iteration)
+
+    return misfit
+
 
 def set_up_iteration(
     lasif_root,
@@ -867,7 +899,6 @@ def set_up_iteration(
     """
 
     comm = find_project_comm(lasif_root)
-
     if events is None:
         events = comm.events.list()
     if isinstance(events, str):

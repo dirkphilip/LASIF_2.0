@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import pyasdf
+import obspy
 import os
 import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
@@ -11,7 +12,9 @@ import toml
 from lasif.exceptions import LASIFNotFoundError, LASIFError
 from .component import Component
 from lasif.tools.adjoint.adjoint_source import calculate_adjoint_source
+from lasif.utils import select_component_from_stream
 
+TAUPY_MODEL_CACHE = {}
 
 class AdjointSourcesComponent(Component):
     """
@@ -98,6 +101,162 @@ class AdjointSourcesComponent(Component):
             return misfits[event]
         else:
             return event_misfit
+
+    def calculate_validation_misfits(self,
+                                     event: str,
+                                     iteration: str):
+        """
+
+        This fuction computed the L2 weighted waveform misfit over
+        a whole trace. It is meant to provide misfits for validation
+        purposes. E.g. to steer regularization parameters.
+
+        :param event: name of the event
+        :type event: str
+        :param iteration: iteration for which to get the misfit
+        :type iteration: str
+        """
+        from scipy.integrate import simps
+        from obspy import geodetics
+        from lasif.utils import progress
+
+        event = self.comm.events.get(event)
+
+        # Fill cache if necessary.
+        if not TAUPY_MODEL_CACHE:
+            from obspy.taup import TauPyModel  # NOQA
+
+            TAUPY_MODEL_CACHE["model"] = TauPyModel("AK135")
+        model = TAUPY_MODEL_CACHE["model"]
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration,
+        )
+
+        dt = self.comm.project.simulation_settings["time_step_in_s"]
+
+        ds_syn = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
+        ds_obs = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+
+        event_latitude = event["latitude"]
+        event_longitude = event["longitude"]
+        event_depth_in_km = event["depth_in_km"]
+
+        minimum_period = self.comm.project.simulation_settings[
+            "minimum_period_in_s"]
+
+        misfit = 0.0
+        for i, station in enumerate(ds_obs.waveforms.list()):
+            progress(i+1, len(ds_obs.waveforms.list()),
+                     status="Computing misfits")
+            observed_station = ds_obs.waveforms[station]
+            synthetic_station = ds_syn.waveforms[station]
+
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            try:
+                # Make sure both have length 1.
+                assert len(obs_tag) == 1, (
+                        "Station: %s - Requires 1 observed waveform tag."
+                        " Has %i."
+                        % (observed_station._station_name, len(obs_tag))
+                )
+            except AssertionError:
+                continue
+                assert len(syn_tag) == 1, (
+                        "Station: %s - Requires 1 synthetic waveform tag. "
+                        "Has %i."
+                        % (observed_station._station_name, len(syn_tag))
+                )
+
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            station_latitude = observed_station.coordinates["latitude"]
+            station_longitude = observed_station.coordinates["longitude"]
+
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+                except LASIFNotFoundError:
+                    continue
+
+                # Scale data to synthetics
+                scaling_factor = (synth_tr.data.ptp() / data_tr.data.ptp())
+                # Store and apply the scaling.
+                data_tr.stats.scaling_factor = scaling_factor
+                data_tr.data *= scaling_factor
+
+                dist_in_deg = geodetics.locations2degrees(
+                    station_latitude, station_longitude, event_latitude,
+                    event_longitude
+                )
+
+                # Get only a couple of P phases which should be the
+                # first arrival
+                # for every epicentral distance. Its quite a bit faster
+                # than calculating
+                # the arrival times for every phase.
+                # Assumes the first sample is the centroid time of the event.
+                ttp = model.get_travel_times(
+                    source_depth_in_km=event_depth_in_km,
+                    distance_in_degree=dist_in_deg,
+                    phase_list=["ttp"],
+                )
+                # Sort just as a safety measure.
+                ttp = sorted(ttp, key=lambda x: x.time)
+                first_tt_arrival = ttp[0].time
+
+                # Estimate noise level from waveforms prior to the
+                # first arrival.
+                idx_end = int(
+                    np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
+                idx_end = max(10, idx_end)
+                idx_start = int(
+                    np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
+                idx_start = max(10, idx_start)
+
+                if idx_start >= idx_end:
+                    idx_start = max(0, idx_end - 10)
+
+                data = data_tr.data
+                abs_data = np.abs(data)
+                noise_absolute = abs_data[idx_start:idx_end].max()
+                noise_relative = noise_absolute / abs_data.max()
+
+                # normalize the trace to [-1,1], reduce source effects
+                # and balance amplitudes
+                norm_scaling_fac = 1.0 / np.max(np.abs(synth_tr.data))
+                data_tr.data *= norm_scaling_fac
+                synth_tr.data *= norm_scaling_fac
+                envelope = obspy.signal.filter.envelope(data_tr.data)
+
+                # scale up to around 1, also never divide by 0
+                # by adding regularization term, dependent on noise level
+                env_weighting = 1.0 / (
+                            envelope + np.max(envelope) * noise_relative)
+                data_tr.data *= env_weighting
+                synth_tr.data *= env_weighting
+
+                diff = data_tr.data - synth_tr.data
+                misfit += 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
+
+        print("\nTotal event misfit: ", misfit)
+        return misfit
 
     def calculate_adjoint_sources(
         self,
