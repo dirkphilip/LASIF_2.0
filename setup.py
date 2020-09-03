@@ -126,6 +126,7 @@ setup_config = dict(
         "dev": [
             "black",
         ],
+    },
     package_data={
         "lasif": get_package_data()},
     entry_points={
