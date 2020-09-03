@@ -841,6 +841,7 @@ def compute_station_weights(
         weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
     )
 
+
 def calculate_validate_data_misfit(lasif_root, iteration: str,
                                    events: Union[str, List[str]] = None):
     """

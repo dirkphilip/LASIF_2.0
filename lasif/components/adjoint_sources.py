@@ -16,6 +16,7 @@ from lasif.utils import select_component_from_stream
 
 TAUPY_MODEL_CACHE = {}
 
+
 class AdjointSourcesComponent(Component):
     """
     Component dealing with the adjoint sources.
@@ -172,12 +173,12 @@ class AdjointSourcesComponent(Component):
                 )
             except AssertionError:
                 continue
-                assert len(syn_tag) == 1, (
-                        "Station: %s - Requires 1 synthetic waveform tag. "
-                        "Has %i."
-                        % (observed_station._station_name, len(syn_tag))
-                )
 
+            assert len(syn_tag) == 1, (
+                    "Station: %s - Requires 1 synthetic waveform tag. "
+                    "Has %i."
+                    % (observed_station._station_name, len(syn_tag))
+            )
 
             obs_tag = obs_tag[0]
             syn_tag = syn_tag[0]
