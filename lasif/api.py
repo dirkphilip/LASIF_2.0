@@ -853,10 +853,10 @@ def calculate_validate_data_misfit(
 
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
-    :param iteration: name of iteration
-    :type iteration: str
+    :param iteration: name of iteration to compute misfits for
+    :type iteration: str, optional
     :param events: An event or a list of events. To get all of them pass
-    None, defaults to None
+        None, defaults to None
     :type events: Union[str, List[str]], optional
     """
     comm = find_project_comm(lasif_root)
