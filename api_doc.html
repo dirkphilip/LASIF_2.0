@@ -249,6 +249,23 @@ the iteration, pass None, defaults to None</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="lasif.api.calculate_validate_data_misfit">
+<code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">calculate_validate_data_misfit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">events</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#calculate_validate_data_misfit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.calculate_validate_data_misfit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates L2 full trace misfits for either a full iteration or
+a set of events within an iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lasif_root</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.8)"><em>pathlib.Path</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><em>object</em></a><em>]</em>) – path to lasif root directory</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – name of iteration to compute misfits for</p></li>
+<li><p><strong>events</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – An event or a list of events. To get all of them pass
+None, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="lasif.api.clean_up">
 <code class="sig-prename descclassname">lasif.api.</code><code class="sig-name descname">clean_up</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lasif_root</span></em>, <em class="sig-param"><span class="n">clean_up_file</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">delete_outofbounds_events</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/api.html#clean_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.api.clean_up" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean up the lasif project. The required file can be created with
