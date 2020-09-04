@@ -842,9 +842,15 @@ def compute_station_weights(
     )
 
 
-def calculate_validate_data_misfit(lasif_root, iteration: str,
-                                   events: Union[str, List[str]] = None):
+def calculate_validate_data_misfit(
+        lasif_root,
+        iteration: str,
+        events: Union[str, List[str]] = None
+):
     """
+    Calculates L2 full trace misfits for either a full iteration or
+    a set of events within an iteration.
+
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration
@@ -852,14 +858,12 @@ def calculate_validate_data_misfit(lasif_root, iteration: str,
     :param events: An event or a list of events. To get all of them pass
     None, defaults to None
     :type events: Union[str, List[str]], optional
-    return: misfit
     """
     comm = find_project_comm(lasif_root)
 
     if not comm.iterations.has_iteration(iteration):
         raise LASIFNotFoundError("Iteration {} not known to LASIF".
                                  format(iteration))
-        return
 
     if events is None:
         events = comm.events.list(iteration=iteration)
