@@ -19,6 +19,7 @@ from tqdm import tqdm
 import pathlib
 from typing import Union
 import pyasdf
+import sys
 import math
 
 from lasif.exceptions import LASIFError, LASIFNotFoundError
@@ -143,6 +144,24 @@ def channel2station(value: str):
     'BW.FURT'
     """
     return ".".join(value.split(".")[:2])
+
+
+def progress(count, total, status=""):
+    """
+    Simple progress bar.
+
+    :param count: current count
+    :param total: total of job
+    :param status: reported status
+    """
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
 
 
 def select_component_from_stream(st: obspy.core.Stream, component: str):
@@ -289,6 +308,7 @@ def place_receivers(event: str, comm: object):
         inv += ds.waveforms[station].StationXML
 
     recs = Receiver.parse(inv)
+
     print("Writing receivers into a list of dictionaries")
     receivers = [
         {
@@ -311,7 +331,6 @@ def place_receivers(event: str, comm: object):
     if len(inds) != 0:
         for index in sorted(inds, reverse=True):
             del receivers[index]
-
     print(f"Wrote {len(receivers)} receivers into a list of dictionaries")
 
     return receivers
@@ -605,7 +624,8 @@ class Receiver(object):
                 )
                 if len(coords) != 1:
                     raise LASIFError(
-                        f"Coordinates of channels of station {network_code}.{obj.code} are not identical"
+                        f"Coordinates of channels of station "
+                        f"{network_code}.{obj.code} are not identical"
                     )
                 coords = coords.pop()
                 return [

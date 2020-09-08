@@ -80,7 +80,7 @@ class WindowGroupManager(object):
         )
         yield c
         conn.commit()
-        conn.close()
+        c.close()
 
     def drop_all_tables(self):
         """Drop all tables from the DB"""

@@ -414,19 +414,11 @@ def lasif_download_data(parser, args):
         nargs="+",
         help="FDSN providers to query. Will use all known " "ones if not set.",
     )
-    parser.add_argument(
-        "--downsample_data",
-        action="store_true",
-        help="If the dataset could get too big this can"
-        " help with reducing the size."
-        " Be very careful while using this one. "
-        "Currently it changes the waveforms a bit.",
-    )
     args = parser.parse_args(args)
 
     api.download_data(
         lasif_root=".",
-        event_name=args.event_name if args.event_name else [],
+        event_name=args.event_name if args.event_name is not None else None,
         providers=args.providers,
     )
 
@@ -492,7 +484,7 @@ def lasif_submit_job(parser, args):
         wall_time=args.wall_time_in_seconds,
         simulation_type=args.simulation_type,
         site=args.site,
-        events=args.event if args.event else [],
+        events=args.event,
     )
 
 
@@ -523,7 +515,7 @@ def lasif_retrieve_output(parser, args):
         iteration=args.iteration_name,
         simulation_type=args.simulation_type,
         site=args.site,
-        events=args.event if args.event else [],
+        events=args.event,
     )
 
 
@@ -749,7 +741,7 @@ def lasif_get_weighting_bins(parser, args):
     api.get_weighting_bins(
         lasif_root=".",
         window_set=args.window_set_name,
-        events=args.event_name if args.event_name else [],
+        events=args.event_name,
         iteration=args.iteration,
     )
 
@@ -778,10 +770,15 @@ def lasif_set_up_iteration(parser, args):
     )
 
     args = parser.parse_args(args)
+    if len(args.events) == 0:
+        events = None
+    else:
+        events = args.events
+
     api.set_up_iteration(
         lasif_root=".",
         iteration=args.iteration_name,
-        events=args.events if args.events else None,
+        events=events,
         remove_dirs=args.remove_dirs,
     )
 

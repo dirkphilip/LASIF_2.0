@@ -465,7 +465,9 @@ def list_events(
         print(
             "%i event%s in %s:"
             % (
-                comm.events.count(),
+                comm.events.count(iteration)
+                if iteration
+                else comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
                 "iteration" if iteration else "project",
             )
@@ -860,6 +862,43 @@ def compute_station_weights(
     )
 
 
+def calculate_validate_data_misfit(
+        lasif_root,
+        iteration: str,
+        events: Union[str, List[str]] = None
+):
+    """
+    Calculates L2 full trace misfits for either a full iteration or
+    a set of events within an iteration.
+
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param iteration: name of iteration to compute misfits for
+    :type iteration: str, optional
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    """
+    comm = find_project_comm(lasif_root)
+
+    if not comm.iterations.has_iteration(iteration):
+        raise LASIFNotFoundError("Iteration {} not known to LASIF".
+                                 format(iteration))
+
+    if events is None:
+        events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
+
+    misfit = 0.0
+    for event in events:
+        print(f"Computing L2 validation misfit for event {event}.")
+        misfit += comm.adj_sources.\
+            calculate_validation_misfits(event, iteration)
+
+    return misfit
+
+
 def set_up_iteration(
     lasif_root,
     iteration: str,
@@ -910,6 +949,73 @@ def set_up_iteration(
         comm.iterations.setup_events_toml(
             iteration_name=iteration, events=events
         )
+
+
+def write_misfit(
+    lasif_root,
+    iteration,
+    weight_set=None,
+    window_set=None,
+    events=None,
+    include_stations=False,
+):
+    """
+    Write misfit for iteration
+    :param lasif_root: path to lasif root directory
+    :param iteration: name of iteration
+    :param weight_set: name of weight set [optional]
+    :param window_set: name of window set [optional]
+    :param events: list of events [optional]
+    :param include_stations: Write down station misfits? [optional]
+    """
+
+    comm = find_project_comm(lasif_root)
+
+    if weight_set:
+        if not comm.weights.has_weight_set(weight_set):
+            raise LASIFNotFoundError(
+                f"Weights {weight_set} not known" f"to LASIF"
+            )
+    # Check if iterations exists
+    if not comm.iterations.has_iteration(iteration):
+        raise LASIFNotFoundError(
+            f"Iteration {iteration} " f"not known to LASIF"
+        )
+
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration)
+
+    path = comm.project.paths["iterations"]
+    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
+    total_misfit = 0.0
+
+    if not events:
+        events = comm.events.list(iteration=iteration)
+        iteration_dict = {"event_misfits": {}}
+    else:
+        # Check to see whether iteration_toml previously existed
+        if os.path.isfile(toml_filename):
+            iteration_dict = toml.load(toml_filename)
+            other_events = iteration_dict["event_misfits"].keys() - events
+            for event in other_events:
+                total_misfit += iteration_dict["event_misfits"][event]
+        else:
+            iteration_dict = {"event_misfits": {}}
+
+    for event in events:
+        event_misfit = comm.adj_sources.get_misfit_for_event(
+            event, iteration, weight_set
+        )
+        iteration_dict["event_misfits"][event] = float(event_misfit)
+        total_misfit += event_misfit
+
+    iteration_dict["total_misfit"] = float(total_misfit)
+    iteration_dict["weight_set_name"] = weight_set
+    iteration_dict["window_set_name"] = window_set
+
+    with open(toml_filename, "w") as fh:
+        toml.dump(iteration_dict, fh)
+
+    return total_misfit
 
 
 def list_iterations(lasif_root, output: bool = True):
@@ -995,19 +1101,21 @@ def compare_misfits(
     from_it_misfit = 0.0
     to_it_misfit = 0.0
     for event in events:
-        from_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, from_it, weight_set
+        from_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, from_it, weight_set)
         )
-        to_it_misfit += comm.adj_sources.get_misfit_for_event(
-            event, to_it, weight_set
+        to_it_misfit += float(
+            comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
         )
         if print_events:
             # Print information about every event.
-            from_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, from_it, weight_set
+            from_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(
+                    event, from_it, weight_set
+                )
             )
-            to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                event, to_it, weight_set
+            to_it_misfit_event = float(
+                comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
             )
             print(
                 f"{event}: \n"
@@ -1475,7 +1583,9 @@ def validate_data(
     )
 
 
-def clean_up(lasif_root, clean_up_file: str):
+def clean_up(
+    lasif_root, clean_up_file: str, delete_outofbounds_events: bool = False
+):
     """
     Clean up the lasif project. The required file can be created with
     the validate_data command.
@@ -1484,6 +1594,9 @@ def clean_up(lasif_root, clean_up_file: str):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param clean_up_file: path to clean-up file
     :type clean_up_file: str
+    :param delete_outofbounds_events: Whether full event files should be
+        deleted if the event is out of the domain, defaults to False.
+    :type delete_outofbounds_events: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
@@ -1494,7 +1607,7 @@ def clean_up(lasif_root, clean_up_file: str):
             f"is correct."
         )
 
-    comm.validator.clean_up_project(clean_up_file)
+    comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
 def update_catalog():
