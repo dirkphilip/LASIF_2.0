@@ -405,7 +405,7 @@ def plot_stations_for_event(
         cbar.ax.set_ylabel("Station Weights", rotation=-90)
 
     elif plot_misfits:
-        misfits = [station_dict[x]["misfit"] for x in station_dict.keys()]
+        misfits = [float(station_dict[x]["misfit"]) for x in station_dict.keys()]
         cmap = cmr.heat
         # cmap = cm.get_cmap("seismic")
         stations = map_object.scatter(

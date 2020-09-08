@@ -300,8 +300,19 @@ def place_receivers(event: str, comm: object):
         }
         for rec in tqdm(recs)
     ]
+    recsnames = []
+    inds = []
+    # Sometimes there are weird double receivers in there
+    for _i, rec in enumerate(receivers):
+        recname = f"{rec['network-code']}.{rec['station-code']}"
+        if recname in recsnames:
+            inds.append(_i)
+        recsnames.append(recname)
+    if len(inds) != 0:
+        for index in sorted(inds, reverse=True):
+            del receivers[index]
 
-    print(f"Wrote {len(recs)} receivers into a list of dictionaries")
+    print(f"Wrote {len(receivers)} receivers into a list of dictionaries")
 
     return receivers
 

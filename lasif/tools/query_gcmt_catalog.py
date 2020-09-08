@@ -200,6 +200,7 @@ def add_new_events(
     min_year=None,
     max_year=None,
     threshold_distance_in_km=50.0,
+    return_events=False,
 ):
     min_magnitude = float(min_magnitude)
     max_magnitude = float(max_magnitude)
@@ -312,6 +313,7 @@ def add_new_events(
     folder = os.path.join(comm.project.paths["root"], "tmp")
     os.mkdir(folder)
     data_dir = comm.project.paths["eq_data"]
+    event_paths = []
     for event in chosen_events:
         filename = os.path.join(folder, get_event_filename(event, "GCMT"))
         Catalog(events=[event]).write(
@@ -323,8 +325,11 @@ def add_new_events(
         )
         ds = pyasdf.ASDFDataSet(asdf_filename, compression="gzip-3")
         ds.add_quakeml(filename)
+        event_paths.append(asdf_filename)
         print("Written %s" % (os.path.relpath(asdf_filename)))
     shutil.rmtree(folder)
+    if return_events:
+        return event_paths
 
 
 def get_subset_of_events(comm, count, events, existing_events=None):

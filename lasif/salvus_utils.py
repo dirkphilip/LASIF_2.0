@@ -92,11 +92,11 @@ def create_salvus_forward_simulation(
     import lasif.domain
 
     domain = lasif.domain.HDF5Domain(
-        mesh, sim_set["absorbing_boundaries_in_km"]
+        mesh, sal_set["absorbing_boundaries_in_km"]
     )
     if not domain.is_global_domain():
         absorbing = sc.boundary.Absorbing(
-            width_in_meters=comm.project.simulation_settings[
+            width_in_meters=comm.project.salvus_settings[
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
@@ -105,7 +105,7 @@ def create_salvus_forward_simulation(
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
         w.physics.wave_equation.boundaries = [absorbing]
-    w.output.memory_per_rank_in_MB = 4000.0
+    # w.output.memory_per_rank_in_MB = 4000.0
     w.output.volume_data.format = "hdf5"
     w.output.volume_data.filename = "output.h5"
     w.output.volume_data.fields = ["adjoint-checkpoint"]
