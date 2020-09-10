@@ -158,8 +158,8 @@ class AdjointSourcesComponent(Component):
         for i, station in enumerate(ds_obs.waveforms.list()):
 
             if i % 30 == 0:
-                progress(i+1, len(ds_obs.waveforms.list()), 
-                        status="Computing misfits")
+                progress(i+1, len(ds_obs.waveforms.list()),
+                         status="Computing misfits")
             observed_station = ds_obs.waveforms[station]
             synthetic_station = ds_syn.waveforms[station]
 
@@ -192,12 +192,13 @@ class AdjointSourcesComponent(Component):
             st_syn = synthetic_station[syn_tag]
 
             # Sample points down to 10 points per minimum_period
-            #len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
-            #num_samples_wavelength = 10.0
-            #new_sampling_rate = num_samples_wavelength  * minimum_period / len_s
-            #st_obs = st_obs.resample(new_sampling_rate)
-            #st_syn = st_syn.resample(new_sampling_rate)
-            #dt = 1.0/new_sampling_rate
+            # len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
+            # num_samples_wavelength = 10.0
+            # new_sampling_rate = num_samples_wavelength * \
+            #                     minimum_period / len_s
+            # st_obs = st_obs.resample(new_sampling_rate)
+            # st_syn = st_syn.resample(new_sampling_rate)
+            # dt = 1.0/new_sampling_rate
 
             dist_in_deg = geodetics.locations2degrees(
                     station_latitude, station_longitude, event_latitude,
@@ -258,14 +259,14 @@ class AdjointSourcesComponent(Component):
                 norm_scaling_fac = 1.0 / np.max(np.abs(synth_tr.data))
                 data_tr.data *= norm_scaling_fac
                 synth_tr.data *= norm_scaling_fac
-                #envelope = obspy.signal.filter.envelope(data_tr.data)
+                # envelope = obspy.signal.filter.envelope(data_tr.data)
 
                 # scale up to around 1, also never divide by 0
                 # by adding regularization term, dependent on noise level
-                #env_weighting = 1.0 / (
+                # env_weighting = 1.0 / (
                 #            envelope + np.max(envelope) * 0.2)
-                #data_tr.data *= env_weighting
-                #synth_tr.data *= env_weighting
+                # data_tr.data *= env_weighting
+                # synth_tr.data *= env_weighting
 
                 diff = data_tr.data - synth_tr.data
                 misfit += 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
