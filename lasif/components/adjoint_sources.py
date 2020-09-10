@@ -120,7 +120,7 @@ class AdjointSourcesComponent(Component):
         from scipy.integrate import simps
         from obspy import geodetics
         from lasif.utils import progress
-
+        min_sn_ratio = 0.05
         event = self.comm.events.get(event)
 
         # Fill cache if necessary.
@@ -156,8 +156,10 @@ class AdjointSourcesComponent(Component):
 
         misfit = 0.0
         for i, station in enumerate(ds_obs.waveforms.list()):
-            progress(i+1, len(ds_obs.waveforms.list()),
-                     status="Computing misfits")
+
+            if i % 30 == 0:
+                progress(i+1, len(ds_obs.waveforms.list()), 
+                        status="Computing misfits")
             observed_station = ds_obs.waveforms[station]
             synthetic_station = ds_syn.waveforms[station]
 
@@ -189,69 +191,81 @@ class AdjointSourcesComponent(Component):
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
+            # Sample points down to 10 points per minimum_period
+            #len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
+            #num_samples_wavelength = 10.0
+            #new_sampling_rate = num_samples_wavelength  * minimum_period / len_s
+            #st_obs = st_obs.resample(new_sampling_rate)
+            #st_syn = st_syn.resample(new_sampling_rate)
+            #dt = 1.0/new_sampling_rate
+
+            dist_in_deg = geodetics.locations2degrees(
+                    station_latitude, station_longitude, event_latitude,
+                    event_longitude
+                )
+
+            # Get only a couple of P phases which should be the
+            # first arrival
+            # for every epicentral distance. Its quite a bit faster
+            # than calculating
+            # the arrival times for every phase.
+            # Assumes the first sample is the centroid time of the event.
+            ttp = model.get_travel_times(
+                    source_depth_in_km=event_depth_in_km,
+                    distance_in_degree=dist_in_deg,
+                    phase_list=["ttp"],
+                )
+            # Sort just as a safety measure.
+            ttp = sorted(ttp, key=lambda x: x.time)
+            first_tt_arrival = ttp[0].time
+
+            # Estimate noise level from waveforms prior to the
+            # first arrival.
+            idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
+            idx_end = max(10, idx_end)
+            idx_start = int(
+                    np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
+            idx_start = max(10, idx_start)
+
+            if idx_start >= idx_end:
+                idx_start = max(0, idx_end - 10)
+
             for component in ["E", "N", "Z"]:
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
                 except LASIFNotFoundError:
                     continue
-
                 # Scale data to synthetics
                 scaling_factor = (synth_tr.data.ptp() / data_tr.data.ptp())
+                if np.isinf(scaling_factor):
+                    continue
+
                 # Store and apply the scaling.
                 data_tr.stats.scaling_factor = scaling_factor
                 data_tr.data *= scaling_factor
-
-                dist_in_deg = geodetics.locations2degrees(
-                    station_latitude, station_longitude, event_latitude,
-                    event_longitude
-                )
-
-                # Get only a couple of P phases which should be the
-                # first arrival
-                # for every epicentral distance. Its quite a bit faster
-                # than calculating
-                # the arrival times for every phase.
-                # Assumes the first sample is the centroid time of the event.
-                ttp = model.get_travel_times(
-                    source_depth_in_km=event_depth_in_km,
-                    distance_in_degree=dist_in_deg,
-                    phase_list=["ttp"],
-                )
-                # Sort just as a safety measure.
-                ttp = sorted(ttp, key=lambda x: x.time)
-                first_tt_arrival = ttp[0].time
-
-                # Estimate noise level from waveforms prior to the
-                # first arrival.
-                idx_end = int(
-                    np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
-                idx_end = max(10, idx_end)
-                idx_start = int(
-                    np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
-                idx_start = max(10, idx_start)
-
-                if idx_start >= idx_end:
-                    idx_start = max(0, idx_end - 10)
 
                 data = data_tr.data
                 abs_data = np.abs(data)
                 noise_absolute = abs_data[idx_start:idx_end].max()
                 noise_relative = noise_absolute / abs_data.max()
 
+                if noise_relative > min_sn_ratio:
+                    continue
+
                 # normalize the trace to [-1,1], reduce source effects
                 # and balance amplitudes
                 norm_scaling_fac = 1.0 / np.max(np.abs(synth_tr.data))
                 data_tr.data *= norm_scaling_fac
                 synth_tr.data *= norm_scaling_fac
-                envelope = obspy.signal.filter.envelope(data_tr.data)
+                #envelope = obspy.signal.filter.envelope(data_tr.data)
 
                 # scale up to around 1, also never divide by 0
                 # by adding regularization term, dependent on noise level
-                env_weighting = 1.0 / (
-                            envelope + np.max(envelope) * noise_relative)
-                data_tr.data *= env_weighting
-                synth_tr.data *= env_weighting
+                #env_weighting = 1.0 / (
+                #            envelope + np.max(envelope) * 0.2)
+                #data_tr.data *= env_weighting
+                #synth_tr.data *= env_weighting
 
                 diff = data_tr.data - synth_tr.data
                 misfit += 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
