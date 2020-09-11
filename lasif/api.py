@@ -862,7 +862,7 @@ def compute_station_weights(
     )
 
 
-def calculate_validate_data_misfit(
+def calculate_validation_data_misfit(
         lasif_root,
         iteration: str,
         events: Union[str, List[str]] = None
