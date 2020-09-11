@@ -599,10 +599,13 @@ def calculate_adjoint_sources_multiprocessing(
                 green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
             )
         )
-        print(
-            "Starting adjoint source calculation for event %i of "
-            "%i..." % (_i + 1, len(events))
-        )
+        if len(events) > 1:
+            print(
+                "Starting adjoint source calculation for event %i of "
+                "%i..." % (_i + 1, len(events))
+            )
+        else:
+            print(f"Starting adjoint source calculation for event: {event}")
         print(
             "{green}"
             "==========================================================="
