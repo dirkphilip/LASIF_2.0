@@ -706,6 +706,7 @@
     <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate adjoint sources for a given iteration</span>
@@ -722,6 +723,8 @@
 <span class="sd">    :param events: Name of event or list of events. To get all events for</span>
 <span class="sd">        the iteration, pass None, defaults to None</span>
 <span class="sd">    :type events: Union[str, List[str]]</span>
+<span class="sd">    :param num_processes: The number of processes used in multiprocessing</span>
+<span class="sd">    :type num_processes: int</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
@@ -775,7 +778,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">calculate_adjoint_sources_multiprocessing</span><span class="p">(</span>
-            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">,</span> <span class="n">num_processes</span>
         <span class="p">)</span>
 
         <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">finalize_adjoint_sources</span><span class="p">(</span>
@@ -983,6 +986,7 @@
     <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Autoselect windows for a given iteration and event combination</span>
@@ -997,6 +1001,8 @@
 <span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
 <span class="sd">        None, defaults to None</span>
 <span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    :param num_processes: The number of processes used in multiprocessing</span>
+<span class="sd">    :type num_processes: int</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>  <span class="c1"># Might have to do this mpi</span>
@@ -1009,7 +1015,7 @@
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting windows for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">select_windows_multiprocessing</span><span class="p">(</span>
-            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">)</span></div>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="open_gui"><a class="viewcode-back" href="../../api_doc.html#lasif.api.open_gui">[docs]</a><span class="k">def</span> <span class="nf">open_gui</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>

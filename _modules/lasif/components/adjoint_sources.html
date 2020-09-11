@@ -438,6 +438,7 @@
             <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
             <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -454,6 +455,8 @@
 <span class="sd">        :type iteration: str</span>
 <span class="sd">        :param window_set_name: Name of window set</span>
 <span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :param num_processes: The number of processes used in multiprocessing</span>
+<span class="sd">        :type num_processes: int</span>
 <span class="sd">        :param plot: Should the adjoint source be plotted?, defaults to False</span>
 <span class="sd">        :type plot: bool, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -607,8 +610,9 @@
         <span class="c1"># Generate task list</span>
         <span class="n">task_list</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 
-        <span class="c1"># Use at most 12 processes</span>
-        <span class="n">number_processes</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+        <span class="c1"># Use at most num_processes</span>
+        <span class="n">number_processes</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_processes</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+
         <span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">number_processes</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">task_list</span><span class="p">))</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>

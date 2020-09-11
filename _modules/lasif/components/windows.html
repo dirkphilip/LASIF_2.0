@@ -503,7 +503,8 @@
             <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="WindowsComponent.select_windows_multiprocessing"><a class="viewcode-back" href="../../../components/windows.html#lasif.components.windows.WindowsComponent.select_windows_multiprocessing">[docs]</a>    <span class="k">def</span> <span class="nf">select_windows_multiprocessing</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">window_set_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Automatically select the windows for the given event and iteration.</span>
@@ -515,6 +516,8 @@
 <span class="sd">        :type iteration_name: str</span>
 <span class="sd">        :param window_set_name: The name of the window set to pick into</span>
 <span class="sd">        :type window_set_name: str</span>
+<span class="sd">        :param num_processes: The number of processes used in multiprocessing</span>
+<span class="sd">        :type num_processes: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">select_component_from_stream</span>
         <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
@@ -663,8 +666,8 @@
         <span class="k">with</span> <span class="n">pyasdf</span><span class="o">.</span><span class="n">ASDFDataSet</span><span class="p">(</span><span class="n">processed_filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">mpi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
             <span class="n">task_list</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 
-        <span class="c1"># Use at most 12 processes</span>
-        <span class="n">number_processes</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+        <span class="c1"># Use at most num_processes workers</span>
+        <span class="n">number_processes</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_processes</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
 
         <span class="c1"># Open Pool of workers</span>
         <span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">number_processes</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
