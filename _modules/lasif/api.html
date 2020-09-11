@@ -978,6 +978,40 @@
         <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">select_windows</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="select_windows_multiprocessing"><a class="viewcode-back" href="../../api_doc.html#lasif.api.select_windows_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">select_windows_multiprocessing</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Autoselect windows for a given iteration and event combination</span>
+<span class="sd">    Uses Python&#39;s multiprocessing for parallelization</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param events: An event or a list of events. To get all of them pass</span>
+<span class="sd">        None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]], optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>  <span class="c1"># Might have to do this mpi</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting windows for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">select_windows_multiprocessing</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="open_gui"><a class="viewcode-back" href="../../api_doc.html#lasif.api.open_gui">[docs]</a><span class="k">def</span> <span class="nf">open_gui</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Open up the misfit gui</span>

@@ -304,6 +304,22 @@ delete any previously existing windows for that station if any.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="lasif.components.windows.WindowsComponent.select_windows_multiprocessing">
+<code class="sig-name descname">select_windows_multiprocessing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">window_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/windows.html#WindowsComponent.select_windows_multiprocessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.windows.WindowsComponent.select_windows_multiprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically select the windows for the given event and iteration.
+Uses Python’s multiprocessing for parallelization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The event.</p></li>
+<li><p><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The iteration.</p></li>
+<li><p><strong>window_set_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the window set to pick into</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="lasif.components.windows.WindowsComponent.write_windows_to_sql">
 <code class="sig-name descname">write_windows_to_sql</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">window_set_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">windows</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/windows.html#WindowsComponent.write_windows_to_sql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.windows.WindowsComponent.write_windows_to_sql" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes windows to the sql database</p>
