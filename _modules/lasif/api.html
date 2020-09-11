@@ -758,10 +758,13 @@
                 <span class="n">green</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="s2">&quot;Starting adjoint source calculation for event </span><span class="si">%i</span><span class="s2"> of &quot;</span>
-            <span class="s2">&quot;</span><span class="si">%i</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">))</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Starting adjoint source calculation for event </span><span class="si">%i</span><span class="s2"> of &quot;</span>
+                <span class="s2">&quot;</span><span class="si">%i</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting adjoint source calculation for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
             <span class="s2">&quot;</span><span class="si">{green}</span><span class="s2">&quot;</span>
             <span class="s2">&quot;===========================================================&quot;</span>
