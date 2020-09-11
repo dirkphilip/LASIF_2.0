@@ -561,6 +561,95 @@ def event_info(lasif_root, event_name: str, verbose: bool = False):
         )
 
 
+def calculate_adjoint_sources_multiprocessing(
+    lasif_root,
+    iteration: str,
+    window_set: str,
+    weight_set: str = None,
+    events: Union[str, List[str]] = None,
+    num_processes: int = 16
+):
+    """
+    Calculate adjoint sources for a given iteration
+    This function uses multiprocessing for parallelization
+
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param iteration: name of iteration
+    :type iteration: str
+    :param window_set: name of window set
+    :type window_set: str
+    :param weight_set: name of station weight set, defaults to None
+    :type weight_set: str, optional
+    :param events: Name of event or list of events. To get all events for
+        the iteration, pass None, defaults to None
+    :type events: Union[str, List[str]]
+    :param num_processes: The number of processes used in multiprocessing
+    :type num_processes: int
+    """
+
+    comm = find_project_comm(lasif_root)
+
+    # some basic checks
+    if not comm.windows.has_window_set(window_set):
+        raise LASIFNotFoundError(
+            "Window set {} not known to LASIF".format(window_set)
+        )
+
+    if not comm.iterations.has_iteration(iteration):
+        raise LASIFNotFoundError(
+            "Iteration {} not known to LASIF".format(iteration)
+        )
+
+    if events is None:
+        events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
+
+    for _i, event in enumerate(events):
+        if not comm.events.has_event(event):
+            print(f"Event {event} not known to LASIF. No adjoint sources for "
+                  f"this event will be calculated. ")
+            continue
+
+        print(
+            "\n{green}"
+            "==========================================================="
+            "{reset}".format(
+                green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
+            )
+        )
+        if len(events) > 1:
+            print(
+                "Starting adjoint source calculation for event %i of "
+                "%i..." % (_i + 1, len(events))
+            )
+        else:
+            print(f"Starting adjoint source calculation for event: {event}")
+        print(
+            "{green}"
+            "==========================================================="
+            "{reset}\n".format(
+                green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
+            )
+        )
+
+        # remove adjoint sources if they already exist
+        filename = comm.adj_sources.get_filename(
+            event=event, iteration=iteration
+        )
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        comm.adj_sources.calculate_adjoint_sources_multiprocessing(
+            event, iteration, window_set, num_processes
+        )
+
+        comm.adj_sources.finalize_adjoint_sources(
+            iteration, event, weight_set
+        )
+
+
 def plot_stf(lasif_root):
     """
     Plot the source time function
@@ -754,6 +843,43 @@ def select_windows(
     for event in events:
         print(f"Selecting windows for event: {event}")
         comm.windows.select_windows(event, iteration, window_set)
+
+
+def select_windows_multiprocessing(
+    lasif_root,
+    iteration: str,
+    window_set: str,
+    events: Union[str, List[str]] = None,
+    num_processes: int = 16
+):
+    """
+    Autoselect windows for a given iteration and event combination
+    Uses Python's multiprocessing for parallelization
+
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param iteration: name of iteration
+    :type iteration: str
+    :param window_set: name of window set
+    :type window_set: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    :param num_processes: The number of processes used in multiprocessing
+    :type num_processes: int
+    """
+
+    comm = find_project_comm(lasif_root)  # Might have to do this mpi
+
+    if events is None:
+        events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
+
+    for event in events:
+        print(f"Selecting windows for event: {event}")
+        comm.windows.select_windows_multiprocessing(
+            event, iteration, window_set, num_processes)
 
 
 def open_gui(lasif_root):

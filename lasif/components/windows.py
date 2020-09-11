@@ -343,6 +343,197 @@ class WindowsComponent(Component):
                 )
             MPI.COMM_WORLD.Barrier()
 
+    def select_windows_multiprocessing(
+        self, event: str, iteration_name: str, window_set_name: str,
+            num_processes: int = 16, **kwargs
+    ):
+        """
+        Automatically select the windows for the given event and iteration.
+        Uses Python's multiprocessing for parallelization.
+
+        :param event: The event.
+        :type event: str
+        :param iteration_name: The iteration.
+        :type iteration_name: str
+        :param window_set_name: The name of the window set to pick into
+        :type window_set_name: str
+        :param num_processes: The number of processes used in multiprocessing
+        :type num_processes: int
+        """
+        from lasif.utils import select_component_from_stream
+        from tqdm import tqdm
+        import multiprocessing
+        import warnings
+        import pyasdf
+        warnings.filterwarnings("ignore")
+
+        global _window_select
+
+        event = self.comm.events.get(event)
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration_name,
+        )
+
+        if not os.path.exists(processed_filename):
+            msg = "File '%s' does not exists." % processed_filename
+            raise LASIFNotFoundError(msg)
+
+        if not os.path.exists(synthetic_filename):
+            msg = "File '%s' does not exists." % synthetic_filename
+            raise LASIFNotFoundError(msg)
+
+        # Load project specific window selection function.
+        select_windows = self.comm.project.get_project_function(
+            "window_picking_function"
+        )
+
+        # Get source time function
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function"
+        )
+        delta = self.comm.project.simulation_settings["time_step_in_s"]
+        npts = self.comm.project.simulation_settings["number_of_time_steps"]
+        freqmax = (
+            1.0 / self.comm.project.simulation_settings["minimum_period_in_s"]
+        )
+        freqmin = (
+            1.0 / self.comm.project.simulation_settings["maximum_period_in_s"]
+        )
+        stf_trace = stf_fct(
+            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
+        )
+
+        process_params = self.comm.project.simulation_settings
+        minimum_period = process_params["minimum_period_in_s"]
+        maximum_period = process_params["maximum_period_in_s"]
+
+        def _window_select(station):
+            ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+            ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r",
+                                          mpi=False)
+            observed_station = ds.waveforms[station]
+            synthetic_station = ds_synth.waveforms[station]
+
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            try:
+                # Make sure both have length 1.
+                assert len(obs_tag) == 1, (
+                    "Station: %s - Requires 1 observed waveform tag. Has %i."
+                    % (observed_station._station_name, len(obs_tag))
+                )
+                assert len(syn_tag) == 1, (
+                    "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                    % (observed_station._station_name, len(syn_tag))
+                )
+            except AssertionError:
+                return {station: None}
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Extract coordinates once.
+            coordinates = observed_station.coordinates
+
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(),
+                event_name=event["event_name"],
+                iteration=iteration_name,
+            )
+
+            all_windows = {}
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+
+                    if self.comm.project.simulation_settings[
+                        "scale_data_to_synthetics"
+                    ]:
+                        scaling_factor = (
+                            synth_tr.data.ptp() / data_tr.data.ptp()
+                        )
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
+
+                except LASIFNotFoundError:
+                    continue
+
+                windows = None
+                try:
+                    windows = select_windows(
+                        data_tr,
+                        synth_tr,
+                        stf_trace,
+                        event["latitude"],
+                        event["longitude"],
+                        event["depth_in_km"],
+                        coordinates["latitude"],
+                        coordinates["longitude"],
+                        minimum_period=minimum_period,
+                        maximum_period=maximum_period,
+                        iteration=iteration_name,
+                        **kwargs,
+                    )
+                except Exception as e:
+                    print(e)
+
+                if not windows:
+                    continue
+                all_windows[data_tr.id] = windows
+
+            if all_windows:
+                return {station: all_windows}
+            else:
+                return {station: None}
+
+        # Generate task list
+        with pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False) as ds:
+            task_list = ds.waveforms.list()
+
+        # Use at most num_processes workers
+        number_processes = min(num_processes, multiprocessing.cpu_count())
+
+        # Open Pool of workers
+        with multiprocessing.Pool(number_processes) as pool:
+            results = {}
+            with tqdm(total=len(task_list)) as pbar:
+                for i, r in enumerate(pool.imap_unordered(_window_select,
+                                                          task_list)):
+                    pbar.update()
+                    k, v = r.popitem()
+                    results[k] = v
+
+            pool.close()
+            pool.join()
+
+        # Write files with a single worker
+        print("Finished window selection", flush=True)
+        num_sta_with_windows = sum(v is not None for k, v in results.items())
+        print(f"Writing windows for {num_sta_with_windows} out of "
+              f"{len(task_list)} stations.")
+        self.comm.windows.write_windows_to_sql(
+            event_name=event["event_name"],
+            windows=results,
+            window_set_name=window_set_name,
+        )
+
     def select_windows_for_station(
         self,
         event: str,

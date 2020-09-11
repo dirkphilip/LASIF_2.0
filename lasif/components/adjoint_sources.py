@@ -158,8 +158,8 @@ class AdjointSourcesComponent(Component):
         for i, station in enumerate(ds_obs.waveforms.list()):
 
             if i % 30 == 0:
-                progress(i+1, len(ds_obs.waveforms.list()), 
-                        status="Computing misfits")
+                progress(i+1, len(ds_obs.waveforms.list()),
+                         status="Computing misfits")
             observed_station = ds_obs.waveforms[station]
             synthetic_station = ds_syn.waveforms[station]
 
@@ -192,12 +192,13 @@ class AdjointSourcesComponent(Component):
             st_syn = synthetic_station[syn_tag]
 
             # Sample points down to 10 points per minimum_period
-            #len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
-            #num_samples_wavelength = 10.0
-            #new_sampling_rate = num_samples_wavelength  * minimum_period / len_s
-            #st_obs = st_obs.resample(new_sampling_rate)
-            #st_syn = st_syn.resample(new_sampling_rate)
-            #dt = 1.0/new_sampling_rate
+            # len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
+            # num_samples_wavelength = 10.0
+            # new_sampling_rate = num_samples_wavelength * \
+            #                     minimum_period / len_s
+            # st_obs = st_obs.resample(new_sampling_rate)
+            # st_syn = st_syn.resample(new_sampling_rate)
+            # dt = 1.0/new_sampling_rate
 
             dist_in_deg = geodetics.locations2degrees(
                     station_latitude, station_longitude, event_latitude,
@@ -258,20 +259,283 @@ class AdjointSourcesComponent(Component):
                 norm_scaling_fac = 1.0 / np.max(np.abs(synth_tr.data))
                 data_tr.data *= norm_scaling_fac
                 synth_tr.data *= norm_scaling_fac
-                #envelope = obspy.signal.filter.envelope(data_tr.data)
+                # envelope = obspy.signal.filter.envelope(data_tr.data)
 
                 # scale up to around 1, also never divide by 0
                 # by adding regularization term, dependent on noise level
-                #env_weighting = 1.0 / (
+                # env_weighting = 1.0 / (
                 #            envelope + np.max(envelope) * 0.2)
-                #data_tr.data *= env_weighting
-                #synth_tr.data *= env_weighting
+                # data_tr.data *= env_weighting
+                # synth_tr.data *= env_weighting
 
                 diff = data_tr.data - synth_tr.data
                 misfit += 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
 
         print("\nTotal event misfit: ", misfit)
         return misfit
+
+    def calculate_adjoint_sources_multiprocessing(
+            self,
+            event: str,
+            iteration: str,
+            window_set_name: str,
+            num_processes: int,
+            plot: bool = False,
+            **kwargs,
+    ):
+        """
+        Calculate adjoint sources based on the type of misfit defined in
+        the lasif config file.
+        The computed misfit for each station is also written down into
+        a misfit toml file.
+        This function uses multiprocessing for parallelization
+
+        :param event: Name of event
+        :type event: str
+        :param iteration: Name of iteration
+        :type iteration: str
+        :param window_set_name: Name of window set
+        :type window_set_name: str
+        :param num_processes: The number of processes used in multiprocessing
+        :type num_processes: int
+        :param plot: Should the adjoint source be plotted?, defaults to False
+        :type plot: bool, optional
+        """
+        from lasif.utils import select_component_from_stream
+        from tqdm import tqdm
+        import multiprocessing
+        import warnings
+        warnings.filterwarnings("ignore")
+
+        # Globally define the processing function. This is required to enable
+        # pickling of a function within a function. Alternatively, a solution
+        # can be found that does not utilize a function within a function.
+        global _process
+        event = self.comm.events.get(event)
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration,
+        )
+
+        if not os.path.exists(processed_filename):
+            msg = "File '%s' does not exists." % processed_filename
+            raise LASIFNotFoundError(msg)
+
+        if not os.path.exists(synthetic_filename):
+            msg = "File '%s' does not exists." % synthetic_filename
+            raise LASIFNotFoundError(msg)
+
+        all_windows = self.comm.windows.read_all_windows(
+            event=event["event_name"], window_set_name=window_set_name
+        )
+
+        process_params = self.comm.project.simulation_settings
+
+        def _process(station):
+            ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+            ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r",
+                                          mpi=False)
+            observed_station = ds.waveforms[station]
+            synthetic_station = ds_synth.waveforms[station]
+
+            # print(observed_station, synthetic_station)
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            adjoint_sources = {}
+            try:
+                # Make sure both have length 1.
+                assert len(obs_tag) == 1, (
+                        "Station: %s - Requires 1 observed waveform tag. Has %i."
+                        % (observed_station._station_name, len(obs_tag))
+                )
+                assert len(syn_tag) == 1, (
+                        "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                        % (observed_station._station_name, len(syn_tag))
+                )
+            except AssertionError:
+                return {station: adjoint_sources}
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(),
+                event_name=event["event_name"],
+                iteration=iteration,
+            )
+
+            ad_src_type = self.comm.project.optimization_settings[
+                "misfit_type"
+            ]
+            if ad_src_type == "weighted_waveform_misfit":
+                env_scaling = True
+                ad_src_type = "waveform_misfit"
+            else:
+                env_scaling = False
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+                except LASIFNotFoundError:
+                    continue
+
+                if self.comm.project.simulation_settings[
+                        "scale_data_to_synthetics"]:
+                    if (not self.comm.project.optimization_settings[
+                                "misfit_type"] == "L2NormWeighted"):
+                        scaling_factor = (
+                                synth_tr.data.ptp() / data_tr.data.ptp()
+                        )
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
+
+                net, sta, cha = data_tr.id.split(".", 2)
+                station = net + "." + sta
+
+                if station not in all_windows:
+                    continue
+                if data_tr.id not in all_windows[station]:
+                    continue
+                # Collect all.
+                windows = all_windows[station][data_tr.id]
+                try:
+                    # for window in windows:
+                    asrc = calculate_adjoint_source(
+                        observed=data_tr,
+                        synthetic=synth_tr,
+                        window=windows,
+                        min_period=process_params["minimum_period_in_s"],
+                        max_period=process_params["maximum_period_in_s"],
+                        adj_src_type=ad_src_type,
+                        window_set=window_set_name,
+                        taper_ratio=0.15,
+                        taper_type="cosine",
+                        plot=plot,
+                        envelope_scaling=env_scaling,
+                    )
+                except:
+                    # Either pass or fail for the whole component.
+                    continue
+
+                if not asrc:
+                    continue
+                # Sum up both misfit, and adjoint source.
+                misfit = asrc.misfit
+                adj_source = asrc.adjoint_source.data
+
+                adjoint_sources[data_tr.id] = {
+                    "misfit": misfit,
+                    "adj_source": adj_source,
+                }
+            adj_dict = {station: adjoint_sources}
+            return adj_dict
+
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+
+        # Generate task list
+        task_list = ds.waveforms.list()
+
+        # Use at most num_processes
+        number_processes = min(num_processes, multiprocessing.cpu_count())
+
+        with multiprocessing.Pool(number_processes) as pool:
+            results = {}
+            with tqdm(total=len(task_list)) as pbar:
+                for i, r in enumerate(pool.imap_unordered(_process, task_list)):
+                    pbar.update()
+                    k, v = r.popitem()
+                    results[k] = v
+
+            pool.close()
+            pool.join()
+
+        # Write adjoint sources
+        filename = self.get_filename(
+            event=event["event_name"], iteration=iteration
+        )
+        long_iter_name = self.comm.iterations.get_long_iteration_name(
+            iteration
+        )
+        misfit_toml = self.comm.project.paths["iterations"]
+        toml_filename = misfit_toml / long_iter_name / "misfits.toml"
+
+        ad_src_counter = 0
+        if os.path.exists(toml_filename):
+            iteration_misfits = toml.load(toml_filename)
+            if event["event_name"] in iteration_misfits.keys():
+                iteration_misfits[event["event_name"]][
+                    "event_misfit"
+                ] = 0.0
+            with open(toml_filename, "w") as fh:
+                toml.dump(iteration_misfits, fh)
+
+        print("Writing adjoint sources...")
+        with pyasdf.ASDFDataSet(filename=filename, mpi=False, mode="a") as bs:
+            if toml_filename.exists():
+                iteration_misfits = toml.load(toml_filename)
+                if event["event_name"] in iteration_misfits.keys():
+                    total_misfit = iteration_misfits[
+                        event["event_name"]
+                    ]["event_misfit"]
+                else:
+                    iteration_misfits[event["event_name"]] = {}
+                    iteration_misfits[event["event_name"]][
+                        "stations"
+                    ] = {}
+                    total_misfit = 0.0
+            else:
+                iteration_misfits = {}
+                iteration_misfits[event["event_name"]] = {}
+                iteration_misfits[event["event_name"]]["stations"] = {}
+                total_misfit = 0.0
+            for value in results.values():
+                if not value:
+                    continue
+                station_misfit = 0.0
+                for c_id, adj_source in value.items():
+                    net, sta, loc, cha = c_id.split(".")
+
+                    bs.add_auxiliary_data(
+                        data=adj_source["adj_source"],
+                        data_type="AdjointSources",
+                        path="%s_%s/Channel_%s_%s"
+                             % (net, sta, loc, cha),
+                        parameters={"misfit": adj_source["misfit"]},
+                    )
+                    station_misfit += adj_source["misfit"]
+                    station_name = f"{net}.{sta}"
+                iteration_misfits[event["event_name"]]["stations"][
+                    station_name
+                ] = float(station_misfit)
+                ad_src_counter += 1
+                total_misfit += station_misfit
+            iteration_misfits[event["event_name"]][
+                "event_misfit"
+            ] = float(total_misfit)
+            with open(toml_filename, "w") as fh:
+                toml.dump(iteration_misfits, fh)
+
+        with pyasdf.ASDFDataSet(
+                filename=filename, mpi=False, mode="a"
+        ) as ds:
+            length = len(ds.auxiliary_data.AdjointSources.list())
+        print(f"{length} Adjoint sources are in your file.")
 
     def calculate_adjoint_sources(
         self,
@@ -548,7 +812,7 @@ class AdjointSourcesComponent(Component):
         """
         import pyasdf
         import h5py
-
+        print("Finalizing adjoint sources...")
         # This will do stuff for each event and a single iteration
         # Step one, read adj_src file that should have been created already
         iteration = self.comm.iterations.get_long_iteration_name(
