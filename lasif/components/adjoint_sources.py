@@ -449,7 +449,7 @@ class AdjointSourcesComponent(Component):
         task_list = ds.waveforms.list()
 
         # Use at most 12 processes
-        number_processes = min(12, multiprocessing.cpu_count())
+        number_processes = min(16, multiprocessing.cpu_count())
         with multiprocessing.Pool(number_processes) as pool:
             results = {}
             with tqdm(total=len(task_list)) as pbar:
