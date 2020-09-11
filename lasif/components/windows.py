@@ -344,7 +344,8 @@ class WindowsComponent(Component):
             MPI.COMM_WORLD.Barrier()
 
     def select_windows_multiprocessing(
-        self, event: str, iteration_name: str, window_set_name: str, **kwargs
+        self, event: str, iteration_name: str, window_set_name: str,
+            num_processes: int = 16, **kwargs
     ):
         """
         Automatically select the windows for the given event and iteration.
@@ -356,6 +357,8 @@ class WindowsComponent(Component):
         :type iteration_name: str
         :param window_set_name: The name of the window set to pick into
         :type window_set_name: str
+        :param num_processes: The number of processes used in multiprocessing
+        :type num_processes: int
         """
         from lasif.utils import select_component_from_stream
         from tqdm import tqdm
@@ -504,8 +507,8 @@ class WindowsComponent(Component):
         with pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False) as ds:
             task_list = ds.waveforms.list()
 
-        # Use at most 12 processes
-        number_processes = min(16, multiprocessing.cpu_count())
+        # Use at most num_processes workers
+        number_processes = min(num_processes, multiprocessing.cpu_count())
 
         # Open Pool of workers
         with multiprocessing.Pool(number_processes) as pool:

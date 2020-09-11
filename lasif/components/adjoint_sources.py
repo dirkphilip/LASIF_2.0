@@ -279,6 +279,7 @@ class AdjointSourcesComponent(Component):
             event: str,
             iteration: str,
             window_set_name: str,
+            num_processes: int,
             plot: bool = False,
             **kwargs,
     ):
@@ -295,6 +296,8 @@ class AdjointSourcesComponent(Component):
         :type iteration: str
         :param window_set_name: Name of window set
         :type window_set_name: str
+        :param num_processes: The number of processes used in multiprocessing
+        :type num_processes: int
         :param plot: Should the adjoint source be plotted?, defaults to False
         :type plot: bool, optional
         """
@@ -448,8 +451,9 @@ class AdjointSourcesComponent(Component):
         # Generate task list
         task_list = ds.waveforms.list()
 
-        # Use at most 12 processes
-        number_processes = min(16, multiprocessing.cpu_count())
+        # Use at most num_processes
+        number_processes = min(num_processes, multiprocessing.cpu_count())
+
         with multiprocessing.Pool(number_processes) as pool:
             results = {}
             with tqdm(total=len(task_list)) as pbar:

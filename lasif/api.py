@@ -547,6 +547,7 @@ def calculate_adjoint_sources_multiprocessing(
     window_set: str,
     weight_set: str = None,
     events: Union[str, List[str]] = None,
+    num_processes: int = 16
 ):
     """
     Calculate adjoint sources for a given iteration
@@ -563,6 +564,8 @@ def calculate_adjoint_sources_multiprocessing(
     :param events: Name of event or list of events. To get all events for
         the iteration, pass None, defaults to None
     :type events: Union[str, List[str]]
+    :param num_processes: The number of processes used in multiprocessing
+    :type num_processes: int
     """
 
     comm = find_project_comm(lasif_root)
@@ -616,7 +619,7 @@ def calculate_adjoint_sources_multiprocessing(
             os.remove(filename)
 
         comm.adj_sources.calculate_adjoint_sources_multiprocessing(
-            event, iteration, window_set
+            event, iteration, window_set, num_processes
         )
 
         comm.adj_sources.finalize_adjoint_sources(
@@ -824,6 +827,7 @@ def select_windows_multiprocessing(
     iteration: str,
     window_set: str,
     events: Union[str, List[str]] = None,
+    num_processes: int = 16
 ):
     """
     Autoselect windows for a given iteration and event combination
@@ -838,6 +842,8 @@ def select_windows_multiprocessing(
     :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
+    :param num_processes: The number of processes used in multiprocessing
+    :type num_processes: int
     """
 
     comm = find_project_comm(lasif_root)  # Might have to do this mpi
@@ -850,7 +856,7 @@ def select_windows_multiprocessing(
     for event in events:
         print(f"Selecting windows for event: {event}")
         comm.windows.select_windows_multiprocessing(
-            event, iteration, window_set)
+            event, iteration, window_set, num_processes)
 
 
 def open_gui(lasif_root):
