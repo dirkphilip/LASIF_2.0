@@ -700,6 +700,89 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="calculate_adjoint_sources_multiprocessing"><a class="viewcode-back" href="../../api_doc.html#lasif.api.calculate_adjoint_sources_multiprocessing">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_sources_multiprocessing</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate adjoint sources for a given iteration</span>
+<span class="sd">    This function uses multiprocessing for parallelization</span>
+
+<span class="sd">    :param lasif_root: path to lasif root directory</span>
+<span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
+<span class="sd">    :param iteration: name of iteration</span>
+<span class="sd">    :type iteration: str</span>
+<span class="sd">    :param window_set: name of window set</span>
+<span class="sd">    :type window_set: str</span>
+<span class="sd">    :param weight_set: name of station weight set, defaults to None</span>
+<span class="sd">    :type weight_set: str, optional</span>
+<span class="sd">    :param events: Name of event or list of events. To get all events for</span>
+<span class="sd">        the iteration, pass None, defaults to None</span>
+<span class="sd">    :type events: Union[str, List[str]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
+
+    <span class="c1"># some basic checks</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">has_window_set</span><span class="p">(</span><span class="n">window_set</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;Window set </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">window_set</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;Iteration </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not known to LASIF. No adjoint sources for &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;this event will be calculated. &quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="si">{green}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;===========================================================&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{reset}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">green</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Starting adjoint source calculation for event </span><span class="si">%i</span><span class="s2"> of &quot;</span>
+            <span class="s2">&quot;</span><span class="si">%i</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{green}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;===========================================================&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{reset}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">green</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># remove adjoint sources if they already exist</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">get_filename</span><span class="p">(</span>
+            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">calculate_adjoint_sources_multiprocessing</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span>
+        <span class="p">)</span>
+
+        <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">finalize_adjoint_sources</span><span class="p">(</span>
+            <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">weight_set</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="plot_stf"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_stf">[docs]</a><span class="k">def</span> <span class="nf">plot_stf</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the source time function</span>
