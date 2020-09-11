@@ -819,6 +819,40 @@ def select_windows(
         comm.windows.select_windows(event, iteration, window_set)
 
 
+def select_windows_multiprocessing(
+    lasif_root,
+    iteration: str,
+    window_set: str,
+    events: Union[str, List[str]] = None,
+):
+    """
+    Autoselect windows for a given iteration and event combination
+    Uses Python's multiprocessing for parallelization
+
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param iteration: name of iteration
+    :type iteration: str
+    :param window_set: name of window set
+    :type window_set: str
+    :param events: An event or a list of events. To get all of them pass
+        None, defaults to None
+    :type events: Union[str, List[str]], optional
+    """
+
+    comm = find_project_comm(lasif_root)  # Might have to do this mpi
+
+    if events is None:
+        events = comm.events.list(iteration=iteration)
+    if isinstance(events, str):
+        events = [events]
+
+    for event in events:
+        print(f"Selecting windows for event: {event}")
+        comm.windows.select_windows_multiprocessing(
+            event, iteration, window_set)
+
+
 def open_gui(lasif_root):
     """
     Open up the misfit gui
