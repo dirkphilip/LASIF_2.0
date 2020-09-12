@@ -1127,7 +1127,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="calculate_validate_data_misfit"><a class="viewcode-back" href="../../api_doc.html#lasif.api.calculate_validate_data_misfit">[docs]</a><span class="k">def</span> <span class="nf">calculate_validate_data_misfit</span><span class="p">(</span>
+<div class="viewcode-block" id="calculate_validation_data_misfit"><a class="viewcode-back" href="../../api_doc.html#lasif.api.calculate_validation_data_misfit">[docs]</a><span class="k">def</span> <span class="nf">calculate_validation_data_misfit</span><span class="p">(</span>
         <span class="n">lasif_root</span><span class="p">,</span>
         <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1135,6 +1135,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates L2 full trace misfits for either a full iteration or</span>
 <span class="sd">    a set of events within an iteration.</span>
+
+<span class="sd">    Returns a dictionary with misfits for each event as well as the total misfit</span>
 
 <span class="sd">    :param lasif_root: path to lasif root directory</span>
 <span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
@@ -1155,13 +1157,14 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
 
-    <span class="n">misfit</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">misfit_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing L2 validation misfit for event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="n">misfit</span> <span class="o">+=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span>\
+        <span class="n">event_misfit</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span>\
             <span class="n">calculate_validation_misfits</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+        <span class="n">misfit_dict</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_misfit</span>
 
-    <span class="k">return</span> <span class="n">misfit</span></div>
+    <span class="k">return</span> <span class="n">misfit_dict</span></div>
 
 
 <div class="viewcode-block" id="set_up_iteration"><a class="viewcode-back" href="../../api_doc.html#lasif.api.set_up_iteration">[docs]</a><span class="k">def</span> <span class="nf">set_up_iteration</span><span class="p">(</span>
