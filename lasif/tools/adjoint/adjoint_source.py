@@ -172,7 +172,7 @@ def calculate_adjoint_source(
         original_synthetic.data *= norm_scaling_fac
         envelope = obspy.signal.filter.envelope(original_observed.data)
         # scale up to the noise, also never divide by 0
-        env_weighting = 1.0 / (envelope + np.max(envelope) * 0.001)
+        env_weighting = 1.0 / (envelope + np.max(envelope) * 0.3)
         original_observed.data *= env_weighting
         original_synthetic.data *= env_weighting
     for win in window:

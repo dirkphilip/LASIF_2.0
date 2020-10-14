@@ -283,7 +283,8 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
 
 def place_receivers(event: str, comm: object):
     """
-    Place receivers on mesh.
+    Generates a list of receivers with the required fields
+    for a salvus simulation.
 
     :param event: The name of the event for which to generate the
         input files.
@@ -291,14 +292,19 @@ def place_receivers(event: str, comm: object):
     :param comm: LASIF communicator object
     :type comm: object
     """
+
     event_stations = comm.query.get_all_stations_for_event(event)
     recs = []
-    for station, info in tqdm(event_stations.items()):
+    for station, info in event_stations.items():
         net, sta = station.split(".")
-        rec_dict = {"network-code": f"{net}", "station-code": sta, "medium": "solid", "latitude": elliptic_to_geocentric_latitude(info["latitude"]), "longitude": info["longitude"]}
+        rec_dict = {"network-code": net, "station-code": sta,
+                    "medium": "solid",
+                    "latitude": elliptic_to_geocentric_latitude(
+                        info["latitude"]),
+                    "longitude": info["longitude"]}
         recs.append(rec_dict)
-    print(f"Wrote {len(recs)} receivers into a list of dictionaries")
 
+    print(f"Wrote {len(recs)} receivers into a list of dictionaries")
     return recs
 
 

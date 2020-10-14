@@ -997,6 +997,8 @@ def calculate_validation_data_misfit(
     Calculates L2 full trace misfits for either a full iteration or
     a set of events within an iteration.
 
+    Returns a dictionary with misfits for each event as well as the total misfit
+
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration to compute misfits for
@@ -1016,13 +1018,14 @@ def calculate_validation_data_misfit(
     if isinstance(events, str):
         events = [events]
 
-    misfit = 0.0
+    misfit_dict = {}
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
-        misfit += comm.adj_sources.\
+        event_misfit = comm.adj_sources.\
             calculate_validation_misfits(event, iteration)
+        misfit_dict[event] = event_misfit
 
-    return misfit
+    return misfit_dict
 
 
 def set_up_iteration(

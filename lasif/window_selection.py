@@ -981,33 +981,39 @@ def select_windows(
 
         window_mask = np.ones(window_npts, dtype="bool")
 
-        closest_peaks = find_closest(data_p, synth_p)
-        diffs = np.diff(closest_peaks)
+        # sometimes, no local extrema are found and the below fails
+        # in that case dont crash, but return the windows that did not fail.
+        try:
+            closest_peaks = find_closest(data_p, synth_p)
+            diffs = np.diff(closest_peaks)
 
-        for idx in np.where(diffs == 1)[0]:
-            if idx > 0:
-                start = synth_p[idx - 1]
-            else:
-                start = 0
-            if idx < (len(synth_p) - 1):
-                end = synth_p[idx + 1]
-            else:
-                end = -1
-            window_mask[start:end] = False
+            for idx in np.where(diffs == 1)[0]:
+                if idx > 0:
+                    start = synth_p[idx - 1]
+                else:
+                    start = 0
+                if idx < (len(synth_p) - 1):
+                    end = synth_p[idx + 1]
+                else:
+                    end = -1
+                window_mask[start:end] = False
 
-        closest_troughs = find_closest(data_t, synth_t)
-        diffs = np.diff(closest_troughs)
+            closest_troughs = find_closest(data_t, synth_t)
+            diffs = np.diff(closest_troughs)
 
-        for idx in np.where(diffs == 1)[0]:
-            if idx > 0:
-                start = synth_t[idx - 1]
-            else:
-                start = 0
-            if idx < (len(synth_t) - 1):
-                end = synth_t[idx + 1]
-            else:
-                end = -1
-            window_mask[start:end] = False
+            for idx in np.where(diffs == 1)[0]:
+                if idx > 0:
+                    start = synth_t[idx - 1]
+                else:
+                    start = 0
+                if idx < (len(synth_t) - 1):
+                    end = synth_t[idx + 1]
+                else:
+                    end = -1
+                window_mask[start:end] = False
+        except Exception as e:
+            print(e)
+            continue
 
         window_mask = np.ma.masked_array(window_mask, mask=window_mask)
 
