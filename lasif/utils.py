@@ -291,49 +291,15 @@ def place_receivers(event: str, comm: object):
     :param comm: LASIF communicator object
     :type comm: object
     """
+    event_stations = comm.query.get_all_stations_for_event(event)
+    recs = []
+    for station, info in tqdm(event_stations.items()):
+        net, sta = station.split(".")
+        rec_dict = {"network-code": f"{net}", "station-code": sta, "medium": "solid", "latitude": elliptic_to_geocentric_latitude(info["latitude"]), "longitude": info["longitude"]}
+        recs.append(rec_dict)
+    print(f"Wrote {len(recs)} receivers into a list of dictionaries")
 
-    asdf_file = comm.waveforms.get_asdf_filename(
-        event_name=event, data_type="raw"
-    )
-
-    import pyasdf
-
-    ds = pyasdf.ASDFDataSet(asdf_file, mode="r")
-    event = ds.events[0]
-
-    # Build inventory of all stations present in ASDF file
-    stations = ds.waveforms.list()
-    inv = ds.waveforms[stations[0]].StationXML
-    for station in stations[1:]:
-        inv += ds.waveforms[station].StationXML
-
-    recs = Receiver.parse(inv)
-
-    print("Writing receivers into a list of dictionaries")
-    receivers = [
-        {
-            "network-code": f"{rec.network}",
-            "station-code": f"{rec.station}",
-            "medium": "solid",
-            "latitude": rec.latitude,
-            "longitude": rec.longitude,
-        }
-        for rec in tqdm(recs)
-    ]
-    recsnames = []
-    inds = []
-    # Sometimes there are weird double receivers in there
-    for _i, rec in enumerate(receivers):
-        recname = f"{rec['network-code']}.{rec['station-code']}"
-        if recname in recsnames:
-            inds.append(_i)
-        recsnames.append(recname)
-    if len(inds) != 0:
-        for index in sorted(inds, reverse=True):
-            del receivers[index]
-    print(f"Wrote {len(receivers)} receivers into a list of dictionaries")
-
-    return receivers
+    return recs
 
 
 def prepare_source(comm: object, event: str, iteration: str):
