@@ -116,7 +116,7 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
     for year in available_years:
         print("\tReading year %s ..." % year)
         for filename in glob.glob(os.path.join(data_dir, str(year), "*.ndk*")):
-            if year < 2005:
+            if float(year) < 2005:
                 cat += obspy.read_events(filename, format="QuakeML")
             else:
                 cat += obspy.read_events(filename, format="ndk")
