@@ -280,17 +280,38 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
 
     f.close()
 
+def load_receivers(comm: object, event: str):
+    """
+    Loads receivers which have already been written into a json file
 
-def place_receivers(event: str, comm: object):
+    :param comm: LASIF communicator object
+    :type comm: object
+    :param event: The name of the event for which to generate the
+        input files.
+    :type event: str
+    """
+    import json
+    filename = comm.project.paths["salvus_files"] / "RECEIVERS" / event / "receivers.json"
+    if not os.path.exists(filename):
+        raise LASIFNotFoundError()
+    with open(filename, "r") as fh:
+        receivers = json.load(fh)
+    return receivers
+    
+
+def place_receivers(comm: object, event: str, write_to_file: bool = False):
     """
     Generates a list of receivers with the required fields
     for a salvus simulation.
 
+    :param comm: LASIF communicator object
+    :type comm: object
     :param event: The name of the event for which to generate the
         input files.
     :type event: str
-    :param comm: LASIF communicator object
-    :type comm: object
+    :param write_to_file: Writes receivers to json file, allows for faster
+        loading next time receivers are used, defaults to False
+    :type write_to_file: bool, optional
     """
 
     event_stations = comm.query.get_all_stations_for_event(event)
@@ -305,6 +326,14 @@ def place_receivers(event: str, comm: object):
         recs.append(rec_dict)
 
     print(f"Wrote {len(recs)} receivers into a list of dictionaries")
+    if write_to_file:
+        import json
+        filename = comm.project.paths["salvus_files"] / "RECEIVERS" / event / "receivers.json"
+        if not os.path.exists(filename):
+            os.makedirs(filename)
+        with open(filename, "w+") as fh:
+            json.dump(recs)
+        print(f"Wrote {len(recs)} into file")
     return recs
 
 

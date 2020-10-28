@@ -1519,7 +1519,7 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     return os.path.join(models, it_name, event, "mesh.h5")
 
 
-def get_receivers(lasif_root, event: str):
+def get_receivers(lasif_root, event: str, load_from_file: bool=False, write_to_file: bool=False):
     """
     Get a list of receiver dictionaries which are compatible with Salvus.
     SalvusFlow can then use these dictionaries to place the receivers.
@@ -1528,14 +1528,29 @@ def get_receivers(lasif_root, event: str):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event which we want to find the receivers for
     :type event: str
+    :param load_from_file: If receivers are stored in a json file,
+        defaults to False
+    :type load_from_file: bool, optional
+    :param write_to_file: If list of receiver dictionaries should be written
+        to file, defaults to False
+    :type write_to_file: bool, optional
     """
-    from lasif.utils import place_receivers
+    from lasif.utils import place_receivers, load_receivers
 
     comm = find_project_comm(lasif_root)
 
     assert comm.events.has_event(event), f"Event: {event} not in project"
 
-    return place_receivers(event, comm)
+    if load_from_file:
+        try:
+            return load_receivers(comm=comm, event=event)
+        except LASIFNotFoundError:
+            print(
+                "No file with the receivers, will place them normally "
+                "and write to file."
+                )
+            write_to_file = True
+    return place_receivers(comm=comm, event=event, write_to_file=write_to_file)
 
 
 def get_source(lasif_root, event: str, iteration: str):
