@@ -329,11 +329,11 @@ def place_receivers(comm: object, event: str, write_to_file: bool = False):
     if write_to_file:
         import json
         filename = comm.project.paths["salvus_files"] / "RECEIVERS" / event / "receivers.json"
-        if not os.path.exists(filename):
-            os.makedirs(filename)
+        if not os.path.exists(filename.parent):
+            os.makedirs(filename.parent)
         with open(filename, "w+") as fh:
-            json.dump(recs)
-        print(f"Wrote {len(recs)} into file")
+            json.dump(recs, fh)
+        print(f"Wrote {len(recs)} receivers into file")
     return recs
 
 
