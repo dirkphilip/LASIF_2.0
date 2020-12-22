@@ -36,6 +36,7 @@ dependencies:
     - jupytext
     - ipywidgets
     - pythreejs
+    - json
     - pip:
         - geographiclib
         - flask-cache

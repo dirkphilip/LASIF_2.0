@@ -188,6 +188,7 @@ def plot_events(
         print("Saved picture at %s" % outfile)
     else:
         plt.show()
+    plt.clf()
 
 
 def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
@@ -229,6 +230,7 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
         print("Saved picture at %s" % outfile)
     else:
         plt.show()
+    plt.clf()
 
 
 def plot_raydensity(
@@ -321,6 +323,7 @@ def add_gcmt_events(
     min_dist: float,
     min_year: int = None,
     max_year: int = None,
+    return_events: bool = False
 ):
     """
     Add events to the project.
@@ -339,21 +342,38 @@ def add_gcmt_events(
     :type min_year: float, optional
     :param max_year: Year to end event search, defaults to None
     :type max_year: float, optional
+    :param return_events: If you want to return a list of the new events, defaults
+        to False
+    :type return_events: bool, optional
     """
 
     from lasif.tools.query_gcmt_catalog import add_new_events
 
     comm = find_project_comm(lasif_root)
 
-    add_new_events(
-        comm=comm,
-        count=count,
-        min_magnitude=min_mag,
-        max_magnitude=max_mag,
-        min_year=min_year,
-        max_year=max_year,
-        threshold_distance_in_km=min_dist,
-    )
+    if return_events:
+        return add_new_events(
+            comm=comm,
+            count=count,
+            min_magnitude=min_mag,
+            max_magnitude=max_mag,
+            min_year=min_year,
+            max_year=max_year,
+            threshold_distance_in_km=min_dist,
+            return_events=return_events,
+        )
+    else:
+        add_new_events(
+            comm=comm,
+            count=count,
+            min_magnitude=min_mag,
+            max_magnitude=max_mag,
+            min_year=min_year,
+            max_year=max_year,
+            threshold_distance_in_km=min_dist,
+            return_events=return_events,
+        )
+
 
 
 def add_spud_event(lasif_root, url: str):
@@ -737,7 +757,7 @@ def calculate_adjoint_sources(
             )
         return
 
-    if events is None:
+    if events is None or len(events) == 0:
         events = comm.events.list(iteration=iteration)
     if isinstance(events, str):
         events = [events]
@@ -817,7 +837,7 @@ def select_windows(
 
     comm = find_project_comm(lasif_root)  # Might have to do this mpi
 
-    if events is None:
+    if events is None or len(events) == 0:
         events = comm.events.list(iteration=iteration)
     if isinstance(events, str):
         events = [events]
@@ -921,7 +941,7 @@ def compute_station_weights(
 
     comm = find_project_comm(lasif_root)
 
-    if events is None:
+    if events is None or len(events) == 0:
         events = comm.events.list(iteration=iteration)
     if isinstance(events, str):
         events = [events]
@@ -1036,7 +1056,8 @@ def set_up_iteration(
     """
 
     comm = find_project_comm(lasif_root)
-    if events is None:
+
+    if events is None or len(events) == 0:
         events = comm.events.list()
     if isinstance(events, str):
         events = [events]
@@ -1193,7 +1214,7 @@ def compare_misfits(
     """
     comm = find_project_comm(lasif_root)
 
-    if events is None:
+    if events is None or len(events) is 0:
         events = comm.events.list()
     if isinstance(events, str):
         events = [events]
@@ -1300,7 +1321,7 @@ def process_data(
     """
     comm = find_project_comm(lasif_root)
 
-    if events is None:
+    if events is None or len(events) == 0:
         events = comm.events.list(iteration=iteration)
     if isinstance(events, str):
         events = [events]
@@ -1351,7 +1372,7 @@ def plot_window_statistics(
 
     comm = find_project_comm(lasif_root)
 
-    if events is None:
+    if events is None or len(events) == 0:
         events = comm.events.list(iteration=iteration)
     if isinstance(events, str):
         events = [events]
@@ -1501,7 +1522,7 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     return os.path.join(models, it_name, event, "mesh.h5")
 
 
-def get_receivers(lasif_root, event: str):
+def get_receivers(lasif_root, event: str, load_from_file: bool=False, write_to_file: bool=False):
     """
     Get a list of receiver dictionaries which are compatible with Salvus.
     SalvusFlow can then use these dictionaries to place the receivers.
@@ -1510,14 +1531,29 @@ def get_receivers(lasif_root, event: str):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param event: Name of event which we want to find the receivers for
     :type event: str
+    :param load_from_file: If receivers are stored in a json file,
+        defaults to False
+    :type load_from_file: bool, optional
+    :param write_to_file: If list of receiver dictionaries should be written
+        to file, defaults to False
+    :type write_to_file: bool, optional
     """
-    from lasif.utils import place_receivers
+    from lasif.utils import place_receivers, load_receivers
 
     comm = find_project_comm(lasif_root)
 
     assert comm.events.has_event(event), f"Event: {event} not in project"
 
-    return place_receivers(event, comm)
+    if load_from_file:
+        try:
+            return load_receivers(comm=comm, event=event)
+        except LASIFNotFoundError:
+            print(
+                "No file with the receivers, will place them normally "
+                "and write to file."
+                )
+            write_to_file = True
+    return place_receivers(comm=comm, event=event, write_to_file=write_to_file)
 
 
 def get_source(lasif_root, event: str, iteration: str):

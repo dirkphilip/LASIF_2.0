@@ -115,8 +115,12 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
     cat = Catalog()
     for year in available_years:
         print("\tReading year %s ..." % year)
-        for filename in glob.glob(os.path.join(data_dir, str(year), "*.ndk*")):
-            cat += obspy.read_events(filename, format="ndk")
+        if float(year) < 2005:
+            filename = glob.glob(os.path.join(data_dir, str(year), "*.xml*"))[0]
+            cat += obspy.read_events(filename, format="QuakeML")
+        else:
+            for filename in glob.glob(os.path.join(data_dir, str(year), "*.ndk*")):
+                cat += obspy.read_events(filename, format="ndk")
 
     return cat
 
@@ -200,6 +204,7 @@ def add_new_events(
     min_year=None,
     max_year=None,
     threshold_distance_in_km=50.0,
+    return_events=False,
 ):
     min_magnitude = float(min_magnitude)
     max_magnitude = float(max_magnitude)
@@ -312,6 +317,7 @@ def add_new_events(
     folder = os.path.join(comm.project.paths["root"], "tmp")
     os.mkdir(folder)
     data_dir = comm.project.paths["eq_data"]
+    event_paths = []
     for event in chosen_events:
         filename = os.path.join(folder, get_event_filename(event, "GCMT"))
         Catalog(events=[event]).write(
@@ -323,8 +329,11 @@ def add_new_events(
         )
         ds = pyasdf.ASDFDataSet(asdf_filename, compression="gzip-3")
         ds.add_quakeml(filename)
+        event_paths.append(asdf_filename)
         print("Written %s" % (os.path.relpath(asdf_filename)))
     shutil.rmtree(folder)
+    if return_events:
+        return event_paths
 
 
 def get_subset_of_events(comm, count, events, existing_events=None):

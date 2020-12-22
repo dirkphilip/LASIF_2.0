@@ -715,7 +715,7 @@ def lasif_compute_station_weights(parser, args):
     api.compute_station_weights(
         lasif_root=".",
         weight_set=args.weight_set_name,
-        events=args.event_name,
+        events=args.event_name if args.event_name is not None else [],
         iteration=args.iteration,
     )
 

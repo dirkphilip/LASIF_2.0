@@ -127,7 +127,6 @@ class EventsComponent(Component):
         :param iteration: Name of iteration, defaults to None
         :type iteration: str, optional
         """
-        self._update_cache()
         if iteration is not None:
             import toml
 
@@ -142,10 +141,12 @@ class EventsComponent(Component):
                     "You do not have any iteration toml. "
                     "Will give all events"
                 )
+                self._update_cache()
                 return sorted(self.__event_info_cache.keys())
             iter_events = toml.load(path)
             return sorted(iter_events["events"]["events_used"])
         else:
+            self._update_cache()
             return sorted(self.__event_info_cache.keys())
 
     def count(self, iteration: str = None):
