@@ -324,7 +324,7 @@ def plot_all_rays(map_object, station_events: List[Tuple[dict, dict]]):
                 c=c[i],
                 transform=cp.crs.PlateCarree(),
                 alpha=0.8,
-                linewidth=0.4,
+                linewidth=0.6,
                 zorder=19,
             )
         i += 1

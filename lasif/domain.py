@@ -301,7 +301,7 @@ class HDF5Domain:
             return False
 
         # Fourth elimination
-        if np.min(dist) < self.absorbing_boundary_length * 1.2:
+        if np.min(dist) < self.absorbing_boundary_length * 1.7:
             return False
 
         return True

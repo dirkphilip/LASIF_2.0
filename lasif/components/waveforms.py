@@ -309,6 +309,9 @@ class WaveformsComponent(Component):
             run. It will process all events if not given.
         :type events: List[str]
         """
+        import warnings
+
+        warnings.filterwarnings("ignore")
         from mpi4py import MPI
 
         process_params = self.comm.project.simulation_settings

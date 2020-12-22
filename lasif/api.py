@@ -277,6 +277,7 @@ def plot_all_rays(
     iteration: str = None,
     save: bool = True,
     intersection_override: bool = None,
+    inner_boundary: bool = False,
 ):
     """
     Plot all the rays that are in the project or in a specific iteration.
@@ -307,7 +308,8 @@ def plot_all_rays(
         plot_stations=plot_stations,
         iteration=iteration,
         save_plot=save,
-        intersection_override=None,
+        intersection_override=intersection_override,
+        inner_boundary=inner_boundary,
     )
 
 
@@ -547,7 +549,7 @@ def calculate_adjoint_sources_multiprocessing(
     window_set: str,
     weight_set: str = None,
     events: Union[str, List[str]] = None,
-    num_processes: int = 16
+    num_processes: int = 16,
 ):
     """
     Calculate adjoint sources for a given iteration
@@ -588,8 +590,10 @@ def calculate_adjoint_sources_multiprocessing(
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
-            print(f"Event {event} not known to LASIF. No adjoint sources for "
-                  f"this event will be calculated. ")
+            print(
+                f"Event {event} not known to LASIF. No adjoint sources for "
+                f"this event will be calculated. "
+            )
             continue
 
         print(
@@ -625,9 +629,7 @@ def calculate_adjoint_sources_multiprocessing(
             event, iteration, window_set, num_processes
         )
 
-        comm.adj_sources.finalize_adjoint_sources(
-            iteration, event, weight_set
-        )
+        comm.adj_sources.finalize_adjoint_sources(iteration, event, weight_set)
 
 
 def plot_stf(lasif_root):
@@ -830,7 +832,7 @@ def select_windows_multiprocessing(
     iteration: str,
     window_set: str,
     events: Union[str, List[str]] = None,
-    num_processes: int = 16
+    num_processes: int = 16,
 ):
     """
     Autoselect windows for a given iteration and event combination
@@ -859,7 +861,8 @@ def select_windows_multiprocessing(
     for event in events:
         print(f"Selecting windows for event: {event}")
         comm.windows.select_windows_multiprocessing(
-            event, iteration, window_set, num_processes)
+            event, iteration, window_set, num_processes
+        )
 
 
 def open_gui(lasif_root):
@@ -969,9 +972,7 @@ def compute_station_weights(
 
 
 def calculate_validation_data_misfit(
-        lasif_root,
-        iteration: str,
-        events: Union[str, List[str]] = None
+    lasif_root, iteration: str, events: Union[str, List[str]] = None
 ):
     """
     Calculates L2 full trace misfits for either a full iteration or
@@ -990,8 +991,9 @@ def calculate_validation_data_misfit(
     comm = find_project_comm(lasif_root)
 
     if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError("Iteration {} not known to LASIF".
-                                 format(iteration))
+        raise LASIFNotFoundError(
+            "Iteration {} not known to LASIF".format(iteration)
+        )
 
     if events is None:
         events = comm.events.list(iteration=iteration)
@@ -1001,8 +1003,9 @@ def calculate_validation_data_misfit(
     misfit_dict = {}
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
-        event_misfit = comm.adj_sources.\
-            calculate_validation_misfits(event, iteration)
+        event_misfit = comm.adj_sources.calculate_validation_misfits(
+            event, iteration
+        )
         misfit_dict[event] = event_misfit
 
     return misfit_dict

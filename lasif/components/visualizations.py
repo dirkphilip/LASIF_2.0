@@ -322,6 +322,7 @@ class VisualizationsComponent(Component):
         iteration: str = None,
         plot_stations: bool = True,
         intersection_override: bool = None,
+        inner_boundary: bool = False,
     ):
         """
         Plot all the rays that are in the project or in a specific iteration.
@@ -348,7 +349,9 @@ class VisualizationsComponent(Component):
 
         plt.figure(figsize=(20, 12))
 
-        map_object, projection = self.plot_domain()
+        map_object, projection = self.plot_domain(
+            inner_boundary=inner_boundary
+        )
 
         event_stations = []
         use_only_intersection = self.comm.project.stacking_settings[
