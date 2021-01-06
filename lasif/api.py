@@ -323,7 +323,7 @@ def add_gcmt_events(
     min_dist: float,
     min_year: int = None,
     max_year: int = None,
-    return_events: bool = False
+    return_events: bool = False,
 ):
     """
     Add events to the project.
@@ -373,7 +373,6 @@ def add_gcmt_events(
             threshold_distance_in_km=min_dist,
             return_events=return_events,
         )
-
 
 
 def add_spud_event(lasif_root, url: str):
@@ -950,7 +949,8 @@ def compute_station_weights(
         for event in events:
             events_dict[event] = comm.query.get_all_stations_for_event(event)
         comm.weights.create_new_weight_set(
-            weight_set_name=weight_set, events_dict=events_dict,
+            weight_set_name=weight_set,
+            events_dict=events_dict,
         )
 
     w_set = comm.weights.get(weight_set)
@@ -987,7 +987,9 @@ def compute_station_weights(
             ] = 1.0
 
     comm.weights.change_weight_set(
-        weight_set_name=weight_set, weight_set=w_set, events_dict=events_dict,
+        weight_set_name=weight_set,
+        weight_set=w_set,
+        events_dict=events_dict,
     )
 
 
@@ -1214,7 +1216,7 @@ def compare_misfits(
     """
     comm = find_project_comm(lasif_root)
 
-    if events is None or len(events) is 0:
+    if events is None or len(events) == 0:
         events = comm.events.list()
     if isinstance(events, str):
         events = [events]
@@ -1522,7 +1524,12 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     return os.path.join(models, it_name, event, "mesh.h5")
 
 
-def get_receivers(lasif_root, event: str, load_from_file: bool=False, write_to_file: bool=False):
+def get_receivers(
+    lasif_root,
+    event: str,
+    load_from_file: bool = False,
+    write_to_file: bool = False,
+):
     """
     Get a list of receiver dictionaries which are compatible with Salvus.
     SalvusFlow can then use these dictionaries to place the receivers.
@@ -1551,7 +1558,7 @@ def get_receivers(lasif_root, event: str, load_from_file: bool=False, write_to_f
             print(
                 "No file with the receivers, will place them normally "
                 "and write to file."
-                )
+            )
             write_to_file = True
     return place_receivers(comm=comm, event=event, write_to_file=write_to_file)
 
@@ -1655,7 +1662,12 @@ def create_salvus_simulation(
             side_set=side_set,
         )
     else:
-        return css(comm=comm, event=event, iteration=iteration, mesh=mesh,)
+        return css(
+            comm=comm,
+            event=event,
+            iteration=iteration,
+            mesh=mesh,
+        )
 
 
 def submit_salvus_simulation(

@@ -32,14 +32,20 @@ def test_plot_event(comm):
     with mock.patch(vs + "plot_event") as patch:
         lasif.api.plot_event(comm, "event_name")
     patch.assert_called_once_with(
-        "event_name", None, intersection_override=None, inner_boundary=False,
+        "event_name",
+        None,
+        intersection_override=None,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:
         lasif.api.plot_event(comm, "event_name", "A")
     patch.assert_called_once_with(
-        "event_name", "A", intersection_override=None, inner_boundary=False,
+        "event_name",
+        "A",
+        intersection_override=None,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
 
@@ -51,7 +57,10 @@ def test_plot_event(comm):
         )
         file = os.path.join(folder, f"{event}.png")
     patch.assert_called_once_with(
-        event, None, intersection_override=None, inner_boundary=False,
+        event,
+        None,
+        intersection_override=None,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
     assert os.path.exists(file)
@@ -65,21 +74,27 @@ def test_plot_events(comm):
     with mock.patch(vs + "plot_events") as patch:
         lasif.api.plot_events(comm, inner_boundary=True)
     patch.assert_called_once_with(
-        "map", iteration=None, inner_boundary=True,
+        "map",
+        iteration=None,
+        inner_boundary=True,
     )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         lasif.api.plot_events(comm, "time")
     patch.assert_called_once_with(
-        "time", iteration=None, inner_boundary=False,
+        "time",
+        iteration=None,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         lasif.api.plot_events(comm, "map", it)
     patch.assert_called_once_with(
-        "map", iteration=it, inner_boundary=False,
+        "map",
+        iteration=it,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
 
@@ -111,7 +126,8 @@ def test_plot_station_misfits(comm):
     with mock.patch(vs + "plot_station_misfits") as patch:
         lasif.api.plot_station_misfits(comm, "event_name", "iteration")
     patch.assert_called_once_with(
-        event_name="event_name", iteration="iteration",
+        event_name="event_name",
+        iteration="iteration",
     )
     assert patch.call_count == 1
 
@@ -124,7 +140,8 @@ def test_plot_station_misfits(comm):
         )
         file = os.path.join(folder, f"misfit_{event}_{it}.png")
     patch.assert_called_once_with(
-        event_name=event, iteration=it,
+        event_name=event,
+        iteration=it,
     )
     assert patch.call_count == 1
     assert os.path.exists(file)
@@ -174,6 +191,7 @@ def test_plot_all_rays(comm):
         iteration=None,
         save_plot=True,
         intersection_override=None,
+        inner_boundary=False,
     )
     assert patch.call_count == 1
 
@@ -190,6 +208,7 @@ def test_add_gcmt_events(comm):
         min_year=None,
         max_year=None,
         threshold_distance_in_km=100.0,
+        return_events=False,
     )
     assert patch.call_count == 1
 
@@ -431,7 +450,9 @@ def test_create_salvus_simulation(comm):
 
     with mock.patch(forward) as patch:
         lasif.api.create_salvus_simulation(
-            comm, event=event, iteration=iteration,
+            comm,
+            event=event,
+            iteration=iteration,
         )
     patch.assure_called_once_with(
         comm=comm, event=event, iteration=iteration, mesh=None, side_set=None

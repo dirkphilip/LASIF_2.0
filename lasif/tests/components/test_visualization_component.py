@@ -79,16 +79,21 @@ def comm_simple(tmpdir):
     return project.comm
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
 def test_plot_domain(comm):
     comm.visualizations.plot_domain(inner_boundary=False)
     images_are_identical(
-        "domain", comm.project.paths["root"], tol=30, dpi=200,
+        "domain",
+        comm.project.paths["root"],
+        tol=30,
+        dpi=200,
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -112,10 +117,14 @@ def test_event_plotting(comm):
     )
     comm.visualizations.plot_events(iteration="2")
     images_are_identical(
-        "events_2", comm.project.paths["root"], tol=30, dpi=200,
+        "events_2",
+        comm.project.paths["root"],
+        tol=30,
+        dpi=200,
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -135,7 +144,7 @@ def test_single_event_plot(comm):
 
 
 # Some stuff going on with cartopy which ruins this one.
-@pytest.mark.skip
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -150,6 +159,7 @@ def test_plot_raydensity(comm):
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -164,6 +174,7 @@ def test_plot_all_rays(comm):
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -177,6 +188,7 @@ def test_plot_windows(comm):
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
@@ -188,6 +200,7 @@ def test_plot_window_statistics(comm):
     )
 
 
+@pytest.mark.skip(reason="Cartopy is annoying")
 @pytest.mark.filterwarnings(
     "ignore: can't resolve package from __spec__ or __package__"
 )
