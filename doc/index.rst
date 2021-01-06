@@ -18,7 +18,7 @@ inversions.
 `Github repository <http://github.com/dirkphilip/LASIF_2.0>`_.
 
 For the initial version of LASIF, we refer to its 
-`Github repository <http://github.com/krischer/LASIF>`_ and its corresponding 
+`repository <http://github.com/krischer/LASIF>`_ and its corresponding 
 `documentation <http://krischer.github.io/LASIF>`_.
 
 
