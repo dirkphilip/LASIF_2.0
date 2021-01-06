@@ -158,9 +158,9 @@ def progress(count, total, status=""):
     filled_len = int(round(bar_len * count / float(total)))
 
     percents = round(100.0 * count / float(total), 1)
-    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+    bar = "=" * filled_len + "-" * (bar_len - filled_len)
 
-    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+    sys.stdout.write("[%s] %s%s ...%s\r" % (bar, percents, "%", status))
     sys.stdout.flush()
 
 
@@ -280,6 +280,7 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
 
     f.close()
 
+
 def load_receivers(comm: object, event: str):
     """
     Loads receivers which have already been written into a json file
@@ -291,13 +292,19 @@ def load_receivers(comm: object, event: str):
     :type event: str
     """
     import json
-    filename = comm.project.paths["salvus_files"] / "RECEIVERS" / event / "receivers.json"
+
+    filename = (
+        comm.project.paths["salvus_files"]
+        / "RECEIVERS"
+        / event
+        / "receivers.json"
+    )
     if not os.path.exists(filename):
         raise LASIFNotFoundError()
     with open(filename, "r") as fh:
         receivers = json.load(fh)
     return receivers
-    
+
 
 def place_receivers(comm: object, event: str, write_to_file: bool = False):
     """
@@ -318,17 +325,25 @@ def place_receivers(comm: object, event: str, write_to_file: bool = False):
     recs = []
     for station, info in event_stations.items():
         net, sta = station.split(".")
-        rec_dict = {"network-code": net, "station-code": sta,
-                    "medium": "solid",
-                    "latitude": elliptic_to_geocentric_latitude(
-                        info["latitude"]),
-                    "longitude": info["longitude"]}
+        rec_dict = {
+            "network-code": net,
+            "station-code": sta,
+            "medium": "solid",
+            "latitude": elliptic_to_geocentric_latitude(info["latitude"]),
+            "longitude": info["longitude"],
+        }
         recs.append(rec_dict)
 
     print(f"Wrote {len(recs)} receivers into a list of dictionaries")
     if write_to_file:
         import json
-        filename = comm.project.paths["salvus_files"] / "RECEIVERS" / event / "receivers.json"
+
+        filename = (
+            comm.project.paths["salvus_files"]
+            / "RECEIVERS"
+            / event
+            / "receivers.json"
+        )
         if not os.path.exists(filename.parent):
             os.makedirs(filename.parent)
         with open(filename, "w+") as fh:
@@ -466,7 +481,11 @@ def process_two_files_without_parallel_output(
             # and traceback to help diagnose the issue.
             msg = (
                 "\nError during the processing of station '%s' "
-                "on rank %i:" % (station, MPI.COMM_WORLD.rank,)
+                "on rank %i:"
+                % (
+                    station,
+                    MPI.COMM_WORLD.rank,
+                )
             )
 
             # Extract traceback from the exception.
