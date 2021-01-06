@@ -2,6 +2,7 @@ name: lasif
 channels:
     - conda-forge
     - defaults
+    - jmcmurray
 dependencies:
     - python=3.7
     - numpy=1.16
