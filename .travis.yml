@@ -15,7 +15,7 @@ before_install:
 install:
 - cd $TRAVIS_BUILD_DIR; pip install .
 script:
-- cd $TRAVIS_BUILD_DIR; pytest
+- cd $TRAVIS_BUILD_DIR; python -m pytest
 - cd $TRAVIS_BUILD_DIR/doc; make html
 after_failure:
 - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
