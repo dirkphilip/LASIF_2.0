@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Query Component &mdash; LASIF 0.1.x documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -52,7 +54,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> LASIF
+            <a href="../index.html" class="icon icon-home"> LASIF
           
 
           
@@ -148,6 +150,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -161,7 +165,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/components/query.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -211,7 +215,7 @@ components and integrating them in a meaningful way.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>communicator</strong> – The communicator instance.</p></li>
-<li><p><strong>component_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of this component for the communicator.</p></li>
+<li><p><strong>component_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The name of this component for the communicator.</p></li>
 </ul>
 </dd>
 </dl>
@@ -219,7 +223,7 @@ components and integrating them in a meaningful way.</p>
 of other components via the communicator.</p>
 <dl class="py method">
 <dt id="lasif.components.query.QueryComponent.get_all_stations_for_event">
-<code class="sig-name descname">get_all_stations_for_event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">list_only</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_all_stations_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_stations_for_event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">list_only</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_all_stations_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary of all stations for one event and their
 coordinates.</p>
 <p>A station is considered to be available for an event if at least one
@@ -228,10 +232,10 @@ must be possible to derive coordinates for the station.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of the event.</p></li>
-<li><p><strong>list_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether you only want names of stations, defaults
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the event.</p></li>
+<li><p><strong>list_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether you only want names of stations, defaults
 to False.</p></li>
-<li><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
+<li><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
 stations recording all events, i.e. the intersection of receiver
 sets. The intersection will consider two stations equal i.f.f. the
 station codes AND coordinates (LAT, LON, Z) are equal.</p></li>
@@ -242,14 +246,14 @@ station codes AND coordinates (LAT, LON, Z) are equal.</p></li>
 
 <dl class="py method">
 <dt id="lasif.components.query.QueryComponent.get_coordinates_for_station">
-<code class="sig-name descname">get_coordinates_for_station</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_coordinates_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_coordinates_for_station" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_coordinates_for_station</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">station_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_coordinates_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_coordinates_for_station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the coordinates for one station.</p>
 <p>Must be in sync with <a class="reference internal" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="lasif.components.query.QueryComponent.get_all_stations_for_event"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_all_stations_for_event()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
-<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The unique id of the station in the waveform file</p></li>
+<li><p><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The unique id of the station in the waveform file</p></li>
 </ul>
 </dd>
 </dl>
@@ -257,15 +261,15 @@ station codes AND coordinates (LAT, LON, Z) are equal.</p></li>
 
 <dl class="py method">
 <dt id="lasif.components.query.QueryComponent.get_matching_waveforms">
-<code class="sig-name descname">get_matching_waveforms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">station_or_channel_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_matching_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_matching_waveforms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_matching_waveforms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">iteration</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">station_or_channel_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_matching_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_matching_waveforms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get synthetic and processed waveforms for the same station and same
 event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of event</p></li>
-<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of iteration</p></li>
-<li><p><strong>station_or_channel_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The id for the station of the channel</p></li>
+<li><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of event</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of iteration</p></li>
+<li><p><strong>station_or_channel_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The id for the station of the channel</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -277,11 +281,11 @@ and coordinates of station</p>
 
 <dl class="py method">
 <dt id="lasif.components.query.QueryComponent.get_stations_for_all_events">
-<code class="sig-name descname">get_stations_for_all_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_stations_for_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_stations_for_all_events" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_stations_for_all_events</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intersection_override</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_stations_for_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_stations_for_all_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with a list of stations per event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
+<dd class="field-odd"><p><strong>intersection_override</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – boolean to require to have the same
 stations recording all events, i.e. the intersection of receiver
 sets. The intersection will consider two stations equal i.f.f. the
 station codes AND coordinates (LAT, LON, Z) are equal.</p>
@@ -291,14 +295,14 @@ station codes AND coordinates (LAT, LON, Z) are equal.</p>
 
 <dl class="py method">
 <dt id="lasif.components.query.QueryComponent.point_in_domain">
-<code class="sig-name descname">point_in_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">latitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">longitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.point_in_domain" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">point_in_domain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">latitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">longitude</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.point_in_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if the point is in the domain. Returns True/False</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The latitude of the point.</p></li>
-<li><p><strong>longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The longitude of the point.</p></li>
-<li><p><strong>depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The depth of the point</p></li>
+<li><p><strong>latitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The latitude of the point.</p></li>
+<li><p><strong>longitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The longitude of the point.</p></li>
+<li><p><strong>depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The depth of the point</p></li>
 </ul>
 </dd>
 </dl>
@@ -313,37 +317,29 @@ station codes AND coordinates (LAT, LON, Z) are equal.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="validator.html" class="btn btn-neutral float-right" title="Validator Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="iterations.html" class="btn btn-neutral float-left" title="Iterations Component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="validator.html" class="btn btn-neutral float-right" title="Validator Component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="iterations.html" class="btn btn-neutral float-left" title="Iterations Component" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+        &#169; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

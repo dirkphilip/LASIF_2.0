@@ -15,7 +15,11 @@ data-driven end-to-end workflow tool to perform adjoint full seismic waveform
 inversions.
 
 **Github:** The code is developed at and available from its
-`Github respository <http://github.com/dirkphilip/LASIF_2.0>`_.
+`Github repository <http://github.com/dirkphilip/LASIF_2.0>`_.
+
+For the initial version of LASIF, we refer to its 
+`repository <http://github.com/krischer/LASIF>`_ and its corresponding 
+`documentation <http://krischer.github.io/LASIF>`_.
 
 
 .. admonition:: For more details please see our paper

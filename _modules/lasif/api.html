@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>lasif.api &mdash; LASIF 0.1.x documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
@@ -50,7 +52,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> LASIF
+            <a href="../../index.html" class="icon icon-home"> LASIF
           
 
           
@@ -118,6 +120,8 @@
         <div class="rst-content">
         
           
+
+
 
 
 
@@ -346,7 +350,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="plot_station_misfits"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_station_misfits">[docs]</a><span class="k">def</span> <span class="nf">plot_station_misfits</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -387,7 +392,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved picture at </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="plot_raydensity"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_raydensity">[docs]</a><span class="k">def</span> <span class="nf">plot_raydensity</span><span class="p">(</span>
@@ -436,6 +442,7 @@
     <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">intersection_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inner_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot all the rays that are in the project or in a specific iteration.</span>
@@ -466,7 +473,8 @@
         <span class="n">plot_stations</span><span class="o">=</span><span class="n">plot_stations</span><span class="p">,</span>
         <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
         <span class="n">save_plot</span><span class="o">=</span><span class="n">save</span><span class="p">,</span>
-        <span class="n">intersection_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">intersection_override</span><span class="o">=</span><span class="n">intersection_override</span><span class="p">,</span>
+        <span class="n">inner_boundary</span><span class="o">=</span><span class="n">inner_boundary</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -478,6 +486,7 @@
     <span class="n">min_dist</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">min_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_events</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add events to the project.</span>
@@ -496,21 +505,37 @@
 <span class="sd">    :type min_year: float, optional</span>
 <span class="sd">    :param max_year: Year to end event search, defaults to None</span>
 <span class="sd">    :type max_year: float, optional</span>
+<span class="sd">    :param return_events: If you want to return a list of the new events, defaults</span>
+<span class="sd">        to False</span>
+<span class="sd">    :type return_events: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">from</span> <span class="nn">lasif.tools.query_gcmt_catalog</span> <span class="kn">import</span> <span class="n">add_new_events</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
-    <span class="n">add_new_events</span><span class="p">(</span>
-        <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
-        <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
-        <span class="n">min_magnitude</span><span class="o">=</span><span class="n">min_mag</span><span class="p">,</span>
-        <span class="n">max_magnitude</span><span class="o">=</span><span class="n">max_mag</span><span class="p">,</span>
-        <span class="n">min_year</span><span class="o">=</span><span class="n">min_year</span><span class="p">,</span>
-        <span class="n">max_year</span><span class="o">=</span><span class="n">max_year</span><span class="p">,</span>
-        <span class="n">threshold_distance_in_km</span><span class="o">=</span><span class="n">min_dist</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">return_events</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">add_new_events</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+            <span class="n">min_magnitude</span><span class="o">=</span><span class="n">min_mag</span><span class="p">,</span>
+            <span class="n">max_magnitude</span><span class="o">=</span><span class="n">max_mag</span><span class="p">,</span>
+            <span class="n">min_year</span><span class="o">=</span><span class="n">min_year</span><span class="p">,</span>
+            <span class="n">max_year</span><span class="o">=</span><span class="n">max_year</span><span class="p">,</span>
+            <span class="n">threshold_distance_in_km</span><span class="o">=</span><span class="n">min_dist</span><span class="p">,</span>
+            <span class="n">return_events</span><span class="o">=</span><span class="n">return_events</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">add_new_events</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span>
+            <span class="n">min_magnitude</span><span class="o">=</span><span class="n">min_mag</span><span class="p">,</span>
+            <span class="n">max_magnitude</span><span class="o">=</span><span class="n">max_mag</span><span class="p">,</span>
+            <span class="n">min_year</span><span class="o">=</span><span class="n">min_year</span><span class="p">,</span>
+            <span class="n">max_year</span><span class="o">=</span><span class="n">max_year</span><span class="p">,</span>
+            <span class="n">threshold_distance_in_km</span><span class="o">=</span><span class="n">min_dist</span><span class="p">,</span>
+            <span class="n">return_events</span><span class="o">=</span><span class="n">return_events</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="add_spud_event"><a class="viewcode-back" href="../../api_doc.html#lasif.api.add_spud_event">[docs]</a><span class="k">def</span> <span class="nf">add_spud_event</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -706,7 +731,7 @@
     <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">weight_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate adjoint sources for a given iteration</span>
@@ -747,8 +772,10 @@
 
     <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not known to LASIF. No adjoint sources for &quot;</span>
-                  <span class="sa">f</span><span class="s2">&quot;this event will be calculated. &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not known to LASIF. No adjoint sources for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;this event will be calculated. &quot;</span>
+            <span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="nb">print</span><span class="p">(</span>
@@ -784,9 +811,7 @@
             <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">,</span> <span class="n">num_processes</span>
         <span class="p">)</span>
 
-        <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">finalize_adjoint_sources</span><span class="p">(</span>
-            <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">weight_set</span>
-        <span class="p">)</span></div>
+        <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">finalize_adjoint_sources</span><span class="p">(</span><span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">weight_set</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="plot_stf"><a class="viewcode-back" href="../../api_doc.html#lasif.api.plot_stf">[docs]</a><span class="k">def</span> <span class="nf">plot_stf</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
@@ -894,7 +919,7 @@
             <span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -974,7 +999,7 @@
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>  <span class="c1"># Might have to do this mpi</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -989,7 +1014,7 @@
     <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">window_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Autoselect windows for a given iteration and event combination</span>
@@ -1018,7 +1043,8 @@
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting windows for event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">comm</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">select_windows_multiprocessing</span><span class="p">(</span>
-            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span></div>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">window_set</span><span class="p">,</span> <span class="n">num_processes</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="open_gui"><a class="viewcode-back" href="../../api_doc.html#lasif.api.open_gui">[docs]</a><span class="k">def</span> <span class="nf">open_gui</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">):</span>
@@ -1077,7 +1103,7 @@
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -1086,7 +1112,8 @@
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
             <span class="n">events_dict</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">create_new_weight_set</span><span class="p">(</span>
-            <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span> <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
+            <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span>
+            <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">w_set</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">weight_set</span><span class="p">)</span>
@@ -1123,14 +1150,14 @@
             <span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
     <span class="n">comm</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">change_weight_set</span><span class="p">(</span>
-        <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span> <span class="n">weight_set</span><span class="o">=</span><span class="n">w_set</span><span class="p">,</span> <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
+        <span class="n">weight_set_name</span><span class="o">=</span><span class="n">weight_set</span><span class="p">,</span>
+        <span class="n">weight_set</span><span class="o">=</span><span class="n">w_set</span><span class="p">,</span>
+        <span class="n">events_dict</span><span class="o">=</span><span class="n">events_dict</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="calculate_validation_data_misfit"><a class="viewcode-back" href="../../api_doc.html#lasif.api.calculate_validation_data_misfit">[docs]</a><span class="k">def</span> <span class="nf">calculate_validation_data_misfit</span><span class="p">(</span>
-        <span class="n">lasif_root</span><span class="p">,</span>
-        <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lasif_root</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">events</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates L2 full trace misfits for either a full iteration or</span>
@@ -1149,8 +1176,9 @@
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="s2">&quot;Iteration </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span>
-                                 <span class="nb">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;Iteration </span><span class="si">{}</span><span class="s2"> not known to LASIF&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
@@ -1160,8 +1188,9 @@
     <span class="n">misfit_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing L2 validation misfit for event </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="n">event_misfit</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span>\
-            <span class="n">calculate_validation_misfits</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+        <span class="n">event_misfit</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">adj_sources</span><span class="o">.</span><span class="n">calculate_validation_misfits</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">,</span> <span class="n">iteration</span>
+        <span class="p">)</span>
         <span class="n">misfit_dict</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_misfit</span>
 
     <span class="k">return</span> <span class="n">misfit_dict</span></div>
@@ -1192,7 +1221,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -1349,7 +1379,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -1456,7 +1486,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -1507,7 +1537,7 @@
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">events</span><span class="p">]</span>
@@ -1657,7 +1687,12 @@
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">it_name</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="s2">&quot;mesh.h5&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_receivers"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_receivers">[docs]</a><span class="k">def</span> <span class="nf">get_receivers</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="get_receivers"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_receivers">[docs]</a><span class="k">def</span> <span class="nf">get_receivers</span><span class="p">(</span>
+    <span class="n">lasif_root</span><span class="p">,</span>
+    <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">load_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">write_to_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a list of receiver dictionaries which are compatible with Salvus.</span>
 <span class="sd">    SalvusFlow can then use these dictionaries to place the receivers.</span>
@@ -1666,14 +1701,29 @@
 <span class="sd">    :type lasif_root: Union[str, pathlib.Path, object]</span>
 <span class="sd">    :param event: Name of event which we want to find the receivers for</span>
 <span class="sd">    :type event: str</span>
+<span class="sd">    :param load_from_file: If receivers are stored in a json file,</span>
+<span class="sd">        defaults to False</span>
+<span class="sd">    :type load_from_file: bool, optional</span>
+<span class="sd">    :param write_to_file: If list of receiver dictionaries should be written</span>
+<span class="sd">        to file, defaults to False</span>
+<span class="sd">    :type write_to_file: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">place_receivers</span>
+    <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">place_receivers</span><span class="p">,</span> <span class="n">load_receivers</span>
 
     <span class="n">comm</span> <span class="o">=</span> <span class="n">find_project_comm</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="n">event</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Event: </span><span class="si">{</span><span class="n">event</span><span class="si">}</span><span class="s2"> not in project&quot;</span>
 
-    <span class="k">return</span> <span class="n">place_receivers</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">comm</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">load_from_file</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">load_receivers</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">LASIFNotFoundError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;No file with the receivers, will place them normally &quot;</span>
+                <span class="s2">&quot;and write to file.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">write_to_file</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">place_receivers</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">write_to_file</span><span class="o">=</span><span class="n">write_to_file</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_source"><a class="viewcode-back" href="../../api_doc.html#lasif.api.get_source">[docs]</a><span class="k">def</span> <span class="nf">get_source</span><span class="p">(</span><span class="n">lasif_root</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -1775,7 +1825,12 @@
             <span class="n">side_set</span><span class="o">=</span><span class="n">side_set</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">css</span><span class="p">(</span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,)</span></div>
+        <span class="k">return</span> <span class="n">css</span><span class="p">(</span>
+            <span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span>
+            <span class="n">iteration</span><span class="o">=</span><span class="n">iteration</span><span class="p">,</span>
+            <span class="n">mesh</span><span class="o">=</span><span class="n">mesh</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="submit_salvus_simulation"><a class="viewcode-back" href="../../api_doc.html#lasif.api.submit_salvus_simulation">[docs]</a><span class="k">def</span> <span class="nf">submit_salvus_simulation</span><span class="p">(</span>
@@ -1900,28 +1955,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner
+        &#169; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
