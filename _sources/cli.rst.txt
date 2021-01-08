@@ -1,8 +1,9 @@
 Command Line Interface
 ======================
 
-The recommended way to interact with **LASIF 2.0** projects is to use the
-command line interface. It consists of a number of subcommands grouped below
+The recommended way to interact with **LASIF 2.0** projects is to use the API
+but the command line interface remains an option for anyone who prefers that.
+It consists of a number of subcommands grouped below
 the main :code:`lasif` command. The general usage is quickly explained in this
 paragraph whilst the remainder of this sections explains all subcommands in
 greater detail.

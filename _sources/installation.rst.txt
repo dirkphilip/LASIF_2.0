@@ -114,7 +114,7 @@ The following rules should be followed when developing for **LASIF 2.0**:
 * All contributed code must be contributed under the GPLv3.
 * Write tests where reasonable.
 
-    * **LASIF 2.0** utilizes `Travis CI <https://travis-ci.org/krischer/LASIF>`_
+    * **LASIF 2.0** utilizes `Travis CI <https://travis-ci.org/dirkphilip/LASIF_2.0>`_
       for continuous integration testing. This means that every commit will be
       automatically tested and the responsible developer will receive an email
       in case her/his commit breaks **LASIF 2.0**.
