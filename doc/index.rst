@@ -40,7 +40,7 @@ If you use this version of LASIF, please refer to this paper:
         pages={1965}, |br|
         year={2021}, |br|
         publisher={Center for Open Science} |br|
-    }
+        }
 
 
 For more details, we refer to the paper associated with the original version
@@ -64,8 +64,8 @@ of LASIF.
         pages={1198--1207}, |br|
         year={2015}, |br|
         publisher={Seismological Society of America} |br|
-    }
-    
+        }
+
 
 ---------
 
