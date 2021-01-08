@@ -18,12 +18,41 @@ pip install -e .
 ```
 
 
-### Paper
+## Paper
 
-For more details and the reasoning behind LASIF, please also see our paper:
+If you use LASIF for your project, please consider citing our paper(s):
 
-*Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015),
-**Large‐Scale Seismic Inversion Framework**, Seismological Research Letters, doi:10.1785/0220140248.
+>*Solvi Thrastarson, Dirk-Philip van Herwaarden, Lion Krischer and Andreas Fichtner* (2021),
+**LASIF: LArge-scale Seismic Inversion Framework, an updated version**, EarthArXiv, [doi:10.31223/X5NC84](https://doi.org/10.31223/X5NC84).
+
+Bibtex:
+```
+@article{thrastarson2021lasif,  
+  title={LASIF: LArge-scale Seismic Inversion Framework, an updated version},  
+  author={Thrastarson, Solvi and van Herwaarden, Dirk-Philip and Krischer, Lion and Fichtner, Andreas},  
+  journal={EarthArXiv},  
+  pages={1965},  
+  year={2021},  
+  publisher={Center for Open Science}  
+}
+```
+
+For more details and the reasoning behind LASIF, please also see the paper associated with the original version of LASIF:
+
+>*Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015),
+**Large‐Scale Seismic Inversion Framework**, Seismological Research Letters, [doi:10.1785/0220140248](http://dx.doi.org/10.1785/0220140248).
 
 
-* [DOI Link](http://dx.doi.org/10.1785/0220140248)
+Bibtex:
+```
+@article{krischer2015large,
+  title={Large-scale seismic inversion framework},
+  author={Krischer, Lion and Fichtner, Andreas and Zukauskaite, Saule and Igel, Heiner},
+  journal={Seismological Research Letters},
+  volume={86},
+  number={4},
+  pages={1198--1207},
+  year={2015},
+  publisher={Seismological Society of America}
+}
+```

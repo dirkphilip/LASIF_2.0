@@ -21,13 +21,51 @@ For the initial version of LASIF, we refer to its
 `repository <http://github.com/krischer/LASIF>`_ and its corresponding 
 `documentation <http://krischer.github.io/LASIF>`_.
 
+If you use LASIF in your project, please consider citing our paper(s).
+If you use this version of LASIF, please refer to this paper:
 
-.. admonition:: For more details please see our paper
+.. admonition:: Latest paper
+
+    *Solvi Thrastarson, Dirk-Philip van Herwaarden, Lion Krischer and Andreas Fichtner* (2021) |br|
+    **LASIF: LArge-scale Seismic Inversion Framework, an updated version**, |br|
+    EarthArXiv. |br|
+    `doi:10.31223/X5NC84 <https://doi.org/10.31223/X5NC84>`_
+
+.. admonition:: bibtex
+
+    @article{thrastarson2021lasif, |br|
+        title={LASIF: LArge-scale Seismic Inversion Framework, an updated version}, |br|
+        author={Thrastarson, Solvi and van Herwaarden, Dirk-Philip and Krischer, Lion and Fichtner, Andreas}, |br|
+        journal={EarthArXiv}, |br|
+        pages={1965}, |br|
+        year={2021}, |br|
+        publisher={Center for Open Science} |br|
+    }
+
+
+For more details, we refer to the paper associated with the original version
+of LASIF.
+
+.. admonition:: Original LASIF paper
 
     *Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015), |br|
     **Large‐Scale Seismic Inversion Framework**, |br|
     Seismological Research Letters, 86(4), 1198–1207. |br|
     `doi:10.1785/0220140248 <http://dx.doi.org/10.1785/0220140248>`_
+
+.. admonition:: bibtex
+
+    @article{krischer2015large, |br|
+        title={Large-scale seismic inversion framework}, |br|
+        author={Krischer, Lion and Fichtner, Andreas and Zukauskaite, Saule and Igel, Heiner}, |br|
+        journal={Seismological Research Letters}, |br|
+        volume={86}, |br|
+        number={4}, |br|
+        pages={1198--1207}, |br|
+        year={2015}, |br|
+        publisher={Seismological Society of America} |br|
+    }
+    
 
 ---------
 
