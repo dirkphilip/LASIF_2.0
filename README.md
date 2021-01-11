@@ -27,13 +27,14 @@ If you use LASIF for your project, please consider citing our paper(s):
 
 Bibtex:
 ```
-@article{thrastarson2021lasif,  
-  title={LASIF: LArge-scale Seismic Inversion Framework, an updated version},  
-  author={Thrastarson, Solvi and van Herwaarden, Dirk-Philip and Krischer, Lion and Fichtner, Andreas},  
-  journal={EarthArXiv},  
-  pages={1965},  
-  year={2021},  
-  publisher={Center for Open Science}  
+@article{Thrastarson_2021,
+	doi = {10.31223/x5nc84},
+	url = {https://doi.org/10.31223%2Fx5nc84},
+	year = 2021,
+	month = {jan},
+	publisher = {California Digital Library ({CDL})},
+	author = {Solvi Thrastarson and Dirk-Philip van Herwaarden and Lion Krischer and Andreas Fichtner},
+	title = {{LASIF}: {LArge}-scale Seismic Inversion Framework, an updated version}
 }
 ```
 
