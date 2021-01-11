@@ -41,7 +41,7 @@ If you use this version of LASIF, please refer to this paper:
         publisher = {California Digital Library ({CDL})},
         author = {Solvi Thrastarson and Dirk-Philip van Herwaarden and Lion Krischer and Andreas Fichtner},
         title = {{LASIF}: {LArge}-scale Seismic Inversion Framework, an updated version}
-}
+    }
 
 
 For more details, we refer to the paper associated with the original version
