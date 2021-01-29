@@ -30,7 +30,7 @@ Bibtex:
 @article{Thrastarson_2021,
 	doi = {10.31223/x5nc84},
 	url = {https://doi.org/10.31223%2Fx5nc84},
-	year = 2021,
+	year = {2021},
 	month = {jan},
 	publisher = {California Digital Library ({CDL})},
 	author = {Solvi Thrastarson and Dirk-Philip van Herwaarden and Lion Krischer and Andreas Fichtner},
