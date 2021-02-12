@@ -94,17 +94,38 @@ def create_salvus_forward_simulation(
     domain = lasif.domain.HDF5Domain(
         mesh, sal_set["absorbing_boundaries_in_km"]
     )
+    boundaries = []
     if not domain.is_global_domain():
+        if (
+                "inner_boundary" in comm.project.domain.get_side_set_names()
+        ):
+            side_sets = ["inner_boundary"]
+        else:
+            side_sets = [
+                "r0",
+                "t0",
+                "t1",
+                "p0",
+                "p1",
+            ]
+
         absorbing = sc.boundary.Absorbing(
             width_in_meters=comm.project.salvus_settings[
                 "absorbing_boundaries_in_km"
             ]
             * 1000.0,
-            side_sets=["r0", "t0", "t1", "p0", "p1"],
+            side_sets=side_sets,
             taper_amplitude=1.0
             / comm.project.simulation_settings["minimum_period_in_s"],
         )
-        w.physics.wave_equation.boundaries = [absorbing]
+        boundaries.append(absorbing)
+
+    if comm.project.ocean_loading:
+        ocean_loading = sc.boundary.OceanLoading(side_sets=["r1_ol"])
+        boundaries.append(ocean_loading)
+
+    w.physics.wave_equation.boundaries = boundaries
+
     # w.output.memory_per_rank_in_MB = 4000.0
     w.output.volume_data.format = "hdf5"
     w.output.volume_data.filename = "output.h5"
@@ -115,6 +136,7 @@ def create_salvus_forward_simulation(
 
     w.validate()
     return w
+
 
 
 def get_adjoint_source(
