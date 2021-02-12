@@ -120,7 +120,7 @@ def create_salvus_forward_simulation(
         )
         boundaries.append(absorbing)
 
-    if comm.project.ocean_loading:
+    if comm.project.comm.project.salvus_settings["ocean_loading"]:
         ocean_loading = sc.boundary.OceanLoading(side_sets=["r1_ol"])
         boundaries.append(ocean_loading)
 
