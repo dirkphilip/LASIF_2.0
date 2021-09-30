@@ -307,7 +307,9 @@ class HDF5Domain:
         return True
 
     def plot(
-        self, ax=None, plot_inner_boundary: bool = False,
+        self,
+        ax=None,
+        plot_inner_boundary: bool = False,
     ):
         """
         Plots the domain
@@ -360,9 +362,13 @@ class HDF5Domain:
                 m = ax
 
         else:
-            projection = cp.crs.PlateCarree(central_longitude=self.center_lon,)
+            projection = cp.crs.PlateCarree(
+                central_longitude=self.center_lon,
+            )
             if ax is None:
-                m = plt.axes(projection=projection,)
+                m = plt.axes(
+                    projection=projection,
+                )
             else:
                 m = ax
             m.set_extent(
@@ -394,7 +400,10 @@ class HDF5Domain:
                 in_domain = []
                 idx = 0
                 for lat, lon, _ in latlonrad.T:
-                    if self.point_in_domain(latitude=lat, longitude=lon,):
+                    if self.point_in_domain(
+                        latitude=lat,
+                        longitude=lon,
+                    ):
                         in_domain.append(idx)
                     idx += 1
                 lats, lons, rad = np.array(latlonrad[:, in_domain])
@@ -513,8 +522,8 @@ def _plot_features(m, projection):
         grid_lines = m.gridlines(draw_labels=True)
         grid_lines.xformatter = LONGITUDE_FORMATTER
         grid_lines.yformatter = LATITUDE_FORMATTER
-        grid_lines.xlabels_top = False
-        grid_lines.ylabels_right = False
+        grid_lines.top_labels = False
+        grid_lines.right_labels = False
     else:
         m.stock_img()
 
@@ -608,7 +617,9 @@ class SimpleDomain:
         return True
 
     def plot(
-        self, ax=None, plot_inner_boundary: bool = False,
+        self,
+        ax=None,
+        plot_inner_boundary: bool = False,
     ):
         """
         Plots the domain
@@ -654,7 +665,8 @@ class SimpleDomain:
 
         elif max_extent >= 75.0:
             projection = cp.crs.Orthographic(
-                central_longitude=center_lon, central_latitude=center_lat,
+                central_longitude=center_lon,
+                central_latitude=center_lat,
             )
             if ax is None:
                 m = plt.axes(projection=projection)
@@ -671,9 +683,13 @@ class SimpleDomain:
             )
 
         else:
-            projection = cp.crs.PlateCarree(central_longitude=center_lon,)
+            projection = cp.crs.PlateCarree(
+                central_longitude=center_lon,
+            )
             if ax is None:
-                m = plt.axes(projection=projection,)
+                m = plt.axes(
+                    projection=projection,
+                )
             else:
                 m = ax
 

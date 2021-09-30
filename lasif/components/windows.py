@@ -245,13 +245,17 @@ class WindowsComponent(Component):
             syn_tag = synthetic_station.get_waveform_tags()
 
             # Make sure both have length 1.
-            assert len(obs_tag) == 1, (
-                "Station: %s - Requires 1 observed waveform tag. Has %i."
-                % (observed_station._station_name, len(obs_tag))
+            assert (
+                len(obs_tag) == 1
+            ), "Station: %s - Requires 1 observed waveform tag. Has %i." % (
+                observed_station._station_name,
+                len(obs_tag),
             )
-            assert len(syn_tag) == 1, (
-                "Station: %s - Requires 1 synthetic waveform tag. Has %i."
-                % (observed_station._station_name, len(syn_tag))
+            assert (
+                len(syn_tag) == 1
+            ), "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
+                observed_station._station_name,
+                len(syn_tag),
             )
 
             obs_tag = obs_tag[0]
@@ -344,8 +348,12 @@ class WindowsComponent(Component):
             MPI.COMM_WORLD.Barrier()
 
     def select_windows_multiprocessing(
-        self, event: str, iteration_name: str, window_set_name: str,
-            num_processes: int = 16, **kwargs
+        self,
+        event: str,
+        iteration_name: str,
+        window_set_name: str,
+        num_processes: int = 16,
+        **kwargs,
     ):
         """
         Automatically select the windows for the given event and iteration.
@@ -365,6 +373,7 @@ class WindowsComponent(Component):
         import multiprocessing
         import warnings
         import pyasdf
+
         warnings.filterwarnings("ignore")
 
         global _window_select
@@ -418,8 +427,9 @@ class WindowsComponent(Component):
 
         def _window_select(station):
             ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
-            ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r",
-                                          mpi=False)
+            ds_synth = pyasdf.ASDFDataSet(
+                synthetic_filename, mode="r", mpi=False
+            )
             observed_station = ds.waveforms[station]
             synthetic_station = ds_synth.waveforms[station]
 
@@ -514,8 +524,9 @@ class WindowsComponent(Component):
         with multiprocessing.Pool(number_processes) as pool:
             results = {}
             with tqdm(total=len(task_list)) as pbar:
-                for i, r in enumerate(pool.imap_unordered(_window_select,
-                                                          task_list)):
+                for i, r in enumerate(
+                    pool.imap_unordered(_window_select, task_list)
+                ):
                     pbar.update()
                     k, v = r.popitem()
                     results[k] = v
@@ -526,8 +537,10 @@ class WindowsComponent(Component):
         # Write files with a single worker
         print("Finished window selection", flush=True)
         num_sta_with_windows = sum(v is not None for k, v in results.items())
-        print(f"Writing windows for {num_sta_with_windows} out of "
-              f"{len(task_list)} stations.")
+        print(
+            f"Writing windows for {num_sta_with_windows} out of "
+            f"{len(task_list)} stations."
+        )
         self.comm.windows.write_windows_to_sql(
             event_name=event["event_name"],
             windows=results,

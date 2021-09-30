@@ -312,7 +312,7 @@ class WaveformsComponent(Component):
         import warnings
 
         warnings.filterwarnings("ignore")
-        from mpi4py import MPI
+        # from mpi4py import MPI
 
         process_params = self.comm.project.simulation_settings
         simulation_settings = self.comm.project.simulation_settings
@@ -345,9 +345,9 @@ class WaveformsComponent(Component):
                 maximum_period = process_params["maximum_period_in_s"]
 
                 # remove asdf file if it already exists
-                if MPI.COMM_WORLD.rank == 0:
-                    if os.path.exists(output_filename):
-                        os.remove(output_filename)
+                # if MPI.COMM_WORLD.rank == 0:
+                if os.path.exists(output_filename):
+                    os.remove(output_filename)
 
                 ret_dict = {
                     "process_params": process_params,
@@ -370,10 +370,10 @@ class WaveformsComponent(Component):
         preprocessing_function_asdf = self.comm.project.get_project_function(
             "preprocessing_function_asdf"
         )
-        MPI.COMM_WORLD.Barrier()
+        # MPI.COMM_WORLD.Barrier()
         for event in to_be_processed:
             preprocessing_function_asdf(event["processing_info"])
-            MPI.COMM_WORLD.Barrier()
+            # MPI.COMM_WORLD.Barrier()
 
     def _get_waveforms(
         self,
