@@ -27,7 +27,7 @@ If you use LASIF for your project, please consider citing our paper(s):
 
 Bibtex:
 ```
-@article{Thrastarson_2021,
+@misc{Thrastarson_2021,
 	doi = {10.31223/x5nc84},
 	url = {https://doi.org/10.31223%2Fx5nc84},
 	year = {2021},
