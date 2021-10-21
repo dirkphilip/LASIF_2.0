@@ -32,6 +32,8 @@ Bibtex:
   author={Thrastarson, Solvi and van Herwaarden, Dirk-Philip and Krischer, Lion and Fichtner, Andreas},
   year={2021},
   publisher={EarthArXiv}
+  doi = {10.31223/X5NC84},
+  url = {https://doi.org/10.31223/X5NC84}
 }
 ```
 
