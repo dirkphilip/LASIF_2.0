@@ -28,7 +28,6 @@ dependencies:
     - prov
     - pandas
     - h5py
-    - mpi4py
     - pyqtgraph
     - ipykernel
     - pathlib

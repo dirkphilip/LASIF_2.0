@@ -14,7 +14,7 @@ import matplotlib.patheffects as PathEffects
 import inspect
 import imp
 from glob import iglob
-from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
 import cartopy as cp
@@ -62,9 +62,9 @@ def compile_and_import_ui_files():
 path_effects = [PathEffects.withStroke(linewidth=5, foreground="white")]
 
 
-class Window(QtGui.QMainWindow):
+class Window(QtWidgets.QMainWindow):
     def __init__(self, comm):
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.comm = comm
         self.ui = qt_window.Ui_MainWindow()  # NOQA
         self.ui.setupUi(self)
@@ -99,7 +99,7 @@ class Window(QtGui.QMainWindow):
 
         self.current_window_manager = None
 
-        self.ui.status_label = QtGui.QLabel("")
+        self.ui.status_label = QtWidgets.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
         self.ui.iteration_selection_comboBox.addItems(
             self.comm.iterations.list()

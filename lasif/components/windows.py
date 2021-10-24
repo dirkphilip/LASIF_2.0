@@ -190,7 +190,7 @@ class WindowsComponent(Component):
         """
         from lasif.utils import select_component_from_stream
 
-        from mpi4py import MPI
+        # from mpi4py import MPI
         import pyasdf
 
         event = self.comm.events.get(event)
