@@ -252,7 +252,8 @@ class Window(QtWidgets.QMainWindow):
         event = self.comm.events.get(self.current_event)
 
         self.current_mt_patches = lasif.visualization.plot_events(
-            events=[event], map_object=self.basemap,
+            events=[event],
+            map_object=self.basemap,
         )
 
         try:
@@ -265,14 +266,16 @@ class Window(QtWidgets.QMainWindow):
         )
 
         # Plot the stations. This will not plot raypaths.
-        self.current_station_scatter = lasif.visualization.plot_stations_for_event(
-            map_object=self.basemap,
-            color="0.2",
-            alpha=0.4,
-            station_dict=stations,
-            event_info=event,
-            raypaths=False,
-            print_title=False,
+        self.current_station_scatter = (
+            lasif.visualization.plot_stations_for_event(
+                map_object=self.basemap,
+                color="0.2",
+                alpha=0.4,
+                station_dict=stations,
+                event_info=event,
+                raypaths=False,
+                print_title=False,
+            )
         )
 
         if hasattr(self, "_current_raypath") and self._current_raypath:
@@ -376,7 +379,7 @@ class Window(QtWidgets.QMainWindow):
                 if data_tr:
                     tr = data_tr[0]
                     minimum_period = self.comm.project.simulation_settings[
-                        "minimum_period"
+                        "minimum_period_in_s"
                     ]
                     max_sampling_rate = 10.0 * (1.0 / minimum_period)
                     if tr.stats.sampling_rate > max_sampling_rate:
@@ -447,8 +450,10 @@ class Window(QtWidgets.QMainWindow):
         # Try to obtain windows for a station,
         # if it fails continue plotting the data
         try:
-            windows_for_station = self.current_window_manager.get_all_windows_for_event_station(
-                self.current_event, self.current_station
+            windows_for_station = (
+                self.current_window_manager.get_all_windows_for_event_station(
+                    self.current_event, self.current_station
+                )
             )
         except:
             pass
@@ -490,7 +495,9 @@ class Window(QtWidgets.QMainWindow):
                     tr.interpolate(max_sampling_rate)
                 times = tr.times()
                 plot_widget.plot(
-                    times, tr.data, pen=pg.mkPen("r", width=2),
+                    times,
+                    tr.data,
+                    pen=pg.mkPen("r", width=2),
                 )
 
             if self.ui.compare_iterations_CheckBox.isChecked():
@@ -621,8 +628,10 @@ class Window(QtWidgets.QMainWindow):
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):
-        windows_for_event = self.current_window_manager.get_all_windows_for_event(
-            self.current_event
+        windows_for_event = (
+            self.current_window_manager.get_all_windows_for_event(
+                self.current_event
+            )
         )
         if self.current_station in windows_for_event:
             windows_for_station = windows_for_event[self.current_station]
