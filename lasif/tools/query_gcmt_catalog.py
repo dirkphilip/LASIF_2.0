@@ -432,3 +432,127 @@ def get_subset_of_events(comm, count, events, existing_events=None):
         raise ValueError("Could not select a sufficient amount of events")
 
     return list_of_chosen_events
+
+
+def get_random_mitchell_subset(comm, count, events, p_dict,
+                               existing_events=None,) -> list:
+    """
+    This function gets an optimally distributed set of events,
+    NO QA.
+    :param comm: LASIF communicator
+    :param count: number of events to choose.
+    :param events: list of event_names, from which to choose from. These
+    events must be known to LASIF
+    :param existing_events: list of events, that have been chosen already
+    and should thus be excluded from the selected options, but are also
+    taken into account when ensuring a good spatial distribution. The
+    function assumes that there are no common occurences between
+    events and existing events
+    :param p_dict: initial distribution of probabilities that could be based
+    on event quality for example.. keys are events, and values are p vvalues.
+    :type p_dict: dict
+    :return: a list of chosen events.
+    """
+    available_events = comm.events.list()
+
+    if len(events) < count:
+        raise LASIFError("Insufficient amount of events specified.")
+    if not type(count) == int:
+        raise ValueError("count should be an integer value.")
+    if count < 1:
+        raise ValueError("count should be at least 1.")
+    for event in events:
+        if event not in available_events:
+            raise LASIFNotFoundError(f"event : {event} not known to LASIF.")
+
+    if existing_events is None:
+        existing_events = []
+    else:
+        for event in events:
+            if event in existing_events:
+                raise LASIFError(
+                    f"event: {event} was existing already,"
+                    f"but still supplied to choose from."
+                )
+
+    # Fill catalog
+    cat = obspy.Catalog()
+    for event in events:
+        event_file_name = comm.waveforms.get_asdf_filename(
+            event, data_type="raw"
+        )
+        with pyasdf.ASDFDataSet(event_file_name, mode="r") as ds:
+            ev = ds.events[0]
+            # append event_name to comments, such that it can later be
+            # retrieved
+            ev.comments.append(event)
+            cat += ev
+
+    # Coordinates and the Catalog will have the same order!
+    coordinates = []
+    for event in cat:
+        org = event.preferred_origin() or event.origins[0]
+        coordinates.append((org.latitude, org.longitude))
+
+    chosen_events = []
+    existing_coordinates = []
+    for event in existing_events:
+        ev = comm.events.get(event)
+        existing_coordinates.append((ev["latitude"], ev["longitude"]))
+
+    # randomly start with one of the specified events
+    if not existing_coordinates:
+        idx = random.randint(0, len(cat) - 1)
+        chosen_events.append(cat[idx])
+        del cat.events[idx]
+        del events[idx]
+        existing_coordinates.append(coordinates[idx])
+        del coordinates[idx]
+        count -= 1
+    while count:
+        if not coordinates:
+            print("\tNo events left to select from. Stopping here.")
+            break
+        # Build kdtree and query for the point furthest away from any other
+        # point.
+        kdtree = SphericalNearestNeighbour(np.array(existing_coordinates))
+        distances = kdtree.query(np.array(coordinates), k=1)[0]
+        #print(existing_coordinates)
+        #print(coordinates)
+        if p_dict is None:
+            p_values = np.ones(len(events))
+        else:
+            p_values = []
+            for ev in events:
+                p_values.append(p_dict[ev])
+                if p_dict[ev] is None:
+                    print(ev, "is none")
+                    raise Exception("")
+        p_values_distances = np.arange(len(events))[::-1] + 1
+        
+        p_values_comb = p_values * distances
+        p_values_comb /= np.sum(p_values_comb)
+
+        chosen_ev = list(np.random.choice(events, 1 ,
+                                          replace=False, p=p_values_comb))[0]
+        idx = events.index(chosen_ev)
+
+        event = cat[idx]
+        coords = coordinates[idx]
+
+        # clear chosen event
+        del events[idx]
+        del cat.events[idx]
+        del coordinates[idx]
+
+        chosen_events.append(event)
+        existing_coordinates.append(coords)
+        count -= 1
+
+    list_of_chosen_events = []
+    for ev in chosen_events:
+        list_of_chosen_events.append(ev.comments.pop())
+    if len(list_of_chosen_events) < count:
+        raise ValueError("Could not select a sufficient amount of events")
+
+    return list_of_chosen_events
