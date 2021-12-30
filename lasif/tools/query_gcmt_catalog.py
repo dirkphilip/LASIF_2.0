@@ -434,7 +434,7 @@ def get_subset_of_events(comm, count, events, existing_events=None):
     return list_of_chosen_events
 
 
-def get_random_mitchell_subset(comm, count, events, p_dict,
+def get_random_mitchell_subset(comm, count, events, p_dict=None,
                                existing_events=None,) -> list:
     """
     This function gets an optimally distributed set of events,
@@ -455,6 +455,8 @@ def get_random_mitchell_subset(comm, count, events, p_dict,
     """
     available_events = comm.events.list()
 
+    # work on a copy
+    events = events.copy()
     if len(events) < count:
         raise LASIFError("Insufficient amount of events specified.")
     if not type(count) == int:
