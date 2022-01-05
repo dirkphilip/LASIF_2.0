@@ -457,7 +457,11 @@ class WindowsComponent(Component):
             st_syn = synthetic_station[syn_tag]
 
             # Extract coordinates once.
-            coordinates = observed_station.coordinates
+            try:
+                coordinates = observed_station.coordinates
+            except Exception as e:
+                print(e)
+                return {station: None}
 
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
