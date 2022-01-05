@@ -165,6 +165,15 @@ def calculate_adjoint_source(
     original_observed = observed.copy()
     original_synthetic = synthetic.copy()
 
+    if adj_src_type == "smooth_waveform_misfit":
+        # scale data to same amplitude range and to 1
+        # such that weak earthquakes count equally much
+        scaling_factor_syn = 1.0 / original_synthetic.data.ptp()
+        scaling_factor_data = 1.0 / original_observed.data.ptp()
+        original_synthetic.data *= scaling_factor_data
+        original_observed.data *= scaling_factor_syn
+
+
     if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
         # normalize the trace to [-1,1], reduce source effects
         norm_scaling_fac = 1.0 / np.max(np.abs(synthetic.data))
@@ -263,6 +272,10 @@ def calculate_adjoint_source(
 
     if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
         full_ad_src.data *= env_weighting * norm_scaling_fac
+
+    # adjoint source requires an additional factor due to chain rule
+    if adj_src_type == "smooth_waveforn_misfit":
+        full_ad_src.data *= scaling_factor_syn
 
     return AdjointSource(
         adj_src_type,

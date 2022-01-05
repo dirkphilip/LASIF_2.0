@@ -108,7 +108,7 @@ def calculate_adjoint_source(
     synthetic,
     window,
     adjoint_src,
-    sigma=20,
+    sigma=25,
     **kwargs
 ):  # NOQA
     # There is no need to perform any sanity checks on the passed trace
@@ -128,7 +128,7 @@ def calculate_adjoint_source(
     sigma_corrected = sigma / observed.stats.delta
     omega = gaussian_filter1d(diff, sigma_corrected)
 
-    ret_val["misfit"] = simps(y=omega*diff, dx=observed.stats.delta)
+    ret_val["misfit"] = 0.5 * simps(y=omega*diff, dx=observed.stats.delta)
 
     if adjoint_src is True:
         adj_src = Trace(
