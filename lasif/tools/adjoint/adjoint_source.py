@@ -170,8 +170,18 @@ def calculate_adjoint_source(
         # such that weak earthquakes count equally much
         scaling_factor_syn = 1.0 / original_synthetic.data.ptp()
         scaling_factor_data = 1.0 / original_observed.data.ptp()
-        original_synthetic.data *= scaling_factor_data
-        original_observed.data *= scaling_factor_syn
+        original_synthetic.data *= scaling_factor_syn
+        original_observed.data *= scaling_factor_data
+
+        # At this point they have the same ptp amplitude range.
+        # Now we want to downweight high amplitude surface waves
+        # and upweight body waves by dividing by the envelope + a reg term.
+        envelope = obspy.signal.filter.envelope(original_observed.data)
+        env_weighting = 1.0 / (envelope + np.max(envelope) * 0.3)
+        original_observed.data *= env_weighting
+        original_synthetic.data *= env_weighting
+    else:
+        raise Exception("")
 
 
     if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
@@ -274,8 +284,10 @@ def calculate_adjoint_source(
         full_ad_src.data *= env_weighting * norm_scaling_fac
 
     # adjoint source requires an additional factor due to chain rule
-    if adj_src_type == "smooth_waveforn_misfit":
-        full_ad_src.data *= scaling_factor_syn
+    if adj_src_type == "smooth_waveform_misfit":
+        full_ad_src.data *= (scaling_factor_syn * env_weighting)
+    else:
+        raise Exception("")
 
     return AdjointSource(
         adj_src_type,

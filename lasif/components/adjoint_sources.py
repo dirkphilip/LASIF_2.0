@@ -650,7 +650,7 @@ class AdjointSourcesComponent(Component):
                         not self.comm.project.optimization_settings[
                             "misfit_type"
                         ]
-                        == "L2NormWeighted"
+                        == "smooth_waveform_misfit"
                     ):
                         scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()
