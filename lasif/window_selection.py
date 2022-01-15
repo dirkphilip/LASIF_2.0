@@ -466,6 +466,13 @@ def select_windows(
             _log_window_selection(data_trace.id, msg)
         accept_traces = msg
 
+    # Add hardcoded option to just
+    # return the whole trace - 1 sample on either side for testing purposes.
+    window_everything = True
+    if window_everything and accept_traces:
+        windows = [(data_starttime + dt, data_starttime + (npts - 1) * dt, 1.0)]
+        return windows
+
     # Calculate the envelope of both data and synthetics. This is to make sure
     # that the amplitude of both is not too different over time and is
     # used as another selector. Only calculated if the trace is generally

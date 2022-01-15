@@ -180,9 +180,6 @@ def calculate_adjoint_source(
         env_weighting = 1.0 / (envelope + np.max(envelope) * 0.3)
         original_observed.data *= env_weighting
         original_synthetic.data *= env_weighting
-    else:
-        raise Exception("")
-
 
     if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
         # normalize the trace to [-1,1], reduce source effects
@@ -286,8 +283,6 @@ def calculate_adjoint_source(
     # adjoint source requires an additional factor due to chain rule
     if adj_src_type == "smooth_waveform_misfit":
         full_ad_src.data *= (scaling_factor_syn * env_weighting)
-    else:
-        raise Exception("")
 
     return AdjointSource(
         adj_src_type,

@@ -423,7 +423,7 @@ def download_data(
     """
 
     comm = find_project_comm(lasif_root)
-    if event_name is None:
+    if event_name is None or event_name == []:
         event_name = comm.events.list()
     if not isinstance(event_name, list):
         event_name = [event_name]

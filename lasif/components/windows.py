@@ -189,6 +189,7 @@ class WindowsComponent(Component):
         :type window_set_name: str
         """
         from lasif.utils import select_component_from_stream
+        from mpi4py import MPI
 
         # from mpi4py import MPI
         import pyasdf
