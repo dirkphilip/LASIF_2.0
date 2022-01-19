@@ -450,8 +450,7 @@ def select_windows(
             _log_window_selection(data_trace.id, msg)
         accept_traces = msg
 
-    # Add hardcoded option to just
-    # return the whole trace - 1 sample on either side for testing purposes.
+    # Return the whole trace - 1 sample on both sides.
     if window_everything and accept_traces:
         windows = [(data_starttime + dt, data_starttime + (npts - 1) * dt, 1.0)]
         return windows
