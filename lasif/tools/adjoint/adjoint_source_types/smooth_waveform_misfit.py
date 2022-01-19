@@ -127,12 +127,14 @@ def calculate_adjoint_source(
     # Integrate with the composite Simpson's rule.
     sigma_corrected = sigma / observed.stats.delta
     omega = gaussian_filter1d(diff, sigma_corrected)
+    adjoint_source = gaussian_filter1d(omega, sigma_corrected)
 
-    ret_val["misfit"] = 0.5 * simps(y=omega*diff, dx=observed.stats.delta)
+    ret_val["misfit"] = 0.5 * simps(y=omega * omega * weight,
+                                    dx=observed.stats.delta)
 
     if adjoint_src is True:
         adj_src = Trace(
-            data=omega * weight * synthetic.stats.delta, header=observed.stats
+            data=adjoint_source * weight * synthetic.stats.delta, header=observed.stats
         )
 
         ret_val["adjoint_source"] = adj_src
