@@ -270,9 +270,11 @@ def select_windows(
     min_peaks_troughs=2,
     max_energy_ratio=10.0,
     min_envelope_similarity=0.2,
+    global_inversion=False,
+    window_everything=False,
     verbose=False,
     plot=False,
-    global_inversion=False
+
 ):
     """
     Window selection algorithm for picking windows suitable for misfit
@@ -337,6 +339,12 @@ def select_windows(
         so a value of 0.2 makes sure neither amplitude can be more then 5
         times larger than the other.
     :type min_envelope_similarity: float
+    :param global_inversion: Don't perform any traveltime elimination at the
+    end of the trace if set to True.
+    :param global_inversion: bool
+    :param window_everything: If set to True, windows the whole trace,
+    if global acception criteria are met, such as the noise level in the trace.
+    :type window_everything: bool
     :param verbose: No output by default.
     :type verbose: bool
     :param plot: Create a plot of the algortihm while it does its work.
@@ -444,7 +452,6 @@ def select_windows(
 
     # Add hardcoded option to just
     # return the whole trace - 1 sample on either side for testing purposes.
-    window_everything = True
     if window_everything and accept_traces:
         windows = [(data_starttime + dt, data_starttime + (npts - 1) * dt, 1.0)]
         return windows
