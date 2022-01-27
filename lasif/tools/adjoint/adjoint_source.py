@@ -165,7 +165,7 @@ def calculate_adjoint_source(
     original_observed = observed.copy()
     original_synthetic = synthetic.copy()
 
-    if adj_src_type == "smooth_waveform_misfit":
+    if adj_src_type == "envelope_misfit":
         # scale data to same amplitude range and to 1
         # such that weak earthquakes count equally much
         scaling_factor_syn = 1.0 / original_synthetic.data.ptp()
@@ -231,7 +231,7 @@ def calculate_adjoint_source(
             taper_ratio=taper_ratio,
             taper_type=taper_type,
         )
-
+        # TODO, tf-phase still windows as well, turn this off!
         adjoint = fct(
             observed=observed,
             synthetic=synthetic,
@@ -281,7 +281,7 @@ def calculate_adjoint_source(
         full_ad_src.data *= env_weighting * norm_scaling_fac
 
     # adjoint source requires an additional factor due to chain rule
-    if adj_src_type == "smooth_waveform_misfit":
+    if adj_src_type == "envelope_misfit":
         full_ad_src.data *= (scaling_factor_syn * env_weighting)
 
     return AdjointSource(

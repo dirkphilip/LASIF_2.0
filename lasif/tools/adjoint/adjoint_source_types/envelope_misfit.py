@@ -20,6 +20,8 @@ from __future__ import (
 
 from obspy import Trace
 from scipy.integrate import simps
+from scipy.signal import hilbert as _analytic
+import numpy as np
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -123,18 +125,22 @@ def calculate_adjoint_source(
     else:
         weight = window[2] * scaling
 
-    diff = observed.data - synthetic.data
-    # Integrate with the composite Simpson's rule.
-    sigma_corrected = sigma / observed.stats.delta
-    omega = gaussian_filter1d(diff, sigma_corrected)
-    adjoint_source = gaussian_filter1d(omega, sigma_corrected)
+    esyn = abs(_analytic(synthetic.data))
+    eobs = abs(_analytic(observed.data))
+    ersd = esyn - eobs
 
-    ret_val["misfit"] = 0.5 * simps(y=omega * omega * weight,
+    ret_val["misfit"] = 0.5 * simps(y=ersd * ersd * weight,
                                     dx=observed.stats.delta)
+    etmp = (esyn - eobs) / esyn
+
+    adjoint_source = \
+        etmp * synthetic.data - \
+        np.imag(_analytic(etmp * np.imag(_analytic(synthetic.data))))
 
     if adjoint_src is True:
         adj_src = Trace(
-            data=adjoint_source * weight * synthetic.stats.delta, header=observed.stats
+            data=adjoint_source * weight * synthetic.stats.delta,
+            header=observed.stats
         )
 
         ret_val["adjoint_source"] = adj_src

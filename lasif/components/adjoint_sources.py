@@ -397,7 +397,7 @@ class AdjointSourcesComponent(Component):
                 if self.comm.project.simulation_settings[
                         "scale_data_to_synthetics"]:
                     if (not self.comm.project.optimization_settings[
-                                "misfit_type"] == "smooth_waveform_misfit"):
+                                "misfit_type"] == "envelope_misfit"):
                         scaling_factor = (
                                 synth_tr.data.ptp() / data_tr.data.ptp()
                         )
@@ -650,7 +650,7 @@ class AdjointSourcesComponent(Component):
                         not self.comm.project.optimization_settings[
                             "misfit_type"
                         ]
-                        == "smooth_waveform_misfit"
+                        == "envelope_misfit"
                     ):
                         scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()
