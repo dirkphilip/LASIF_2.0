@@ -337,6 +337,11 @@ class AdjointSourcesComponent(Component):
             event=event["event_name"], window_set_name=window_set_name
         )
 
+        if len(all_windows.keys()) == 0:
+            raise Exception(f"No windows where found for event "
+                            f"{event['event_name']} in window set "
+                            f"{window_set_name}.")
+
         process_params = self.comm.project.simulation_settings
 
         def _process(station):
