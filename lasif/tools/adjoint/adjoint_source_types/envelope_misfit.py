@@ -127,11 +127,11 @@ def calculate_adjoint_source(
 
     esyn = abs(_analytic(synthetic.data))
     eobs = abs(_analytic(observed.data))
-    ersd = esyn - eobs
+    ersd = eobs - esyn
 
     ret_val["misfit"] = 0.5 * simps(y=ersd * ersd * weight,
                                     dx=observed.stats.delta)
-    etmp = (esyn - eobs) / esyn
+    etmp = (eobs - esyn) / esyn
 
     adjoint_source = \
         etmp * synthetic.data - \
