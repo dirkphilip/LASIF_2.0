@@ -165,7 +165,8 @@ def calculate_adjoint_source(
     original_observed = observed.copy()
     original_synthetic = synthetic.copy()
 
-    if adj_src_type == "envelope_misfit":
+    if adj_src_type == "envelope_misfit" or "envelope_scaling" in kwargs \
+            and kwargs["envelope_scaling"]:
         # scale data to same amplitude range and to 1
         # such that weak earthquakes count equally much
         scaling_factor_syn = 1.0 / original_synthetic.data.ptp()
@@ -181,16 +182,6 @@ def calculate_adjoint_source(
         original_observed.data *= env_weighting
         original_synthetic.data *= env_weighting
 
-    if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
-        # normalize the trace to [-1,1], reduce source effects
-        norm_scaling_fac = 1.0 / np.max(np.abs(synthetic.data))
-        original_observed.data *= norm_scaling_fac
-        original_synthetic.data *= norm_scaling_fac
-        envelope = obspy.signal.filter.envelope(original_observed.data)
-        # scale up to the noise, also never divide by 0
-        env_weighting = 1.0 / (envelope + np.max(envelope) * 0.3)
-        original_observed.data *= env_weighting
-        original_synthetic.data *= env_weighting
     for win in window:
         taper_ratio = 0.5 * (min_period / (win[1] - win[0]))
         if taper_ratio > 0.5:
@@ -277,11 +268,9 @@ def calculate_adjoint_source(
     else:
         plt.show()
 
-    if "envelope_scaling" in kwargs and kwargs["envelope_scaling"]:
-        full_ad_src.data *= env_weighting * norm_scaling_fac
-
     # adjoint source requires an additional factor due to chain rule
-    if adj_src_type == "envelope_misfit":
+    if adj_src_type == "envelope_misfit" or "envelope_scaling" in kwargs \
+            and kwargs["envelope_scaling"]:
         full_ad_src.data *= (scaling_factor_syn * env_weighting)
 
     return AdjointSource(
