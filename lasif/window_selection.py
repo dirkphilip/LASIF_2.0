@@ -664,7 +664,7 @@ def select_windows(
     # after the minimum and maximum travel times, respectively.
     # theoretical arrival as positive.
     # Account for delays in the source time functions as well
-    min_idx = first_tt_arrival - minimum_period / dt
+    min_idx = first_tt_arrival - int(minimum_period / dt)
     min_idx = max(0, min_idx)
 
     if global_inversion:
