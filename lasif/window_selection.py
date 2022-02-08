@@ -359,12 +359,13 @@ def select_windows(
     data = data_trace.data
     times = data_trace.times()
 
+    # Don't return any windows if there is a NaN
+    if np.sum(np.isnan(data)) > 0 or np.sum(np.isnan(synth)) > 0:
+        return []
+
     # -------------------------------------------------------------------------
     # Geographical calculations and the time of the first arrival.
     # -------------------------------------------------------------------------
-    dist_in_deg = geodetics.locations2degrees(
-        station_latitude, station_longitude, event_latitude, event_longitude
-    )
     dist_in_km = (
         geodetics.calc_vincenty_inverse(
             station_latitude,
@@ -412,6 +413,11 @@ def select_windows(
         idx_start = max(0, idx_end - 10)
 
     abs_data = np.abs(data)
+
+    # Return empty window when no data is available
+    if np.max(abs_data) == 0.0 or np.max(np.abs(synth)) == 0.0:
+        return []
+
     noise_absolute = abs_data[idx_start:idx_end].max()
     noise_relative = noise_absolute / abs_data.max()
 
@@ -676,7 +682,7 @@ def select_windows(
             + np.argmax(stf_env.data)
         )
 
-    if window_everything:
+    if window_everything and accept_traces is True:
         windows = [(data_starttime + dt * min_idx,
                     data_starttime + max_idx * dt, 1.0)]
         return windows
