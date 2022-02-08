@@ -450,11 +450,6 @@ def select_windows(
             _log_window_selection(data_trace.id, msg)
         accept_traces = msg
 
-    # Return the whole trace - 1 sample on both sides.
-    if window_everything and accept_traces:
-        windows = [(data_starttime + dt, data_starttime + (npts - 1) * dt, 1.0)]
-        return windows
-
     # Calculate the envelope of both data and synthetics. This is to make sure
     # that the amplitude of both is not too different over time and is
     # used as another selector. Only calculated if the trace is generally
@@ -680,6 +675,11 @@ def select_windows(
             np.argmax(stf_env[max_env_amplitude_idx:] < threshold)
             + np.argmax(stf_env.data)
         )
+
+    if window_everything:
+        windows = [(data_starttime + dt * min_idx,
+                    data_starttime + max_idx * dt, 1.0)]
+        return windows
 
     time_windows.mask[: min_idx + 1] = True
     time_windows.mask[max_idx:] = True
