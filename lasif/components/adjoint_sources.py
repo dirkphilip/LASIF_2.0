@@ -345,7 +345,7 @@ class AdjointSourcesComponent(Component):
                         % (observed_station._station_name, len(syn_tag))
                 )
             except AssertionError:
-                return {station: adjoint_sources}
+                return {station: misfits}
 
             obs_tag = obs_tag[0]
             syn_tag = syn_tag[0]
