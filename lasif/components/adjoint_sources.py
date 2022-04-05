@@ -275,10 +275,11 @@ class AdjointSourcesComponent(Component):
         return misfit
 
 
-    def calculate_validation_misfits_multiprocssing(self,
-                                     event: str,
-                                     iteration: str, num_processes: int = 8,
-                                                    min_sn_ratio: float = 0.05):
+    def calculate_validation_misfits_multiprocssing(
+            self,
+            event: str,
+            iteration: str, num_processes: int = 12,
+            min_sn_ratio: float = 0.1):
         """
 
         This fuction computed the L2 weighted waveform misfit over
@@ -381,7 +382,7 @@ class AdjointSourcesComponent(Component):
 
                 first_tt_arrival = \
                 np.where(np.abs(synth_tr.data) > 5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
-                idx_end = int(0.9 * first_tt_arrival)
+                idx_end = int(0.8 * first_tt_arrival)
                 idx_end = max(idx_end,
                               1)  # ensure at least 1 sample is available
                 idx_start = 0
