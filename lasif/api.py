@@ -1026,7 +1026,7 @@ def calculate_validation_data_misfit(
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
         event_misfit = comm.adj_sources.\
-            calculate_adjoint_sources_multiprocessing(
+            calculate_validation_misfits_multiprocessing(
             event, iteration
         )
         misfit_dict[event] = event_misfit
