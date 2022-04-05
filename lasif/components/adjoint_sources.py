@@ -275,7 +275,7 @@ class AdjointSourcesComponent(Component):
         return misfit
 
 
-    def calculate_validation_misfits_multiprocssing(
+    def calculate_validation_misfits_multiprocessing(
             self,
             event: str,
             iteration: str, num_processes: int = 12,
