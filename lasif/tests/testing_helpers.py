@@ -153,7 +153,7 @@ def reset_matplotlib():
     # These settings must be hardcoded for running the comparision tests and
     # are not necessarily the default values.
     mpl.rcParams["font.family"] = "Bitstream Vera Sans"
-    mpl.rcParams["text.hinting"] = False
+    mpl.rcParams["text.hinting"] = "none"
     # Not available for all matplotlib versions.
     try:
         mpl.rcParams["text.hinting_factor"] = 8

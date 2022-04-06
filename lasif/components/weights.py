@@ -193,9 +193,6 @@ class WeightsComponent(Component):
         :rtype: float
         """
         from obspy.geodetics import locations2degrees
-
-        distance = np.zeros_like(locations[1, :])
-
         distance = 1.0 / (
             1.0
             + locations2degrees(lat_1, lon_1, locations[0, :], locations[1, :])

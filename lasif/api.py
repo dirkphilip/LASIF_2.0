@@ -423,7 +423,7 @@ def download_data(
     """
 
     comm = find_project_comm(lasif_root)
-    if event_name is None:
+    if event_name is None or event_name == []:
         event_name = comm.events.list()
     if not isinstance(event_name, list):
         event_name = [event_name]
@@ -1025,9 +1025,8 @@ def calculate_validation_data_misfit(
     misfit_dict = {}
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
-        event_misfit = comm.adj_sources.calculate_validation_misfits(
-            event, iteration
-        )
+        event_misfit = comm.adj_sources.\
+            calculate_validation_misfits_multiprocessing(event, iteration)
         misfit_dict[event] = event_misfit
 
     return misfit_dict

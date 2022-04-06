@@ -248,11 +248,6 @@ def _log_window_selection(tr_id, msg):
     print("[Window selection for %s] %s" % (tr_id, msg))
 
 
-# Dictionary to cache the TauPyModel so there is no need to reinitialize it
-# each time which is a fairly expensive operation.
-TAUPY_MODEL_CACHE = {}
-
-
 def select_windows(
     data_trace,
     synthetic_trace,
@@ -274,8 +269,11 @@ def select_windows(
     min_peaks_troughs=2,
     max_energy_ratio=10.0,
     min_envelope_similarity=0.2,
+    global_inversion=False,
+    window_everything=False,
     verbose=False,
     plot=False,
+
 ):
     """
     Window selection algorithm for picking windows suitable for misfit
@@ -340,6 +338,12 @@ def select_windows(
         so a value of 0.2 makes sure neither amplitude can be more then 5
         times larger than the other.
     :type min_envelope_similarity: float
+    :param global_inversion: Don't perform any traveltime elimination at the
+    end of the trace if set to True.
+    :param global_inversion: bool
+    :param window_everything: If set to True, windows the whole trace,
+    if global acception criteria are met, such as the noise level in the trace.
+    :type window_everything: bool
     :param verbose: No output by default.
     :type verbose: bool
     :param plot: Create a plot of the algortihm while it does its work.
@@ -354,19 +358,13 @@ def select_windows(
     data = data_trace.data
     times = data_trace.times()
 
-    # Fill cache if necessary.
-    if not TAUPY_MODEL_CACHE:
-        from obspy.taup import TauPyModel  # NOQA
-
-        TAUPY_MODEL_CACHE["model"] = TauPyModel("AK135")
-    model = TAUPY_MODEL_CACHE["model"]
+    # Don't return any windows if there is a NaN
+    if np.sum(np.isnan(data)) > 0 or np.sum(np.isnan(synth)) > 0:
+        return []
 
     # -------------------------------------------------------------------------
     # Geographical calculations and the time of the first arrival.
     # -------------------------------------------------------------------------
-    dist_in_deg = geodetics.locations2degrees(
-        station_latitude, station_longitude, event_latitude, event_longitude
-    )
     dist_in_km = (
         geodetics.calc_vincenty_inverse(
             station_latitude,
@@ -376,19 +374,6 @@ def select_windows(
         )[0]
         / 1000.0
     )
-
-    # Get only a couple of P phases which should be the first arrival
-    # for every epicentral distance. Its quite a bit faster than calculating
-    # the arrival times for every phase.
-    # Assumes the first sample is the centroid time of the event.
-    ttp = model.get_travel_times(
-        source_depth_in_km=event_depth_in_km,
-        distance_in_degree=dist_in_deg,
-        phase_list=["ttp"],
-    )
-    # Sort just as a safety measure.
-    ttp = sorted(ttp, key=lambda x: x.time)
-    first_tt_arrival = ttp[0].time
 
     # -------------------------------------------------------------------------
     # Window settings
@@ -418,16 +403,20 @@ def select_windows(
             data_trace.id, "Correlation Coefficient: %.4f" % cc
         )
 
-    # Estimate noise level from waveforms prior to the first arrival.
-    idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
-    idx_end = max(10, idx_end)
-    idx_start = int(np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
-    idx_start = max(10, idx_start)
+    first_tt_arrival = np.where(np.abs(synth) > 5e-3 * np.max(np.abs(synth)))[0][0]
+    idx_end = int(0.9 * first_tt_arrival)
+    idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
+    idx_start = 0
 
     if idx_start >= idx_end:
         idx_start = max(0, idx_end - 10)
 
     abs_data = np.abs(data)
+
+    # Return empty window when no data is available
+    if np.max(abs_data) == 0.0 or np.max(np.abs(synth)) == 0.0:
+        return []
+
     noise_absolute = abs_data[idx_start:idx_end].max()
     noise_relative = noise_absolute / abs_data.max()
 
@@ -675,20 +664,27 @@ def select_windows(
     # after the minimum and maximum travel times, respectively.
     # theoretical arrival as positive.
     # Account for delays in the source time functions as well
-    min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt)
-    stf_env = obspy.signal.filter.envelope(stf_trace)
+    min_idx = first_tt_arrival - int(minimum_period / dt)
+    min_idx = max(0, min_idx)
 
-    max_env_amplitude_idx = np.argmax(stf_env.data)
-    threshold = 0.5 * np.max(stf_env.data)
-    max_idx = int(
-        math.ceil((dist_in_km / min_velocity + minimum_period / 2.0) / dt)
-    )
-    max_idx += int(
-        np.argmax(stf_env[max_env_amplitude_idx:] < threshold)
-        + np.argmax(stf_env.data)
-    )
-    # shift by peak of envelope misfit
-    # max_idx += max_env_amplitude_idx
+    if global_inversion:
+        max_idx = len(synth)
+    else:
+        stf_env = obspy.signal.filter.envelope(stf_trace)
+        max_env_amplitude_idx = np.argmax(stf_env.data)
+        threshold = 0.5 * np.max(stf_env.data)
+        max_idx = int(
+            math.ceil((dist_in_km / min_velocity + minimum_period / 2.0) / dt)
+        )
+        max_idx += int(
+            np.argmax(stf_env[max_env_amplitude_idx:] < threshold)
+            + np.argmax(stf_env.data)
+        )
+
+    if window_everything and accept_traces is True:
+        windows = [(data_starttime + dt * min_idx,
+                    data_starttime + max_idx * dt, 1.0)]
+        return windows
 
     time_windows.mask[: min_idx + 1] = True
     time_windows.mask[max_idx:] = True

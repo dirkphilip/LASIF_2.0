@@ -5,9 +5,9 @@ channels:
     - jmcmurray
 dependencies:
     - python=3.7
-    - numpy=1.16
+    - numpy
     - scipy
-    - pyproj=1.9
+    - pyproj
     - obspy
     - cartopy
     - pyasdf

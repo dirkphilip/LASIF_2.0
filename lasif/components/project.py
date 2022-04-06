@@ -195,6 +195,7 @@ class Project(Component):
             "cc_traveltime_misfit",
             "cc_traveltime_misfit_Korta2018",
             "weighted_waveform_misfit",
+            "envelope_misfit",
         ):
             raise LASIFError(
                 f"\n\nMisfit type {misfit} is not supported "

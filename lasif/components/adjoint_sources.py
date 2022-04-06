@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 
 import pyasdf
-import obspy
 import os
 import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
@@ -274,6 +273,164 @@ class AdjointSourcesComponent(Component):
         print("\nTotal event misfit: ", misfit)
         return misfit
 
+    def calculate_validation_misfits_multiprocessing(
+            self,
+            event: str,
+            iteration: str, num_processes: int = 12,
+            min_sn_ratio: float = 0.1):
+        """
+        This fuction computed the L2 weighted waveform misfit over
+        a whole trace. It is meant to provide misfits for validation
+        purposes. E.g. to steer regularization parameters.
+
+        This function implements the same as the above with a few
+        changes. We don't use taupy anymore, but instead use the synthetics
+        to estimate expected arrival times.
+        In addition, we use multiprocessing here.
+
+        :param event: name of the event
+        :type event: str
+        :param iteration: iteration for which to get the misfit
+        :type iteration: str
+        :param num_processes: Number of threads to use
+        :type num_processes: int
+        :param min_sn_ratio: Minimum signal to noise ratio
+        :type min_sn_ratio: float
+
+        """
+        from scipy.integrate import simps
+        from lasif.utils import select_component_from_stream
+        from tqdm import tqdm
+        import multiprocessing
+        import warnings
+        warnings.filterwarnings("ignore")
+        event = self.comm.events.get(event)
+        global _process
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag,
+        )
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration,
+        )
+
+        def _process(station):
+            ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+            ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r",
+                                          mpi=False)
+            observed_station = ds.waveforms[station]
+            synthetic_station = ds_synth.waveforms[station]
+
+            # print(observed_station, synthetic_station)
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            misfits = {}
+            try:
+                # Make sure both have length 1.
+                assert len(obs_tag) == 1, (
+                        "Station: %s - Requires 1 observed waveform tag. Has %i."
+                        % (observed_station._station_name, len(obs_tag))
+                )
+                assert len(syn_tag) == 1, (
+                        "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                        % (observed_station._station_name, len(syn_tag))
+                )
+            except AssertionError:
+                return {station: misfits}
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(),
+                event_name=event["event_name"],
+                iteration=iteration,
+            )
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+
+                except LASIFNotFoundError:
+                    continue
+
+                # Skip to skip case, where this explodes
+                if data_tr.data.ptp() == 0 or synth_tr.data.ptp() == 0:
+                    continue
+
+                # Normalize amplitudes to avoid strong influences by amplitudes
+                # due to source or propagation distance.
+                data_tr.data /= data_tr.data.ptp()
+                synth_tr.data /= synth_tr.data.ptp()
+
+                first_tt_arrival = np.where(np.abs(synth_tr.data) >
+                                            5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
+                idx_end = int(0.8 * first_tt_arrival)
+                idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
+                idx_start = 0
+
+                if idx_start >= idx_end:
+                    idx_start = max(0, idx_end - 10)
+
+                abs_data = np.abs(data_tr.data)
+
+                # Return empty window when no data is available
+                if np.max(abs_data) == 0.0 or np.max(np.abs(synth_tr.data)) == 0.0:
+                    continue
+
+                noise_absolute = abs_data[idx_start:idx_end].max()
+                noise_relative = noise_absolute / abs_data.max()
+
+                if noise_relative > min_sn_ratio:
+                    continue
+
+                diff = data_tr.data - synth_tr.data
+                misfit = 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
+                misfits[data_tr.id] = {
+                    "misfit": misfit,
+                }
+
+            misfit_dict = {station: misfits}
+            return misfit_dict
+
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
+
+        # Generate task list
+        task_list = ds.waveforms.list()
+
+        # Use at most num_processes
+        number_processes = min(num_processes, multiprocessing.cpu_count())
+
+        with multiprocessing.Pool(number_processes) as pool:
+            results = {}
+            with tqdm(total=len(task_list)) as pbar:
+                for i, r in enumerate(pool.imap_unordered(_process, task_list)):
+                    pbar.update()
+                    k, v = r.popitem()
+                    results[k] = v
+
+            pool.close()
+
+        misfit = 0.0
+        for station in results.keys():
+            for trace in results[station].keys():
+                misfit += results[station][trace]["misfit"]
+
+        print("\nTotal event misfit: ", misfit)
+        return misfit
+
     def calculate_adjoint_sources_multiprocessing(
             self,
             event: str,
@@ -337,6 +494,11 @@ class AdjointSourcesComponent(Component):
             event=event["event_name"], window_set_name=window_set_name
         )
 
+        if len(all_windows.keys()) == 0:
+            raise Exception(f"No windows where found for event "
+                            f"{event['event_name']} in window set "
+                            f"{window_set_name}.")
+
         process_params = self.comm.project.simulation_settings
 
         def _process(station):
@@ -397,7 +559,7 @@ class AdjointSourcesComponent(Component):
                 if self.comm.project.simulation_settings[
                         "scale_data_to_synthetics"]:
                     if (not self.comm.project.optimization_settings[
-                                "misfit_type"] == "L2NormWeighted"):
+                                "misfit_type"] == "envelope_misfit"):
                         scaling_factor = (
                                 synth_tr.data.ptp() / data_tr.data.ptp()
                         )
@@ -562,7 +724,7 @@ class AdjointSourcesComponent(Component):
         """
         from lasif.utils import select_component_from_stream
 
-        # from mpi4py import MPI
+        from mpi4py import MPI
         import pyasdf
 
         event = self.comm.events.get(event)
@@ -650,7 +812,7 @@ class AdjointSourcesComponent(Component):
                         not self.comm.project.optimization_settings[
                             "misfit_type"
                         ]
-                        == "L2NormWeighted"
+                        == "envelope_misfit"
                     ):
                         scaling_factor = (
                             synth_tr.data.ptp() / data_tr.data.ptp()

@@ -14,7 +14,7 @@ import matplotlib.patheffects as PathEffects
 import inspect
 import imp
 from glob import iglob
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
 import cartopy as cp

@@ -120,6 +120,15 @@ def window_picking_function(
     # can be more then 5 times larger than the other.
     MIN_ENVELOPE_SIMILARITY = 0.2
 
+    # If set to true there is no traveltime elimination at the end of the
+    # trace. This elimination is mostly useful for regional inversions,
+    # where late arrivals might be coming from reflections of the
+    # imperfect absorbing boundaries.
+    GLOBAL_INVERSION = False
+
+    # Windows the whole trace when global criteria on the trace are met.
+    WINDOW_EVERYTHING = False
+
     windows = select_windows(
         data_trace=data_trace,
         synthetic_trace=synthetic_trace,
@@ -141,6 +150,8 @@ def window_picking_function(
         min_length_period=MIN_LENGTH_PERIOD,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
         max_energy_ratio=MAX_ENERGY_RATIO,
+        global_inversion=GLOBAL_INVERSION,
+        window_everything=WINDOW_EVERYTHING,
         min_envelope_similarity=MIN_ENVELOPE_SIMILARITY,
         **kwargs
     )

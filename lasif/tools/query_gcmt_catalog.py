@@ -519,8 +519,7 @@ def get_random_mitchell_subset(comm, count, events, p_dict=None,
         # point.
         kdtree = SphericalNearestNeighbour(np.array(existing_coordinates))
         distances = kdtree.query(np.array(coordinates), k=1)[0]
-        #print(existing_coordinates)
-        #print(coordinates)
+        # p_dict must contain values for all events, if given
         if p_dict is None:
             p_values = np.ones(len(events))
         else:
@@ -530,8 +529,7 @@ def get_random_mitchell_subset(comm, count, events, p_dict=None,
                 if p_dict[ev] is None:
                     print(ev, "is none")
                     raise Exception("")
-        p_values_distances = np.arange(len(events))[::-1] + 1
-        
+
         p_values_comb = p_values * distances
         p_values_comb /= np.sum(p_values_comb)
 
