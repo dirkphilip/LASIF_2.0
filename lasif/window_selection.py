@@ -248,7 +248,6 @@ def _log_window_selection(tr_id, msg):
     print("[Window selection for %s] %s" % (tr_id, msg))
 
 
-
 def select_windows(
     data_trace,
     synthetic_trace,
@@ -406,7 +405,7 @@ def select_windows(
 
     first_tt_arrival = np.where(np.abs(synth) > 5e-3 * np.max(np.abs(synth)))[0][0]
     idx_end = int(0.9 * first_tt_arrival)
-    idx_end = max(idx_end, 1) # ensure at least 1 sample is available
+    idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
     idx_start = 0
 
     if idx_start >= idx_end:

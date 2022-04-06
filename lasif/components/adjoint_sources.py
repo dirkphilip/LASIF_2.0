@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 
 import pyasdf
-import obspy
 import os
 import numpy as np
 from lasif.utils import process_two_files_without_parallel_output
@@ -274,14 +273,12 @@ class AdjointSourcesComponent(Component):
         print("\nTotal event misfit: ", misfit)
         return misfit
 
-
     def calculate_validation_misfits_multiprocessing(
             self,
             event: str,
             iteration: str, num_processes: int = 12,
             min_sn_ratio: float = 0.1):
         """
-
         This fuction computed the L2 weighted waveform misfit over
         a whole trace. It is meant to provide misfits for validation
         purposes. E.g. to steer regularization parameters.
@@ -289,8 +286,7 @@ class AdjointSourcesComponent(Component):
         This function implements the same as the above with a few
         changes. We don't use taupy anymore, but instead use the synthetics
         to estimate expected arrival times.
-
-        In addition, we use multiprocessing here
+        In addition, we use multiprocessing here.
 
         :param event: name of the event
         :type event: str
@@ -355,7 +351,6 @@ class AdjointSourcesComponent(Component):
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
-
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
                 st=st_syn.copy(),
@@ -380,11 +375,10 @@ class AdjointSourcesComponent(Component):
                 data_tr.data /= data_tr.data.ptp()
                 synth_tr.data /= synth_tr.data.ptp()
 
-                first_tt_arrival = \
-                np.where(np.abs(synth_tr.data) > 5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
+                first_tt_arrival = np.where(np.abs(synth_tr.data) >
+                                            5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
                 idx_end = int(0.8 * first_tt_arrival)
-                idx_end = max(idx_end,
-                              1)  # ensure at least 1 sample is available
+                idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
                 idx_start = 0
 
                 if idx_start >= idx_end:
@@ -730,7 +724,7 @@ class AdjointSourcesComponent(Component):
         """
         from lasif.utils import select_component_from_stream
 
-        # from mpi4py import MPI
+        from mpi4py import MPI
         import pyasdf
 
         event = self.comm.events.get(event)
