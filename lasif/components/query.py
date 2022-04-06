@@ -35,7 +35,7 @@ class QueryComponent(Component):
         list_only: bool = False,
         intersection_override: bool = None,
     ):
-        """
+        """ 
         Returns a dictionary of all stations for one event and their
         coordinates.
 

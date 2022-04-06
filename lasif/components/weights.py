@@ -203,7 +203,7 @@ class WeightsComponent(Component):
         factor = np.sum(distance) - 1.0
         weight = 1.0 / factor
 
-        assert np.all(np.where(weight >= 0.0))
+        assert np.all(weight >= 0.0)
 
         return weight
 
