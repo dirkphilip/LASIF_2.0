@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import collections
 import fnmatch
+import shutil
 import os
 import warnings
 import pyasdf
@@ -609,3 +610,123 @@ class WaveformsComponent(Component):
                 continue
             its.append(it.name)
         return its
+
+    def process_multiprocessing(self, event_name, num_processes=12,
+                                verbose=True):
+        """
+
+        WIP:
+
+        Multiprocessing version to
+
+        # Then we move the file to it's final destination.
+        :param event_nameL Name of the event
+        :type event_name: str
+        """
+
+        import warnings
+        warnings.filterwarnings("ignore")
+        global _process_data
+        import multiprocessing
+        from tqdm import tqdm
+
+        event = self.comm.events.get(event_name)
+        raw_data_file = self.get_asdf_filename(event_name, data_type="raw")
+
+        # Apply the project function that modifies synthetics on the fly.
+        fct = self.comm.project.get_project_function("processing_function")
+        process_params = self.comm.project.simulation_settings
+
+        def _process_data(station):
+            processed_stream = None
+            ds = pyasdf.ASDFDataSet(raw_data_file, mode="r", mpi=False)
+            observed_station = ds.waveforms[station]
+
+            if "StationXML" in observed_station:
+                inv = observed_station.StationXML
+            else:
+                if verbose:
+                    print("No stationXML found")
+                return {station: processed_stream}
+
+            obs_tag = observed_station.get_waveform_tags()
+
+            try:
+                # Make sure both have length 1.
+                assert len(obs_tag) == 1, (
+                        "Station: %s - Requires 1 observed waveform tag. Has %i."
+                        % (observed_station._station_name, len(obs_tag))
+                )
+            except AssertionError as e:
+                if verbose:
+                    print(e)
+                return {station: processed_stream}
+
+            # Call
+            try:
+                st = ds.waveforms[station]["raw_recording"]
+            except Exception as e:
+                if verbose:
+                    print(e)
+                return {station: processed_stream}
+
+            try:
+                proc_st = fct(st, inv, process_params, event)
+                if proc_st is None or len(proc_st) < 1:
+                    processed_stream = None
+                else:
+                    processed_stream = proc_st
+            except Exception as e:
+                if verbose:
+                    print(e)
+            processed_dict = {station: processed_stream}
+            return processed_dict
+
+        # Stations that need procesing
+        with pyasdf.ASDFDataSet(raw_data_file, mode="r",mpi=False) as ds:
+            task_list = ds.waveforms.list()
+
+        # Use at most num_processes
+
+        number_processes = min(num_processes, multiprocessing.cpu_count(),
+                               len(task_list))
+
+        with multiprocessing.Pool(number_processes) as pool:
+            results = {}
+            with tqdm(total=len(task_list)) as pbar:
+                for i, r in enumerate(pool.imap_unordered(_process_data,
+                                                          task_list)):
+                    pbar.update()
+                    k, v = r.popitem()
+                    results[k] = v
+
+            pool.close()
+
+        processed_filename = self.get_asdf_filename(
+            event_name=event_name,
+            data_type="processed",
+            tag_or_iteration=self.preprocessing_tag,
+        )
+
+        tmp_filename = processed_filename + "_tmp"
+
+        if os.path.exists(tmp_filename):
+            os.remove(tmp_filename)
+        ds = pyasdf.ASDFDataSet(tmp_filename)
+
+        print("Writing processed data file...")
+        with pyasdf.ASDFDataSet(raw_data_file, mode="r") as raw_ds:
+            event_qml = raw_ds.events[0]
+            ds.add_quakeml(event_qml)
+
+            for station in results.keys():
+                st = results[station]
+                if st is not None:
+                    ds.add_stationxml(raw_ds.waveforms[station].StationXML)
+                    ds.add_waveforms(st, self.preprocessing_tag,
+                                     event_id=ds.events[0])
+
+        # shutil.move(tmp_filename, processed_filename)
+
+        # The results parameter will contain everything
+

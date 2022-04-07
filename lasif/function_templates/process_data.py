@@ -119,15 +119,13 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
     # =========================================================================
     # Gather basic information.
     # =========================================================================
-    npts = simulation_settings["npts"]
-    dt = simulation_settings["dt"]
-    min_period = simulation_settings["minimum_period"]
-    max_period = simulation_settings["maximum_period"]
+    npts = simulation_settings["number_of_time_steps"]
+    dt = simulation_settings["time_step_in_s"]
+    min_period = simulation_settings["minimum_period_in_s"]
+    max_period = simulation_settings["maximum_period_in_s"]
 
     starttime = event["origin_time"] + simulation_settings["start_time_in_s"]
-    endtime = starttime + simulation_settings["dt"] * (
-        simulation_settings["npts"] - 1
-    )
+    endtime = starttime + dt * (npts - 1)
     duration = endtime - starttime
 
     f2 = 0.9 / max_period
@@ -147,8 +145,8 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
                 "Requested time span: %s - %s"
                 % (tr.stats.starttime, tr.stats.endtime, starttime, endtime)
             )
-            raise LASIFError(msg)
-
+            print(msg)
+            continue
         # Trim to reduce processing cost.
         tr.trim(starttime - 0.2 * duration, endtime + 0.2 * duration)
 
@@ -161,12 +159,12 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
                 "No data found in time window around the event."
                 " File skipped."
             )
-            raise LASIFError(msg)
+            continue
 
         # No nans or infinity values allowed.
         if not np.isfinite(tr.data).all():
-            msg = "Data contains NaNs or Infs. File skipped"
-            raise LASIFError(msg)
+            msg = "Data contains NaNs or Infs. trace skipped"
+            continue
 
         # =====================================================================
         # Step 1: Decimation
@@ -193,15 +191,15 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
         # =====================================================================
         # Step 2: Detrend and taper.
         # =====================================================================
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(max_percentage=0.05, type="hann")
+        try:
+            tr.detrend("linear")
+            tr.detrend("demean")
+            tr.taper(max_percentage=0.05, type="hann")
 
         # =====================================================================
         # Step 3: Instrument correction
         # Correct seismograms to velocity in m/s.
         # ======================================================================
-        try:
             tr.attach_response(inv)
             tr.remove_response(
                 output="DISP", pre_filt=pre_filt, zero_mean=False, taper=False
@@ -214,14 +212,11 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
                 + ".."
                 + tr.stats.channel
             )
-            msg = (
-                (
-                    "File  could not be corrected with the help of the "
-                    "StationXML file '%s'. Due to: '%s'  Will be skipped."
-                )
-                % (station, e.__repr__()),
-            )
-            raise LASIFError(msg)
+            msg = f" {station }could not be processed. " \
+                  f"Due to: {e.__repr__()}  Will be skipped."
+            print(msg)
+            st.remove(tr)
+            continue
 
         # =====================================================================
         # Step 4: Bandpass filtering

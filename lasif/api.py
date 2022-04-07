@@ -1343,7 +1343,9 @@ def process_data(
 
     # Make sure all the ranks enter the processing at the same time.
     # MPI.COMM_WORLD.barrier()
-    comm.waveforms.process_data(events)
+    for event in events:
+        print(f"Processing event: {event}")
+        comm.waveforms.process_data(events)
 
 
 def plot_window_statistics(
