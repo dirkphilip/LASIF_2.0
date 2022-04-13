@@ -13,6 +13,8 @@ import numpy as np
 from lasif.exceptions import LASIFError
 from scipy import signal
 from pyasdf import ASDFDataSet
+import os
+import shutil
 
 
 def preprocessing_function_asdf(processing_info):
@@ -188,6 +190,10 @@ def preprocessing_function_asdf(processing_info):
     tag_map = {"raw_recording": tag_name}
 
     output_filename = processing_info["asdf_output_filename"]
-    ds.process(process_function, output_filename, tag_map=tag_map)
+    tmp_output = output_filename + "_tmp"
+    if os.path.exists(tmp_output):
+        os.remove(tmp_output)
+    ds.process(process_function, tmp_output, tag_map=tag_map)
 
     del ds
+    shutil.move(tmp_output, output_filename)
