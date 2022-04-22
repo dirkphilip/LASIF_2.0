@@ -1151,7 +1151,7 @@ def write_misfit(
     return total_misfit
 
 
-def list_iterations(lasif_root, output: bool = True):
+def list_iterations(lasif_root, output: bool = True, verbose: bool = True):
     """
     List iterations in project
 
@@ -1159,24 +1159,30 @@ def list_iterations(lasif_root, output: bool = True):
     :type lasif_root: Union[str, pathlib.Path, object]
     :param output: If the function should return the list, defaults to True
     :type output: bool, optional
+    :param verbose: Allow to suppress print statements, defualts to True
+    :type verbose: bool, optional
     """
 
     comm = find_project_comm(lasif_root)
 
     iterations = comm.iterations.list()
     if len(iterations) == 0:
-        print("There are no iterations in this project")
+        if verbose:
+            print("There are no iterations in this project")
     else:
         if output:
             return iterations
         if len(iterations) == 1:
-            print(f"There is {len(iterations)} iteration in this project")
-            print("Iteration known to LASIF: \n")
+            if verbose:
+                print(f"There is {len(iterations)} iteration in this project")
+                print("Iteration known to LASIF: \n")
         else:
-            print(f"There are {len(iterations)} iterations in this project")
-            print("Iterations known to LASIF: \n")
+            if verbose:
+                print(f"There are {len(iterations)} iterations in this project")
+                print("Iterations known to LASIF: \n")
     for iteration in iterations:
-        print(comm.iterations.get_long_iteration_name(iteration), "\n")
+        if verbose:
+            print(comm.iterations.get_long_iteration_name(iteration), "\n")
 
 
 def compare_misfits(
