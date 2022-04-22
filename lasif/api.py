@@ -1063,7 +1063,7 @@ def set_up_iteration(
     if isinstance(events, str):
         events = [events]
 
-    iterations = list_iterations(comm, output=True)
+    iterations = list_iterations(comm, output=True, verbose=False)
     if isinstance(iterations, list):
         if iteration in iterations:
             if not remove_dirs:
