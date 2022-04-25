@@ -463,7 +463,7 @@ class HDF5Domain:
         # For each point get the indices of the five nearest points, of
         # which the first one is the point itself.
         _, indices_nearest = self.domain_edge_tree.query(
-            self.domain_edge_coords, k=5
+            self.domain_edge_coords, k=7
         )
         indices_nearest = indices_nearest[:, 0, :]
         num_edge_points = len(self.domain_edge_coords)
@@ -483,6 +483,10 @@ class HDF5Domain:
                 indices_sorted[i] = closest_indices[2]
             elif not closest_indices[3] in indices_sorted:
                 indices_sorted[i] = closest_indices[3]
+            elif not closest_indices[4] in indices_sorted:
+                indices_sorted[i] = closest_indices[4]
+            elif not closest_indices[5] in indices_sorted:
+                indices_sorted[i] = closest_indices[5]
             else:
                 raise LASIFError(
                     "Edge node sort algorithm only works "
