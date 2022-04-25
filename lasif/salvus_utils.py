@@ -88,6 +88,7 @@ def create_salvus_forward_simulation(
     )
     sim_set = comm.project.simulation_settings
     sal_set = comm.project.salvus_settings
+    side_set_names = comm.project.domain.get_side_set_names()
     w.physics.wave_equation.end_time_in_seconds = sim_set["end_time_in_s"]
     w.physics.wave_equation.time_step_in_seconds = sim_set["time_step_in_s"]
     w.physics.wave_equation.start_time_in_seconds = sim_set["start_time_in_s"]
@@ -97,13 +98,24 @@ def create_salvus_forward_simulation(
 
     domain = lasif.domain.HDF5Domain(mesh, sal_set["absorbing_boundaries_in_km"])
     if not domain.is_global_domain():
-        absorbing = sc.boundary.Absorbing(
-            width_in_meters=comm.project.salvus_settings["absorbing_boundaries_in_km"]
-            * 1000.0,
-            side_sets=["r0", "t0", "t1", "p0", "p1"],
-            taper_amplitude=1.0
-            / comm.project.simulation_settings["minimum_period_in_s"],
-        )
+        if "inner_boundary" in side_set_names:  # Masked mesh
+            absorbing = sc.boundary.Absorbing(
+                width_in_meters=comm.project.salvus_settings[
+                                    "absorbing_boundaries_in_km"]
+                                * 1000.0,
+                side_sets=["inner_boundary"],
+                taper_amplitude=1.0
+                                / comm.project.simulation_settings[
+                                    "minimum_period_in_s"],
+            )
+        else:  # SphericalChunk
+            absorbing = sc.boundary.Absorbing(
+                width_in_meters=comm.project.salvus_settings["absorbing_boundaries_in_km"]
+                * 1000.0,
+                side_sets=["r0", "t0", "t1", "p0", "p1"],
+                taper_amplitude=1.0
+                / comm.project.simulation_settings["minimum_period_in_s"],
+            )
         w.physics.wave_equation.boundaries = [absorbing]
     w.output.memory_per_rank_in_MB = 4000.0
     w.output.volume_data.format = "hdf5"
