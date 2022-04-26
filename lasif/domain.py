@@ -54,6 +54,7 @@ class HDF5Domain:
         self.center_lat = None
         self.center_lon = None
         self.is_read = False
+        self.is_boundary_sorted = False
         self.side_set_names = None
         self.boundary = None
 
@@ -65,7 +66,7 @@ class HDF5Domain:
         further processing is not necessary.
         """
         try:
-            self.m = h5py.File(self.mesh_file, mode="r")
+            h5 = h5py.File(self.mesh_file, mode="r")
         except AssertionError:
             msg = (
                 "Could not open the project's mesh file. "
@@ -75,7 +76,7 @@ class HDF5Domain:
             raise LASIFNotFoundError(msg)
 
         # if less than 2 side sets, this must be a global mesh.  Return
-        self.side_set_names = list(self.m["SIDE_SETS"].keys())
+        self.side_set_names = list(h5["SIDE_SETS"].keys())
         if (
             len(self.side_set_names) <= 2
             and "inner_boundary" not in self.side_set_names
@@ -100,17 +101,17 @@ class HDF5Domain:
             if side_set == "surface":
                 continue
             elif side_set == "r1":
-                earth_surface_elements = self.m["SIDE_SETS"][side_set][
+                earth_surface_elements = h5["SIDE_SETS"][side_set][
                     "elements"
                 ][()]
             elif side_set == "r1_ol":
-                earth_surface_elements = self.m["SIDE_SETS"][side_set][
+                earth_surface_elements = h5["SIDE_SETS"][side_set][
                     "elements"
                 ][()]
 
             else:
                 side_elements.append(
-                    self.m["SIDE_SETS"][side_set]["elements"][()]
+                    h5["SIDE_SETS"][side_set]["elements"][()]
                 )
 
         side_elements_tmp = np.array([], dtype=np.int)
@@ -128,7 +129,7 @@ class HDF5Domain:
         )
 
         # Get coordinates
-        coords = self.m["MODEL/coordinates"][()]
+        coords = h5["MODEL/coordinates"][()]
         self.domain_edge_coords = coords[surface_boundaries]
         self.earth_surface_coords = coords[earth_surface_elements]
 
@@ -138,14 +139,6 @@ class HDF5Domain:
         # take the maximum distance between gll points and use that
         # as the element with. It should be an overestimation
         x, y, z = self.earth_surface_coords[:, 0, :].T
-
-        # # Get extent and center of domain
-        # x, y, z = self.domain_edge_coords.T
-
-        # # pick a random GLL point to represent the boundary
-        # x = x[0]
-        # y = y[0]
-        # z = z[0]
 
         # get center lat/lon
         x_cen, y_cen, z_cen = np.median(x), np.median(y), np.median(z)
@@ -169,22 +162,8 @@ class HDF5Domain:
 
         self.is_read = True
 
-        # In order to create the self.edge_polygon we need to make sure that
-        # the points on the boundary are arranged in a way that a proper
-        # polygon will be drawn.
-        sorted_indices = self.get_sorted_edge_coords()
-        x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
-        lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
-
-        x, y, z = normalize_coordinates(x[0], y[0], z[0])
-        points = np.array((x, y, z)).T
-
-        self.boundary = np.array([lats, lons]).T
-        self.edge_polygon = lasif.spherical_geometry.SphericalPolygon(
-            points, outside_point
-        )
         # Close file
-        self.m.close()
+        h5.close()
 
     def _initialize_kd_trees(self):
         """
@@ -294,13 +273,7 @@ class HDF5Domain:
         if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
 
-        # Third elimination:
-        point = lat_lon_radius_to_xyz(latitude, longitude, 1.0)
-
-        if not self.edge_polygon.contains_point(point):
-            return False
-
-        # Fourth elimination
+        # Third elimination
         if np.min(dist) < self.absorbing_boundary_length * 1.1:
             return False
 
@@ -382,6 +355,13 @@ class HDF5Domain:
             )
 
         try:
+            if not self.is_boundary_sorted:
+                sorted_indices = self.get_sorted_edge_coords()
+                x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
+                lats, lons, _ = xyz_to_lat_lon_radius(x[0], y[0], z[0])
+                self.boundary = np.array([lats, lons]).T
+                self.is_boundary_sorted = True
+
             _plot_lines(
                 m,
                 self.boundary,
