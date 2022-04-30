@@ -19,6 +19,8 @@ import toml
 import numpy as np
 from typing import Union, List
 
+from obspy.geodetics import locations2degrees
+
 from lasif.components.communicator import Communicator
 from lasif.components.project import Project
 
@@ -1774,12 +1776,15 @@ def clean_up(
     comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
-def get_all_coordinates(lasif_root, events=None, events_only=False):
+def get_all_coordinates_and_max_epicentral_distance(lasif_root, events=None, events_only=False):
     """
     Returns all latitudes and longitudes related to the source and
     receiver locations for an event.
     
     This is useful for generating masks for example.
+
+    Also returns the maximum epicentral distance. This is useful for setting
+    an endtime. Only works without the events only option.
 
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
@@ -1787,9 +1792,10 @@ def get_all_coordinates(lasif_root, events=None, events_only=False):
     :type events: list
     :param events_only: Only get the event coordinates, and not the station
     :type events_only: bool
+
     """
     comm = find_project_comm(lasif_root)
-
+    max_epicentral_distance = 0.0
     all_coordinates = []
     if events is None:
         events = comm.events.list()
@@ -1802,10 +1808,15 @@ def get_all_coordinates(lasif_root, events=None, events_only=False):
 
         if not events_only:
             event_stations = comm.query.get_all_stations_for_event(ev)
+
             for station, info in event_stations.items():
+                epicentral_distance = locations2degrees(event["latitude"], event["longitude"],
+                                                        info["latitude"], info["longitude"])
+                if epicentral_distance > max_epicentral_distance:
+                    max_epicentral_distance = epicentral_distance
                 all_coordinates.append([info["latitude"], info["longitude"]])
 
-    return np.array(all_coordinates)
+    return np.array(all_coordinates), max_epicentral_distance
 
 
 def update_catalog():
