@@ -44,6 +44,8 @@ class HDF5Domain:
         self.domain_edge_tree = None
         self.earth_surface_tree = None
         self.domain_edge_coords = None
+        self.top_surface_without_edge_coords = None
+        self.top_surface_without_edge_tree = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
         self.min_lat = None
@@ -128,10 +130,15 @@ class HDF5Domain:
             side_elements, earth_surface_elements
         )
 
+        # Top surface without edge
+        top_surface_without_edge_elements = list(set(earth_surface_elements) -
+                                                 set(side_elements))
+
         # Get coordinates
         coords = h5["MODEL/coordinates"][()]
         self.domain_edge_coords = coords[surface_boundaries]
         self.earth_surface_coords = coords[earth_surface_elements]
+        self.top_surface_without_edge_coords = coords[top_surface_without_edge_elements]
 
         # Get approximation of element width, take second smallest value
 
@@ -179,6 +186,8 @@ class HDF5Domain:
         # build KDTree that can be used for querying later
         self.earth_surface_tree = cKDTree(self.earth_surface_coords[:, 0, :])
         self.domain_edge_tree = cKDTree(self.domain_edge_coords[:, 0, :])
+        self.top_surface_without_edge_tree = \
+            cKDTree(self.top_surface_without_edge_coords[:, 0, :])
         self.KDTrees_initialized = True
 
     def get_side_set_names(self):
@@ -258,11 +267,13 @@ class HDF5Domain:
             latitude, longitude, self.r_earth
         )
 
-        dist, _ = self.domain_edge_tree.query(point_on_surface, k=2)
+        distance_to_edge, _ = self.domain_edge_tree.query(point_on_surface, k=2)
+
+        dist_to_surface_without_edge, _ = \
+            self.top_surface_without_edge_tree.query(point_on_surface, k=2)
 
         # First elimination:
         # Check whether domain is deep enough to include the point.
-        # Multiply element width with 1.5 since they are larger at the bottom
         if depth:
             if depth > (self.max_depth - self.absorbing_boundary_length * 1.2):
                 return False
@@ -273,8 +284,14 @@ class HDF5Domain:
         if longitude >= self.max_lon or longitude <= self.min_lon:
             return False
 
-        # Third elimination
-        if np.min(dist) < self.absorbing_boundary_length * 1.1:
+        # Eliminate points to close to the edge to avoid placing them
+        # in the absorbing boundary
+        if np.min(distance_to_edge) < self.absorbing_boundary_length * 1.1:
+            return False
+
+        # Eliminate points that are closer to the edge than to the top surface
+        # without the edge.
+        if np.min(distance_to_edge) < np.min(dist_to_surface_without_edge):
             return False
 
         return True
