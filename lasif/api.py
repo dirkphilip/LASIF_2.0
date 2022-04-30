@@ -1774,6 +1774,40 @@ def clean_up(
     comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
+def get_all_coordinates(lasif_root, events=None, events_only=False):
+    """
+    Returns all latitudes and longitudes related to the source and
+    receiver locations for an event.
+    
+    This is useful for generating masks for example.
+
+    :param lasif_root: path to lasif root directory
+    :type lasif_root: Union[str, pathlib.Path, object]
+    :param events: list of events, if none all will be done
+    :type events: list
+    :param events_only: Only get the event coordinates, and not the station
+    :type events_only: bool
+    """
+    comm = find_project_comm(lasif_root)
+
+    all_coordinates = []
+    if events is None:
+        events = comm.events.list()
+    if type(events) != list:
+        raise Exception("events parameter should be a list of events")
+
+    for ev in events:
+        event = comm.events.get(ev)
+        all_coordinates.append([event["latitude"], event["longitude"]])
+
+        if not events_only:
+            event_stations = comm.query.get_all_stations_for_event(ev)
+            for station, info in event_stations.items():
+                all_coordinates.append([info["latitude"], info["longitude"]])
+
+    return np.array(all_coordinates)
+
+
 def update_catalog():
     """
     Update GCMT catalog
