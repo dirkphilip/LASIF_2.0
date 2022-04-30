@@ -1,5 +1,8 @@
+import json
+
 from lasif.utils import place_receivers, prepare_source
 from typing import Union, List, Dict
+import numpy as np
 import os
 from lasif.exceptions import LASIFError
 import toml
@@ -121,7 +124,19 @@ def create_salvus_forward_simulation(
     w.output.volume_data.format = "hdf5"
     w.output.volume_data.filename = "output.h5"
     w.output.volume_data.fields = ["adjoint-checkpoint"]
-    w.output.volume_data.sampling_interval_in_time_steps = "auto-for-checkpointing"
+
+    # Compute wavefield subsampling factor.
+    samples_per_min_period = (
+        comm.project.simulation_settings["minimum_period_in_s"] /
+        comm.project.simulation_settings["time_step_in_s"]
+    )
+    min_samples_per_min_period = 30.0
+    reduction_factor = int(samples_per_min_period / min_samples_per_min_period)
+    if reduction_factor >= 2:
+        checkpointing_flag = f"auto-for-checkpointing_{reduction_factor}"
+    else:
+        checkpointing_flag = "auto-for-checkpointing"
+    w.output.volume_data.sampling_interval_in_time_steps = checkpointing_flag
 
     w.validate()
     return w
@@ -157,20 +172,57 @@ def get_adjoint_source(comm: object, event: str, iteration: str) -> List[object]
             adjoint_sources.append(rec)
     p.close()
 
+    meta_file = (
+            comm.project.paths["synthetics"] / "EARTHQUAKES" / iteration_name / event / "meta.json"
+    )
+
+    with open(meta_file) as json_file:
+        data = json.load(json_file)
+
+    meta_recs = data["forward_run_input"]["output"]["point_data"]["receiver"]
+    meta_info_dict = {}
+    for rec in meta_recs:
+        if (
+                rec["network_code"] + "_" + rec["station_code"] in adjoint_recs
+                or rec["network_code"] + "." + rec[
+            "station_code"] in adjoint_recs
+        ):
+            rec_name = rec["network_code"] + "_" + rec["station_code"]
+            meta_info_dict[rec_name] = {}
+            # this is the rotation from XYZ to ZNE,
+            # we still need to transpose to get ZNE -> XYZ
+            meta_info_dict[rec_name]["rotation_on_input"] = {
+                "matrix": np.array(
+                    rec["rotation_on_output"]["matrix"]).T.tolist()
+            }
+            meta_info_dict[rec_name]["location"] = rec["location"]
+
     adj_src = [
-        source.seismology.VectorPoint3DZNE(
-            latitude=rec["latitude"],
-            longitude=rec["longitude"],
+        source.cartesian.VectorPoint3D(
+            x=meta_info_dict[rec["network-code"] + "_" + rec["station-code"]][
+                "location"
+            ][0],
+            y=meta_info_dict[rec["network-code"] + "_" + rec["station-code"]][
+                "location"
+            ][1],
+            z=meta_info_dict[rec["network-code"] + "_" + rec["station-code"]][
+                "location"
+            ][2],
+            fx=1.0,
+            fy=1.0,
             fz=1.0,
-            fn=1.0,
-            fe=1.0,
             source_time_function=stf.Custom(
                 filename=adjoint_filename,
-                dataset_name=f"/{rec['network-code']}_{rec['station-code']}",
+                dataset_name="/" + rec["network-code"] + "_" + rec[
+                    "station-code"],
             ),
+            rotation_on_input=meta_info_dict[
+                rec["network-code"] + "_" + rec["station-code"]
+                ]["rotation_on_input"],
         )
         for rec in adjoint_sources
     ]
+
     return adj_src
 
 
