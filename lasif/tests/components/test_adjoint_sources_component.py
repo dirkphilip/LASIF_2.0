@@ -50,7 +50,7 @@ def test_get_filename(comm):
 def test_get_misfit_for_event(comm):
     events = lasif.api.list_events(comm, output=True)
     iteration = lasif.api.list_iterations(comm, output=True)[0]
-    lasif.api.calculate_adjoint_sources(comm, iteration, "A")
+    lasif.api.calculate_adjoint_sources_multiprocessing(comm, iteration, "A")
     misfit = comm.adj_sources.get_misfit_for_event(
         event=events[0], iteration=iteration
     )
@@ -66,7 +66,7 @@ def test_get_misfit_for_event(comm):
         misfits["event_misfit"],
         np.sum(np.array(list(misfits["stations"].values()))),
     )
-    lasif.api.calculate_adjoint_sources(
+    lasif.api.calculate_adjoint_sources_multiprocessing(
         comm, iteration, "A", weight_set="sw_1"
     )
 
@@ -91,7 +91,7 @@ def test_calculate_adjoint_sources(comm):
         / "auxiliary_adjoint.npy"
     )
     should_be = np.load(file)
-    lasif.api.calculate_adjoint_sources(comm, "1", "A", weight_set="sw_1")
+    lasif.api.calculate_adjoint_sources_multiprocessing(comm, "1", "A", weight_set="sw_1")
     output = (
         comm.project.paths["adjoint_sources"]
         / "ITERATION_1"

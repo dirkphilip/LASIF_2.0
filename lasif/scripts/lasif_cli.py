@@ -622,7 +622,7 @@ def lasif_calculate_adjoint_sources(parser, args):
 
     args = parser.parse_args(args)
 
-    api.calculate_adjoint_sources(
+    api.calculate_adjoint_sources_multiprocessing(
         lasif_root=".",
         iteration=args.iteration_name,
         window_set=args.window_set_name,

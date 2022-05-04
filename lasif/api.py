@@ -717,137 +717,6 @@ def init_project(project_path: Union[str, pathlib.Path]):
     print(f"Initialized project in {project_path.name}")
 
 
-def calculate_adjoint_sources(
-    lasif_root,
-    iteration: str,
-    window_set: str,
-    weight_set: str = None,
-    events: Union[str, List[str]] = None,
-):
-    """
-    Calculate adjoint sources for a given iteration
-
-    :param lasif_root: path to lasif root directory
-    :type lasif_root: Union[str, pathlib.Path, object]
-    :param iteration: name of iteration
-    :type iteration: str
-    :param window_set: name of window set
-    :type window_set: str
-    :param weight_set: name of station weight set, defaults to None
-    :type weight_set: str, optional
-    :param events: Name of event or list of events. To get all events for
-        the iteration, pass None, defaults to None
-    :type events: Union[str, List[str]]
-    """
-    from mpi4py import MPI
-
-    comm = find_project_comm(lasif_root)
-
-    # some basic checks
-    if not comm.windows.has_window_set(window_set):
-        if MPI.COMM_WORLD.rank == 0:
-            raise LASIFNotFoundError(
-                "Window set {} not known to LASIF".format(window_set)
-            )
-        return
-
-    if not comm.iterations.has_iteration(iteration):
-        if MPI.COMM_WORLD.rank == 0:
-            raise LASIFNotFoundError(
-                "Iteration {} not known to LASIF".format(iteration)
-            )
-        return
-
-    if events is None or len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-    if isinstance(events, str):
-        events = [events]
-
-    for _i, event in enumerate(events):
-        if not comm.events.has_event(event):
-            if MPI.COMM_WORLD.rank == 0:
-                print(
-                    "Event '%s' not known to LASIF. No adjoint sources for "
-                    "this event will be calculated. " % event
-                )
-            continue
-
-        if MPI.COMM_WORLD.rank == 0:
-            print(
-                "\n{green}"
-                "==========================================================="
-                "{reset}".format(
-                    green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
-                )
-            )
-            print(
-                "Starting adjoint source calculation for event %i of "
-                "%i..." % (_i + 1, len(events))
-            )
-            print(
-                "{green}"
-                "==========================================================="
-                "{reset}\n".format(
-                    green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
-                )
-            )
-
-        # Get adjoint sources_filename
-        # filename = comm.adj_sources.get_filename(
-        #     event=event, iteration=iteration
-        # )
-
-        # remove adjoint sources if they already exist
-        if MPI.COMM_WORLD.rank == 0:
-            filename = comm.adj_sources.get_filename(
-                event=event, iteration=iteration
-            )
-            if os.path.exists(filename):
-                os.remove(filename)
-
-        MPI.COMM_WORLD.barrier()
-        comm.adj_sources.calculate_adjoint_sources(
-            event, iteration, window_set
-        )
-        MPI.COMM_WORLD.barrier()
-        if MPI.COMM_WORLD.rank == 0:
-            comm.adj_sources.finalize_adjoint_sources(
-                iteration, event, weight_set
-            )
-
-
-def select_windows(
-    lasif_root,
-    iteration: str,
-    window_set: str,
-    events: Union[str, List[str]] = None,
-):
-    """
-    Autoselect windows for a given iteration and event combination
-
-    :param lasif_root: path to lasif root directory
-    :type lasif_root: Union[str, pathlib.Path, object]
-    :param iteration: name of iteration
-    :type iteration: str
-    :param window_set: name of window set
-    :type window_set: str
-    :param events: An event or a list of events. To get all of them pass
-        None, defaults to None
-    :type events: Union[str, List[str]], optional
-    """
-
-    comm = find_project_comm(lasif_root)  # Might have to do this mpi
-
-    if events is None or len(events) == 0:
-        events = comm.events.list(iteration=iteration)
-    if isinstance(events, str):
-        events = [events]
-
-    for event in events:
-        print(f"Selecting windows for event: {event}")
-        comm.windows.select_windows(event, iteration, window_set)
-
-
 def select_windows_multiprocessing(
     lasif_root,
     iteration: str,
@@ -872,7 +741,7 @@ def select_windows_multiprocessing(
     :type num_processes: int
     """
 
-    comm = find_project_comm(lasif_root)  # Might have to do this mpi
+    comm = find_project_comm(lasif_root)
 
     if events is None:
         events = comm.events.list(iteration=iteration)
@@ -1336,7 +1205,7 @@ def process_data(
         events = [events]
 
     exceptions = []
-    # if MPI.COMM_WORLD.rank == 0:
+
     # Check if the event ids are valid.
     if not exceptions and events:
         for event_name in events:
@@ -1345,12 +1214,10 @@ def process_data(
                 exceptions.append(msg)
                 break
 
-    # exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise Exception(exceptions[0])
 
     # Make sure all the ranks enter the processing at the same time.
-    # MPI.COMM_WORLD.barrier()
     comm.waveforms.process_data(events)
 
 

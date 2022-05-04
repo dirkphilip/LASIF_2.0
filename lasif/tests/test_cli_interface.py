@@ -428,7 +428,7 @@ def test_calculate_all_adjoint_sources(cli):
     """
     with mock.patch(
         "lasif.components.adjoint_sources.AdjointSourcesComponent"
-        ".calculate_adjoint_sources"
+        ".calculate_adjoint_sources_multiprocessing"
     ) as p:
         out = cli.run(
             "lasif calculate_adjoint_sources 1 B "
@@ -439,7 +439,7 @@ def test_calculate_all_adjoint_sources(cli):
 
     with mock.patch(
         "lasif.components.adjoint_sources.AdjointSourcesComponent"
-        ".calculate_adjoint_sources"
+        ".calculate_adjoint_sources_multiprocessing"
     ) as p:
         out = cli.run("lasif calculate_adjoint_sources")
     assert (

@@ -15,25 +15,12 @@ from fnmatch import fnmatch
 import os
 import obspy
 import numpy as np
-from tqdm import tqdm
 import pathlib
 from typing import Union
-import pyasdf
 import sys
 import math
 
 from lasif.exceptions import LASIFError, LASIFNotFoundError
-
-
-def is_mpi_env():
-    """
-    Returns True if currently in an MPI environment.
-    """
-    from mpi4py import MPI
-
-    if MPI.COMM_WORLD.size == 1 and MPI.COMM_WORLD.rank == 0:
-        return False
-    return True
 
 
 def channel_in_parser(parser_object, channel_id, starttime, endtime):
@@ -400,130 +387,6 @@ def prepare_source(comm: object, event: str, iteration: str):
     ]
 
     return source
-
-
-def process_two_files_without_parallel_output(
-    ds: pyasdf.ASDFDataSet,
-    other_ds: pyasdf.ASDFDataSet,
-    process_function,
-    traceback_limit=3,
-):
-    import traceback
-    import sys
-    from mpi4py import MPI
-
-    """
-    Process data in two data sets. Based on pyasdf
-
-    This is mostly useful for comparing data in two data sets in any
-    number of scenarios. It again takes a function and will apply it on
-    each station that is common in both data sets.
-
-    Can only be run with MPI.
-
-    :param ds: The dataset to process
-    :type ds: pyasdf.ASDFDataSet
-    :param other_ds: The data set to compare to.
-    :type other_ds: pyasdf.ASDFDataSet
-    :param process_function: The processing function takes two
-        parameters: The station group from this data set and
-        the matching station group from the other data set.
-    :param traceback_limit: The length of the traceback printed if an
-        error occurs in one of the workers, defaults to 3
-    :type traceback_limit: int, optional
-    :return: A dictionary for each station with gathered values. Will
-        only be available on rank 0.
-    """
-
-    # Collect the work that needs to be done on rank 0.
-    if MPI.COMM_WORLD.rank == 0:
-
-        def split(container, count):
-            """
-            Simple function splitting a container into equal length
-            chunks.
-            Order is not preserved but this is potentially an advantage
-            depending on the use case.
-            """
-            return [container[_i::count] for _i in range(count)]
-
-        this_stations = set(ds.waveforms.list())
-        other_stations = set(other_ds.waveforms.list())
-
-        # Usable stations are those that are part of both.
-        usable_stations = list(this_stations.intersection(other_stations))
-        total_job_count = len(usable_stations)
-        jobs = split(usable_stations, MPI.COMM_WORLD.size)
-    else:
-        jobs = None
-
-    # Scatter jobs.
-    jobs = MPI.COMM_WORLD.scatter(jobs, root=0)
-
-    # Dictionary collecting results.
-    results = {}
-
-    for _i, station in enumerate(jobs):
-
-        if MPI.COMM_WORLD.rank == 0:
-            print(
-                " -> Processing approximately task %i of %i ..."
-                % ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
-                flush=True,
-            )
-        try:
-            result = process_function(
-                getattr(ds.waveforms, station),
-                getattr(other_ds.waveforms, station),
-            )
-        except Exception:
-            # If an exception is raised print a good error message
-            # and traceback to help diagnose the issue.
-            msg = (
-                "\nError during the processing of station '%s' "
-                "on rank %i:"
-                % (
-                    station,
-                    MPI.COMM_WORLD.rank,
-                )
-            )
-
-            # Extract traceback from the exception.
-            exc_info = sys.exc_info()
-            stack = traceback.extract_stack(limit=traceback_limit)
-            tb = traceback.extract_tb(exc_info[2])
-            full_tb = stack[:-1] + tb
-            exc_line = traceback.format_exception_only(*exc_info[:2])
-            tb = (
-                "Traceback (At max %i levels - most recent call "
-                "last):\n" % traceback_limit
-            )
-            tb += "".join(traceback.format_list(full_tb))
-            tb += "\n"
-            tb += "".join(
-                _i.decode(errors="ignore") if hasattr(_i, "decode") else _i
-                for _i in exc_line
-            )
-
-            # These potentially keep references to the HDF5 file
-            # which in some obscure way and likely due to
-            # interference with internal HDF5 and Python references
-            # prevents it from getting garbage collected. We
-            # explicitly delete them here and MPI can finalize
-            # afterwards.
-            del exc_info
-            del stack
-
-            print(msg, flush=True)
-            print(tb, flush=True)
-        else:
-            # print("Else!", flush=True)
-            results[station] = result
-    # barrier but better be safe than sorry.
-    MPI.COMM_WORLD.Barrier()
-    if MPI.COMM_WORLD.rank == 0:
-        print("All ranks finished", flush=True)
-    return results
 
 
 def normalize_coordinates(

@@ -237,9 +237,9 @@ def test_calculate_adjoint_sources(comm):
     adjoints = "lasif.components.adjoint_sources.AdjointSourcesComponent."
     it = lasif.api.list_iterations(comm, output=True)[0]
     events = lasif.api.list_events(comm, output=True)
-    with mock.patch(adjoints + "calculate_adjoint_sources") as patch:
+    with mock.patch(adjoints + "calculate_adjoint_sources_multiprocessing") as patch:
         with mock.patch(adjoints + "finalize_adjoint_sources") as patch_2:
-            lasif.api.calculate_adjoint_sources(comm, it, "A")
+            lasif.api.calculate_adjoint_sources_multiprocessing(comm, it, "A")
     patch.assure_called_once_with(events[0], it, "A")
     patch.assure_called_once_with(events[1], it, "A")
     patch_2.assure_called_once_with(it, events[0], "A")
@@ -252,15 +252,15 @@ def test_select_windows(comm):
     window = "lasif.components.windows.WindowsComponent."
     events = lasif.api.list_events(comm, output=True)
     it = "1"
-    with mock.patch(window + "select_windows") as patch:
-        lasif.api.select_windows(comm, it, "A")
+    with mock.patch(window + "select_windows_multiprocessing") as patch:
+        lasif.api.select_windows_multiprocessing(comm, it, "A")
     patch.assure_called_once_with(events[0], it, "A")
     patch.assure_called_once_with(events[1], it, "A")
     assert patch.call_count == 2
 
     it = "2"
-    with mock.patch(window + "select_windows") as patch_2:
-        lasif.api.select_windows(comm, it, "A")
+    with mock.patch(window + "select_windows_multiprocessing") as patch_2:
+        lasif.api.select_windows_multiprocessing(comm, it, "A")
     patch_2.assure_called_once_with(events[1], it, "A")
     assert patch_2.call_count == 1
 

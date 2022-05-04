@@ -96,7 +96,6 @@ setup_config = dict(
     install_requires=[
         "scipy",
         "cmasher",
-        "mpi4py",
         "cartopy",
         "obspy",
         "pyasdf",
