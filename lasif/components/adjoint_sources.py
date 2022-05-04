@@ -351,7 +351,7 @@ class AdjointSourcesComponent(Component):
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
-            # Process the synthetics.
+            # Process the synthetics. This makes sure the starttime is the same
             st_syn = self.comm.waveforms.process_synthetics(
                 st=st_syn.copy(),
                 event_name=event["event_name"],
@@ -362,7 +362,8 @@ class AdjointSourcesComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
-
+                    synth_tr.resample(sampling_rate=data_tr.stats.sampling_rate)
+                    data_tr.trim(endtime=synth_tr.stats.endtime)
                 except LASIFNotFoundError:
                     continue
 

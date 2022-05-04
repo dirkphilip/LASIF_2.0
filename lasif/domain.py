@@ -116,7 +116,7 @@ class HDF5Domain:
                     h5["SIDE_SETS"][side_set]["elements"][()]
                 )
 
-        side_elements_tmp = np.array([], dtype=np.int)
+        side_elements_tmp = np.array([], dtype=int)
         for i in range(len(side_elements)):
             side_elements_tmp = np.concatenate(
                 (side_elements_tmp, side_elements[i])
