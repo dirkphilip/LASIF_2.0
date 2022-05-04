@@ -75,7 +75,7 @@ def get_package_data():
 
 setup_config = dict(
     name="lasif",
-    version=get_git_version(),
+    version="0.0.1",
     description="",
     author="Lion Krischer, Dirk-Philip van Herwaarden and Solvi Thrastarson",
     author_email="soelvi.thrastarson@erdw.ethz.ch",
@@ -95,6 +95,9 @@ setup_config = dict(
     ],
     install_requires=[
         "scipy",
+        "cmasher",
+        "mpi4py",
+        "cartopy",
         "obspy",
         "pyasdf",
         "progressbar",

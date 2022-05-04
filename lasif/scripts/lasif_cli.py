@@ -55,8 +55,6 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-# from mpi4py import MPI
-
 
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
 # the latest ObsPy stable and the master.
