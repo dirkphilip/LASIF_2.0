@@ -363,6 +363,7 @@ class AdjointSourcesComponent(Component):
                     synth_tr = select_component_from_stream(st_syn, component)
                     synth_tr.resample(sampling_rate=data_tr.stats.sampling_rate)
                     data_tr.trim(endtime=synth_tr.stats.endtime)
+                    synth_tr.trim(endtime=data_tr.stats.endtime)
                 except LASIFNotFoundError:
                     continue
 
