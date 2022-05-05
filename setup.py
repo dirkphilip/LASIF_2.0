@@ -96,7 +96,7 @@ setup_config = dict(
     install_requires=[
         "scipy",
         "cmasher",
-        "cartopy",
+        "cartopy>=0.20.2",
         "obspy",
         "pyasdf",
         "progressbar",
