@@ -14,7 +14,6 @@ coordinates.
 """
 import pathlib
 from typing import Union, Dict
-import cartopy as cp
 
 import numpy as np
 import h5py
@@ -103,36 +102,27 @@ class HDF5Domain:
             if side_set == "surface":
                 continue
             elif side_set == "r1":
-                earth_surface_elements = h5["SIDE_SETS"][side_set][
-                    "elements"
-                ][()]
+                earth_surface_elements = h5["SIDE_SETS"][side_set]["elements"][()]
             elif side_set == "r1_ol":
-                earth_surface_elements = h5["SIDE_SETS"][side_set][
-                    "elements"
-                ][()]
+                earth_surface_elements = h5["SIDE_SETS"][side_set]["elements"][()]
 
             else:
-                side_elements.append(
-                    h5["SIDE_SETS"][side_set]["elements"][()]
-                )
+                side_elements.append(h5["SIDE_SETS"][side_set]["elements"][()])
 
         side_elements_tmp = np.array([], dtype=int)
         for i in range(len(side_elements)):
-            side_elements_tmp = np.concatenate(
-                (side_elements_tmp, side_elements[i])
-            )
+            side_elements_tmp = np.concatenate((side_elements_tmp, side_elements[i]))
 
         # Remove Duplicates
         side_elements = np.unique(side_elements_tmp)
 
         # Get node numbers of the nodes specifying the domain boundaries
-        surface_boundaries = np.intersect1d(
-            side_elements, earth_surface_elements
-        )
+        surface_boundaries = np.intersect1d(side_elements, earth_surface_elements)
 
         # Top surface without edge
-        top_surface_without_edge_elements = list(set(earth_surface_elements) -
-                                                 set(side_elements))
+        top_surface_without_edge_elements = list(
+            set(earth_surface_elements) - set(side_elements)
+        )
 
         # Get coordinates
         coords = h5["MODEL/coordinates"][()]
@@ -149,9 +139,7 @@ class HDF5Domain:
 
         # get center lat/lon
         x_cen, y_cen, z_cen = np.median(x), np.median(y), np.median(z)
-        self.center_lat, self.center_lon, _ = xyz_to_lat_lon_radius(
-            x_cen, y_cen, z_cen
-        )
+        self.center_lat, self.center_lon, _ = xyz_to_lat_lon_radius(x_cen, y_cen, z_cen)
 
         lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
         self.min_lat = np.min(lats)
@@ -164,7 +152,7 @@ class HDF5Domain:
 
         # Figure out maximum depth of mesh
         x, y, z = coords.T
-        r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+        r = np.sqrt(x**2 + y**2 + z**2)
         self.max_depth = self.r_earth - np.min(r)
 
         self.is_read = True
@@ -186,8 +174,9 @@ class HDF5Domain:
         # build KDTree that can be used for querying later
         self.earth_surface_tree = cKDTree(self.earth_surface_coords[:, 0, :])
         self.domain_edge_tree = cKDTree(self.domain_edge_coords[:, 0, :])
-        self.top_surface_without_edge_tree = \
-            cKDTree(self.top_surface_without_edge_coords[:, 0, :])
+        self.top_surface_without_edge_tree = cKDTree(
+            self.top_surface_without_edge_coords[:, 0, :]
+        )
         self.KDTrees_initialized = True
 
     def get_side_set_names(self):
@@ -230,9 +219,7 @@ class HDF5Domain:
             raise LASIFError("Could not find an outside point")
         return lat_lon_radius_to_xyz(outside_lat, outside_lon, 1.0)
 
-    def point_in_domain(
-        self, longitude: float, latitude: float, depth: float = None
-    ):
+    def point_in_domain(self, longitude: float, latitude: float, depth: float = None):
         """
         Test whether a point lies inside the domain. It is done in a step
         by step process of elimination:
@@ -263,14 +250,13 @@ class HDF5Domain:
             self._initialize_kd_trees()
 
         # Assuming a spherical Earth without topography
-        point_on_surface = lat_lon_radius_to_xyz(
-            latitude, longitude, self.r_earth
-        )
+        point_on_surface = lat_lon_radius_to_xyz(latitude, longitude, self.r_earth)
 
         distance_to_edge, _ = self.domain_edge_tree.query(point_on_surface, k=2)
 
-        dist_to_surface_without_edge, _ = \
-            self.top_surface_without_edge_tree.query(point_on_surface, k=2)
+        dist_to_surface_without_edge, _ = self.top_surface_without_edge_tree.query(
+            point_on_surface, k=2
+        )
 
         # First elimination:
         # Check whether domain is deep enough to include the point.
@@ -313,6 +299,8 @@ class HDF5Domain:
         :type plot_inner_boundary: bool, optional
         :return: The created GeoAxes instance.
         """
+        import cartopy as cp
+
         if not self.is_read:
             self._read()
 
@@ -459,9 +447,7 @@ class HDF5Domain:
 
         # For each point get the indices of the five nearest points, of
         # which the first one is the point itself.
-        _, indices_nearest = self.domain_edge_tree.query(
-            self.domain_edge_coords, k=7
-        )
+        _, indices_nearest = self.domain_edge_tree.query(self.domain_edge_coords, k=7)
         indices_nearest = indices_nearest[:, 0, :]
         num_edge_points = len(self.domain_edge_coords)
         indices_sorted = np.zeros(num_edge_points, dtype=int)
@@ -511,6 +497,7 @@ def _plot_features(m, projection):
         LONGITUDE_FORMATTER,
         LATITUDE_FORMATTER,
     )
+    import cartopy as cp
 
     m.add_feature(cp.feature.LAND)
     m.add_feature(cp.feature.OCEAN)
@@ -559,22 +546,14 @@ class SimpleDomain:
         self.depth_in_m = info["depth_in_km"] * 1000.0
         self._is_global = None
 
-        assert (
-            self.max_lat > self.min_lat
-        ), "Max latitude less than Min latitude"
-        assert (
-            self.max_lon > self.min_lon
-        ), "Max longitude less than Min longitude"
+        assert self.max_lat > self.min_lat, "Max latitude less than Min latitude"
+        assert self.max_lon > self.min_lon, "Max longitude less than Min longitude"
         assert self.depth_in_m > 0.0, "Depth needs to be bigger than 0.0"
 
         assert self.max_lat <= 90.0, "Latitude exists between -90.0 and 90.0"
         assert self.min_lat >= -90.0, "Latitude exists between -90.0 and 90.0"
-        assert (
-            self.max_lon <= 180.0
-        ), "Longitude exists between -180.0 and 180.0"
-        assert (
-            self.min_lon >= -180.0
-        ), "Longitude exists between -180.0 and 180.0"
+        assert self.max_lon <= 180.0, "Longitude exists between -180.0 and 180.0"
+        assert self.min_lon >= -180.0, "Longitude exists between -180.0 and 180.0"
 
         if (
             self.min_lat == -90.0
@@ -635,6 +614,7 @@ class SimpleDomain:
         :return: The created GeoAxes instance.
         """
         import matplotlib.pyplot as plt
+        import cartopy as cp
 
         transform = cp.crs.Geodetic()
 

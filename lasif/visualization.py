@@ -13,7 +13,6 @@ Visualization scripts.
 from itertools import chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
-import cartopy as cp
 
 # from cartopy.mpl.geoaxes import GeoAxes
 import numpy as np
@@ -24,7 +23,7 @@ from typing import Union, List, Dict, Tuple
 
 
 def project_points(
-    projection: cp.crs.Projection,
+    projection,
     lon: Union[np.ndarray, float],
     lat: Union[np.ndarray, float],
 ):
@@ -41,6 +40,7 @@ def project_points(
     :rtype: np.ndarray, np.ndarray
     """
     import pyproj
+    import cartopy as cp
 
     proj_dict = projection.proj4_params
 
@@ -56,7 +56,7 @@ def project_points(
 def xy_to_lonlat(
     x: Union[float, np.ndarray],
     y: Union[float, np.ndarray],
-    projection: cp.crs.Projection,
+    projection,
 ):
     """
     Change x and y to latitude and longitude, based on Earth radius
@@ -114,7 +114,7 @@ def plot_raydensity(
     map_object,
     station_events: List[Tuple[dict, dict]],
     domain: object,
-    projection: cp.crs.Projection,
+    projection:,
 ):
     """
     Create a ray-density plot for all events and all stations.
@@ -137,6 +137,7 @@ def plot_raydensity(
     import multiprocessing
     import progressbar
     from scipy.stats import scoreatpercentile
+    import cartopy as cp
 
     # Merge everything so that a list with coordinate pairs is created. This
     # list is then distributed among all processors.
@@ -311,6 +312,7 @@ def plot_all_rays(map_object, station_events: List[Tuple[dict, dict]]):
     :type station_events: List[Tuple[dict, dict]]
     """
     from tqdm import tqdm
+    import cartopy as cp
 
     # Maybe not make color completely random, I might need to use a colormap
     c = np.random.rand(len(station_events), 3)
@@ -366,6 +368,7 @@ def plot_stations_for_event(
     :param print_title: Have a title on the figure, defaults to True
     """
     import re
+    import cartopy as cp
 
     # Check inputs:
     if weight_set and plot_misfits:
