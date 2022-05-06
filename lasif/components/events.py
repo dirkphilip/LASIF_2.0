@@ -116,7 +116,7 @@ class EventsComponent(Component):
                 str(FlinnEngdahl().get_region(org.longitude, org.latitude)),
             ]
 
-    def list(self, iteration: str = None):
+    def list(self, iteration: str = None, iteration_2=None):
         """
         List of all events.
         >>> comm = getfixture('events_comm')
@@ -126,6 +126,9 @@ class EventsComponent(Component):
 
         :param iteration: Name of iteration, defaults to None
         :type iteration: str, optional
+        :param iteration_2: Name of second iteration, to get intersection of
+        events used in two iterations, defaults to None
+        :type iteration_2: str, optional
         """
         if iteration is not None:
             import toml
@@ -144,7 +147,25 @@ class EventsComponent(Component):
                 self._update_cache()
                 return sorted(self.__event_info_cache.keys())
             iter_events = toml.load(path)
-            return sorted(iter_events["events"]["events_used"])
+            events = iter_events["events"]["events_used"]
+            if iteration_2 is not None:
+                iter2_name = self.comm.iterations.get_long_iteration_name(iteration_2)
+                path2 = os.path.join(
+                    self.comm.project.paths["iterations"],
+                    iter2_name,
+                    "events_used.toml",
+                )
+                if not os.path.exists(path2):
+                    print(
+                        "You do not have any iteration toml. "
+                        "Will give all events"
+                    )
+                    self._update_cache()
+                iter2_events = toml.load(path2)
+                events2 = iter2_events["events"]["events_used"]
+                intersection_set = set.intersection(set(events), set(events2))
+                events = list(intersection_set)
+            return sorted(events)
         else:
             self._update_cache()
             return sorted(self.__event_info_cache.keys())

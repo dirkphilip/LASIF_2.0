@@ -190,11 +190,36 @@ class Window(QtWidgets.QMainWindow):
         return str(cur_item.text())
 
     @pyqtSlot(str)
+    def on_iteration_2_selection_comboBox_currentIndexChanged(self, value):
+        value = str(value).strip()
+        if not value:
+            return
+        if self.ui.compare_iterations_CheckBox.isChecked():
+            events = self.comm.events.list(iteration=self.current_iteration,
+                                           iteration_2=self.comparison_iteration)
+        else:
+            events = self.comm.events.list(iteration=self.current_iteration)
+
+        self.ui.event_selection_comboBox.setEnabled(True)
+        self.ui.event_selection_comboBox.clear()
+        self.ui.event_selection_comboBox.addItems(events)
+        if self.comm.project.simulation_settings["scale_data_to_synthetics"]:
+            self.ui.status_label.setText(
+                "Data scaled to synthetics for " "this iteration"
+            )
+        else:
+            self.ui.status_label.setText("")
+
+    @pyqtSlot(str)
     def on_iteration_selection_comboBox_currentIndexChanged(self, value):
         value = str(value).strip()
         if not value:
             return
-        events = self.comm.events.list(iteration=self.current_iteration)
+        if self.ui.compare_iterations_CheckBox.isChecked():
+            events = self.comm.events.list(iteration=self.current_iteration,
+                                           iteration_2=self.comparison_iteration)
+        else:
+            events = self.comm.events.list(iteration=self.current_iteration)
 
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()

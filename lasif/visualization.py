@@ -93,7 +93,7 @@ def plot_events(
     :param map_object: The already made map object from the domain component
     :type map_object: cartopy.mpl.geoaxes.GeoAxes
     """
-
+    import cartopy as cp
     for event in events:
 
         plotted_events = map_object.scatter(
@@ -114,7 +114,7 @@ def plot_raydensity(
     map_object,
     station_events: List[Tuple[dict, dict]],
     domain: object,
-    projection:,
+    projection,
 ):
     """
     Create a ray-density plot for all events and all stations.
