@@ -114,7 +114,7 @@ def plot_raydensity(
     map_object,
     station_events: List[Tuple[dict, dict]],
     domain: object,
-    projection:,
+    projection,
 ):
     """
     Create a ray-density plot for all events and all stations.
