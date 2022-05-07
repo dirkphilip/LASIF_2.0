@@ -64,6 +64,7 @@ class EventsComponent(Component):
         files = glob.glob(os.path.join(self.folder, "*.h5"))
         for filename in files:
             event_name = os.path.splitext(os.path.basename(filename))[0]
+            self.all_events[event_name] = filename
             self.get(event_name)
 
     @staticmethod
