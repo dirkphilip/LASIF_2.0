@@ -408,7 +408,7 @@ class Project(Component):
                 "work with other solvers too. "
                 "Parameterization is only works for tti and rho-vp-vs."
             ),
-            "attenuation": False,
+            "attenuation": True,
             "gradient_parameterization": "tti",
             "absorbing_boundaries_in_km": 100.0,
             "site_name": "daint",
