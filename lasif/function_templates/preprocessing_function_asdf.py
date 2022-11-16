@@ -144,24 +144,15 @@ def preprocessing_function_asdf(processing_info):
                         raise LASIFError(msg)
 
         # Bandpass filtering
-        st.detrend("linear")
-        st.detrend("demean")
-        st.taper(0.05, type="cosine")
-        st.filter(
-            "bandpass",
-            freqmin=1.0 / max_period,
-            freqmax=1.0 / min_period,
+        tr.filter(
+            "highpass",
+            freq=1.0 / max_period,
             corners=3,
             zerophase=False,
         )
-
-        st.detrend("linear")
-        st.detrend("demean")
-        st.taper(0.05, type="cosine")
-        st.filter(
-            "bandpass",
-            freqmin=1.0 / max_period,
-            freqmax=1.0 / min_period,
+        tr.filter(
+            "lowpass",
+            freq=1.0 / min_period,
             corners=3,
             zerophase=False,
         )
