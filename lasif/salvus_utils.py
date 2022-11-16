@@ -79,7 +79,7 @@ def create_salvus_forward_simulation(
             mtp=src["mtp"],
             mrp=src["mrp"],
             mrt=src["mrt"],
-            source_time_function=stf.Custom(filename=stf_path, dataset_name="/source"),
+            source_time_function=stf.Custom(filename=stf_path, dataset_name="stf"),
         )
         for src in source_info
     ]
