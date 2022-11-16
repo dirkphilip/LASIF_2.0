@@ -245,19 +245,12 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
             f"bandpass_filtered_heaviside or heaviside."
         )
 
-    stf_mat = np.zeros((len(stf), 6))
-    # for i, moment in enumerate(moment_tensor):
-    #     stf_mat[:, i] = stf * moment
-    # Now we add the spatial weights into salvus
-    for i in range(6):
-        stf_mat[:, i] = stf
-
     heaviside_file_name = os.path.join(stf_path)
     f = h5py.File(heaviside_file_name, "w")
 
-    source = f.create_dataset("source", data=stf_mat)
+    source = f.create_dataset("source", data=stf)
     source.attrs["dt"] = delta
-    source.attrs["sampling_rate_in_hertz"] = 1 / delta
+    source.attrs["sampling_rate_in_hertz"] = 1.0 / delta
     # source.attrs["location"] = location
     source.attrs["spatial-type"] = np.string_("moment_tensor")
     # Start time in nanoseconds

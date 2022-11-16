@@ -77,7 +77,7 @@ def test_config_file_creation_and_parsing(tmpdir):
     assert (
         pr.lasif_config["download_settings"]["seconds_before_event"] == 300.0
     )
-    assert not pr.salvus_settings["attenuation"]
+    assert pr.salvus_settings["attenuation"]
     assert pr.salvus_settings["absorbing_boundaries_in_km"] == 100.0
     assert pr.optimization_settings["misfit_type"] == "tf_phase_misfit"
 

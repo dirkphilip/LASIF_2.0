@@ -228,23 +228,15 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
         # This has to be exactly the same filter as in the source time function
         # in the case of SES3D.
         # =====================================================================
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
         tr.filter(
-            "bandpass",
-            freqmin=1.0 / max_period,
-            freqmax=1.0 / min_period,
+            "highpass",
+            freq=1.0 / max_period,
             corners=3,
             zerophase=False,
         )
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
         tr.filter(
-            "bandpass",
-            freqmin=1.0 / max_period,
-            freqmax=1.0 / min_period,
+            "lowpass",
+            freq=1.0 / min_period,
             corners=3,
             zerophase=False,
         )
