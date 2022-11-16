@@ -144,13 +144,13 @@ def preprocessing_function_asdf(processing_info):
                         raise LASIFError(msg)
 
         # Bandpass filtering
-        tr.filter(
+        st.filter(
             "highpass",
             freq=1.0 / max_period,
             corners=3,
             zerophase=False,
         )
-        tr.filter(
+        st.filter(
             "lowpass",
             freq=1.0 / min_period,
             corners=3,
