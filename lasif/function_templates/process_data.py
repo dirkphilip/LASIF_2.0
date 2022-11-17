@@ -231,13 +231,13 @@ def processing_function(st, inv, simulation_settings, event):  # NOQA
         tr.filter(
             "highpass",
             freq=1.0 / max_period,
-            corners=3,
+            corners=8,
             zerophase=False,
         )
         tr.filter(
             "lowpass",
             freq=1.0 / min_period,
-            corners=3,
+            corners=8,
             zerophase=False,
         )
 

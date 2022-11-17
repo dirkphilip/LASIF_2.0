@@ -47,13 +47,13 @@ def source_time_function(npts, delta, freqmin=None, freqmax=None):
         tr.filter(
             "highpass",
             freq=freqmin,
-            corners=3,
+            corners=8,
             zerophase=False,
         )
         tr.filter(
             "lowpass",
             freq=freqmax,
-            corners=3,
+            corners=8,
             zerophase=False,
         )
 
