@@ -248,27 +248,27 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
         )
 
     heaviside_file_name = os.path.join(stf_path)
-    # f = h5py.File(heaviside_file_name, "w")
+    f = h5py.File(heaviside_file_name, "w")
 
-    stf_obj = sc.stf.Custom.from_array(stf,
-                          start_time_in_seconds=
-                          comm.project.simulation_settings["start_time_in_s"],
-                          sampling_rate_in_hertz=1.0 / delta)
-
-    shutil.copy(stf_obj.filename, heaviside_file_name)
-
-
-    # source = f.create_dataset("source", data=stf)
-    # source.attrs["dt"] = delta
-    # source.attrs["sampling_rate_in_hertz"] = 1.0 / delta
-    # # source.attrs["location"] = location
-    # source.attrs["spatial-type"] = np.string_("moment_tensor")
-    # # Start time in nanoseconds
-    # source.attrs["start_time_in_seconds"] = comm.project.simulation_settings[
-    #     "start_time_in_s"
-    # ]
+    # stf_obj = sc.stf.Custom.from_array(stf,
+    #                       start_time_in_seconds=
+    #                       comm.project.simulation_settings["start_time_in_s"],
+    #                       sampling_rate_in_hertz=1.0 / delta)
     #
-    # f.close()
+    # shutil.copy(stf_obj.filename, heaviside_file_name)
+
+
+    source = f.create_dataset("stf", data=stf)
+    source.attrs["dt"] = delta
+    source.attrs["sampling_rate_in_hertz"] = 1.0 / delta
+    # source.attrs["location"] = location
+    source.attrs["spatial-type"] = np.string_("moment_tensor")
+    # Start time in nanoseconds
+    source.attrs["start_time_in_seconds"] = comm.project.simulation_settings[
+        "start_time_in_s"
+    ]
+
+    f.close()
 
 
 def load_receivers(comm: object, event: str):
