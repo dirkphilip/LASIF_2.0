@@ -423,13 +423,14 @@ def download_data(
         it will query all known providers that FDSN knows, defaults to None
     :type providers: List[str]
     """
-
+    import random
     comm = find_project_comm(lasif_root)
     if event_name is None or event_name == []:
         event_name = comm.events.list()
     if not isinstance(event_name, list):
         event_name = [event_name]
     for event in event_name:
+        random.shuffle(event_name) # Download in a random order
         comm.downloads.download_data(event, providers=providers)
 
 
