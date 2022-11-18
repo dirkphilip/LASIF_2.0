@@ -52,7 +52,7 @@ class DownloadsComponent(Component):
             starttime=starttime, endtime=endtime, ds=ds
         )
 
-        filename = proj.paths["eq_data"] / (event_name + ".h5")
+        asdf_filename = proj.paths["eq_data"] / (event_name + ".h5")
         tmp_filename = proj.paths["eq_data"] / ("tmp_" + event_name + ".h5.tmp")
 
         if os.path.exists(tmp_filename):
@@ -62,7 +62,7 @@ class DownloadsComponent(Component):
             return
 
         # copy file to temp location and only open asdf_ds there
-        shutil.copy(filename, tmp_filename)
+        shutil.copy(asdf_filename, tmp_filename)
         asdf_ds = pyasdf.ASDFDataSet(tmp_filename, compression="gzip-3")
 
         stationxml_storage_path = (
@@ -158,7 +158,7 @@ class DownloadsComponent(Component):
         # clean up temporary download directories
         import shutil
         # Finally, move the tmp into the original place.
-        shutil.move(tmp_filename, filename)
+        shutil.move(tmp_filename, asdf_filename)
         if os.path.exists(stationxml_storage_path):
             shutil.rmtree(stationxml_storage_path)
         if os.path.exists(mseed_storage_path):
