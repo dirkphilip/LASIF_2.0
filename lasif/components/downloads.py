@@ -53,7 +53,7 @@ class DownloadsComponent(Component):
         )
 
         filename = proj.paths["eq_data"] / (event_name + ".h5")
-        tmp_filename = proj.paths["eq_data"] / ("tmp_" + event_name + ".h5")
+        tmp_filename = proj.paths["eq_data"] / ("tmp_" + event_name + ".h5.tmp")
 
         if os.path.exists(tmp_filename):
             print(f"A file called: {tmp_filename} exists. This "
