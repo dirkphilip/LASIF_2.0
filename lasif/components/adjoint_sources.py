@@ -358,8 +358,8 @@ class AdjointSourcesComponent(Component):
                     return {station: misfits}
                 ref_syn_tag = ref_syn_tag[0]
                 st_ref_syn = ref_synthetic_station[ref_syn_tag]
-                ref_st_syn = self.comm.waveforms.process_synthetics(
-                    st=ref_st_syn.copy(),
+                st_ref_syn = self.comm.waveforms.process_synthetics(
+                    st=st_ref_syn.copy(),
                     event_name=event["event_name"],
                     iteration=reference_iteration,
                 )
@@ -400,7 +400,7 @@ class AdjointSourcesComponent(Component):
                     synth_tr.trim(endtime=data_tr.stats.endtime)
 
                     if reference_iteration:
-                        ref_synth_tr = select_component_from_stream(ref_st_syn,
+                        ref_synth_tr = select_component_from_stream(st_ref_syn,
                                                                 component)
                         ref_synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
                         ref_synth_tr.trim(endtime=data_tr.stats.endtime)
