@@ -275,8 +275,9 @@ class AdjointSourcesComponent(Component):
     def calculate_validation_misfits_multiprocessing(
             self,
             event: str,
-            iteration: str, num_processes: int = 12,
-            reference_iteration:str = None,
+            iteration: str,
+            reference_iteration: str = None,
+            num_processes: int = 12,
             min_sn_ratio: float = 0.1):
         """
         This fuction computed the L2 weighted waveform misfit over
@@ -292,6 +293,10 @@ class AdjointSourcesComponent(Component):
         :type event: str
         :param iteration: iteration for which to get the misfit
         :type iteration: str
+        :param reference_iteration: name of reference iteration. This
+        is used to make sure the same seismograms are selected when
+        comparing iterations.
+        :type reference_iteration: str, optional
         :param num_processes: Number of threads to use
         :type num_processes: int
         :param min_sn_ratio: Minimum signal to noise ratio
