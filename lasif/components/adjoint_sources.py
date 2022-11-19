@@ -276,6 +276,7 @@ class AdjointSourcesComponent(Component):
             self,
             event: str,
             iteration: str, num_processes: int = 12,
+            reference_iteration:str = None,
             min_sn_ratio: float = 0.1):
         """
         This fuction computed the L2 weighted waveform misfit over
@@ -318,10 +319,18 @@ class AdjointSourcesComponent(Component):
             tag_or_iteration=iteration,
         )
 
+        if reference_iteration:
+            ref_synthetic_filename = self.comm.waveforms.get_asdf_filename(
+                event_name=event["event_name"],
+                data_type="synthetic",
+                tag_or_iteration=reference_iteration,
+            )
+
         def _process(station):
             ds = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
             ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r",
                                           mpi=False)
+
             observed_station = ds.waveforms[station]
             synthetic_station = ds_synth.waveforms[station]
 
@@ -330,6 +339,26 @@ class AdjointSourcesComponent(Component):
             syn_tag = synthetic_station.get_waveform_tags()
 
             misfits = {}
+            if reference_iteration:
+                ds_synth_ref = pyasdf.ASDFDataSet(ref_synthetic_filename, mode="r",
+                                   mpi=False)
+                ref_synthetic_station = ds_synth_ref.waveforms[station]
+                ref_syn_tag = ref_synthetic_station.get_waveform_tags()
+                try:
+                    assert len(syn_tag) == 1, (
+                            "Station: %s - Requires 1 synthetic waveform tag. Has %i."
+                            % (observed_station._station_name, len(syn_tag))
+                    )
+                except AssertionError:
+                    return {station: misfits}
+                ref_syn_tag = ref_syn_tag[0]
+                st_ref_syn = ref_synthetic_station[ref_syn_tag]
+                ref_st_syn = self.comm.waveforms.process_synthetics(
+                    st=ref_st_syn.copy(),
+                    event_name=event["event_name"],
+                    iteration=reference_iteration,
+                )
+
             try:
                 # Make sure both have length 1.
                 assert len(obs_tag) == 1, (
@@ -364,6 +393,12 @@ class AdjointSourcesComponent(Component):
                     synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
                     data_tr.trim(endtime=synth_tr.stats.endtime)
                     synth_tr.trim(endtime=data_tr.stats.endtime)
+
+                    if reference_iteration:
+                        ref_synth_tr = select_component_from_stream(ref_st_syn,
+                                                                component)
+                        ref_synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
+                        ref_synth_tr.trim(endtime=data_tr.stats.endtime)
                 except LASIFNotFoundError:
                     continue
 
@@ -376,8 +411,12 @@ class AdjointSourcesComponent(Component):
                 data_tr.data /= data_tr.data.ptp()
                 synth_tr.data /= synth_tr.data.ptp()
 
-                first_tt_arrival = np.where(np.abs(synth_tr.data) >
-                                            5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
+                if reference_iteration:
+                    first_tt_arrival = np.where(np.abs(ref_synth_tr.data) >
+                                            5e-3 * np.max(np.abs(ref_synth_tr.data)))[0][0]
+                else:
+                    first_tt_arrival = np.where(np.abs(synth_tr.data) >
+                                                5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
                 idx_end = int(0.8 * first_tt_arrival)
                 idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
                 idx_start = 0

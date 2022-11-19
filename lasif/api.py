@@ -866,7 +866,9 @@ def compute_station_weights(
 
 
 def calculate_validation_data_misfit(
-    lasif_root, iteration: str, events: Union[str, List[str]] = None
+    lasif_root, iteration: str,
+        reference_iteration: str = None,
+        events: Union[str, List[str]] = None
 ):
     """
     Calculates L2 full trace misfits for either a full iteration or
@@ -877,7 +879,11 @@ def calculate_validation_data_misfit(
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration to compute misfits for
-    :type iteration: str, optional
+    :type iteration: str
+    :param reference_iteration: name of reference iteration. This
+    is used to make sure the same seismograms are selected when
+    comparing iterations.
+    :type reference_iteration: str, optional
     :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
@@ -898,7 +904,8 @@ def calculate_validation_data_misfit(
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
         event_misfit = comm.adj_sources.\
-            calculate_validation_misfits_multiprocessing(event, iteration)
+            calculate_validation_misfits_multiprocessing(event, iteration,
+                                                         reference_iteration)
         misfit_dict[event] = event_misfit
 
     return misfit_dict
