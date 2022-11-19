@@ -170,6 +170,12 @@ class AdjointSourcesComponent(Component):
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
+            # Process the synthetics. This makes sure the starttime is the same
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(),
+                event_name=event["event_name"],
+                iteration=iteration,
+            )
 
             for component in ["E", "N", "Z"]:
                 try:
