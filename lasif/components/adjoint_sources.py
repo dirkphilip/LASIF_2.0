@@ -112,7 +112,7 @@ class AdjointSourcesComponent(Component):
 
         :param event: name of the event
         :type event: str
-        :param iteration: iteration for which to get the misfit
+        :param ite  ration: iteration for which to get the misfit
         :type iteration: str
         """
         from scipy.integrate import simps
@@ -120,13 +120,6 @@ class AdjointSourcesComponent(Component):
         from lasif.utils import progress
         min_sn_ratio = 0.05
         event = self.comm.events.get(event)
-
-        # Fill cache if necessary.
-        if not TAUPY_MODEL_CACHE:
-            from obspy.taup import TauPyModel  # NOQA
-
-            TAUPY_MODEL_CACHE["model"] = TauPyModel("AK135")
-        model = TAUPY_MODEL_CACHE["model"]
 
         # Get the ASDF filenames.
         processed_filename = self.comm.waveforms.get_asdf_filename(
@@ -140,17 +133,8 @@ class AdjointSourcesComponent(Component):
             tag_or_iteration=iteration,
         )
 
-        dt = self.comm.project.simulation_settings["time_step_in_s"]
-
         ds_syn = pyasdf.ASDFDataSet(synthetic_filename, mode="r", mpi=False)
         ds_obs = pyasdf.ASDFDataSet(processed_filename, mode="r", mpi=False)
-
-        event_latitude = event["latitude"]
-        event_longitude = event["longitude"]
-        event_depth_in_km = event["depth_in_km"]
-
-        minimum_period = self.comm.project.simulation_settings[
-            "minimum_period_in_s"]
 
         misfit = 0.0
         for i, station in enumerate(ds_obs.waveforms.list()):
@@ -183,51 +167,9 @@ class AdjointSourcesComponent(Component):
             obs_tag = obs_tag[0]
             syn_tag = syn_tag[0]
 
-            station_latitude = observed_station.coordinates["latitude"]
-            station_longitude = observed_station.coordinates["longitude"]
-
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
-            # Sample points down to 10 points per minimum_period
-            # len_s = st_obs[0].stats.endtime - st_obs[0].stats.starttime
-            # num_samples_wavelength = 10.0
-            # new_sampling_rate = num_samples_wavelength * \
-            #                     minimum_period / len_s
-            # st_obs = st_obs.resample(new_sampling_rate)
-            # st_syn = st_syn.resample(new_sampling_rate)
-            # dt = 1.0/new_sampling_rate
-
-            dist_in_deg = geodetics.locations2degrees(
-                    station_latitude, station_longitude, event_latitude,
-                    event_longitude
-                )
-
-            # Get only a couple of P phases which should be the
-            # first arrival
-            # for every epicentral distance. Its quite a bit faster
-            # than calculating
-            # the arrival times for every phase.
-            # Assumes the first sample is the centroid time of the event.
-            ttp = model.get_travel_times(
-                    source_depth_in_km=event_depth_in_km,
-                    distance_in_degree=dist_in_deg,
-                    phase_list=["ttp"],
-                )
-            # Sort just as a safety measure.
-            ttp = sorted(ttp, key=lambda x: x.time)
-            first_tt_arrival = ttp[0].time
-
-            # Estimate noise level from waveforms prior to the
-            # first arrival.
-            idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
-            idx_end = max(10, idx_end)
-            idx_start = int(
-                    np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
-            idx_start = max(10, idx_start)
-
-            if idx_start >= idx_end:
-                idx_start = max(0, idx_end - 10)
 
             for component in ["E", "N", "Z"]:
                 try:
@@ -235,36 +177,39 @@ class AdjointSourcesComponent(Component):
                     synth_tr = select_component_from_stream(st_syn, component)
                 except LASIFNotFoundError:
                     continue
-                # Scale data to synthetics
-                scaling_factor = (synth_tr.data.ptp() / data_tr.data.ptp())
-                if np.isinf(scaling_factor):
+
+                # Skip to skip case, where this explodes
+                if data_tr.data.ptp() == 0 or synth_tr.data.ptp() == 0:
                     continue
 
-                # Store and apply the scaling.
-                data_tr.stats.scaling_factor = scaling_factor
-                data_tr.data *= scaling_factor
+                # Normalize amplitudes to avoid strong influences by amplitudes
+                # due to source or propagation distance.
+                data_tr.data /= data_tr.data.ptp()
+                synth_tr.data /= synth_tr.data.ptp()
 
-                data = data_tr.data
-                abs_data = np.abs(data)
+                first_tt_arrival = np.where(np.abs(synth_tr.data) >
+                                            5e-3 * np.max(
+                    np.abs(synth_tr.data)))[
+                    0][0]
+
+                idx_end = int(0.8 * first_tt_arrival)
+                idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
+                idx_start = 0
+
+                if idx_start >= idx_end:
+                    idx_start = max(0, idx_end - 10)
+
+                abs_data = np.abs(data_tr.data)
+
+                # Return empty window when no data is available
+                if np.max(abs_data) == 0.0 or np.max(np.abs(synth_tr.data)) == 0.0:
+                    continue
+
                 noise_absolute = abs_data[idx_start:idx_end].max()
                 noise_relative = noise_absolute / abs_data.max()
 
                 if noise_relative > min_sn_ratio:
                     continue
-
-                # normalize the trace to [-1,1], reduce source effects
-                # and balance amplitudes
-                norm_scaling_fac = 1.0 / np.max(np.abs(synth_tr.data))
-                data_tr.data *= norm_scaling_fac
-                synth_tr.data *= norm_scaling_fac
-                # envelope = obspy.signal.filter.envelope(data_tr.data)
-
-                # scale up to around 1, also never divide by 0
-                # by adding regularization term, dependent on noise level
-                # env_weighting = 1.0 / (
-                #            envelope + np.max(envelope) * 0.2)
-                # data_tr.data *= env_weighting
-                # synth_tr.data *= env_weighting
 
                 diff = data_tr.data - synth_tr.data
                 misfit += 0.5 * simps(y=diff ** 2, dx=data_tr.stats.delta)
