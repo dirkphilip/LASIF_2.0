@@ -358,7 +358,8 @@ class AdjointSourcesComponent(Component):
                     if reference_iteration:
                         ref_synth_tr = select_component_from_stream(st_ref_syn,
                                                                 component)
-                        ref_synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
+                        ref_synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate,
+                                                 method="linear")
                         ref_synth_tr.trim(endtime=data_tr.stats.endtime)
                 except LASIFNotFoundError:
                     continue
