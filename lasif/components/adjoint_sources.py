@@ -181,9 +181,12 @@ class AdjointSourcesComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
-                    synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
+                    synth_tr.interpolate(
+                        sampling_rate=data_tr.stats.sampling_rate,
+                        method="linear")
                     data_tr.trim(endtime=synth_tr.stats.endtime)
                     synth_tr.trim(endtime=data_tr.stats.endtime)
+
                 except LASIFNotFoundError:
                     continue
 
@@ -196,10 +199,8 @@ class AdjointSourcesComponent(Component):
                 data_tr.data /= data_tr.data.ptp()
                 synth_tr.data /= synth_tr.data.ptp()
 
-                first_tt_arrival = np.where(np.abs(synth_tr.data) >
-                                            5e-3 * np.max(
-                    np.abs(synth_tr.data)))[
-                    0][0]
+                first_tt_arrival = np.argmax(np.abs(synth_tr.data) >
+                                            5e-3 * np.max(np.abs(synth_tr.data)))
 
                 idx_end = int(0.8 * first_tt_arrival)
                 idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
@@ -349,7 +350,8 @@ class AdjointSourcesComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
-                    synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate)
+                    synth_tr.interpolate(sampling_rate=data_tr.stats.sampling_rate,
+                                         method="linear")
                     data_tr.trim(endtime=synth_tr.stats.endtime)
                     synth_tr.trim(endtime=data_tr.stats.endtime)
 
@@ -371,11 +373,11 @@ class AdjointSourcesComponent(Component):
                 synth_tr.data /= synth_tr.data.ptp()
 
                 if reference_iteration:
-                    first_tt_arrival = np.where(np.abs(ref_synth_tr.data) >
-                                            5e-3 * np.max(np.abs(ref_synth_tr.data)))[0][0]
+                    first_tt_arrival = np.argmax(np.abs(ref_synth_tr.data) >
+                                            5e-3 * np.max(np.abs(ref_synth_tr.data)))
                 else:
-                    first_tt_arrival = np.where(np.abs(synth_tr.data) >
-                                                5e-3 * np.max(np.abs(synth_tr.data)))[0][0]
+                    first_tt_arrival = np.argmax(np.abs(synth_tr.data) >
+                                                5e-3 * np.max(np.abs(synth_tr.data)))
                 idx_end = int(0.8 * first_tt_arrival)
                 idx_end = max(idx_end, 1)  # ensure at least 1 sample is available
                 idx_start = 0
