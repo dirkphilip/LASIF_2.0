@@ -868,7 +868,9 @@ def compute_station_weights(
 def calculate_validation_data_misfit(
     lasif_root, iteration: str,
         reference_iteration: str = None,
-        events: Union[str, List[str]] = None
+        events: Union[str, List[str]] = None,
+        num_processes: int = 12,
+        min_sn_ratio: float = 0.1,
 ):
     """
     Calculates L2 full trace misfits for either a full iteration or
@@ -887,6 +889,10 @@ def calculate_validation_data_misfit(
     :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
+    :param num_processes: Number of threads to use
+    :type num_processes: int
+    :param min_sn_ratio: Minimum signal to noise ratio
+    :type min_sn_ratio: float
     """
     comm = find_project_comm(lasif_root)
 
@@ -904,8 +910,11 @@ def calculate_validation_data_misfit(
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
         event_misfit = comm.adj_sources.\
-            calculate_validation_misfits_multiprocessing(event, iteration,
-                                                         reference_iteration)
+            calculate_validation_misfits_multiprocessing(
+            event=event, iteration=iteration,
+            reference_iteration=reference_iteration,
+            min_sn_ratio=min_sn_ratio,
+            num_processes=num_processes)
         misfit_dict[event] = event_misfit
 
     return misfit_dict
