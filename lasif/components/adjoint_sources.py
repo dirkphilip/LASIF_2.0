@@ -355,6 +355,9 @@ class AdjointSourcesComponent(Component):
                     data_tr.trim(endtime=synth_tr.stats.endtime)
                     synth_tr.trim(endtime=data_tr.stats.endtime)
 
+                    if np.isnan(data_tr.data).any():
+                        continue
+
                     if reference_iteration:
                         ref_synth_tr = select_component_from_stream(st_ref_syn,
                                                                 component)
