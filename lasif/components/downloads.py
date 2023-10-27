@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import logging
 import os
+import pyasdf
+import shutil
 from typing import List
 import obspy
 
@@ -11,6 +13,7 @@ from .component import Component
 
 
 class DownloadsComponent(Component):
+
     """
     Component dealing with the station and data downloading.
 
@@ -33,6 +36,7 @@ class DownloadsComponent(Component):
             Restrictions,
         )
 
+        import shutil
         proj = self.comm.project
 
         domain = self._get_hdf5_domain(proj.domain)
@@ -48,11 +52,18 @@ class DownloadsComponent(Component):
             starttime=starttime, endtime=endtime, ds=ds
         )
 
-        filename = proj.paths["eq_data"] / (event["event_name"] + ".h5")
+        asdf_filename = proj.paths["eq_data"] / (event_name + ".h5")
+        tmp_filename = proj.paths["eq_data"] / ("tmp_" + event_name + ".h5.tmp")
 
-        import pyasdf
+        if os.path.exists(tmp_filename):
+            print(f"A file called: {tmp_filename} exists. This "
+                  f"could indicate a process is already downloading data "
+                  f"for event: {event_name} event. If not, please delete the tmp files.")
+            return
 
-        asdf_ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
+        # copy file to temp location and only open asdf_ds there
+        shutil.copy(asdf_filename, tmp_filename)
+        asdf_ds = pyasdf.ASDFDataSet(tmp_filename, compression="gzip-3")
 
         stationxml_storage_path = (
             proj.paths["eq_data"] / f"tmp_station_xml_storage_{event_name}"
@@ -146,7 +157,8 @@ class DownloadsComponent(Component):
 
         # clean up temporary download directories
         import shutil
-
+        # Finally, move the tmp into the original place.
+        shutil.move(tmp_filename, asdf_filename)
         if os.path.exists(stationxml_storage_path):
             shutil.rmtree(stationxml_storage_path)
         if os.path.exists(mseed_storage_path):

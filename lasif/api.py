@@ -214,9 +214,7 @@ def plot_station_misfits(lasif_root, event: str, iteration: str, save=False):
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_station_misfits(
-        event_name=event, iteration=iteration
-    )
+    comm.visualizations.plot_station_misfits(event_name=event, iteration=iteration)
 
     if save:
         file = f"misfit_{event}_{iteration}.png"
@@ -423,12 +421,15 @@ def download_data(
         it will query all known providers that FDSN knows, defaults to None
     :type providers: List[str]
     """
+    import random
 
     comm = find_project_comm(lasif_root)
     if event_name is None or event_name == []:
         event_name = comm.events.list()
     if not isinstance(event_name, list):
         event_name = [event_name]
+
+    random.shuffle(event_name)  # Download in a random order
     for event in event_name:
         comm.downloads.download_data(event, providers=providers)
 
@@ -468,9 +469,7 @@ def list_events(
         print(
             "%i event%s in %s:"
             % (
-                comm.events.count(iteration)
-                if iteration
-                else comm.events.count(),
+                comm.events.count(iteration) if iteration else comm.events.count(),
                 "s" if comm.events.count() != 1 else "",
                 "iteration" if iteration else "project",
             )
@@ -595,14 +594,10 @@ def calculate_adjoint_sources_multiprocessing(
 
     # some basic checks
     if not comm.windows.has_window_set(window_set):
-        raise LASIFNotFoundError(
-            "Window set {} not known to LASIF".format(window_set)
-        )
+        raise LASIFNotFoundError("Window set {} not known to LASIF".format(window_set))
 
     if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError(
-            "Iteration {} not known to LASIF".format(iteration)
-        )
+        raise LASIFNotFoundError("Iteration {} not known to LASIF".format(iteration))
 
     if events is None:
         events = comm.events.list(iteration=iteration)
@@ -620,9 +615,7 @@ def calculate_adjoint_sources_multiprocessing(
         print(
             "\n{green}"
             "==========================================================="
-            "{reset}".format(
-                green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL
-            )
+            "{reset}".format(green=colorama.Fore.GREEN, reset=colorama.Style.RESET_ALL)
         )
         if len(events) > 1:
             print(
@@ -640,9 +633,7 @@ def calculate_adjoint_sources_multiprocessing(
         )
 
         # remove adjoint sources if they already exist
-        filename = comm.adj_sources.get_filename(
-            event=event, iteration=iteration
-        )
+        filename = comm.adj_sources.get_filename(event=event, iteration=iteration)
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -678,9 +669,7 @@ def plot_stf(lasif_root):
         stf["data"] = stf_fct(npts=npts, delta=delta)
         lasif.visualization.plot_heaviside(stf["data"], stf["delta"])
     elif stf_type == "bandpass_filtered_heaviside":
-        stf["data"] = stf_fct(
-            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax
-        )
+        stf["data"] = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
         lasif.visualization.plot_tf(
             stf["data"], stf["delta"], freqmin=freqmin, freqmax=freqmax
         )
@@ -853,9 +842,7 @@ def compute_station_weights(
                 len(stations) / sum_value
             )
         if len(stations.keys()) == 1:
-            w_set.events[event]["stations"][stations[station]][
-                "station_weight"
-            ] = 1.0
+            w_set.events[event]["stations"][stations[station]]["station_weight"] = 1.0
 
     comm.weights.change_weight_set(
         weight_set_name=weight_set,
@@ -865,7 +852,12 @@ def compute_station_weights(
 
 
 def calculate_validation_data_misfit(
-    lasif_root, iteration: str, events: Union[str, List[str]] = None
+    lasif_root,
+    iteration: str,
+    reference_iteration: str = None,
+    events: Union[str, List[str]] = None,
+    num_processes: int = 12,
+    min_sn_ratio: float = 0.1,
 ):
     """
     Calculates L2 full trace misfits for either a full iteration or
@@ -876,17 +868,23 @@ def calculate_validation_data_misfit(
     :param lasif_root: path to lasif root directory
     :type lasif_root: Union[str, pathlib.Path, object]
     :param iteration: name of iteration to compute misfits for
-    :type iteration: str, optional
+    :type iteration: str
+    :param reference_iteration: name of reference iteration. This
+    is used to make sure the same seismograms are selected when
+    comparing iterations.
+    :type reference_iteration: str, optional
     :param events: An event or a list of events. To get all of them pass
         None, defaults to None
     :type events: Union[str, List[str]], optional
+    :param num_processes: Number of threads to use
+    :type num_processes: int
+    :param min_sn_ratio: Minimum signal to noise ratio
+    :type min_sn_ratio: float
     """
     comm = find_project_comm(lasif_root)
 
     if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError(
-            "Iteration {} not known to LASIF".format(iteration)
-        )
+        raise LASIFNotFoundError("Iteration {} not known to LASIF".format(iteration))
 
     if events is None:
         events = comm.events.list(iteration=iteration)
@@ -896,8 +894,13 @@ def calculate_validation_data_misfit(
     misfit_dict = {}
     for event in events:
         print(f"Computing L2 validation misfit for event {event}.")
-        event_misfit = comm.adj_sources.\
-            calculate_validation_misfits_multiprocessing(event, iteration)
+        event_misfit = comm.adj_sources.calculate_validation_misfits_multiprocessing(
+            event=event,
+            iteration=iteration,
+            reference_iteration=reference_iteration,
+            min_sn_ratio=min_sn_ratio,
+            num_processes=num_processes,
+        )
         misfit_dict[event] = event_misfit
 
     return misfit_dict
@@ -935,24 +938,20 @@ def set_up_iteration(
         events = [events]
 
     iterations = list_iterations(comm, output=True, verbose=False)
-    if isinstance(iterations, list):
-        if iteration in iterations:
-            if not remove_dirs:
-                print(f"{iteration} already exists")
-                return
+    if isinstance(iterations, list) and iteration in iterations and not remove_dirs:
+        print(f"{iteration} already exists")
+        return
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration,
         remove_dirs=remove_dirs,
         events=events,
         event_specific=event_specific,
     )
-    iteration = comm.iterations.get_long_iteration_name(iteration)
-
     if not remove_dirs:
+        iteration = comm.iterations.get_long_iteration_name(iteration)
+
         comm.iterations.setup_iteration_toml(iteration_name=iteration)
-        comm.iterations.setup_events_toml(
-            iteration_name=iteration, events=events
-        )
+        comm.iterations.setup_events_toml(iteration_name=iteration, events=events)
 
 
 def write_misfit(
@@ -975,16 +974,11 @@ def write_misfit(
 
     comm = find_project_comm(lasif_root)
 
-    if weight_set:
-        if not comm.weights.has_weight_set(weight_set):
-            raise LASIFNotFoundError(
-                f"Weights {weight_set} not known" f"to LASIF"
-            )
+    if weight_set and not comm.weights.has_weight_set(weight_set):
+        raise LASIFNotFoundError(f"Weights {weight_set} not known" f"to LASIF")
     # Check if iterations exists
     if not comm.iterations.has_iteration(iteration):
-        raise LASIFNotFoundError(
-            f"Iteration {iteration} " f"not known to LASIF"
-        )
+        raise LASIFNotFoundError(f"Iteration {iteration} " f"not known to LASIF")
 
     long_iter_name = comm.iterations.get_long_iteration_name(iteration)
 
@@ -1043,12 +1037,11 @@ def list_iterations(lasif_root, output: bool = True, verbose: bool = True):
     else:
         if output:
             return iterations
-        if len(iterations) == 1:
-            if verbose:
+        if verbose:
+            if len(iterations) == 1:
                 print(f"There is {len(iterations)} iteration in this project")
                 print("Iteration known to LASIF: \n")
-        else:
-            if verbose:
+            else:
                 print(f"There are {len(iterations)} iterations in this project")
                 print("Iterations known to LASIF: \n")
     for iteration in iterations:
@@ -1097,11 +1090,8 @@ def compare_misfits(
     if isinstance(events, str):
         events = [events]
 
-    if weight_set:
-        if not comm.weights.has_weight_set(weight_set):
-            raise LASIFNotFoundError(
-                f"Weights {weight_set} not known" f"to LASIF"
-            )
+    if weight_set and not comm.weights.has_weight_set(weight_set):
+        raise LASIFNotFoundError(f"Weights {weight_set} not known" f"to LASIF")
     # Check if iterations exist
     if not comm.iterations.has_iteration(from_it):
         raise LASIFNotFoundError(f"Iteration {from_it} not known to LASIF")
@@ -1120,9 +1110,7 @@ def compare_misfits(
         if print_events:
             # Print information about every event.
             from_it_misfit_event = float(
-                comm.adj_sources.get_misfit_for_event(
-                    event, from_it, weight_set
-                )
+                comm.adj_sources.get_misfit_for_event(event, from_it, weight_set)
             )
             to_it_misfit_event = float(
                 comm.adj_sources.get_misfit_for_event(event, to_it, weight_set)
@@ -1154,13 +1142,8 @@ def compare_misfits(
             f"{from_it} to iteration {to_it}"
         )
     n_events = len(comm.events.list())
-    print(
-        f"Misfit per event for iteration {from_it}: "
-        f"{from_it_misfit/n_events}"
-    )
-    print(
-        f"Misfit per event for iteration {to_it}: " f"{to_it_misfit/n_events}"
-    )
+    print(f"Misfit per event for iteration {from_it}: " f"{from_it_misfit/n_events}")
+    print(f"Misfit per event for iteration {to_it}: " f"{to_it_misfit/n_events}")
 
 
 def list_weight_sets(lasif_root):
@@ -1175,9 +1158,7 @@ def list_weight_sets(lasif_root):
 
     it_len = comm.weights.count()
 
-    print(
-        "%i weight set(s)%s in project:" % (it_len, "s" if it_len != 1 else "")
-    )
+    print("%i weight set(s)%s in project:" % (it_len, "s" if it_len != 1 else ""))
     for weights in comm.weights.list():
         print("\t%s" % weights)
 
@@ -1259,9 +1240,7 @@ def plot_window_statistics(
     if not comm.windows.has_window_set(window_set):
         raise LASIFNotFoundError("Could not find the specified window set")
 
-    comm.visualizations.plot_window_statistics(
-        window_set, events, ax=None, show=False
-    )
+    comm.visualizations.plot_window_statistics(window_set, events, ax=None, show=False)
 
     if save:
         outfile = os.path.join(
@@ -1271,7 +1250,7 @@ def plot_window_statistics(
             f"{window_set}.png",
         )
         plt.savefig(outfile, dpi=200, transparent=True)
-        print("Saved picture at %s" % outfile)
+        print(f"Saved picture at {outfile}")
     else:
         plt.show()
 
@@ -1320,9 +1299,7 @@ def write_stations_to_file(lasif_root):
 
     for event in events:
         try:
-            data = comm.query.get_all_stations_for_event(
-                event, list_only=False
-            )
+            data = comm.query.get_all_stations_for_event(event, list_only=False)
         except LASIFNotFoundError:
             continue
         for key in data:
@@ -1332,9 +1309,7 @@ def write_stations_to_file(lasif_root):
                 station_list["longitude"].append(data[key]["latitude"])
 
     stations = pd.DataFrame(data=station_list)
-    output_path = os.path.join(
-        comm.project.paths["output"], "station_list.csv"
-    )
+    output_path = os.path.join(comm.project.paths["output"], "station_list.csv")
     stations.to_csv(path_or_buf=output_path, index=False)
     print(f"Wrote a list of stations to file: {output_path}")
 
@@ -1376,9 +1351,6 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
     :return: path to simulation mesh
     :rtype: str
     """
-    import os
-    import toml
-
     comm = find_project_comm(lasif_root)
 
     models = comm.project.paths["models"]
@@ -1388,9 +1360,7 @@ def get_simulation_mesh(lasif_root, event: str, iteration: str) -> str:
         comm, output=True
     ), f"Iteration {iteration} not in project"
 
-    events_in_iteration = toml.load(
-        os.path.join(iteration_path, "events_used.toml")
-    )
+    events_in_iteration = toml.load(os.path.join(iteration_path, "events_used.toml"))
     assert (
         event in events_in_iteration["events"]["events_used"]
     ), f"Event {event} not in iteration: {iteration}"
@@ -1616,9 +1586,7 @@ def validate_data(
     )
 
 
-def clean_up(
-    lasif_root, clean_up_file: str, delete_outofbounds_events: bool = False
-):
+def clean_up(lasif_root, clean_up_file: str, delete_outofbounds_events: bool = False):
     """
     Clean up the lasif project. The required file can be created with
     the validate_data command.
@@ -1643,11 +1611,13 @@ def clean_up(
     comm.validator.clean_up_project(clean_up_file, delete_outofbounds_events)
 
 
-def get_all_coordinates_and_max_epicentral_distance(lasif_root, events=None, events_only=False):
+def get_all_coordinates_and_max_epicentral_distance(
+    lasif_root, events=None, events_only=False
+):
     """
     Returns all latitudes and longitudes related to the source and
     receiver locations for an event.
-    
+
     This is useful for generating masks for example.
 
     Also returns the maximum epicentral distance. This is useful for setting
@@ -1677,8 +1647,12 @@ def get_all_coordinates_and_max_epicentral_distance(lasif_root, events=None, eve
             event_stations = comm.query.get_all_stations_for_event(ev)
 
             for station, info in event_stations.items():
-                epicentral_distance = locations2degrees(event["latitude"], event["longitude"],
-                                                        info["latitude"], info["longitude"])
+                epicentral_distance = locations2degrees(
+                    event["latitude"],
+                    event["longitude"],
+                    info["latitude"],
+                    info["longitude"],
+                )
                 if epicentral_distance > max_epicentral_distance:
                     max_epicentral_distance = epicentral_distance
                 all_coordinates.append([info["latitude"], info["longitude"]])

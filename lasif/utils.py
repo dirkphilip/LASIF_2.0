@@ -226,6 +226,8 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
     :type comm: object
     """
     import h5py
+    import shutil
+    import salvus.flow.simple_config as sc
 
     freqmax = 1.0 / comm.project.simulation_settings["minimum_period_in_s"]
     freqmin = 1.0 / comm.project.simulation_settings["maximum_period_in_s"]
@@ -245,19 +247,20 @@ def write_custom_stf(stf_path: Union[pathlib.Path, str], comm: object):
             f"bandpass_filtered_heaviside or heaviside."
         )
 
-    stf_mat = np.zeros((len(stf), 6))
-    # for i, moment in enumerate(moment_tensor):
-    #     stf_mat[:, i] = stf * moment
-    # Now we add the spatial weights into salvus
-    for i in range(6):
-        stf_mat[:, i] = stf
-
     heaviside_file_name = os.path.join(stf_path)
     f = h5py.File(heaviside_file_name, "w")
 
-    source = f.create_dataset("source", data=stf_mat)
+    # stf_obj = sc.stf.Custom.from_array(stf,
+    #                       start_time_in_seconds=
+    #                       comm.project.simulation_settings["start_time_in_s"],
+    #                       sampling_rate_in_hertz=1.0 / delta)
+    #
+    # shutil.copy(stf_obj.filename, heaviside_file_name)
+
+
+    source = f.create_dataset("stf", data=stf)
     source.attrs["dt"] = delta
-    source.attrs["sampling_rate_in_hertz"] = 1 / delta
+    source.attrs["sampling_rate_in_hertz"] = 1.0 / delta
     # source.attrs["location"] = location
     source.attrs["spatial-type"] = np.string_("moment_tensor")
     # Start time in nanoseconds

@@ -44,24 +44,16 @@ def source_time_function(npts, delta, freqmin=None, freqmax=None):
     if freqmin and freqmax:  # STF will be filtered beforehand
         # Use two band pass filters to get some time shift and band limit the
         # data.
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
         tr.filter(
-            "bandpass",
-            freqmin=freqmin,
-            freqmax=freqmax,
-            corners=3,
+            "highpass",
+            freq=freqmin,
+            corners=8,
             zerophase=False,
         )
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
         tr.filter(
-            "bandpass",
-            freqmin=freqmin,
-            freqmax=freqmax,
-            corners=3,
+            "lowpass",
+            freq=freqmax,
+            corners=8,
             zerophase=False,
         )
 
